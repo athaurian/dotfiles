@@ -4,7 +4,7 @@ This section explains what the session manager does. It covers when your desktop
 
 ## Overview
 
-A session is the set of windows open on your desktop, with their workspaces, layouts, and open files. The session manager is a small Python program that saves that state when you leave and rebuilds it when you come back. It lives at `~/.config/sway/scripts/session_manager`, with the real code in `session_manager_lib/` next to it.
+A session is the set of windows open on your desktop, with the workspaces they sit on, their layouts, and their open files. A workspace is a separate screenful of windows, like a virtual desktop. The session manager is a small Python program that saves that state when you leave and rebuilds it when you come back. It lives at `~/.config/sway/scripts/session_manager`, with the real code in `session_manager_lib/` next to it.
 
 ## When the session is saved
 
@@ -12,7 +12,7 @@ Saving is wired into the power controls in the SwayFX config. When you log out, 
 
 ## When the session is restored
 
-Restoring happens at login. On startup you get a `swaynag` bar (Sway's notification prompt) asking **restore previous session?**, with buttons for **Restore** and **Start fresh**. Choose **Restore** and the manager relaunches your apps and rebuilds the desktop. The prompt waits about a minute. If you make no choice, nothing is restored.
+Restoring happens at login. On startup you get a `swaynag` bar, the confirmation prompt that ships with Sway. It asks **restore previous session?**, with buttons for **Restore** and **Start fresh**. Choose **Restore** and the manager relaunches your apps and rebuilds the desktop. The prompt waits about a minute. If you make no choice, nothing is restored.
 
 The prompt only appears when there is something to bring back. You are not asked at all when the state file is missing, or when the previous session was empty with no windows, scratchpad entries, or background apps. The dropdown terminal does not count on its own, since its keybind spawns it whenever it is missing.
 
@@ -22,9 +22,11 @@ Everything you expect, and a bit more:
 
 - Workspaces, layouts, floating windows, the scratchpad, marks, geometry, and fullscreen state.
 - Terminals with their working directories, including Neovim sessions inside them.
-- Open documents, down to the page of the PDF you were reading in zathura.
+- Open documents, down to the page of the PDF you were reading in zathura, the PDF reader.
 - The browser, restored with a single launch of `--restore-last-session`, then matched back to the windows you had.
-- Apps that live in the tray with no visible window, like a minimized Vesktop.
+- Apps that live in the tray, the panel's icon area, with no visible window, like a minimized Vesktop, the Discord client.
+
+The scratchpad is the hidden workspace that holds parked windows, and marks are labels attached to individual windows.
 
 ## Quality checks
 

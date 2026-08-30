@@ -1,10 +1,12 @@
 # dotfiles
 
-Hi. This repository sets up a CachyOS desktop with [chezmoi](https://chezmoi.io). It is built around a custom color system, Flint (dark) and Sand (light), plus the scripts and services that handle theming, session management, and everyday shortcuts.
+Hi. This repository contains the setup for my CachyOS desktop. CachyOS is an Arch-based Linux distribution, and [chezmoi](https://chezmoi.io) is the tool that manages it. The configuration files live in a repository, and chezmoi installs them into your home directory.
 
-Look around, and copy anything useful.
+It's built around my color system. Instead of copying hex values into each config file, the setup pulls every color from one palette, a single named set of color definitions. The palette comes in two variants so the whole desktop can switch between dark and light together. Flint is the dark variant, a warm dark grey theme, and Sand is the light variant with the same structure. Scripts and services around the palette apply it to every app, and a session manager saves your open windows at logout and restores them at login.
 
-The sections in `docs/` are written for people who are new to this kind of setup. They define terms as they appear, so if you already know your way around, skim to what you need.
+Look around and copy anything useful.
+
+I wrote the sections in `docs/` for people who are new to this kind of setup. They define terms as they appear, so if you already know your way around, skim to what you need.
 
 ## Screenshots
 
@@ -31,7 +33,7 @@ These steps assume you have already added my `forge` package repository and its 
 
 ## Tips
 
-- Press `Super+Shift+E` to log out. This stops `sway-session.target`, which cleans up session services.
+- Press `Super+Shift+E` to log out. This stops `sway-session.target`, the unit that groups the session services, so they start and stop together.
 - If a Qt6 app does not use the theme, install `qt6ct` and launch it with `QT_QPA_PLATFORMTHEME=qt6ct`.
 - If a service misbehaves, check it with `journalctl --user -u SERVICE_NAME`, replacing `SERVICE_NAME` with the service name.
 - If Sway misbehaves, inspect the window tree with `swaymsg -t get_tree | jq .` (the `jq` command formats the JSON output).

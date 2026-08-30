@@ -36,7 +36,7 @@ x-scheme-handler/unknown=helium.desktop;firefox.desktop;
 x-scheme-handler/discord=vesktop.desktop;
 ```
 
-Each line names a MIME type on the left and the programs that may handle it on the right, separated by semicolon characters. The first program on each line is the preferred one, and the others are fallbacks. The `x-scheme-handler/*` lines cover URL schemes. Through these lines, your system opens `http://` links in the browser and `discord://` links in Vesktop.
+Each line names a MIME type on the left and the programs that may handle it on the right, separated by semicolon characters. The first program on each line is the preferred one, and the others are fallbacks. The `x-scheme-handler/*` lines cover URL schemes. Through these lines, your system opens `http://` links in the browser and `discord://` links in Vesktop. In this file the preferred browser is Helium, the browser this setup installs, with Firefox as the fallback.
 
 ### Other environment variables
 
@@ -81,9 +81,11 @@ You can split a layout horizontally with `Super` + `o` or vertically with `Super
 
 A scratchpad is a hidden workspace that only appears when you summon it. The scratchpad gets its own pair of bindings. `Super` + `-` cycles through scratchpad windows, ignoring the dropdown terminal, and `Super` + `Shift` + `-` sends the focused window to the scratchpad.
 
+The idle timer locks the screen after a period without input. `Super` + `Shift` + `i` toggles the timer. While it is off, the screen stays awake and unlocked until you toggle the timer back on. The script calls this state caffeine mode.
+
 ## Screenshots
 
-`wayfreeze` freezes the screen while you choose a region or window, and `grim` takes the capture. When `wayfreeze` is not installed, the capture runs without freezing.
+`wayfreeze`, a screen-freezing helper, holds the screen still while you choose a region or window, and `grim`, the screenshot tool, takes the capture. When `wayfreeze` is not installed, the capture runs without freezing.
 
 ## Summary
 
