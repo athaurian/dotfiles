@@ -4,7 +4,7 @@ Hi. This is the setup I use daily. My desktop runs CachyOS, an Arch-based Linux 
 
 It's built around my color system. Instead of copying hex values into each config file, the setup pulls every color from one palette, a single named set of color definitions. The palette comes in two variants so the whole desktop can switch between dark and light together. Flint is the dark variant, a warm dark grey theme, and Sand is the light variant with the same structure. Scripts and services around the palette apply it to every app, and a session manager saves your open windows at logout and restores them at login.
 
-It's sort of wrong to call this repository `dotfiles`. The name fits the configuration files, and the repository also carries the programs that come with them, with tests and documentation of their own.
+It's sort of wrong to call this repository `dotfiles`. The configuration files are the dotfiles. By lines of code, they are the smaller half.
 
 Look around and copy anything useful.
 

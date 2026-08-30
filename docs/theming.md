@@ -14,7 +14,7 @@ The pipeline has three stages:
 2. **The build script.** `scripts/build_palette_data.py` reads those files, validates every color, and exports the active variant into `.chezmoidata.yaml` in the effective chezmoi source root, which is `home/` in this repo.
 3. **Templates.** The config files themselves are stored as `.tmpl` files. At apply time, chezmoi fills them in with the color data and writes the finished configs into your home directory.
 
-So changing a color means editing one file and re-applying. The rest happens automatically.
+So changing a color means editing one file and re-applying. The rest happens automatically, and it is boring on purpose.
 
 For more details on the architecture, see [the palette system architecture](palette-system.md).
 

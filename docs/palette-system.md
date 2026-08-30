@@ -96,7 +96,7 @@ The rules are full of specialist terms, so this section explains them in plain E
 
 #### Intentional lookalikes
 
-- **`raw_aliases` versus `raw_near_aliases`.** `raw_aliases` are groups of names that must all point at the same hex value. For example, `ansi_green` and `success` are aliases of each other. The build warns if a group drifts apart. `raw_near_aliases` are pairs that are almost identical, which is fine because they are context-separated. Do not "fix" one without checking the other.
+- **`raw_aliases` versus `raw_near_aliases`.** `raw_aliases` are groups of names that must all point at the same hex value. For example, `ansi_green` and `success` are aliases of each other. The build warns if a group drifts apart. `raw_near_aliases` are pairs that are almost identical, which is fine because they are context-separated. Almost identical is the point. Do not "fix" one without checking the other.
 - **Context-separated.** Two colors are context-separated when they are similar but never appear in the same place, so the similarity does not matter. Terminal text and button fill are a classic example.
 - **Accepted near-collisions.** `ansi_bright_red` and `error_deep` sit within ΔE 5.8 of each other. That is accepted, because the two are context-separated. One is terminal text, and the other is a button fill. Keep the gap when editing either side.
 
