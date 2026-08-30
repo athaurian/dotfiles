@@ -1,0 +1,31 @@
+#{{ $c := .flint.resolved }}
+#{{ $d := .flint.desktop }}
+#{{ $a := .flint.appearance }}
+
+font={{ $d.font_family_nerd }} Mono:size=8
+icon-theme={{ $a.icon_theme }}
+width=56
+horizontal-pad=16
+inner-pad=8
+prompt=" "
+placeholder="find something..."
+
+[colors]
+background={{ $c.background.bare_ff }}
+text={{ $c.text.bare_ff }}
+message={{ $c.text.bare_ff }}
+prompt={{ $c.text.bare_ff }}
+placeholder={{ $c.text_muted.bare_ff }}
+input={{ $c.text.bare_ff }}
+match={{ $c.accent_text.bare_ff }}
+selection={{ $c.surface_1.bare_ff }}
+selection-text={{ $c.text_max.bare_ff }}
+selection-match={{ $c.accent_bright.bare_ff }}
+counter={{ $c.text_muted.bare_ff }}
+border={{ $c.window_focused_border.bare_ff }}
+
+[border]
+width=1
+radius=0
+
+# vim: ft=dosini

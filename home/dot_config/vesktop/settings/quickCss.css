@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap");
+@import url("https://raw.githubusercontent.com/surgedevs/visual-refresh-compact-title-bar/refs/heads/main/hidden.css");
+@import url(https://codeberg.org/ridge/Discord-Adblock/raw/branch/main/discord-adblock.css);
+
+:root {
+  --font-primary: "Geist", system-ui, sans-serif;
+  --font-display: "Geist", system-ui, sans-serif;
+  --font-headline: "Geist", system-ui, sans-serif;
+  --font-code: "Geist Mono", ui-monospace, monospace;
+}
+
+.theme-dark [class*="guildsList"] > [class*="listItem"]:first-child,
+.theme-dark [class*="tutorialContainer"]:first-child {
+  margin-top: 8px;
+}
+
+.theme-light [class*="guildsList"] > [class*="listItem"]:first-child,
+.theme-light [class*="tutorialContainer"]:first-child {
+  margin-top: 8px;
+}

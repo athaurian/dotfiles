@@ -1,0 +1,13 @@
+#{{ $a := .flint.appearance }}
+#{{ $d := .flint.desktop }}
+#{{ $isDark := eq .flint.active_theme "dark" }}
+
+[Settings]
+gtk-theme-name={{ $a.gtk_theme }}
+gtk-icon-theme-name={{ $a.icon_theme }}
+gtk-font-name={{ $d.font_family_sans }} {{ $d.font_size }}
+gtk-cursor-theme-name={{ $d.cursor_theme }}
+gtk-cursor-theme-size={{ $d.cursor_size }}
+gtk-application-prefer-dark-theme={{ ternary "true" "false" $isDark }}
+
+# vim: ft=dosini

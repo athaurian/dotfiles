@@ -1,0 +1,16 @@
+[Unit]
+Description=Day/night screen color temperature daemon
+Documentation=man:wlsunset(1)
+PartOf=sway-session.target
+After=sway-session.target wlsunset-env.service
+Wants=wlsunset-env.service
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/wlsunset.env
+ExecStart=/usr/bin/wlsunset -l ${WLSUNSET_LATITUDE} -L ${WLSUNSET_LONGITUDE} -t 4000 -T 6500
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=sway-session.target

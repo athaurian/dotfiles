@@ -1,0 +1,12 @@
+[Unit]
+Description=Blueman applet
+Documentation=man:blueman-applet(1)
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+ExecStart=/usr/bin/blueman-applet
+Restart=on-failure
+
+[Install]
+WantedBy=sway-session.target

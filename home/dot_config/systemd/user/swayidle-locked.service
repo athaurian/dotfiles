@@ -1,0 +1,14 @@
+# Started and stopped imperatively by lock.sh during lock/unlock transitions.
+# No [Install] section is intentional: this service is not meant to be
+# enabled. It is bound to sway-session.target via PartOf= so it stops
+# when the session ends.
+
+[Unit]
+Description=Sway idle manager (locked)
+Documentation=man:swayidle(1)
+PartOf=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/sway/scripts/wrapper_swayidle.sh locked
+KillMode=process

@@ -1,0 +1,2 @@
+# Used by XFCE components (e.g., thunar) to find the terminal emulator
+TerminalEmulator=foot

@@ -1,0 +1,75 @@
+#{{ $c := .flint.resolved }}
+#{{ $d := .flint.desktop }}
+#{{ $al := .flint.alpha }}
+
+# --- Font ---
+set font "{{ $d.font_family }} normal {{ $d.font_size }}"
+
+
+# --- Base UI ---
+set default-bg "{{ $c.background.hex }}"
+set default-fg "{{ $c.text.hex }}"
+
+# --- Completion ---
+set completion-bg "{{ $c.surface_0.hex }}"
+set completion-group-fg "{{ $c.text_muted.hex }}"
+set completion-group-bg "{{ $c.selection_subtle.hex }}"
+set completion-highlight-bg "{{ $c.selection.hex }}"
+set completion-highlight-fg "{{ $c.on_selection.hex }}"
+
+# --- Inputbar ---
+set inputbar-bg "{{ $c.selection_subtle.hex }}"
+set inputbar-fg "{{ $c.rose.hex }}"
+
+# --- Notifications ---
+set notification-bg "{{ $c.selection.hex }}"
+set notification-fg "{{ $c.on_selection.hex }}"
+set notification-error-bg "{{ $c.critical_bg.hex }}"
+set notification-error-fg "{{ $c.on_critical.hex }}"
+set notification-warning-bg "{{ $c.warning.hex }}"
+set notification-warning-fg "{{ $c.on_warning.hex }}"
+
+# --- Statusbar ---
+set statusbar-bg "{{ $c.selection_subtle.hex }}"
+set statusbar-fg "{{ $c.text.hex }}"
+set statusbar-h-padding 10
+set statusbar-v-padding 4
+
+# --- Index / table of contents ---
+set index-bg "{{ $c.selection_subtle.hex }}"
+set index-fg "{{ $c.text.hex }}"
+set index-active-bg "{{ $c.selection.hex }}"
+set index-active-fg "{{ $c.on_selection.hex }}"
+
+# --- Page rendering ---
+set page-v-padding 8
+set page-h-padding 8
+set render-loading-bg "{{ $c.background.hex }}"
+set render-loading-fg "{{ $c.text_muted.hex }}"
+
+# --- Search and highlights ---
+set highlight-color "{{ $al.border_70.hex }}"
+set highlight-active-color "{{ $al.search_80.hex }}"
+
+# --- Recoloring / dark PDF mode ---
+map <C-r> set recolor
+set recolor true
+set recolor-reverse-video true
+set recolor-lightcolor "{{ $c.background.hex }}"
+set recolor-darkcolor "{{ $c.text.hex }}"
+
+# --- Signature information ---
+set show-signature-information true
+set signature-success-color "{{ $al.success_90.hex }}"
+set signature-warning-color "{{ $al.warning_90.hex }}"
+set signature-error-color "{{ $al.error_90.hex }}"
+
+# --- Small quality-of-life UI behavior ---
+set adjust-open width
+set selection-clipboard clipboard
+set statusbar-basename true
+set statusbar-page-percent true
+set window-title-basename true
+set window-title-page true
+
+# vim: ft=zathurarc

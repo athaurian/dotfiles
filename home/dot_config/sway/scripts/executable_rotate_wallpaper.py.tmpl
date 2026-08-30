@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""Pick the next wallpaper from a shuffled queue and recolor it via flint-wallpaper.
+
+Queue logic:
+  1. Use the light/dark subdirectory of ~/Pictures/Wallpapers matching the
+     active theme, resolved into ACTIVE_THEME at chezmoi apply time.
+  2. Build a shuffled queue from the theme directory (recursive).
+  3. Pop the first entry, recolor it with flint-wallpaper to match the
+     active theme, rewrite the queue without it, and notify which
+     wallpaper was set.
+  4. When the queue is empty, rebuild it on the next invocation.
+"""
+
+from __future__ import annotations
+
+import os
+import random
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ACTIVE_THEME = "{{ .flint.active_theme }}"
+ACTIVE_THEME_NAME = '{{ if eq .flint.active_theme "dark" }}Flint{{ else }}Sand{{ end }}'
+
+BASE_WALLPAPER_DIR = Path.home() / "Pictures" / "Wallpapers"
+FALLBACK = os.environ.get(
+    "WALLPAPER_FALLBACK",
+    "/usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png",
+)
+VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+NOTIFY_APP = "wallpaper-rotate"
+NOTIFY_ICON = "󰸉"
+NOTIFY_TIMEOUT_MS = 3000
+
+
+def wait_for_awww(timeout: float = 2.0) -> bool:
+    """Poll until the awww daemon answers or *timeout* expires."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = subprocess.run(
+            ["awww", "query"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if result.returncode == 0:
+            return True
+        time.sleep(0.1)
+    return False
+
+
+def get_wallpapers(directory: Path) -> list[str]:
+    """Collect wallpaper paths from *directory* (recursive)."""
+    if not directory.is_dir():
+        return []
+    return [
+        str(Path(root) / name)
+        for root, _, files in os.walk(directory)
+        for name in files
+        if Path(name).suffix.lower() in VALID_EXTENSIONS
+    ]
+
+
+def find_flint_wallpaper() -> str:
+    """Locate flint-wallpaper, falling back to ~/.local/bin for sway exec."""
+    found = shutil.which("flint-wallpaper")
+    if found:
+        return found
+    local_bin = Path.home() / ".local" / "bin" / "flint-wallpaper"
+    if os.access(local_bin, os.X_OK):
+        return str(local_bin)
+    print("error: flint-wallpaper not found in PATH", file=sys.stderr)
+    sys.exit(1)
+
+
+def set_wallpaper(path: str) -> None:
+    """Recolor *path* with flint-wallpaper and set it as the wallpaper."""
+    flint_wallpaper = find_flint_wallpaper()
+
+    subprocess.run(
+        [flint_wallpaper, "--theme", ACTIVE_THEME, "--set", path],
+        check=True,
+    )
+
+
+def notify_id_file() -> Path:
+    """Runtime file that persists the last notification ID across runs."""
+    runtime_dir = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+    return runtime_dir / "wallpaper_rotate_notify_id"
+
+
+def send_notification(args: list[str]) -> str:
+    """Run notify-send and return a numeric notification ID, or ''."""
+    try:
+        result = subprocess.run(args, check=False, capture_output=True, text=True)
+    except FileNotFoundError:
+        return ""
+    except OSError:
+        return ""
+    return "".join(c for c in result.stdout if c.isdigit())
+
+
+def notify(summary: str, body: str) -> None:
+    """Show a desktop notification, replacing the previous one (toggle_idle.sh style)."""
+    id_file = notify_id_file()
+
+    old_id = ""
+    if id_file.is_file():
+        try:
+            old_id = "".join(c for c in id_file.read_text() if c.isdigit())
+        except OSError:
+            old_id = ""
+
+    base_args = [
+        "notify-send",
+        "-a",
+        NOTIFY_APP,
+        "-u",
+        "low",
+        "-t",
+        str(NOTIFY_TIMEOUT_MS),
+        "-p",
+    ]
+
+    new_id = ""
+    if old_id:
+        new_id = send_notification([*base_args, "-r", old_id, summary, body])
+
+    if not new_id:
+        new_id = send_notification([*base_args, summary, body])
+
+    if new_id:
+        tmp = id_file.with_name(f"{id_file.name}.{os.getpid()}")
+        tmp.write_text(new_id)
+        os.replace(tmp, id_file)
+
+
+def last_wallpaper_file() -> Path:
+    """Cache file remembering the last wallpaper set for the active theme."""
+    cache_dir = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    return cache_dir / f"wallpaper_last_{ACTIVE_THEME}"
+
+
+def record_last_wallpaper(path: str) -> None:
+    """Remember the wallpaper that was just set, per theme."""
+    last_file = last_wallpaper_file()
+    tmp = last_file.with_name(f"{last_file.name}.{os.getpid()}")
+    tmp.write_text(path + "\n")
+    os.replace(tmp, last_file)
+
+
+def main() -> None:
+    wallpaper_dir = BASE_WALLPAPER_DIR / ACTIVE_THEME
+    cache_dir = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    queue_file = cache_dir / f"wallpaper_queue_{ACTIVE_THEME}"
+
+    if not wait_for_awww():
+        print("error: awww daemon is not responding after 2 seconds", file=sys.stderr)
+        sys.exit(1)
+
+    queue_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load existing queue
+    queue: list[str] = []
+    if queue_file.exists():
+        queue = [
+            stripped
+            for raw in queue_file.read_text().splitlines()
+            if (stripped := raw.strip())
+        ]
+
+    # Rebuild queue if empty
+    if not queue:
+        wallpapers = get_wallpapers(wallpaper_dir)
+
+        if not wallpapers:
+            if not os.path.isfile(FALLBACK):
+                print(
+                    f"error: no wallpapers found and fallback missing: {FALLBACK}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            set_wallpaper(FALLBACK)
+            record_last_wallpaper(FALLBACK)
+            notify(
+                f"{NOTIFY_ICON} wallpaper changed",
+                f"<b>{Path(FALLBACK).name}</b> set as fallback.",
+            )
+            return
+
+        queue = wallpapers
+        random.shuffle(queue)
+
+    # Pop the first readable entry; drop unreadable files silently
+    chosen = None
+    remaining = []
+    for path in queue:
+        if not os.access(path, os.R_OK):
+            continue
+        if chosen is None:
+            chosen = path
+        else:
+            remaining.append(path)
+
+    if chosen is None:
+        chosen = FALLBACK
+        queue_file.unlink(missing_ok=True)
+    else:
+        queue_file.write_text("\n".join(remaining) + "\n" if remaining else "")
+
+    set_wallpaper(chosen)
+    record_last_wallpaper(chosen)
+    notify(
+        f"{NOTIFY_ICON} wallpaper changed",
+        f"<b>{Path(chosen).name}</b> for {ACTIVE_THEME_NAME}.",
+    )
+
+
+if __name__ == "__main__":
+    main()
+
+# vim: ft=python

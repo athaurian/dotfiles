@@ -1,0 +1,66 @@
+#{{ $c := .flint.resolved }}
+#{{ $d := .flint.desktop }}
+#{{ $al := .flint.alpha }}
+# --- Behavior ---
+ignore-empty-password
+show-failed-attempts
+
+# --- Indicator ---
+indicator
+indicator-idle-visible
+indicator-caps-lock
+indicator-radius=120
+indicator-thickness=4
+
+# --- Clock ---
+clock
+timestr=%R
+datestr=%a, %e %b
+
+# --- Font ---
+font={{ $d.font_family }}
+font-size=24
+
+# --- Effects ---
+fade-in=0.5
+effect-vignette=0.4:0.4
+
+# --- Ring colors ---
+ring-color={{ $c.swaylock_ring.bare_ff }}
+ring-clear-color={{ $c.swaylock_ring.bare_ff }}
+ring-ver-color={{ $c.swaylock_ring.bare_ff }}
+ring-wrong-color={{ $c.swaylock_ring.bare_ff }}
+ring-caps-lock-color={{ $c.swaylock_ring.bare_ff }}
+
+# --- Inside colors ---
+inside-color={{ $c.background.bare_ff }}
+inside-clear-color={{ $c.background.bare_ff }}
+inside-ver-color={{ $c.background.bare_ff }}
+inside-wrong-color={{ $c.background.bare_ff }}
+inside-caps-lock-color={{ $c.background.bare_ff }}
+
+# --- Text colors ---
+text-color={{ $c.text.bare }}
+text-clear-color={{ $c.text.bare }}
+text-ver-color={{ $c.text.bare }}
+text-wrong-color={{ $c.error.bare }}
+text-caps-lock-color={{ $c.caution_bright.bare }}
+
+# --- Key highlight colors ---
+# Keystroke arc pulses along the perimeter track
+key-hl-color={{ $c.swaylock_key_hl.bare }}
+bs-hl-color={{ $c.swaylock_bs_hl.bare }}
+caps-lock-bs-hl-color={{ $c.swaylock_bs_hl.bare }}
+caps-lock-key-hl-color={{ $c.swaylock_caps_key_hl.bare }}
+
+# --- Line colors ---
+line-color={{ $al.transparent.bare }}
+line-clear-color={{ $al.transparent.bare }}
+line-ver-color={{ $al.transparent.bare }}
+line-wrong-color={{ $al.transparent.bare }}
+line-caps-lock-color={{ $al.transparent.bare }}
+
+# --- Separator ---
+separator-color={{ $al.transparent.bare }}
+
+# vim: ft=conf

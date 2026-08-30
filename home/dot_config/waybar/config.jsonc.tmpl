@@ -1,0 +1,142 @@
+//{{ $c := .flint.resolved }}
+//{{ $err := $c.error_text.hex }}
+//{{ $warn := $c.warning.hex }}
+//{{ $caution := $c.caution.hex }}
+//{{ $accent_strong := $c.accent_strong.hex }}
+//{{ $accent_text := $c.accent_text.hex }}
+
+{
+  "layer": "top",
+  "position": "top",
+  "height": 24,
+  "spacing": 0,
+  "modules-left": ["sway/workspaces", "sway/mode", "custom/mpris"],
+  "modules-center": ["sway/window"],
+  "modules-right": [
+    "cpu",
+    "memory",
+    "custom/updates",
+    "custom/separator",
+    "pulseaudio",
+    "battery",
+    "tray",
+    "clock",
+    "custom/separator",
+    "custom/dnd"
+  ],
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+      "1": "󰲠",
+      "2": "󰲢",
+      "3": "󰲤",
+      "4": "󰲦",
+      "5": "󰲨",
+      "6": "󰲪",
+      "7": "󰲬",
+      "8": "󰲮",
+      "9": "󰲰",
+      "10": "󰿬",
+    },
+  },
+  "sway/mode": {
+    "format": "󰘳 {}",
+  },
+  "sway/window": {
+    "format": "{title}",
+    "icon": true,
+    "icon-size": 14,
+    "max-length": 72,
+    "tooltip": true,
+    "tooltip-format": "{title}",
+    "rewrite": {
+      "^$": " ",
+      "(.*) - Helium": "$1",
+      "^• Discord \\| (.*)$": "$1",
+      "^nvim (.*)$": " Editing $1",
+    },
+  },
+  "custom/mpris": {
+    "exec": "~/.config/waybar/scripts/mpris.py",
+    "return-type": "json",
+    "hide-empty-text": true,
+    "restart-interval": 5, // relaunch if the script exits unexpectedly
+    "escape": false, // allow our Pango <span>/<i> markup through
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous",
+  },
+  "pulseaudio": {
+    "format": "<span>󰕾</span> {volume}%",
+    "format-muted": "<span color='{{ $c.text_muted.hex }}'>󰖁 Muted</span>",
+    "on-click": "pavucontrol",
+    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "scroll-step": 5,
+  },
+  "cpu": {
+    "format": "󰻠 {usage}%",
+    "tooltip": true,
+    "interval": 5,
+    "on-click": "foot -e btop",
+  },
+  "memory": {
+    "format": "󰍛 {percentage}%",
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
+    "interval": 5,
+    "on-click": "foot -e btop",
+  },
+  "custom/updates": {
+    "exec": "~/.config/waybar/scripts/updates.sh",
+    "return-type": "json",
+    "interval": 3600,
+    "signal": 8,
+    "tooltip": true,
+    "on-click": "~/.config/sway/scripts/toggle_topgrade.sh",
+  },
+  "custom/dnd": {
+    "exec": "~/.config/waybar/scripts/mako-dnd.sh",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 9,
+    "tooltip": true,
+    "on-click": "~/.config/waybar/scripts/mako-dnd.sh --toggle",
+  },
+  "custom/separator": {
+    "format": "|",
+    "tooltip": false
+  },
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "full-at": 100,
+    "format": "{icon} {capacity}%",
+    "format-charging": "<span>󱐋</span> {capacity}%",
+    "format-plugged": "<span>󰚥</span> {capacity}%",
+    "format-full": "<span>󱟦</span> {capacity}%",
+    "format-icons": [
+      "<span color='{{ $err }}'>󰁻</span>",
+      "<span color='{{ $warn }}'>󰁽</span>",
+      "<span color='{{ $caution }}'>󰁿</span>",
+      "<span color='{{ $accent_strong }}'>󰂁</span>",
+      "<span color='{{ $accent_strong }}'>󰁹</span>",
+    ],
+  },
+  "tray": { "icon-size": 12, "spacing": 12 },
+  "clock": {
+    "format": "{:%Y-%m-%d %H:%M:%S}",
+    "tooltip": true,
+    "tooltip-format": "{calendar}",
+    "calendar": {
+      "mode": "month",
+      "on-scroll": 1,
+      "format": {
+        "months": "<b>{}</b> ",
+        "today": "<span color='{{ $accent_text }}'><b>{}</b></span>",
+      },
+    },
+    "interval": 1,
+  },
+}
+
+// vim: ft=jsonc

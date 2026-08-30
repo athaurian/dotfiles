@@ -1,0 +1,6 @@
+web_client {
+    font "monospace"
+}
+
+theme "flint"
+default_mode "normal"

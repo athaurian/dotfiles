@@ -1,0 +1,81 @@
+#!/usr/bin/env sh
+set -eu
+
+# Onboarding: install missing packages.
+#
+# The lists below are rendered from chezmoi template data (.packages.pacman /
+# .packages.cachyos / .packages.aur / .packages.custom), so whenever
+# packages.yaml changes, the rendered script changes too and chezmoi re-runs
+# it (run_onchange_).
+
+PACMAN_PACKAGES="{{ join " " .packages.pacman }}"
+CACHYOS_PACKAGES="{{ join " " .packages.cachyos }}"
+AUR_PACKAGES="{{ join " " .packages.aur }}"
+CUSTOM_PACKAGES="{{ join " " .packages.custom }}"
+
+# Not Arch-based: skip instead of failing the apply.
+if ! command -v pacman >/dev/null 2>&1; then
+	echo "install_packages: pacman not found, skipping"
+	exit 0
+fi
+
+# Check if the custom 'forge' pacman repository is configured.
+if ! grep -q "^\[forge\]" /etc/pacman.conf; then
+	echo "install_packages: custom 'forge' repository is not configured."
+	echo ""
+	echo "Please run the following commands to import the GPG key and add the repository:"
+	echo ""
+	echo "  sudo pacman-key --add <(curl -fsSL https://athaurian.github.io/forge/signing_key.asc)"
+	echo "  sudo pacman-key --lsign-key 45EAC3E28FC392FC4418F415C0C5B611BF77F6E5"
+	echo "  echo -e '\n[forge]\nSigLevel = Required DatabaseOptional\nServer = https://athaurian.github.io/forge' | sudo tee -a /etc/pacman.conf"
+	echo "  sudo pacman -Syu"
+	echo ""
+	echo "See the Forge README for full details. Aborting."
+	exit 1
+fi
+
+# Print the subset of $1 that is not already installed.
+missing() {
+	if [ -n "$1" ]; then
+		# pacman -T returns missing packages and exits >0 if any are missing.
+		# || true prevents set -e from aborting the script.
+		pacman -T $1 || true
+	fi
+}
+
+# Everything below installs through pacman: the official repos, the cachyos
+# repos, and the forge repo. On vanilla Arch the cachyos packages keep their
+# names in the AUR, so paru still resolves them when the cachyos repos are
+# absent.
+ALL_PACMAN_PACKAGES="$PACMAN_PACKAGES $CACHYOS_PACKAGES $CUSTOM_PACKAGES"
+
+missing_pacman=$(missing "$ALL_PACMAN_PACKAGES")
+missing_aur=$(missing "$AUR_PACKAGES")
+
+if [ -n "$missing_pacman" ] || [ -n "$missing_aur" ]; then
+	if [ -n "$missing_pacman" ]; then
+		echo "install_packages: missing pacman packages (pacman + cachyos + forge):"
+		printf '  %s\n' $missing_pacman
+	fi
+	if [ -n "$missing_aur" ]; then
+		echo "install_packages: missing AUR packages:"
+		printf '  %s\n' $missing_aur
+	fi
+
+	if command -v paru >/dev/null 2>&1; then
+		paru -S --needed $missing_pacman $missing_aur
+	else
+		if [ -n "$missing_pacman" ]; then
+			sudo pacman -S --needed $missing_pacman
+		fi
+		if [ -n "$missing_aur" ]; then
+			echo "install_packages: paru not found, install these AUR packages manually:"
+			printf '  %s\n' $missing_aur
+			exit 1
+		fi
+	fi
+else
+	echo "install_packages: all system packages already installed"
+fi
+
+# vim: ft=sh

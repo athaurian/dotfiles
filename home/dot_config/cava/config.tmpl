@@ -1,0 +1,54 @@
+# {{ $c := .flint.resolved }}
+# Flint theme for CAVA
+# Theme-aware gradient
+
+[general]
+live-config = 1
+framerate = 60
+autosens = 1
+sensitivity = 100
+bars = 0
+bar_width = 2
+bar_spacing = 1
+center_align = 1
+max_height = 100
+lower_cutoff_freq = 50
+higher_cutoff_freq = 10000
+sleep_timer = 0
+
+[input]
+method = pipewire
+source = auto
+
+[output]
+method = noncurses
+orientation = bottom
+channels = stereo
+mono_option = average
+reverse = 0
+xaxis = none
+synchronized_sync = 0
+show_idle_bar_heads = 0
+waveform = 0
+
+[color]
+
+background = '{{ $c.cava_bg.hex }}'
+foreground = '{{ $c.cava_fg.hex }}'
+
+gradient = 1
+gradient_color_1 = '{{ $c.cava_gradient_1.hex }}'
+gradient_color_2 = '{{ $c.cava_gradient_2.hex }}'
+gradient_color_3 = '{{ $c.cava_gradient_3.hex }}'
+gradient_color_4 = '{{ $c.cava_gradient_4.hex }}'
+gradient_color_5 = '{{ $c.cava_gradient_5.hex }}'
+gradient_color_6 = '{{ $c.cava_gradient_6.hex }}'
+
+horizontal_gradient = 0
+
+[smoothing]
+monstercat = 0
+waves = 0
+noise_reduction = 77
+
+# vim: ft=dosini

@@ -1,0 +1,102 @@
+# Package manifest consumed by the onboarding script.
+# Visible in chezmoi templates as .packages.
+#
+# Each section names where the packages come from on CachyOS, the distro this
+# setup targets, and what to use on vanilla Arch instead:
+#   pacman  - official Arch repos (extra/core), identical names everywhere
+#   cachyos - the cachyos repos only; the same names exist in the AUR for Arch
+#   aur     - the AUR on every distro (needs paru, or manual install)
+#   custom  - the 'forge' pacman repository; closest vanilla sources are
+#             noted next to each package
+
+packages:
+  pacman:
+    # --- Desktop & Window Management ---
+    - awww # wallpaper daemon
+    - foot
+    - fuzzel
+    - grim
+    - imagemagick # lock.sh screenshot blur (magick/convert)
+    - jq
+    - libnotify # notify-send utility for scripts
+    - cliphist
+    - fzf
+    - mako
+    - polkit-gnome
+    - satty
+    - slurp
+    - swayidle
+    - waybar
+    - wl-clipboard
+    - wlsunset
+    - xdg-utils
+
+    # --- System & Hardware ---
+    - blueman
+    - brightnessctl
+    - networkmanager
+    - network-manager-applet
+    - pacman-contrib # checkupdates for waybar updates module
+    - pavucontrol
+    - pipewire
+    - pipewire-pulse
+    - playerctl
+
+    # --- TUI & CLI ---
+    - bat
+    - btop
+    - cava
+    - eza
+    - fastfetch
+    - fd
+    - git # lazy.nvim bootstrap
+    - lazygit
+    - neovim
+    - python
+    - rclone # Google Drive sync for the Calibre library
+    - ripgrep
+    - uv # Python package and venv runner
+    - zellij
+
+    # --- Fonts & Icons ---
+    - adwaita-cursors
+    - noto-fonts
+    - otf-geist-mono-nerd
+    - papirus-icon-theme
+
+    # --- Applications & Helpers ---
+    - calibre
+    - fnm
+    - keepassxc
+    - pinentry
+    - qt5-wayland
+    - qt5ct
+    - thunar
+    - zathura
+    - zathura-pdf-mupdf
+    - zoxide
+
+  cachyos:
+    # Not in official Arch; the cachyos repos carry them here. The AUR has
+    # the same names, so vanilla Arch installs them via paru unchanged.
+    - helium-browser-bin
+    - swaylock-effects # provides swaylock; conflicts with repo/swaylock
+    - vesktop
+
+  aur:
+    # The AUR everywhere, paru required (or manual install).
+    - topgrade-bin # 'topgrade' exists in no repo; this is the binary build
+
+  custom:
+    # Built in the 'forge' pacman repository. Vanilla Arch equivalents:
+    #   lutgen-cli-git          -> AUR lutgen-git or lutgen-bin orchis-theme-square     -> extra orchis-theme (round corners, not identical)
+    #   ttf-noto-sans-mono-nerd -> extra ttf-noto-nerd (different package name)
+    #   wayfreeze-git           -> AUR wayfreeze-git or wayfreeze
+    #   xdg-terminal-exec       -> AUR xdg-terminal-exec
+    - lutgen-cli-git
+    - orchis-theme-square
+    - swayfx-git # wlroots 0.20; replaces cachyos/swayfx which is stuck on wlroots 0.19
+    - ttf-geist
+    - ttf-geist-mono
+    - wayfreeze-git
+    - xdg-terminal-exec

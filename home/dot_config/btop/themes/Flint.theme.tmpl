@@ -1,0 +1,91 @@
+#{{ $c := .flint.resolved }}
+#{{ $theme_name := .flint.meta.name }}
+# Theme: {{ $theme_name }}
+# Revamp based on OneDark by Vitor Melo
+
+# --- Basic UI Colors ---
+# Main bg
+theme[main_bg]="{{ $c.background.hex }}"
+# Main text color
+theme[main_fg]="{{ $c.text.hex }}"
+# Title color for boxes
+theme[title]="{{ $c.text.hex }}"
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="{{ $c.accent_text.hex }}"
+# Background color of selected item in processes box
+theme[selected_bg]="{{ $c.selection.hex }}"
+# Foreground color of selected item in processes box
+# Colored background needs maximum contrast
+theme[selected_fg]="{{ $c.on_selection.hex }}"
+# Color of inactive/disabled text
+theme[inactive_fg]="{{ $c.text_muted.hex }}"
+# Graph scale labels and annotations
+theme[graph_text]="{{ $c.text_muted.hex }}"
+# Background/fill-behind color used by percentage meters
+theme[meter_bg]="{{ $c.surface_2.hex }}"
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="{{ $c.accent_text.hex }}"
+
+# --- Box Outlines ---
+theme[cpu_box]="{{ $c.text_muted.hex }}"
+theme[mem_box]="{{ $c.text_muted.hex }}"
+theme[net_box]="{{ $c.text_muted.hex }}"
+theme[proc_box]="{{ $c.text_muted.hex }}"
+theme[div_line]="{{ $c.text_muted.hex }}"
+
+# --- Temperature Graph (green → yellow → red) ---
+theme[temp_start]="{{ $c.success.hex }}"
+theme[temp_mid]="{{ $c.caution.hex }}"
+theme[temp_end]="{{ $c.error.hex }}"
+
+# --- CPU Graph (green → yellow → red) ---
+theme[cpu_start]="{{ $c.success.hex }}"
+theme[cpu_mid]="{{ $c.caution.hex }}"
+theme[cpu_end]="{{ $c.error.hex }}"
+
+# --- Process List Resource Gradient (green → yellow → red) ---
+theme[process_start]="{{ $c.success.hex }}"
+theme[process_mid]="{{ $c.caution.hex }}"
+theme[process_end]="{{ $c.error.hex }}"
+
+# --- Mem/Disk Used & Cached Meters (purple → orange → red) ---
+theme[used_start]="{{ $c.purple.hex }}"
+theme[used_mid]="{{ $c.peach.hex }}"
+theme[used_end]="{{ $c.error.hex }}"
+theme[cached_start]="{{ $c.purple.hex }}"
+theme[cached_mid]="{{ $c.peach.hex }}"
+theme[cached_end]="{{ $c.error.hex }}"
+
+# --- Mem/Disk Free & Available Meters (red → orange → purple) ---
+theme[free_start]="{{ $c.error.hex }}"
+theme[free_mid]="{{ $c.peach.hex }}"
+theme[free_end]="{{ $c.purple.hex }}"
+theme[available_start]="{{ $c.error.hex }}"
+theme[available_mid]="{{ $c.peach.hex }}"
+theme[available_end]="{{ $c.purple.hex }}"
+
+# --- Network Download Graph (cyan → blue → bright blue) ---
+theme[download_start]="{{ $c.network_start.hex }}"
+theme[download_mid]="{{ $c.network_mid.hex }}"
+theme[download_end]="{{ $c.network_end.hex }}"
+
+# --- Network Upload Graph (cyan → blue → bright blue) ---
+theme[upload_start]="{{ $c.network_start.hex }}"
+theme[upload_mid]="{{ $c.network_mid.hex }}"
+theme[upload_end]="{{ $c.network_end.hex }}"
+
+# --- Process Pause & Follow States ---
+# Banner background when process list is paused
+theme[proc_pause_bg]="{{ $c.warning_bg.hex }}"
+# Banner background when process following is active
+theme[proc_follow_bg]="{{ $c.selection.hex }}"
+# Banner background when BOTH pause and follow are active
+theme[proc_banner_bg]="{{ $c.error_bg.hex }}"
+# Banner foreground/text color
+theme[proc_banner_fg]="{{ $c.text.hex }}"
+# Background of the currently followed process
+theme[followed_bg]="{{ $c.selection.hex }}"
+# Foreground/text of the currently followed process
+theme[followed_fg]="{{ $c.on_selection.hex }}"
+
+# vim: ft=dosini

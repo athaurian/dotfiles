@@ -1,0 +1,394 @@
+alpha:
+  border_70:
+    - accent
+    - 0.7
+  error_90:
+    - error
+    - 0.9
+  search_80:
+    - search_bg
+    - 0.8
+  success_90:
+    - success
+    - 0.9
+  text_8:
+    - text
+    - 0.08
+  transparent:
+    - black
+    - 0.0
+  warning_90:
+    - warning_deep
+    - 0.9
+ansi:
+  black: ansi_black
+  blue: ansi_blue
+  bright_black: ansi_bright_black
+  bright_blue: ansi_bright_blue
+  bright_cyan: ansi_bright_cyan
+  bright_green: ansi_bright_green
+  bright_magenta: ansi_bright_magenta
+  bright_red: ansi_bright_red
+  bright_white: ansi_bright_white
+  bright_yellow: ansi_bright_yellow
+  cyan: ansi_cyan
+  green: ansi_green
+  magenta: ansi_magenta
+  red: ansi_red
+  white: ansi_white
+  yellow: ansi_yellow
+catppuccin:
+  base: background
+  blue: accent_text
+  border: border_inactive
+  coral: coral
+  critical: critical_bg
+  crust: background_deep
+  diff_add: diff_add
+  diff_change: diff_change
+  diff_delete: diff_delete
+  diff_text: diff_text
+  flamingo: rose
+  green: success
+  lavender: purple
+  mantle: background_subtle
+  maroon: error_deep
+  mauve: purple_bright
+  overlay0: overlay_dim
+  overlay1: overlay_strong
+  overlay2: border_inactive
+  peach: peach
+  pink: error_bright
+  red: error
+  rosewater: peach_bright
+  sapphire: accent_border
+  selection: selection
+  sky: cyan_bright
+  subtext0: text_muted
+  subtext1: text_secondary
+  surface0: surface_0
+  surface1: surface_1
+  surface2: surface_2
+  teal: cyan
+  text: text
+  text_max: text_max
+  yellow: yellow
+desktop:
+  cursor_size: 24
+  cursor_theme: Adwaita
+  font_family: Geist Mono
+  font_family_nerd: GeistMono Nerd Font
+  font_family_sans: Geist
+  font_size: 10
+  qt_style: Fusion
+lut_palette:
+  balanced:
+    - background
+    - surface_0
+    - surface_1
+    - surface_2
+    - text_muted
+    - text_secondary
+    - text
+    - text_max
+    - overlay_dim
+    - focus_border
+    - accent_text
+    - cyan
+    - cyan_bright
+    - success
+    - success_bright
+    - caution
+    - caution_bright
+    - peach
+    - warning_deep
+    - error
+    - error_bright
+    - purple
+    - purple_bright
+  cool:
+    - background
+    - surface_0
+    - surface_1
+    - surface_2
+    - text_muted
+    - text_secondary
+    - text
+    - text_max
+    - overlay_dim
+    - focus_border
+    - accent_text
+    - cyan
+    - cyan_bright
+    - success
+    - success_bright
+    - purple
+    - purple_bright
+    - error
+    - error_bright
+  warm:
+    - background
+    - surface_0
+    - surface_1
+    - surface_2
+    - text_muted
+    - peach
+    - warning_deep
+    - caution
+    - caution_bright
+    - error
+    - error_bright
+    - success
+    - success_bright
+    - accent_text
+    - purple_text
+lut_min_anchor_delta_e: 3.0
+semantic:
+  accent: accent_blue
+  accent_bright: hover_blue
+  accent_strong: accent_blue
+  accent_text: accent_blue_bright
+  background: bg
+  background_deep: bg_deep
+  background_subtle: bg_subtle
+  border: border_inactive
+  border_inactive: border_inactive
+  caution: yellow
+  caution_bright: yellow_bright
+  commit_hash: peach
+  coral: error
+  critical: error
+  critical_bg: critical_bg
+  cyan: accent_cyan
+  cyan_bright: accent_cyan_bright
+  diff_add: diff_add
+  diff_change: diff_change
+  diff_delete: diff_delete
+  diff_text: diff_text
+  error: error
+  error_bg: diff_delete
+  error_bright: error_bright
+  error_deep: error_deep
+  error_fg: text
+  error_text: error
+  focus_border: overlay_strong
+  hover_error_bg: diff_delete
+  hover_warning_bg: warning_tint
+  inc_search_bg: accent_text
+  interactive_text: accent_blue_bright
+  network_end: accent_blue_bright
+  network_mid: accent_blue
+  network_start: accent_cyan
+  on_accent: text_max
+  on_critical: text_max
+  on_selection: text_max
+  on_warning: bg
+  overlay_dim: overlay_dim
+  overlay_strong: overlay_strong
+  peach: peach
+  purple: purple
+  purple_bright: purple_bright
+  purple_text: purple_bright
+  rose: error
+  selected_line_bg: surface_1
+  selection: selection
+  selection_subtle: bg_subtle
+  success: success
+  success_bright: success_bright
+  surface_0: surface_0
+  surface_1: surface_1
+  surface_2: surface_2
+  text: text
+  text_max: text_max
+  text_muted: text_muted
+  text_secondary: text_secondary
+  url: accent_blue_bright
+  warning: yellow
+  warning_accent: warning_deep
+  warning_bg: warning_tint
+  warning_deep: warning_deep
+  warning_fg: text
+  yellow: yellow
+apps:
+  cava:
+    bg: bg
+    fg: accent_blue
+    gradient_1: accent_blue
+    gradient_2: accent_cyan
+    gradient_3: success
+    gradient_4: yellow
+    gradient_5: peach
+    gradient_6: error
+  cherry_picked:
+    bg: surface_1
+    fg: text_max
+  emphasis:
+    bg: accent_blue_bright
+    fg: bg
+  fastfetch:
+    key: accent_blue_bright
+    logo: peach
+  jump_label:
+    bg: accent_blue_bright
+    fg: bg
+  notice:
+    accent: accent_blue_bright
+    bg: surface_0
+    fg: text
+  qt:
+    alternate_base: surface_0
+    base: bg_subtle
+    shadow: bg_deep
+    tooltip_base: surface_1
+  search:
+    bg: accent_blue_bright
+    fg: bg_deep
+  swaylock:
+    bs_hl: error_bright
+    caps_key_hl: yellow
+    key_hl: ansi_white
+    ring: overlay_strong
+  terminal_selection:
+    bg: selection
+    fg: text_max
+  window:
+    focused_border: overlay_strong
+    focused_inactive_bg: surface_0
+    focused_inactive_text: text
+    inactive_border: border_inactive
+    unfocused_bg: bg_subtle
+    unfocused_text: text_muted
+  zellij:
+    background_zero: bg
+contrast_checks:
+  # Core text on backgrounds
+  - [text, background, 4.5]
+  - [text_max, background, 4.5]
+  - [text_secondary, background, 4.5]
+  - [text_muted, background, 4.5]
+  - [text_secondary, surface_1, 4.5]
+  - [text_muted, surface_0, 4.0]
+  - [text_muted, surface_1, 4.0]
+  - [text_max, surface_1, 4.5]
+  - [text_max, surface_2, 4.5]
+  # Selection & status surfaces
+  - [on_selection, selection, 4.5]
+  - [swaylock_key_hl, swaylock_ring, 2.0]
+  - [swaylock_caps_key_hl, swaylock_ring, 1.8]
+  - [swaylock_bs_hl, swaylock_ring, 1.2]
+  - [on_critical, critical_bg, 4.5]
+  - [on_warning, warning, 4.5]
+  - [search_fg, search_bg, 3.0]
+  - [on_accent, inc_search_bg, 3.0]
+  - [emphasis_fg, emphasis_bg, 4.5]
+  - [jump_label_fg, jump_label_bg, 4.5]
+  # Borders
+  - [border, background, 1.5]
+  - [focus_border, background, 3.0]
+  - [window_inactive_border, background, 1.5]
+  # Accent & interactive
+  - [emphasis_bg, background, 3.0]
+  - [accent_text, background, 4.5]
+  - [interactive_text, background, 4.5]
+  - [url, background, 4.5]
+  - [fastfetch_key, background, 4.5]
+  - [purple_text, background, 4.5]
+  - [error_text, background, 4.5]
+  - [commit_hash, background, 4.5]
+  # Qt surfaces
+  - [text, qt_base, 4.5]
+  - [text, qt_button, 4.5]
+  - [text, qt_tooltip_base, 4.5]
+  # Notices & warnings
+  - [notice_fg, notice_bg, 4.5]
+  - [warning_fg, warning_bg, 4.5]
+  - [error_fg, error_bg, 4.5]
+  - [notice_accent, notice_bg, 3.0]
+  - [warning_accent, warning_bg, 3.0]
+  - [error_text, error_bg, 3.0]
+  # Network & status
+  - [network_start, background, 3.0]
+  - [network_mid, background, 3.0]
+  - [network_end, background, 3.0]
+  - [warning, background, 3.0]
+  - [accent_strong, background, 3.0]
+  - [rose, selection_subtle, 3.0]
+  # Match & pick
+  - [on_accent, diff_text, 4.5]
+  - [accent_bright, surface_1, 3.0]
+  - [cherry_picked_fg, cherry_picked_bg, 4.5]
+  # Subtle backgrounds
+  - [text_secondary, background_subtle, 4.5]
+  - [text_muted, background_subtle, 4.5]
+  - [text_secondary, background_deep, 4.5]
+  # Floor ceilings (documented honest limits)
+  - [overlay_strong, background, 3.0]
+  - [text_muted, surface_2, 3.0]
+distinctness_checks:
+  - [accent_text, accent_bright, 1.2, 10.0, "waybar focused:hover"]
+  - [error_text, error_bright, 1.2, 10.0, "waybar urgent:hover"]
+  - [fastfetch_key, fastfetch_logo, 1.2, 10.0, "fastfetch key vs logo"]
+  - [
+      focus_border,
+      border_inactive,
+      1.2,
+      10.0,
+      "sway/lazygit active vs inactive border",
+    ]
+  - [
+      swaylock_caps_key_hl,
+      swaylock_key_hl,
+      1.2,
+      10.0,
+      "swaylock caps vs typing arc",
+    ]
+hue_budget:
+  neutral_max_saturation: 25
+  tolerance: 10
+  near_white_lightness: 92
+  near_black_lightness: 5
+  exempt:
+    - diff_add
+    - diff_change
+    - diff_delete
+    - diff_text
+    - warning_tint
+  families:
+    red: 355
+    orange: 29
+    yellow: 39
+    green: 95
+    cyan: 187
+    blue: 207
+    purple: 286
+base16:
+  base00: background
+  base01: background_subtle
+  base02: surface_0
+  base03: text_muted
+  base04: text_secondary
+  base05: text
+  base06: overlay_strong
+  base07: text_max
+  base08: error
+  base09: peach
+  base0A: yellow
+  base0B: success
+  base0C: cyan
+  base0D: accent
+  base0E: purple
+  base0F: error_deep
+  base16: error_bright
+  base17: peach_bright
+  base18: yellow_bright
+  base19: success_bright
+  base1A: cyan_bright
+  base1B: accent_bright
+  base1C: purple_bright
+  base1D: error
+  base1E: overlay_strong
+  base1F: text_secondary
+  base20: surface_1
+  base21: surface_2
+  base22: overlay_dim
+  base23: border_inactive

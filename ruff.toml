@@ -1,0 +1,7 @@
+[lint.per-file-ignores]
+# chezmoi source files use an executable_ prefix instead of the exec bit.
+"home/dot_local/bin/executable_*" = ["EXE001"]
+"home/dot_config/sway/scripts/executable_*.tmpl" = ["EXE001"]
+"home/dot_config/waybar/scripts/executable_*" = ["EXE001"]
+"home/dot_config/waybar/scripts/tests/*" = ["EXE001"]
+"home/dot_local/bin/tests/*" = ["EXE001"]

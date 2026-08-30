@@ -1,0 +1,214 @@
+--{{ $ctp := .flint.catppuccin_resolved }}
+--{{ $ansi := .flint.ansi_resolved }}
+--{{ $c := .flint.resolved }}
+
+local flint = {
+  on_selection = "{{ $c.on_selection.hex }}",
+  on_accent = "{{ $c.on_accent.hex }}",
+  on_warning = "{{ $c.on_warning.hex }}",
+}
+
+return {
+  "catppuccin/nvim",
+  name = "catppuccin",
+  lazy = false,
+  priority = 1000,
+  config = function()
+    require("catppuccin").setup({
+      flavour = "{{ .flint.catppuccin_flavor }}",
+      background = { light = "{{ .flint.catppuccin_flavor }}", dark = "{{ .flint.catppuccin_flavor }}" },
+      transparent_background = false,
+      term_colors = true,
+      dim_inactive = { enabled = false, shade = "dark", percentage = 0.15 },
+      float = { transparent = false, solid = false },
+      styles = {
+        comments = { "italic" },
+        conditionals = { "italic" },
+        loops = {},
+        functions = {},
+        keywords = {},
+        strings = {},
+        variables = {},
+        numbers = {},
+        booleans = {},
+        properties = {},
+        types = {},
+        operators = {},
+      },
+      color_overrides = {
+        all = {
+          crust = "{{ $ctp.crust.hex }}",
+          mantle = "{{ $ctp.mantle.hex }}",
+          base = "{{ $ctp.base.hex }}",
+          surface0 = "{{ $ctp.surface0.hex }}",
+          surface1 = "{{ $ctp.surface1.hex }}",
+          surface2 = "{{ $ctp.surface2.hex }}",
+          text = "{{ $ctp.text.hex }}",
+          subtext1 = "{{ $ctp.subtext1.hex }}",
+          subtext0 = "{{ $ctp.subtext0.hex }}",
+          overlay2 = "{{ $ctp.overlay2.hex }}",
+          overlay1 = "{{ $ctp.overlay1.hex }}",
+          overlay0 = "{{ $ctp.overlay0.hex }}",
+          rosewater = "{{ $ctp.rosewater.hex }}",
+          flamingo = "{{ $ctp.flamingo.hex }}",
+          pink = "{{ $ctp.pink.hex }}",
+          mauve = "{{ $ctp.mauve.hex }}",
+          red = "{{ $ctp.red.hex }}",
+          maroon = "{{ $ctp.maroon.hex }}",
+          peach = "{{ $ctp.peach.hex }}",
+          yellow = "{{ $ctp.yellow.hex }}",
+          green = "{{ $ctp.green.hex }}",
+          teal = "{{ $ctp.teal.hex }}",
+          sky = "{{ $ctp.sky.hex }}",
+          sapphire = "{{ $ctp.sapphire.hex }}",
+          blue = "{{ $ctp.blue.hex }}",
+          lavender = "{{ $ctp.lavender.hex }}",
+          coral = "{{ $ctp.coral.hex }}",
+          border = "{{ $ctp.border.hex }}",
+          selection = "{{ $ctp.selection.hex }}",
+          critical = "{{ $ctp.critical.hex }}",
+          text_max = "{{ $ctp.text_max.hex }}",
+          diff_add = "{{ $ctp.diff_add.hex }}",
+          diff_change = "{{ $ctp.diff_change.hex }}",
+          diff_delete = "{{ $ctp.diff_delete.hex }}",
+          diff_text = "{{ $ctp.diff_text.hex }}",
+        },
+        mocha = {},
+      },
+      custom_highlights = function(colors)
+        return {
+          -- Custom Notes and Comments
+          Comment = { fg = colors.subtext0, style = { "italic" } },
+          ["@comment"] = { fg = colors.subtext0, style = { "italic" } },
+          ["@comment.todo"] = { fg = flint.on_warning, bg = colors.rosewater, style = { "bold" } },
+          ["@comment.note"] = { fg = colors.text_max, bg = colors.surface2, style = { "bold" } },
+
+          -- Selections (Bound to active accent)
+          Visual = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
+          VisualNOS = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
+
+          -- Popup Menus
+          PmenuSel = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          WildMenu = { bg = colors.surface1, fg = colors.text_max },
+
+          -- Floating Windows
+          FloatBorder = { fg = colors.border, bg = colors.mantle },
+          FloatTitle = { fg = colors.subtext1, bg = colors.mantle },
+          PmenuBorder = { fg = colors.border, bg = colors.mantle },
+
+          -- Status and Tab Lines
+          StatusLineNC = { fg = colors.subtext0, bg = colors.mantle },
+          TabLine = { bg = colors.crust, fg = colors.subtext1 },
+          TabLineSel = { fg = colors.text, bg = colors.mantle, style = { "bold" } },
+
+          -- Custom Diffs
+          DiffAdd = { bg = colors.diff_add },
+          DiffChange = { bg = colors.diff_change },
+          DiffDelete = { bg = colors.diff_delete },
+          DiffText = { bg = colors.diff_text, fg = flint.on_accent },
+
+          -- One Dark Syntax Overrides
+          Special = { fg = colors.red },
+          SpecialChar = { fg = colors.red },
+          Identifier = { fg = colors.red },
+          ["@variable.parameter"] = { fg = colors.red, style = { "italic" } },
+          ["@property"] = { fg = colors.coral },
+          ["@variable.member"] = { fg = colors.coral },
+          ["@field"] = { fg = colors.coral },
+
+          -- LSP Semantic Token Enhancements
+          ["@lsp.type.enumMember"] = { fg = colors.teal },
+          ["@lsp.type.namespace"] = { fg = colors.rosewater },
+
+          -- Dashboard and UI
+          SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
+          CursorLine = { bg = colors.surface0 },
+          CursorLineNr = { fg = colors.blue, style = { "bold" } },
+          Directory = { fg = colors.teal },
+
+          -- Telescope (Neutral Overlay)
+          TelescopeSelection = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          TelescopeSelectionCaret = { bg = colors.surface1, fg = colors.blue },
+          TelescopeMultiSelection = { bg = colors.surface1, fg = colors.text_max },
+          TelescopeMatching = { fg = colors.blue, style = { "bold" } },
+          TelescopePreviewLine = { bg = colors.surface0 },
+
+          -- File Trees (Neutral Overlay)
+          NeoTreeCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          NvimTreeCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          NeoTreeSelected = { bg = colors.surface1, fg = colors.text_max },
+          NeoTreeSelectedSymbol = { fg = colors.peach },
+          NeoTreeDirectoryName = { fg = colors.teal },
+          NeoTreeDirectoryIcon = { fg = colors.blue },
+          NeoTreeRootName = { fg = colors.mauve, style = { "bold" } },
+          NeoTreeFileName = { fg = colors.text },
+          NeoTreeFileNameOpened = { fg = colors.text_max, style = { "bold" } },
+          NeoTreeIndentMarker = { fg = colors.overlay1 },
+          NeoTreeGitModified = { fg = colors.yellow },
+          NeoTreeGitAdded = { fg = colors.green },
+          NeoTreeGitDeleted = { fg = colors.red },
+
+          -- Snacks Picker (Neutral Overlay)
+          SnacksPicker = { bg = colors.mantle },
+          SnacksPickerBorder = { fg = colors.border, bg = colors.mantle },
+          SnacksPickerTitle = { fg = colors.subtext1, bg = colors.mantle },
+          SnacksPickerList = { bg = colors.mantle },
+          SnacksPickerPreview = { bg = colors.base },
+          SnacksPickerInput = { bg = colors.mantle },
+          SnacksPickerSelected = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          SnacksPickerListCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          SnacksPickerMatch = { fg = colors.blue, style = { "bold" } },
+          SnacksPickerDir = { fg = colors.teal },
+          SnacksPickerFile = { fg = colors.text },
+        }
+      end,
+      integrations = {
+        gitsigns = true,
+        which_key = true,
+        mason = true,
+        markdown = true,
+        notify = true,
+        noice = true,
+        dap = true,
+        dap_ui = true,
+        telescope = true,
+        neo_tree = true,
+        snacks = true,
+        indent_blankline = { enabled = true, scope_color = "overlay1" },
+        blink_cmp = { style = "bordered" },
+      },
+    })
+
+    local function set_terminal_colors()
+      local ansi = {
+        [0] = "{{ $ansi.black.hex }}",
+        [1] = "{{ $ansi.red.hex }}",
+        [2] = "{{ $ansi.green.hex }}",
+        [3] = "{{ $ansi.yellow.hex }}",
+        [4] = "{{ $ansi.blue.hex }}",
+        [5] = "{{ $ansi.magenta.hex }}",
+        [6] = "{{ $ansi.cyan.hex }}",
+        [7] = "{{ $ansi.white.hex }}",
+        [8] = "{{ $ansi.bright_black.hex }}",
+        [9] = "{{ $ansi.bright_red.hex }}",
+        [10] = "{{ $ansi.bright_green.hex }}",
+        [11] = "{{ $ansi.bright_yellow.hex }}",
+        [12] = "{{ $ansi.bright_blue.hex }}",
+        [13] = "{{ $ansi.bright_magenta.hex }}",
+        [14] = "{{ $ansi.bright_cyan.hex }}",
+        [15] = "{{ $ansi.bright_white.hex }}",
+      }
+
+      for i, hex in pairs(ansi) do
+        vim.g["terminal_color_" .. i] = hex
+      end
+    end
+
+    vim.api.nvim_create_autocmd("ColorScheme", {
+      pattern = "catppuccin*",
+      callback = set_terminal_colors,
+    })
+  end,
+}
+
+-- vim: ft=lua

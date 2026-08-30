@@ -1,0 +1,14 @@
+# Periodic Calibre-to-Drive uploads. Persistent=true fires a catch-up run
+# when the timer starts, covering the "sync at login" case after downtime.
+
+[Unit]
+Description=Run calibre-sync every 30 minutes
+
+[Timer]
+OnCalendar=*:0/30
+RandomizedDelaySec=5min
+Persistent=true
+Unit=calibre-sync.service
+
+[Install]
+WantedBy=sway-session.target

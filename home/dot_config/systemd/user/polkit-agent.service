@@ -1,0 +1,14 @@
+[Unit]
+Description=GNOME PolicyKit authentication agent
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+Type=simple
+Environment=GDK_BACKEND=wayland
+ExecStart=%h/.config/sway/scripts/wrapper_polkit.sh
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=sway-session.target
