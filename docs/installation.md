@@ -19,7 +19,7 @@ This setup assumes your environment already has the following:
 - `bash` as the interactive shell
 - systemd user services
 
-A few of those terms deserve a quick definition. CachyOS is an Arch-based distribution tuned for performance. Wayland is the display protocol that most Linux desktops use, and X11 is its older predecessor. The window manager, the program that draws and arranges your windows, is SwayFX, which is built on Wayland. `bash` is the shell, the program that reads the commands you type in a terminal. systemd user services are background programs that systemd starts for your user account, instead of for the whole machine.
+CachyOS is an Arch-based distribution tuned for performance. Wayland is the display protocol that most Linux desktops use, and X11 is its older predecessor. The window manager, the program that draws and arranges your windows, is SwayFX, which is built on Wayland. `bash` is the shell, the program that reads the commands you type in a terminal. systemd user services are background programs that systemd starts for your user account, instead of for the whole machine.
 
 The setup targets Arch-based systems, so other distributions might need adjustments.
 
@@ -79,7 +79,7 @@ chezmoi apply
 
 The `run_onchange_` onboarding script installs needed packages automatically. The user systemd services are connected with `symlink_` files, which place them in `sway-session.target.wants/` so the session target starts them automatically.
 
-Here is what each of those means:
+Each prefix has a distinct meaning:
 
 - Scripts that start with `run_onchange_` are chezmoi hooks. They run whenever their source file changes, which suits one-time setup work.
 - Files that start with `symlink_` are installed as symbolic links. The links that land in `sway-session.target.wants/` make systemd start those services together with `sway-session.target`, the unit that groups the session services.
@@ -99,8 +99,4 @@ This setup targets CachyOS, but the manifest is written so it works on plain Arc
 
 Package names can differ slightly between CachyOS and plain Arch. The manifest accounts for those differences in each section, so you do not have to adjust the names yourself.
 
-`paru` is a helper that installs packages from the Arch User Repository (AUR), which is where community-maintained packages live. When it is present, the onboarding script can install everything in one pass. When it is not, you get the packages from the official repositories and `forge`, plus a list of AUR packages to install manually. On plain Arch, install `paru` first, so the CachyOS packages can resolve from the AUR.
-
-## Summary
-
-Here is the short version of the process. You clone the repository with `chezmoi init`, add the `forge` repository and its key, build your palette with `make dark`, and apply everything with `chezmoi apply`. The onboarding script installs the packages on first run, and any package you add later goes into `packages.yaml`.
+`paru` is a helper that installs packages from the Arch User Repository (AUR), which is where community-maintained packages live. When it is present, the onboarding script can install everything in one pass. When it is not, the onboarding script installs the packages from the official repositories and `forge` with pacman, then prints the AUR packages for you to install by hand. On plain Arch, install `paru` first, so the CachyOS packages can resolve from the AUR.

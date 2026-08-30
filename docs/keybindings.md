@@ -40,9 +40,7 @@ Each line names a MIME type on the left and the programs that may handle it on t
 
 ### Other environment variables
 
-Other environment variables live outside the SwayFX config. `EDITOR` lives in `~/.bash_profile`, and the `WLSUNSET_*` family lives in `~/.config/wlsunset.env`, a machine-local file that `wlsunset-location` generates; `~/.bash_profile` loads it and the wlsunset service reads it. The SwayFX autostart script (`autostart.sh`) bridges SwayFX and systemd, but it only imports a handful of session variables, such as `WAYLAND_DISPLAY` and `SWAYSOCK`, into the systemd user environment so GUI app services function properly.
-
-Here is why that bridge exists. SwayFX sets some variables in its own session, but the background services that systemd starts do not see them by default. `autostart.sh` copies over the ones those services need, so a GUI app launched by systemd still receives the display information it needs.
+Other environment variables live outside the SwayFX config. `EDITOR` lives in `~/.bash_profile`, and the `WLSUNSET_*` family lives in `~/.config/wlsunset.env`, a machine-local file that `wlsunset-location` generates; `~/.bash_profile` loads it and the wlsunset service reads it. The SwayFX autostart script (`autostart.sh`) imports a few session variables, such as `WAYLAND_DISPLAY` and `SWAYSOCK`, into the systemd user environment. SwayFX sets those variables in its own session, and the background services that systemd starts do not see them by default. `autostart.sh` copies over the ones those services need, so a GUI app launched by systemd still receives the display information it needs.
 
 ## The shortcuts
 
@@ -83,12 +81,8 @@ A scratchpad is a hidden workspace that only appears when you summon it. The scr
 
 The idle timer locks the screen after a period without input. `Super` + `Shift` + `i` toggles the timer. While it is off, the screen stays awake and unlocked until you toggle the timer back on. The script calls this state caffeine mode.
 
+The full list of shortcuts lives in the SwayFX config template at `home/dot_config/sway/config.tmpl`.
+
 ## Screenshots
 
 `wayfreeze`, a screen-freezing helper, holds the screen still while you choose a region or window, and `grim`, the screenshot tool, takes the capture. When `wayfreeze` is not installed, the capture runs without freezing.
-
-## Summary
-
-You have seen how the application shortcuts are wired, with environment variables for the file manager and password manager, a wrapper script for the browser, and MIME type mappings for everything else. You have the shortcut table as a reference. Movement is Vim-style, workspaces are `Super` plus a number, and the scratchpad has its own pair of bindings.
-
-The config file is the definitive reference. The full list of shortcuts lives in the SwayFX config template at `home/dot_config/sway/config.tmpl`.
