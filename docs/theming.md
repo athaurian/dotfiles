@@ -6,9 +6,9 @@ Everything inside this repo uses a custom theme called Flint (dark) and its ligh
 
 ## The color pipeline
 
-The core idea is a single source of truth. One set of files defines every color, and everything else is derived from it. Nothing in this repo hardcodes a hex value twice. A hex value is a color written as six hexadecimal digits, like `#5a8bb0`.
+One set of files defines every color, and everything else is derived from it. Nothing in this repo hardcodes a hex value twice. A hex value is a color written as six hexadecimal digits, like `#5a8bb0`.
 
-The pipeline has three stages, and it helps to see them in order:
+The pipeline has three stages:
 
 1. **Palette files.** The colors are defined in `palettes/flint/`, split into a shared file and one file per variant. This is where you edit a color by hand.
 2. **The build script.** `scripts/build_palette_data.py` reads those files, validates every color, and exports the active variant into `.chezmoidata.yaml` in the effective chezmoi source root, which is `home/` in this repo.
@@ -62,12 +62,8 @@ flint-wallpaper --rbf --shape 96.0 --set ~/Pictures/Wallpapers/scenery.jpg
 
 In these examples, `--theme light` forces the light variant, `--palette warm` picks the warm palette template, and `--rbf` switches from the default blur-based recoloring to a Gaussian radial basis function (RBF) method with the given shape value.
 
-The helper is not bound to any keyboard shortcut. When a wallpaper path is set, the theme-apply hook runs it automatically after each variant switch, so the wallpaper matches the active variant without extra steps.
+The helper is not bound to any keyboard shortcut. When a wallpaper path is set, the script that applies the theme runs it after each variant switch, so the wallpaper matches the active variant without extra steps.
 
 ## Screenshots
 
 Desktop screenshots (dark and light) live in `assets/` and are referenced from the README.
-
-## Summary
-
-Colors start in `palettes/flint/`, get validated and exported by the build script into `.chezmoidata.yaml`, and reach your apps through `.tmpl` templates at apply time. To switch variants, build the target variant, then apply with chezmoi. And when you want the wallpaper to match, `flint-wallpaper` recolors it with a cached LUT.

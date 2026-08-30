@@ -22,7 +22,7 @@ Before touching the files, learn two terms:
 
 `scripts/build_palette_data.py` validates the palette, computes all necessary formats and alpha blends, and writes `.chezmoidata.yaml` into `home/`. When you run `chezmoi apply`, chezmoi reads that file and injects the colors into any `.tmpl` configuration.
 
-The flow is the same every time. Edit a palette file, run the build script, and apply with chezmoi. The sections that follow trace the same flow, from the files to the derived data to the checks that catch mistakes.
+Changing a color takes the same steps every time. Edit a palette file, run the build script, and apply with chezmoi. The sections that follow cover those steps, from the files to the derived data to the checks that catch mistakes.
 
 ## How the files are structured
 
@@ -33,7 +33,7 @@ This file defines everything that is not tied to a specific color variant:
 - **`semantic`.** Functional names that map roles to raw tokens, like `background: bg`, `accent_text: accent_blue_bright`, and `focus_border: overlay_strong`. Your configs mostly consume these semantic roles.
 - **`apps`.** App-specific roles, namespaced per application. Each entry `apps.<app>.<key>` becomes the flat role `<app>_<key>` at load time, so `apps.qt.base` turns into the role `qt_base`. This keeps new applications from polluting the core role vocabulary.
 - **`ansi`.** The standard 16-color terminal slots (`black`, `red`, `green`, and the rest). ANSI colors are the numbered color slots that terminals use, and the 16 here cover the eight basic colors plus their bright variants.
-- **`catppuccin`.** A bridge to the token names another theme project uses. Catppuccin is a popular theme project with well-known token names like `crust`, `mantle`, `surface0`, and `subtext0`. Neovim plugins (like Catppuccin) expect those specific names. This maps them cleanly to Flint semantic roles, so the plugins work without extra configuration.
+- **`catppuccin`.** A bridge to the token names another theme project uses. Catppuccin is a popular theme project with well-known token names like `crust`, `mantle`, `surface0`, and `subtext0`. Neovim plugins (like Catppuccin) expect those specific names. This maps them cleanly to the Flint theme's semantic roles, so the plugins work without extra configuration.
 - **`alpha`.** Declarative opacity rules in `[base_token, alpha_float]` form, like `border_70: [accent, 0.7]`. Alpha is how transparent a color is, on a scale from 0 (fully transparent) to 1 (fully opaque). Declarative here means the rules are data, not code.
 - **`lut_palette`.** Lists of color anchors (`balanced`, `cool`, `warm`) that `lutgen`, the wallpaper recolor tool, uses for wallpaper remapping.
 - **`base16`.** A bridge to the base16 naming standard, mapping semantic roles to the standard `base00` through `base0F` (plus `base16` through `base23`) scheme slots, resolved and exported like the Catppuccin layer.
@@ -158,7 +158,3 @@ text-color={{ $c.text.bare_ff }}
 ```
 
 To switch variants, see [Switch variants](theming.md#switch-variants) in the theming section.
-
-## Summary
-
-Here is the whole system in a few sentences. The palette files in `palettes/flint/` are the single source of truth. `shared.yaml` holds everything variant-independent, including the core semantic roles, app namespaces, the contrast and distinctness rule tables, and desktop metrics. `dark.yaml` and `light.yaml` hold the raw hex values, overrides, and the Qt bevel ladder. The build script validates the design invariants, derives every format a template could need, and exports both variants, with aliases for the active variant, into `.chezmoidata.yaml`. At apply time, templates pull their colors from there. And when you edit a palette, the contrast validator catches mistakes before you can apply broken colors.

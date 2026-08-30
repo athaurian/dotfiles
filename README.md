@@ -27,7 +27,7 @@ These steps assume you have already added my `forge` package repository and its 
 
 ## Highlights
 
-- **[Flint and Sand theming](docs/theming.md)**. How every color gets from a single source of truth into your config files, with dark and light variants, contrast validation, and per-app color generation through chezmoi templates. The architecture details are in [the palette system guide](docs/palette-system.md).
+- **[Flint and Sand theming](docs/theming.md)**. How every color gets from the palette into your config files, with dark and light variants, contrast validation, and per-app color generation through chezmoi templates. The architecture details are in [the palette system guide](docs/palette-system.md).
 - **[Session manager](docs/session-manager.md)**. How your Sway session is saved when you log out, power off, or reboot, and rebuilt at login.
 - **[Keybindings](docs/keybindings.md)**. How the shortcuts are connected, the shortcut reference table, and the movement and layout controls.
 
@@ -42,6 +42,6 @@ These steps assume you have already added my `forge` package repository and its 
 
 - `btop.conf` is managed entirely by chezmoi. Changes made inside the program itself do not persist unless you edit the file in the repo.
 - The lock script uses the `swaylock` binary. It comes from `swaylock-effects` when that package is installed, and from the plain `swaylock` package otherwise.
-- `~/.local/bin/flint-wallpaper` is a standalone helper that themes wallpaper images with lutgen and caches LUTs and outputs. It is not bound to any shortcut, but the theme-apply hook runs it automatically when a wallpaper path is set. Run it with `--help` for usage.
-- Books added to `~/Library` are synced to Google Drive automatically. Every 30 minutes, `calibre-sync.timer` stages all EPUBs and PDFs flat and mirrors them to `gdrive:Books` with rclone, so they are available on other devices. Check on it with `journalctl --user -u calibre-sync`.
+- `~/.local/bin/flint-wallpaper` is a standalone helper that themes wallpaper images with lutgen and caches LUTs and outputs. It is not bound to any shortcut. The script that applies a theme runs it whenever a wallpaper path is set, so the wallpaper follows the active variant. Run it with `--help` for usage.
+- `calibre-sync.timer` mirrors every EPUB and PDF in `~/Library` to `gdrive:Books` with rclone every 30 minutes, staging the files flat and naming them from calibre's metadata. It needs an rclone remote named `gdrive` signed in to your Google Drive, which this repository does not set up. Without books, or without that remote, the timer fails and the journal says why. If you do not keep an ebook library, remove `symlink_calibre-sync.timer.tmpl` from `sway-session.target.wants/` before applying. Check on it with `journalctl --user -u calibre-sync`.
 - This repository contains no secrets. If you ever add a file with credentials, encrypt that specific file with `chezmoi age encrypt` rather than encrypting the whole repository.
