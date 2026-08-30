@@ -1,0 +1,37 @@
+#{{ $c := .flint.resolved }}
+gui:
+  theme:
+    activeBorderColor:
+      - "{{ $c.focus_border.hex }}"
+      - bold
+    inactiveBorderColor:
+      - "{{ $c.border_inactive.hex }}"
+    searchingActiveBorderColor:
+      - "{{ $c.caution.hex }}"
+      - bold
+    optionsTextColor:
+      - "{{ $c.success.hex }}"
+    selectedLineBgColor:
+      - "{{ $c.selected_line_bg.hex }}"
+    cherryPickedCommitBgColor:
+      - "{{ $c.cherry_picked_bg.hex }}"
+    cherryPickedCommitFgColor:
+      - "{{ $c.cherry_picked_fg.hex }}"
+    unstagedChangesColor:
+      - "{{ $c.error_text.hex }}"
+    defaultFgColor:
+      - "{{ $c.text.hex }}"
+    branchFgColor:
+      - "{{ $c.purple_text.hex }}"
+    statusFileType:
+      - "{{ $c.cyan.hex }}"
+    commitHash:
+      - "{{ $c.commit_hash.hex }}"
+    commitAuthor:
+      - "{{ $c.success.hex }}"
+    secondaryRegionFgColor:
+      - "{{ $c.purple_text.hex }}"
+    markedBaseCommitFgColor:
+      - "{{ $c.caution.hex }}"
+
+# vim: ft=yaml

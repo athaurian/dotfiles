@@ -1,0 +1,108 @@
+appearance:
+  color_scheme: prefer-light
+  gtk_theme: Orchis-Light-Compact
+  icon_theme: Papirus-Light
+  wallpaper: ~/Pictures/Wallpapers/light/roman-forum.jpg
+catppuccin_flavor: latte
+meta:
+  description: A warm neutral cream theme, the light counterpart to Flint.
+  name: Sand
+  variant: light
+raw:
+  accent_blue: "#225882"
+  accent_blue_bright: "#4178a3"
+  accent_border: "#205075"
+  accent_cyan: "#38757d"
+  accent_cyan_bright: "#6a989e"
+  ansi_black: "#141312"
+  ansi_blue: "#225882"
+  ansi_bright_black: "#554f46"
+  ansi_bright_blue: "#174366"
+  ansi_bright_cyan: "#2f6168"
+  ansi_bright_green: "#4a603b"
+  ansi_bright_magenta: "#764884"
+  ansi_bright_red: "#8b4449"
+  ansi_bright_white: "#ffffff"
+  ansi_bright_yellow: "#695838"
+  ansi_cyan: "#38757d"
+  ansi_green: "#5a7448"
+  ansi_magenta: "#864e96"
+  ansi_red: "#9f4950"
+  ansi_white: "#e6e0d6"
+  ansi_yellow: "#75603a"
+  bg: "#f2eee8"
+  black: "#000000"
+  border_inactive: "#968e82"
+  critical_bg: "#a42a37"
+  bg_deep: "#d6cec0"
+  diff_add: "#d9edd4"
+  diff_change: "#d7e8f5"
+  diff_delete: "#f3e1df"
+  diff_text: "#366d96"
+  error: "#9f4950"
+  error_bright: "#b3676c"
+  error_deep: "#75393d"
+  hover_blue: "#4178a3"
+  bg_subtle: "#e6e0d6"
+  overlay_dim: "#898075"
+  overlay_strong: "#6f675c"
+  peach: "#8a6543"
+  peach_bright: "#98775a"
+  purple: "#864e96"
+  purple_bright: "#9c6bab"
+  selection: "#295c81"
+  success: "#5a7448"
+  success_bright: "#6f865e"
+  surface_0: "#d9d5d0"
+  surface_1: "#ded6c9"
+  surface_2: "#cfc6b7"
+  text: "#282522"
+  text_max: "#141312"
+  text_muted: "#5e584f"
+  text_secondary: "#453f37"
+  warning_deep: "#8c5820"
+  warning_tint: "#faeed9"
+  yellow: "#75603a"
+  yellow_bright: "#8e7c5a"
+raw_aliases:
+  - [accent_blue, ansi_blue]
+  - [accent_blue_bright, hover_blue]
+  - [accent_cyan, ansi_cyan]
+  - [ansi_black, text_max]
+  - [ansi_green, success]
+  - [ansi_magenta, purple]
+  - [ansi_red, error]
+  - [ansi_white, bg_subtle]
+  - [ansi_yellow, yellow]
+raw_near_aliases:
+  - [ansi_white, surface_0]
+  - [bg_subtle, surface_0]
+
+semantic_overrides:
+  accent_text: accent_blue
+  cherry_picked_fg: accent_blue
+  commit_hash: warning_deep
+  emphasis_bg: accent_blue
+  fastfetch_key: accent_blue
+  interactive_text: accent_blue
+  jump_label_bg: accent_blue
+  notice_accent: accent_blue
+  on_accent: bg
+  on_critical: bg
+  on_selection: bg
+  purple_text: purple
+  qt_shadow: overlay_strong
+  search_fg: bg
+  selection_subtle: surface_0
+  swaylock_bs_hl: error
+  swaylock_key_hl: text
+  swaylock_ring: surface_2
+  terminal_selection_fg: bg
+  url: accent_blue
+  window_focused_border: text
+qt_bevel:
+  - bg
+  - bg_subtle
+  - surface_1
+  - bg_deep
+  - surface_2

@@ -1,0 +1,29 @@
+#? Config file for btop v.1.4.7
+#
+# This file contains ONLY settings that differ from btop's defaults.
+# All other options use btop's built-in defaults, which means they will
+# automatically pick up new defaults when btop updates.
+
+#* Name of a btop++/bpytop/bashtop formatted ".theme" file, "Default" and "TTY" for builtin themes.
+#* Themes should be placed in "../share/btop/themes" relative to binary or "$HOME/.config/btop/themes"
+color_theme = "{{ .chezmoi.homeDir }}/.config/btop/themes/Flint.theme"
+
+#* Define presets for the layout of the boxes. Preset 0 is always all boxes shown with default settings. Max 9 presets.
+#* Format: "box_name:P:G,box_name:P:G" P=(0 or 1) for alternate positions, G=graph symbol to use for box.
+#* Use whitespace " " as separator between different presets.
+presets = "cpu:1:default,proc:0:default cpu:0:default,mem:0:default,net:0:default cpu:0:block,net:0:tty"
+
+#* Processes sorting, "pid" "program" "arguments" "threads" "user" "memory" "cpu lazy" "cpu direct",
+#* "cpu lazy" sorts top process over time (easier to follow), "cpu direct" updates top process directly.
+proc_sorting = "cpu lazy"
+
+#* Show cpu graph for each process.
+proc_cpu_graphs = true
+
+#* Show graphs instead of meters for memory values.
+mem_graphs = true
+
+# Prevent btop from overwriting this chezmoi-managed file on exit.
+save_config_on_exit = false
+
+# vim: ft=dosini

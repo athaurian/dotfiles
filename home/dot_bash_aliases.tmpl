@@ -1,0 +1,132 @@
+# CLI aliases
+alias cat='bat --theme=ansi'
+alias ff='fastfetch'
+alias g='git'
+alias grep='grep --color=auto'
+alias lg='lazygit'
+alias ls='ls --color=auto --human-readable'
+alias v='${EDITOR:-nvim}'
+alias ze='zellij'
+
+# Listing variants
+alias ll='ls -lAhF'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -lhtr'
+alias lS='ls -lhSr'
+alias ldir='ls -d */'
+
+# Utilities & navigation
+alias c='clear'
+alias h='history'
+alias hdel='rm -vi $HOME/.bash_history && exec $SHELL'
+alias myip='curl -s ifconfig.me'
+alias sha='shasum -a 256'
+alias helpalias='echo "--- ALL ALIASES ---" && alias | sort'
+
+# chezmoi
+alias cz='chezmoi'
+alias czp='chezmoi apply && exec $SHELL'
+alias cze='chezmoi edit'
+alias czc='cd {{ .chezmoi.workingTree }}'
+
+# Backup file helper
+bak() { cp -v "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"; }
+
+# Persistent notes in ~/Notes with searchable helpers.
+# Usage:
+#   notes              — create new note ~/Notes/YYYYMMDDTHHMMSSZ-xxxx-notes.md
+#   notes --last       — open most recent note
+#   notes --list       — list recent notes (ls -lt)
+#   notes --grep <pat> — search notes (ripgrep if available, else grep)
+#   notes --help       — show help
+unalias notes 2>/dev/null || true
+notes() {
+	local notes_dir="$HOME/Notes"
+	local stamp rand file
+
+	case "${1:-}" in
+	--help | -h)
+		cat <<'EOF'
+Usage: notes [OPTION] [PATTERN]
+  (no args)        create new persistent note
+  --last           open most recent note
+  --list           list recent notes
+  --grep <pat>     search note contents (rg or grep)
+  --help           show this help
+EOF
+		return 0
+		;;
+	--last)
+		if [ ! -d "$notes_dir" ] || [ -z "$(ls -A "$notes_dir" 2>/dev/null)" ]; then
+			echo "notes: no notes in $notes_dir" >&2
+			return 1
+		fi
+		# shellcheck disable=SC2012
+		file=$(ls -t "$notes_dir"/*.md 2>/dev/null | head -n1)
+		if [ -z "$file" ]; then
+			echo "notes: no markdown notes found" >&2
+			return 1
+		fi
+		${EDITOR:-nvim} "$file"
+		return 0
+		;;
+	--list | -l)
+		if [ ! -d "$notes_dir" ]; then
+			echo "notes: $notes_dir does not exist yet" >&2
+			return 0
+		fi
+		if command -v eza >/dev/null 2>&1; then
+			eza -lt modified --color=always "$notes_dir" 2>/dev/null | head -n 20
+		else
+			ls -lt "$notes_dir" 2>/dev/null | head -n 20
+		fi
+		return 0
+		;;
+	--grep | -g | --search | -s)
+		shift
+		if [ $# -eq 0 ]; then
+			echo "notes: --grep requires a pattern" >&2
+			return 1
+		fi
+		if [ ! -d "$notes_dir" ]; then
+			echo "notes: $notes_dir does not exist" >&2
+			return 1
+		fi
+		if command -v rg >/dev/null 2>&1; then
+			rg --color=always --smart-case --line-number "$@" "$notes_dir"
+		else
+			grep --color=always -R -n "$@" "$notes_dir"
+		fi
+		return 0
+		;;
+	--fzf | -f)
+		if [ ! -d "$notes_dir" ]; then
+			echo "notes: $notes_dir does not exist" >&2
+			return 1
+		fi
+		if ! command -v fzf >/dev/null 2>&1; then
+			echo "notes: fzf not installed, use --grep instead" >&2
+			return 1
+		fi
+		file=$(find "$notes_dir" -type f -name '*.md' -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2- | fzf --preview 'bat --color=always --style=plain {} 2>/dev/null || cat {}' --preview-window=right:60%) || return 0
+		[ -n "$file" ] && ${EDITOR:-nvim} "$file"
+		return 0
+		;;
+	"")
+		;;
+	*)
+		echo "notes: unknown option $1 (try --help)" >&2
+		return 1
+		;;
+	esac
+
+	mkdir -p "$notes_dir" || return
+	stamp="$(date -u +%Y%m%dT%H%M%SZ)" || return
+	rand="$(od -An -N4 -tx1 /dev/urandom | tr -d '[:space:]' | head -c 8)" || return
+	file="${notes_dir}/${stamp}-${rand}-notes.md"
+	printf '# Notes %s\n\n' "$stamp" >"$file" || return
+	${EDITOR:-nvim} "$file"
+}
+
+# vim: ft=sh

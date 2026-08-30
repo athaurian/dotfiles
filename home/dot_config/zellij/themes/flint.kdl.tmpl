@@ -1,0 +1,136 @@
+//{{ $c := .flint.resolved }}
+themes {
+  flint {
+    text_unselected {
+      base {{ $c.text.triple }}
+      background {{ $c.background.triple }}
+      emphasis_0 {{ $c.peach.triple }}
+      emphasis_1 {{ $c.cyan.triple }}
+      emphasis_2 {{ $c.success.triple }}
+      emphasis_3 {{ $c.purple_text.triple }}
+    }
+
+    text_selected {
+      base {{ $c.on_selection.triple }}
+      background {{ $c.selection.triple }}
+      emphasis_0 {{ $c.on_selection.triple }}
+      emphasis_1 {{ $c.on_selection.triple }}
+      emphasis_2 {{ $c.on_selection.triple }}
+      emphasis_3 {{ $c.on_selection.triple }}
+    }
+
+    ribbon_selected {
+      base {{ $c.emphasis_fg.triple }}
+      background {{ $c.emphasis_bg.triple }}
+      emphasis_0 {{ $c.emphasis_fg.triple }}
+      emphasis_1 {{ $c.emphasis_fg.triple }}
+      emphasis_2 {{ $c.emphasis_fg.triple }}
+      emphasis_3 {{ $c.emphasis_fg.triple }}
+    }
+
+    ribbon_unselected {
+      base {{ $c.text.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.error_text.triple }}
+      emphasis_1 {{ $c.rose.triple }}
+      emphasis_2 {{ $c.accent_text.triple }}
+      emphasis_3 {{ $c.purple_text.triple }}
+    }
+
+    table_title {
+      base {{ $c.accent_text.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.peach.triple }}
+      emphasis_1 {{ $c.cyan.triple }}
+      emphasis_2 {{ $c.success.triple }}
+      emphasis_3 {{ $c.purple_text.triple }}
+    }
+
+    table_cell_selected {
+      base {{ $c.on_selection.triple }}
+      background {{ $c.selection.triple }}
+      emphasis_0 {{ $c.on_selection.triple }}
+      emphasis_1 {{ $c.on_selection.triple }}
+      emphasis_2 {{ $c.on_selection.triple }}
+      emphasis_3 {{ $c.on_selection.triple }}
+    }
+
+    table_cell_unselected {
+      base {{ $c.text.triple }}
+      background {{ $c.background.triple }}
+      emphasis_0 {{ $c.peach.triple }}
+      emphasis_1 {{ $c.cyan.triple }}
+      emphasis_2 {{ $c.success.triple }}
+      emphasis_3 {{ $c.purple_text.triple }}
+    }
+
+    list_selected {
+      base {{ $c.on_selection.triple }}
+      background {{ $c.selection.triple }}
+      emphasis_0 {{ $c.on_selection.triple }}
+      emphasis_1 {{ $c.on_selection.triple }}
+      emphasis_2 {{ $c.on_selection.triple }}
+      emphasis_3 {{ $c.on_selection.triple }}
+    }
+
+    list_unselected {
+      base {{ $c.text.triple }}
+      background {{ $c.background.triple }}
+      emphasis_0 {{ $c.peach.triple }}
+      emphasis_1 {{ $c.cyan.triple }}
+      emphasis_2 {{ $c.success.triple }}
+      emphasis_3 {{ $c.purple_text.triple }}
+    }
+
+    frame_selected {
+      base {{ $c.accent_text.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.peach.triple }}
+      emphasis_1 {{ $c.cyan.triple }}
+      emphasis_2 {{ $c.purple_text.triple }}
+      emphasis_3 {{ $c.text_muted.triple }}
+    }
+
+    frame_highlight {
+      base {{ $c.rose.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.purple_text.triple }}
+      emphasis_1 {{ $c.rose.triple }}
+      emphasis_2 {{ $c.rose.triple }}
+      emphasis_3 {{ $c.rose.triple }}
+    }
+
+    exit_code_success {
+      base {{ $c.success.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.cyan.triple }}
+      emphasis_1 {{ $c.text_muted.triple }}
+      emphasis_2 {{ $c.purple_text.triple }}
+      emphasis_3 {{ $c.accent_text.triple }}
+    }
+
+    exit_code_error {
+      base {{ $c.error_text.triple }}
+      background {{ $c.zellij_background_zero.triple }}
+      emphasis_0 {{ $c.caution.triple }}
+      emphasis_1 {{ $c.text_muted.triple }}
+      emphasis_2 {{ $c.text_muted.triple }}
+      emphasis_3 {{ $c.text_muted.triple }}
+    }
+
+    multiplayer_user_colors {
+      player_1 {{ $c.purple_text.triple }}
+      player_2 {{ $c.accent_text.triple }}
+      player_3 {{ $c.cyan.triple }}
+      player_4 {{ $c.caution.triple }}
+      player_5 {{ $c.commit_hash.triple }}
+      player_6 {{ $c.success.triple }}
+      player_7 {{ $c.error_text.triple }}
+      player_8 {{ $c.rose.triple }}
+      player_9 {{ $c.text_secondary.triple }}
+      player_10 {{ $c.text_muted.triple }}
+    }
+  }
+}
+
+// vim: ft=kdl

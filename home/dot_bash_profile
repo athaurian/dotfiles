@@ -1,0 +1,21 @@
+# Login shell environment (sourced by bash on login).
+# Sources .bashrc for interactive shell settings.
+# Note: WLSUNSET_LATITUDE/LONGITUDE are location-specific.
+
+export EDITOR=nvim
+export XDG_CONFIG_HOME="$HOME/.config"
+export QT_QPA_PLATFORMTHEME=qt5ct
+
+set -a
+[ -f "$HOME/.config/wlsunset.env" ] && . "$HOME/.config/wlsunset.env"
+set +a
+
+if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+	export QT_QPA_PLATFORM=wayland
+fi
+
+if [ -f "$HOME/.bashrc" ]; then
+	. "$HOME/.bashrc"
+fi
+
+# vim:ft=bash

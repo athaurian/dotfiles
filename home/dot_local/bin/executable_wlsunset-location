@@ -1,0 +1,412 @@
+#!/usr/bin/env sh
+set -eu
+
+# Generate wlsunset.env (WLSUNSET_LATITUDE, WLSUNSET_LONGITUDE) from the
+# machine's location. The generated file is machine-local state with mode
+# 600; it stays out of chezmoi and version control.
+#
+# Location sources, tried in order:
+#   1. --lat/--lon, when both are given (no network access)
+#   2. geoclue via where-am-i, when installed
+#   3. IP geolocation over HTTPS, order from $WLSUNSET_GEO_PROVIDERS
+#      (default "ipinfo geojs ipapi")
+#
+# Flags:
+#   -o, --output PATH    target file (default: ~/.config/wlsunset.env)
+#   -l, --lat DEG        latitude, together with --lon
+#       --lon DEG        longitude, together with --lat
+#   -p, --precision N    decimal digits kept, 0-6 (default 2, about 1 km)
+#   -t, --timeout SEC    seconds before each source gives up (default 10)
+#   -f, --force          allow writing inside a git or chezmoi source tree
+#   -h, --help           show this help
+#
+# Every value passes a signed-decimal and range check (lat ±90, lon ±180)
+# before any file is touched, and coordinates are rounded to --precision
+# decimals before they are written. The file is written atomically (temp
+# file in the target directory, then rename). On failure the existing
+# file is left untouched.
+#
+# Called by: hand, once per machine, or a oneshot user unit ordered before
+# wlsunset.service with Wants=/After= (EnvironmentFile is parsed before
+# ExecStartPre runs).
+# Dependencies: curl or wget (IP geolocation), awk, grep, sed, mktemp.
+#
+# Exit codes:
+#   0  success
+#   1  usage or validation error
+#   2  no location source succeeded
+#   3  output path refused by the source-tree guard
+#
+# Status output goes to stderr; stdout stays clean for scripting.
+
+TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/wlsunset.env"
+PRECISION=2
+TIMEOUT=10
+FORCE=0
+OPT_LAT=""
+OPT_LON=""
+PROVIDERS="${WLSUNSET_GEO_PROVIDERS:-ipinfo geojs ipapi}"
+
+LAT_OUT=""
+LON_OUT=""
+SOURCE_NAME=""
+
+warn() { printf 'warning: %s\n' "$1" >&2; }
+error() { printf 'error: %s\n' "$1" >&2; }
+die() {
+	error "$1"
+	exit "${2:-1}"
+}
+log() { printf '%s\n' "$1" >&2; }
+
+usage() {
+	cat <<'EOF'
+wlsunset-location — generate wlsunset.env from the machine's location
+
+Usage:
+  wlsunset-location [options]
+
+Options:
+  -o, --output PATH    target file (default: ~/.config/wlsunset.env)
+  -l, --lat DEG        latitude to use instead of a lookup (with --lon)
+      --lon DEG        longitude to use instead of a lookup (with --lat)
+  -p, --precision N    decimal digits kept, 0-6 (default 2, about 1 km)
+  -t, --timeout SEC    seconds before each source gives up (default 10)
+  -f, --force          allow writing inside a git or chezmoi source tree
+  -h, --help           show this help
+
+Sources, in order: --lat/--lon, geoclue (where-am-i), then IP
+geolocation ($WLSUNSET_GEO_PROVIDERS, default "ipinfo geojs ipapi";
+HTTPS only). Behind a VPN, IP geolocation is wrong by design; pass
+--lat/--lon once or let geoclue handle it.
+
+The generated file is machine-local state. Add .config/wlsunset.env to
+.chezmoiignore so it is never deployed or committed.
+
+Exit codes:
+  0  success          2  no location source succeeded
+  1  usage error      3  output path refused by the source-tree guard
+EOF
+}
+
+# --- Validation helpers ----------------------------------------------------
+
+is_number() {
+	# Strict signed decimal: optional sign, digits, optional fraction.
+	printf '%s' "$1" | grep -Eq '^[+-]?[0-9]+(\.[0-9]+)?$'
+}
+
+in_range() {
+	# in_range VALUE MIN MAX — float comparison through awk, not the shell.
+	awk -v v="$1" -v lo="$2" -v hi="$3" 'BEGIN { exit !(v >= lo && v <= hi) }'
+}
+
+valid_coord_pair() {
+	# $1 latitude, $2 longitude. Returns 0 only for clean, in-range values.
+	is_number "$1" || return 1
+	is_number "$2" || return 1
+	in_range "$1" -90 90 || return 1
+	in_range "$2" -180 180 || return 1
+}
+
+round_coord() {
+	# round_coord VALUE — fixed-point rounding to $PRECISION decimals via awk.
+	awk -v v="$1" -v p="$PRECISION" 'BEGIN { printf "%.*f\n", p, v }'
+}
+
+# --- Network helpers -------------------------------------------------------
+
+fetch() {
+	# fetch URL — print the body, return nonzero on any failure.
+	# curl is preferred; wget is the fallback. Bounded by --timeout.
+	if command -v curl >/dev/null 2>&1; then
+		curl -fsSL --max-time "$TIMEOUT" -A 'wlsunset-location/1.0' "$1" 2>/dev/null
+	elif command -v wget >/dev/null 2>&1; then
+		wget -q -T "$TIMEOUT" -U 'wlsunset-location/1.0' -O - "$1" 2>/dev/null
+	else
+		return 1
+	fi
+}
+
+extract_json_number() {
+	# extract_json_number BODY KEY — first numeric value of "KEY" in flat JSON.
+	# Accepts quoted and unquoted numbers; anything else fails validation
+	# before it can reach the output file.
+	printf '%s' "$1" |
+		sed -n 's/.*"'"$2"'"[[:space:]]*:[[:space:]]*"\{0,1\}\(-\{0,1\}[0-9]\{1,4\}\(\.[0-9]\{1,8\}\)\{0,1\}\)"\{0,1\}.*/\1/p' |
+		head -n 1
+}
+
+extract_json_string() {
+	# extract_json_string BODY KEY — first quoted string value of "KEY".
+	printf '%s' "$1" |
+		sed -n 's/.*"'"$2"'"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' |
+		head -n 1
+}
+
+# --- Location sources ------------------------------------------------------
+
+source_geoclue() {
+	# Local geoclue probe through the where-am-i demo tool.
+	# timeout keeps a missing agent from hanging the script.
+	command -v where-am-i >/dev/null 2>&1 || return 1
+	command -v timeout >/dev/null 2>&1 || return 1
+
+	log "looking up location via geoclue (where-am-i, ${TIMEOUT}s limit) ..."
+	out=$(timeout "$TIMEOUT" where-am-i 2>/dev/null || true)
+
+	lat=$(printf '%s\n' "$out" |
+		sed -n 's/^[[:space:]]*[Ll]atitude:[[:space:]]*\(-\{0,1\}[0-9.]\{1,12\}\).*/\1/p' |
+		head -n 1)
+	lon=$(printf '%s\n' "$out" |
+		sed -n 's/^[[:space:]]*[Ll]ongitude:[[:space:]]*\(-\{0,1\}[0-9.]\{1,12\}\).*/\1/p' |
+		head -n 1)
+
+	valid_coord_pair "$lat" "$lon" || return 1
+
+	LAT_OUT=$lat
+	LON_OUT=$lon
+	SOURCE_NAME=geoclue
+	return 0
+}
+
+source_ip_geo() {
+	# IP geolocation. Coordinates describe the public address the request
+	# leaves from, so a VPN makes this wrong by design. The URL table is
+	# fixed; $PROVIDERS only selects slugs from it.
+	[ -n "$PROVIDERS" ] || return 1
+
+	for slug in $PROVIDERS; do
+		case $slug in
+		ipinfo)
+			url='https://ipinfo.io/json'
+			style=loc
+			;;
+		geojs)
+			url='https://get.geojs.io/v1/ip/geo.json'
+			style=kv
+			;;
+		ipapi)
+			url='https://ipapi.co/json/'
+			style=kv
+			;;
+		*)
+			warn "unknown provider '$slug' in WLSUNSET_GEO_PROVIDERS; skipping"
+			continue
+			;;
+		esac
+
+		log "looking up location via $slug ..."
+		if ! body=$(fetch "$url"); then
+			warn "$slug: request failed"
+			continue
+		fi
+
+		if [ "$style" = loc ]; then
+			# ipinfo packs both values into one "loc": "lat,lon" string.
+			pair=$(extract_json_string "$body" loc)
+			case $pair in
+			*,*) ;;
+			*)
+				warn "$slug: response did not contain a usable coordinate pair"
+				continue
+				;;
+			esac
+			lat=${pair%%,*}
+			lon=${pair##*,}
+		else
+			lat=$(extract_json_number "$body" latitude)
+			lon=$(extract_json_number "$body" longitude)
+		fi
+
+		if ! valid_coord_pair "$lat" "$lon"; then
+			warn "$slug: response did not contain a usable coordinate pair"
+			continue
+		fi
+
+		LAT_OUT=$lat
+		LON_OUT=$lon
+		SOURCE_NAME=$slug
+		return 0
+	done
+
+	return 1
+}
+
+# --- Output ----------------------------------------------------------------
+
+guard_target_not_vcs() {
+	# Refuse to write inside a git or chezmoi source tree. Walks from the
+	# target directory to the root looking for marker files.
+	d=$(dirname -- "$TARGET")
+	while :; do
+		for marker in .git .chezmoi .chezmoiroot .chezmoidata .chezmoidata.yaml; do
+			if [ -e "$d/$marker" ]; then
+				warn "$TARGET is inside $d (found $marker)"
+				if [ "$FORCE" -eq 1 ]; then
+					warn "--force given, writing anyway"
+					return 0
+				fi
+				die "choose a target outside the source tree, or pass --force" 3
+			fi
+		done
+		if [ "$d" = "/" ]; then
+			return 0
+		fi
+		d=$(dirname -- "$d")
+	done
+}
+
+write_env_file() {
+	# $1 latitude, $2 longitude. Temp file in the destination directory,
+	# then rename, so readers only ever see a complete file — the pattern
+	# the session manager uses for its state file.
+	dir=$(dirname -- "$TARGET")
+	if [ ! -d "$dir" ]; then
+		mkdir -p -- "$dir" || die "cannot create directory: $dir"
+	fi
+
+	tmp=$(mktemp "$dir/.wlsunset.env.XXXXXX") || die "cannot create a temp file in $dir"
+	if ! chmod 600 "$tmp"; then
+		rm -f "$tmp"
+		die "cannot restrict permissions on the temp file"
+	fi
+
+	if ! {
+		printf '# Generated by wlsunset-location (%s source) on %s.\n' \
+			"$SOURCE_NAME" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+		printf '# Machine-local; do not commit. Regenerate with: wlsunset-location\n'
+		printf 'WLSUNSET_LATITUDE="%s"\n' "$1"
+		printf 'WLSUNSET_LONGITUDE="%s"\n' "$2"
+	} >"$tmp"; then
+		rm -f "$tmp"
+		die "cannot write to $tmp"
+	fi
+
+	if ! mv -f "$tmp" "$TARGET"; then
+		rm -f "$tmp"
+		die "cannot move the temp file into place at $TARGET"
+	fi
+}
+
+# --- Main ------------------------------------------------------------------
+
+while [ "$#" -gt 0 ]; do
+	case $1 in
+	-h | --help)
+		usage
+		exit 0
+		;;
+	-f | --force)
+		FORCE=1
+		shift
+		;;
+	-o | --output)
+		[ "$#" -ge 2 ] || die "missing argument for $1"
+		TARGET=$2
+		shift 2
+		;;
+	--output=*)
+		TARGET=${1#*=}
+		shift
+		;;
+	-l | --lat)
+		[ "$#" -ge 2 ] || die "missing argument for $1"
+		OPT_LAT=$2
+		shift 2
+		;;
+	--lat=*)
+		OPT_LAT=${1#*=}
+		shift
+		;;
+	--lon)
+		[ "$#" -ge 2 ] || die "missing argument for $1"
+		OPT_LON=$2
+		shift 2
+		;;
+	--lon=*)
+		OPT_LON=${1#*=}
+		shift
+		;;
+	-p | --precision)
+		[ "$#" -ge 2 ] || die "missing argument for $1"
+		PRECISION=$2
+		shift 2
+		;;
+	--precision=*)
+		PRECISION=${1#*=}
+		shift
+		;;
+	-t | --timeout)
+		[ "$#" -ge 2 ] || die "missing argument for $1"
+		TIMEOUT=$2
+		shift 2
+		;;
+	--timeout=*)
+		TIMEOUT=${1#*=}
+		shift
+		;;
+	*)
+		die "unknown option: $1 (see --help)"
+		;;
+	esac
+done
+
+case $PRECISION in
+'' | *[!0-9]*) die "precision must be a whole number" ;;
+esac
+[ "$PRECISION" -le 6 ] || die "precision must be between 0 and 6"
+
+case $TIMEOUT in
+'' | *[!0-9]*) die "timeout must be a whole number of seconds" ;;
+esac
+[ "$TIMEOUT" -ge 1 ] || die "timeout must be at least 1 second"
+
+# --lat/--lon are a pair: both or neither.
+if { [ -n "$OPT_LAT" ] || [ -n "$OPT_LON" ]; } && { [ -z "$OPT_LAT" ] || [ -z "$OPT_LON" ]; }; then
+	die "--lat and --lon must be given together"
+fi
+
+if [ -n "$OPT_LAT" ]; then
+	valid_coord_pair "$OPT_LAT" "$OPT_LON" ||
+		die "invalid coordinates (need decimal degrees: lat in ±90, lon in ±180), got lat=$OPT_LAT lon=$OPT_LON"
+fi
+
+if [ -n "$OPT_LAT" ]; then
+	LAT_OUT=$OPT_LAT
+	LON_OUT=$OPT_LON
+	SOURCE_NAME=manual
+elif source_geoclue; then
+	:
+elif source_ip_geo; then
+	:
+else
+	die "could not determine the location from any source (the existing file was left untouched)" 2
+fi
+
+# Round once, centrally, so every source produces the same file format.
+LAT_OUT=$(round_coord "$LAT_OUT")
+LON_OUT=$(round_coord "$LON_OUT")
+valid_coord_pair "$LAT_OUT" "$LON_OUT" ||
+	die "rounded coordinates failed validation (this is a bug): $LAT_OUT $LON_OUT"
+
+guard_target_not_vcs
+write_env_file "$LAT_OUT" "$LON_OUT"
+
+log "wrote $TARGET (source: $SOURCE_NAME)"
+log "  WLSUNSET_LATITUDE=\"$LAT_OUT\""
+log "  WLSUNSET_LONGITUDE=\"$LON_OUT\""
+
+# Restart the daemon when it is running, so the new coordinates apply
+# without waiting for the next login. Inactive service: nothing to do.
+if command -v systemctl >/dev/null 2>&1; then
+	if systemctl --user is-active --quiet wlsunset.service 2>/dev/null; then
+		if systemctl --user restart wlsunset.service; then
+			log "restarted wlsunset.service"
+		else
+			warn "could not restart wlsunset.service"
+		fi
+	fi
+fi
+
+# vim: ft=sh

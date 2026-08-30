@@ -1,0 +1,14 @@
+# One-shot upload of the Calibre library to Google Drive.
+# Triggered by calibre-sync.timer; see that unit for the schedule.
+
+[Unit]
+Description=Mirror Calibre books flat to Google Drive
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/calibre-drive-sync
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=sway-session.target

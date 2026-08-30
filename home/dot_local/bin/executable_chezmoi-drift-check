@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+set -eu
+
+# Notify when deployed dotfiles have drifted from the chezmoi source.
+# Used by chezmoi-drift.service (daily timer). Silent when in sync.
+
+# Need chezmoi and a display notification daemon.
+if ! command -v chezmoi >/dev/null 2>&1; then
+	exit 0
+fi
+
+# Only check when the working tree exists.
+if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
+	exit 0
+fi
+
+# Use chezmoi status to detect drift. Output is empty when in sync.
+# --no-pager avoids paging, 2>/dev/null hides git fetch noise.
+status_output=""
+if status_output=$(chezmoi status 2>/dev/null); then
+	:
+else
+	# chezmoi status exits non-zero when not in a working tree or on error — ignore.
+	exit 0
+fi
+
+if [ -z "$status_output" ]; then
+	exit 0
+fi
+
+# Count changed files (lines).
+count=$(printf '%s\n' "$status_output" | wc -l | tr -d ' ')
+# Truncate preview to first 5 lines for the notification body.
+preview=$(printf '%s\n' "$status_output" | head -n 5)
+
+if command -v notify-send >/dev/null 2>&1; then
+	notify-send -u normal -a "chezmoi" "󰚰 dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp"
+fi

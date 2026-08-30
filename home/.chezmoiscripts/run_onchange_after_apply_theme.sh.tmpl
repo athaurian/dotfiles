@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+set -eu
+
+# chezmoi:template:left-delimiter="'{{" right-delimiter="}}'"
+#'{{ $a := .flint.appearance }}'
+#'{{ $d := .flint.desktop }}'
+#'{{ $theme := .flint.active_theme }}'
+
+COLOR_SCHEME='{{ $a.color_scheme }}'
+GTK_THEME='{{ $a.gtk_theme }}'
+ICON_THEME='{{ $a.icon_theme }}'
+WALLPAPER='{{ $a.wallpaper }}'
+THEME='{{ $theme }}'
+FONT_NAME="'{{ $d.font_family_sans }}' '{{ $d.font_size }}'"
+MONO_FONT_NAME="'{{ $d.font_family }}' '{{ $d.font_size }}'"
+DOCUMENT_FONT_NAME="'{{ $d.font_family_sans }}' '{{ $d.font_size }}'"
+CURSOR_THEME='{{ $d.cursor_theme }}'
+CURSOR_SIZE='{{ $d.cursor_size }}'
+
+# Apply GTK / Desktop interface preferences (hot-reload for GTK 3/4 via GSettings;
+# .gtkrc-2.0 and gtk-3.0/gtk-4.0/settings.ini are also templated and updated by chezmoi)
+if command -v gsettings >/dev/null 2>&1; then
+	gsettings set org.gnome.desktop.interface color-scheme "$COLOR_SCHEME" || true
+	gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
+	gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
+	gsettings set org.gnome.desktop.interface font-name "$FONT_NAME" || true
+	gsettings set org.gnome.desktop.interface document-font-name "$DOCUMENT_FONT_NAME" || true
+	gsettings set org.gnome.desktop.interface monospace-font-name "$MONO_FONT_NAME" || true
+	gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
+	gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
+fi
+
+# Restart notification daemon if active
+if command -v systemctl >/dev/null 2>&1; then
+	if systemctl --user is-active --quiet mako.service 2>/dev/null; then
+		systemctl --user restart mako.service || true
+	fi
+fi
+
+# Reload Sway configuration
+if [ -n "${SWAYSOCK:-}" ] && command -v swaymsg >/dev/null 2>&1; then
+	swaymsg reload || true
+fi
+
+# Apply themed wallpaper (expand tilde safely in POSIX sh)
+WALLPAPER_PATH=$(eval echo "$WALLPAPER")
+
+# Prefer the last wallpaper used in this theme's rotation, falling back
+# to the theme's default wallpaper.
+LAST_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/wallpaper_last_$THEME"
+if [ -s "$LAST_FILE" ]; then
+	LAST_WALLPAPER=$(sed -n '1p' "$LAST_FILE") || true
+	if [ -n "$LAST_WALLPAPER" ]; then
+		WALLPAPER_PATH=$(eval echo "$LAST_WALLPAPER") || true
+	fi
+fi
+
+if [ -n "$WALLPAPER_PATH" ] && [ -f "$WALLPAPER_PATH" ] && command -v flint-wallpaper >/dev/null 2>&1; then
+	flint-wallpaper --theme "$THEME" --set "$WALLPAPER_PATH" || true
+fi
+
+# vim: ft=sh

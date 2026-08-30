@@ -1,0 +1,9 @@
+--{{ $flavor := .flint.catppuccin_flavor }}
+return {
+  {
+    "LazyVim/LazyVim",
+    opts = { colorscheme = "catppuccin-{{ $flavor }}" },
+  },
+}
+
+-- vim: ft=lua

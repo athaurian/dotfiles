@@ -1,0 +1,111 @@
+[user]
+  name = Hanif Ilham Athaurrahman
+  email = 319663671+athaurian@users.noreply.github.com
+  signingkey = 2833A47E695EAB34
+
+[init]
+  defaultBranch = main
+
+[core]
+  editor = nvim
+  excludesfile = ~/.gitignore
+  autocrlf = input
+
+[commit]
+  gpgsign = true
+  verbose = true
+
+[tag]
+  gpgSign = true
+  sort = version:refname
+
+
+[gpg]
+  format = openpgp
+
+[pull]
+  rebase = true
+
+[merge]
+  conflictstyle = zdiff3
+
+[rebase]
+  autoSquash = true
+  autoStash = true
+  updateRefs = true
+
+[rerere]
+  enabled = true
+  autoupdate = true
+
+[push]
+  default = simple
+  autoSetupRemote = true
+  followTags = true
+
+[fetch]
+  prune = true
+  pruneTags = true
+
+[diff]
+  algorithm = histogram
+  colorMoved = plain
+  mnemonicPrefix = true
+  renames = true
+
+[color]
+  ui = auto
+
+[column]
+  ui = auto
+
+[branch]
+  sort = -committerdate
+
+[help]
+  autocorrect = prompt
+
+[alias]
+  # Branching & Switching
+  br = branch
+  co = checkout
+  sw = switch
+
+  # Committing & Reverting
+  ca = commit --amend --no-edit
+  ci = commit
+  cm = commit --message
+  undo = reset --soft HEAD~1
+  wip = !git add -A && git commit -m 'wip: work in progress [skip ci]'
+
+  # History & Logging
+  last = log -1 --stat
+  lg = log --oneline --graph --decorate --all
+  vsig = log --show-signature -1
+
+  # Remote Management
+  r = remote
+  ra = remote add
+  rrm = remote remove
+
+  # Remote Sync (Push & Pull)
+  p = push
+  pl = pull
+  pom = push origin main
+  pushf = push --force-with-lease
+
+  # Status & Staging
+  a = add
+  aa = add --all
+  s = status -sb
+  unstage = restore --staged
+
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+
+# vim: ft=gitconfig

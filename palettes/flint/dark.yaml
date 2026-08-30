@@ -1,0 +1,85 @@
+appearance:
+  color_scheme: prefer-dark
+  gtk_theme: Orchis-Dark-Compact
+  icon_theme: Papirus-Dark
+  wallpaper: ~/Pictures/Wallpapers/dark/flower-basket.jpg
+catppuccin_flavor: mocha
+meta:
+  description: A warm neutral dark-grey theme mixing One Dark hues with Sway chrome.
+  name: Flint
+  variant: dark
+raw:
+  accent_blue: "#5a8bb0"
+  accent_blue_bright: "#7bb3dc"
+  accent_border: "#5282a6"
+  accent_cyan: "#56b6c2"
+  accent_cyan_bright: "#6ac9d4"
+  ansi_black: "#47423b"
+  ansi_blue: "#68a0ca"
+  ansi_bright_black: "#716b61"
+  ansi_bright_blue: "#8bc2ec"
+  ansi_bright_cyan: "#79dbe8"
+  ansi_bright_green: "#b2de91"
+  ansi_bright_magenta: "#e3a2f8"
+  ansi_bright_red: "#f5a3aa"
+  ansi_bright_white: "#ffffff"
+  ansi_bright_yellow: "#f5d898"
+  ansi_cyan: "#56b6c2"
+  ansi_green: "#98c379"
+  ansi_magenta: "#cb82e2"
+  ansi_red: "#e8757e"
+  ansi_white: "#e2dfdb"
+  ansi_yellow: "#e5c07b"
+  bg: "#1c1a17"
+  black: "#000000"
+  border_inactive: "#686158"
+  critical_bg: "#900000"
+  bg_deep: "#100e0b"
+  diff_add: "#2b4632"
+  diff_change: "#2a4358"
+  diff_delete: "#542a2e"
+  diff_text: "#4d7a9e"
+  error: "#e8757e"
+  error_bright: "#f5a3aa"
+  error_deep: "#ba3636"
+  hover_blue: "#b2d3f2"
+  bg_subtle: "#151310"
+  overlay_dim: "#847d74"
+  overlay_strong: "#9e988d"
+  peach: "#d19a66"
+  peach_bright: "#dfaa7b"
+  purple: "#c678dd"
+  purple_bright: "#d890ea"
+  selection: "#3a4451"
+  success: "#98c379"
+  success_bright: "#a8d487"
+  surface_0: "#3b3731"
+  surface_1: "#443f39"
+  surface_2: "#504b45"
+  text: "#eae7e3"
+  text_max: "#ffffff"
+  text_muted: "#a9a298"
+  text_secondary: "#b9b3aa"
+  warning_deep: "#c28445"
+  warning_tint: "#3f3524"
+  yellow: "#e5c07b"
+  yellow_bright: "#f2d591"
+raw_aliases:
+  - [accent_cyan, ansi_cyan]
+  - [ansi_bright_red, error_bright]
+  - [ansi_bright_white, text_max]
+  - [ansi_green, success]
+  - [ansi_red, error]
+  - [ansi_yellow, yellow]
+raw_near_aliases: []
+
+semantic_overrides:
+  inc_search_bg: accent
+  swaylock_caps_key_hl: yellow_bright
+  window_focused_border: text
+qt_bevel:
+  - surface_2
+  - surface_1
+  - surface_0
+  - bg
+  - bg_subtle

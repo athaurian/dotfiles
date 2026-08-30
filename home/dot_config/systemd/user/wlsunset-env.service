@@ -1,0 +1,6 @@
+[Unit]
+Description=Generate wlsunset.env from machine location
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/wlsunset-location

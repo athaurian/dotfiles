@@ -1,0 +1,13 @@
+[Unit]
+Description=Clipboard history daemon (cliphist)
+Documentation=man:cliphist(1)
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+ExecStart=/bin/sh -c 'wl-paste --watch cliphist store'
+Restart=on-failure
+RestartSec=1
+
+[Install]
+WantedBy=sway-session.target

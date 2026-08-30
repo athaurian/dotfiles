@@ -1,0 +1,48 @@
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# --- Aliases ---
+if [ -f "$HOME/.bash_aliases" ]; then
+	. "$HOME/.bash_aliases"
+fi
+
+# --- History ---
+export HISTSIZE=50000
+export HISTFILESIZE=100000
+export HISTCONTROL=ignoredups:erasedups
+export HISTTIMEFORMAT='%F %T '
+shopt -s histappend 2>/dev/null || true
+shopt -s cmdhist 2>/dev/null || true
+
+# --- Environment ---
+set -o vi
+bind -x '"\C-l": clear'
+PROMPT_COMMAND='history -a; EXIT_CODE=$?'
+PS1='\[\e[1;32m\]\u@\h \[\e[1;34m\]\w\[\e[0m\] $(if [ $EXIT_CODE -ne 0 ]; then echo "\[\e[1;31m\]($EXIT_CODE)\[\e[0m\]"; fi)\n\$ '
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+*":$PNPM_HOME/bin:"*) ;;
+*) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
+
+# --- Other tools ---
+eval "$(zoxide init bash)"
+eval "$(fnm env --use-on-cd)"
+
+# fzf keybindings (Ctrl-r history, Ctrl-t files, Alt-c dirs). (Only if installed)
+if command -v fzf >/dev/null 2>&1; then
+	eval "$(fzf --bash 2>/dev/null)"
+	# Use fd if available for faster file search
+	if command -v fd >/dev/null 2>&1; then
+		export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+		export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+		export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+	fi
+fi
+
+# vim: ft=bash

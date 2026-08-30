@@ -1,0 +1,60 @@
+#{{ $cd := .flint.dark.resolved }}
+#{{ $cl := .flint.light.resolved }}
+#{{ $d := .flint.desktop }}
+#{{ $ad := .flint.dark.ansi_resolved }}
+#{{ $al := .flint.light.ansi_resolved }}
+
+font = {{ $d.font_family_nerd }} Mono:size={{ $d.font_size }}
+pad = 4x4
+resize-by-cells = no
+initial-color-theme = {{ .flint.active_theme }}
+
+[colors-dark]
+foreground = {{ $cd.text.bare }}
+background = {{ $cd.background.bare }}
+regular0 = {{ $ad.black.bare }}
+regular1 = {{ $ad.red.bare }}
+regular2 = {{ $ad.green.bare }}
+regular3 = {{ $ad.yellow.bare }}
+regular4 = {{ $ad.blue.bare }}
+regular5 = {{ $ad.magenta.bare }}
+regular6 = {{ $ad.cyan.bare }}
+regular7 = {{ $ad.white.bare }}
+bright0 = {{ $ad.bright_black.bare }}
+bright1 = {{ $ad.bright_red.bare }}
+bright2 = {{ $ad.bright_green.bare }}
+bright3 = {{ $ad.bright_yellow.bare }}
+bright4 = {{ $ad.bright_blue.bare }}
+bright5 = {{ $ad.bright_magenta.bare }}
+bright6 = {{ $ad.bright_cyan.bare }}
+bright7 = {{ $ad.bright_white.bare }}
+selection-foreground = {{ $cd.terminal_selection_fg.bare }}
+selection-background = {{ $cd.terminal_selection_bg.bare }}
+jump-labels = {{ $cd.jump_label_fg.bare }} {{ $cd.jump_label_bg.bare }}
+urls = {{ $cd.url.bare }}
+
+[colors-light]
+foreground = {{ $cl.text.bare }}
+background = {{ $cl.background.bare }}
+regular0 = {{ $al.black.bare }}
+regular1 = {{ $al.red.bare }}
+regular2 = {{ $al.green.bare }}
+regular3 = {{ $al.yellow.bare }}
+regular4 = {{ $al.blue.bare }}
+regular5 = {{ $al.magenta.bare }}
+regular6 = {{ $al.cyan.bare }}
+regular7 = {{ $al.white.bare }}
+bright0 = {{ $al.bright_black.bare }}
+bright1 = {{ $al.bright_red.bare }}
+bright2 = {{ $al.bright_green.bare }}
+bright3 = {{ $al.bright_yellow.bare }}
+bright4 = {{ $al.bright_blue.bare }}
+bright5 = {{ $al.bright_magenta.bare }}
+bright6 = {{ $al.bright_cyan.bare }}
+bright7 = {{ $al.bright_white.bare }}
+selection-foreground = {{ $cl.terminal_selection_fg.bare }}
+selection-background = {{ $cl.terminal_selection_bg.bare }}
+jump-labels = {{ $cl.jump_label_fg.bare }} {{ $cl.jump_label_bg.bare }}
+urls = {{ $cl.url.bare }}
+
+# vim: ft=dosini

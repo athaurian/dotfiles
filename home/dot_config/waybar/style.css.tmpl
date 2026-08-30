@@ -1,0 +1,279 @@
+/* chezmoi:template:left-delimiter="'{{" right-delimiter="}}'" */
+/* '{{ $c := .flint.resolved }}' */
+/* '{{ $d := .flint.desktop }}' */
+/* '{{ $al := .flint.alpha }}' */
+
+@define-color flint-base '{{ $c.background.hex }}';
+@define-color flint-text '{{ $c.text.hex }}';
+@define-color flint-text-max '{{ $c.text_max.hex }}';
+@define-color flint-text-muted '{{ $c.text_muted.hex }}';
+@define-color flint-overlay-strong '{{ $c.overlay_strong.hex }}';
+@define-color flint-border-inactive '{{ $c.border_inactive.hex }}';
+@define-color flint-focus-border '{{ $c.focus_border.hex }}';
+@define-color flint-accent-text '{{ $c.accent_text.hex }}';
+@define-color flint-accent-bright '{{ $c.accent_bright.hex }}';
+@define-color flint-selection '{{ $c.selection.hex }}';
+@define-color flint-on-selection '{{ $c.on_selection.hex }}';
+@define-color flint-surface-1 '{{ $c.surface_1.hex }}';
+@define-color flint-warning '{{ $c.warning.hex }}';
+@define-color flint-caution '{{ $c.caution.hex }}';
+@define-color flint-error-text '{{ $c.error_text.hex }}';
+@define-color flint-error-bright '{{ $c.error_bright.hex }}';
+@define-color flint-error-deep '{{ $c.error_deep.hex }}';
+@define-color flint-success '{{ $c.success.hex }}';
+@define-color flint-transparent '{{ $al.transparent.rgba }}';
+@define-color flint-hover-neutral '{{ $al.text_8.rgba }}';
+@define-color flint-hover-warning '{{ $c.hover_warning_bg.hex }}';
+@define-color flint-hover-error '{{ $c.hover_error_bg.hex }}';
+
+* {
+  border: none;
+  border-radius: 0;
+  font-family:
+    "'{{ $d.font_family }}'", "'{{ $d.font_family_nerd }}' Propo", monospace;
+  font-size: 12px;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: @flint-base;
+  color: @flint-text;
+}
+
+/* --- Workspaces --- */
+#workspaces {
+  margin: 0;
+  padding: 0 2px;
+}
+
+#workspaces button {
+  padding: 0 6px;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid @flint-transparent;
+  color: @flint-text-muted;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  text-shadow: none;
+  min-width: 0;
+  min-height: 0;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+#workspaces button:hover {
+  color: @flint-text-max;
+  background-color: @flint-hover-neutral;
+  border-bottom-color: @flint-border-inactive;
+}
+
+#workspaces button.focused {
+  color: @flint-accent-text;
+}
+
+#workspaces button.focused:hover {
+  color: @flint-accent-bright;
+  background-color: @flint-hover-neutral;
+  border-bottom-color: @flint-accent-text;
+}
+
+#workspaces button.urgent {
+  color: @flint-error-text;
+  border-bottom-color: @flint-error-text;
+}
+
+#workspaces button.urgent:hover {
+  color: @flint-error-bright;
+  background-color: @flint-hover-error;
+  border-bottom-color: @flint-error-text;
+}
+
+#mode {
+  padding: 0 8px;
+  margin: 1px 4px;
+  background-color: @flint-hover-warning;
+  color: @flint-warning;
+  border: 1px solid @flint-warning;
+  font-weight: bold;
+}
+
+/* --- Shared --- */
+#battery,
+#bluetooth,
+#clock,
+#cpu,
+#custom-dnd,
+#custom-mpris,
+#custom-updates,
+#memory,
+#pulseaudio,
+#tray {
+  padding: 0 8px;
+  margin: 1px;
+  color: @flint-text;
+  background-color: @flint-transparent;
+  border: 1px solid @flint-transparent;
+  opacity: 1;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+#battery:hover,
+#bluetooth:hover,
+#clock:hover,
+#cpu:hover,
+#custom-dnd:hover,
+#custom-mpris:hover,
+#custom-updates:hover,
+#memory:hover,
+#pulseaudio:hover {
+  color: @flint-text-max;
+  background-color: @flint-hover-neutral;
+  border-color: @flint-border-inactive;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+  color: @flint-text-muted;
+}
+
+#bluetooth.connected {
+  color: @flint-text;
+}
+
+#custom-mpris {
+  color: @flint-text-muted;
+}
+
+#custom-updates.has-updates {
+  color: @flint-warning;
+}
+
+#custom-updates.has-updates:hover {
+  background-color: @flint-hover-warning;
+  border-color: @flint-warning;
+}
+
+#custom-dnd {
+  padding: 0 6px;
+  margin-right: 6px;
+}
+
+#custom-dnd.enabled {
+  color: @flint-error-text;
+}
+
+#custom-dnd.enabled:hover {
+  background-color: @flint-hover-error;
+  border-color: @flint-error-text;
+}
+
+#custom-separator {
+  padding: 0;
+  margin: 0;
+  color: @flint-text-muted;
+  background-color: @flint-transparent;
+}
+
+/* --- Window Title --- */
+#window {
+  padding: 0 12px;
+  margin: 1px;
+  background-color: @flint-transparent;
+  border: 1px solid @flint-transparent;
+  font-size: 12px;
+  transition:
+    color 200ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+#window image {
+  padding: 0 4px;
+}
+
+#window:hover {
+  color: @flint-text-max;
+  background-color: @flint-hover-neutral;
+  border-color: @flint-border-inactive;
+}
+
+/* --- Battery States --- */
+#battery.warning {
+  color: @flint-warning;
+}
+
+#battery.warning:hover {
+  background-color: @flint-hover-warning;
+  border-color: @flint-warning;
+}
+
+#battery.critical {
+  color: @flint-error-text;
+}
+
+#battery.critical:hover {
+  background-color: @flint-hover-error;
+  border-color: @flint-error-text;
+}
+
+/* --- Tray & Tooltips --- */
+#tray {
+  padding: 0 4px;
+}
+
+#tray > widget {
+  padding: 0 6px;
+  transition: border-bottom 120ms ease;
+  border-bottom: 1px solid @flint-transparent;
+}
+
+#tray > widget:hover {
+  border-bottom-color: @flint-border-inactive;
+}
+
+#tray menu,
+tooltip {
+  background-color: @flint-base;
+  color: @flint-text;
+  border: 1px solid @flint-text;
+}
+
+#tray menu menuitem {
+  padding: 0;
+  margin: 0;
+  color: @flint-text;
+}
+
+#tray menu menuitem:hover {
+  background-color: @flint-surface-1;
+  color: @flint-text-max;
+  border-color: @flint-surface-1;
+}
+
+#tray menu menuitem:disabled {
+  color: @flint-text-muted;
+  background-color: @flint-transparent;
+  border-color: @flint-transparent;
+}
+
+#tray menu separator {
+  background-color: @flint-transparent;
+  min-height: 0;
+  margin: 0;
+}
+
+tooltip label {
+  background-color: @flint-transparent;
+  color: @flint-text;
+  padding: 4px 8px;
+}
+
+/*
+vim: ft=css
+*/

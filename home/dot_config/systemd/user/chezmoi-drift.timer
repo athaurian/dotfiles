@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily chezmoi drift check
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=15min
+Persistent=true
+Unit=chezmoi-drift.service
+
+[Install]
+WantedBy=sway-session.target

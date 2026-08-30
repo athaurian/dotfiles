@@ -1,0 +1,39 @@
+#{{ $c := .flint.resolved }}
+#{{ $d := .flint.desktop }}
+
+# --- Appearance (global defaults) ---
+font={{ $d.font_family_nerd }} Propo {{ $d.font_size }}
+edge=top
+message-padding=8
+button-padding=6
+button-border-size=0
+border-bottom-size=2
+details-border-size=2
+
+[warning]
+# Bar
+background={{ $c.warning_bg.hex }}
+border={{ $c.warning_accent.hex }}
+border-bottom={{ $c.warning_accent.hex }}
+# Message text
+text={{ $c.warning_fg.hex }}
+# Buttons
+button-background={{ $c.warning_bg.hex }}
+button-text={{ $c.warning_fg.hex }}
+# Details panel
+details-background={{ $c.background_subtle.hex }}
+
+[error]
+# Bar
+background={{ $c.error_bg.hex }}
+border={{ $c.error_text.hex }}
+border-bottom={{ $c.error_text.hex }}
+# Message text
+text={{ $c.error_fg.hex }}
+# Buttons
+button-background={{ $c.error_bg.hex }}
+button-text={{ $c.error_fg.hex }}
+# Details panel
+details-background={{ $c.error_bg.hex }}
+
+# vim: ft=dosini

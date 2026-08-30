@@ -1,0 +1,7 @@
+[misc]
+pre_sudo = true
+no_self_update = true
+cleanup = true
+
+[pre_commands]
+"CachyOS Rate Mirrors" = "if command -v cachyos-rate-mirrors >/dev/null 2>&1; then sudo cachyos-rate-mirrors; else echo 'Skipped (missing cachyos-rate-mirrors)'; fi"

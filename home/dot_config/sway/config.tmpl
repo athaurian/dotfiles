@@ -1,0 +1,235 @@
+#{{ $d := .flint.desktop }}
+#{{ $a := .flint.appearance }}
+
+# SwayFX configuration.
+# Colors and fonts are injected from the active Flint/Sand palette.
+
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+set $term foot
+set $menu fuzzel
+set $browser $HOME/.config/sway/scripts/wrapper_browser.sh
+set $filemanager sh -c 'exec ${FILEMANAGER:-thunar}'
+set $passwordmanager sh -c 'exec ${PASSWORD_MANAGER:-keepassxc}'
+
+# --- Colors ---
+#{{ $bg := .flint.resolved.background.hex }}
+#{{ $focus_border := .flint.resolved.window_focused_border.hex }}
+#{{ $inactive_border := .flint.resolved.window_inactive_border.hex }}
+#{{ $focused_bg := .flint.resolved.surface_1.hex }}
+#{{ $focused_fg := .flint.resolved.text_max.hex }}
+#{{ $focused_inactive_bg := .flint.resolved.window_focused_inactive_bg.hex }}
+#{{ $focused_inactive_fg := .flint.resolved.window_focused_inactive_text.hex }}
+#{{ $unfocused_bg := .flint.resolved.window_unfocused_bg.hex }}
+#{{ $unfocused_fg := .flint.resolved.window_unfocused_text.hex }}
+#{{ $err := .flint.resolved.error.hex }}
+#{{ $crit := .flint.resolved.critical_bg.hex }}
+#{{ $on_crit := .flint.resolved.on_critical.hex }}
+
+client.focused          {{ $focus_border }} {{ $focused_bg }} {{ $focused_fg }} {{ $focus_border }} {{ $focus_border }}
+client.focused_inactive {{ $inactive_border }} {{ $focused_inactive_bg }} {{ $focused_inactive_fg }} {{ $inactive_border }} {{ $inactive_border }}
+client.unfocused        {{ $inactive_border }} {{ $unfocused_bg }} {{ $unfocused_fg }} {{ $inactive_border }} {{ $inactive_border }}
+client.urgent           {{ $err }} {{ $crit }} {{ $on_crit }} {{ $err }} {{ $err }}
+client.placeholder      {{ $unfocused_bg }} {{ $unfocused_bg }} {{ $unfocused_fg }} {{ $unfocused_bg }} {{ $unfocused_bg }}
+client.background       {{ $bg }}
+
+# --- Appearance ---
+font pango:{{ $d.font_family_sans }} {{ $d.font_size }}
+hide_edge_borders smart_no_gaps
+default_border pixel 1
+default_floating_border normal 1
+gaps inner 3
+gaps outer 1
+
+# --- SwayFX Effects ---
+shadows enable
+shadow_blur_radius 14
+shadow_color #00000080
+shadow_offset 0 2
+shadow_inactive_color #00000080
+corner_radius 0
+default_dim_inactive 0.1
+dim_inactive_colors.unfocused #000000FF
+
+# layer_effects "notifications" disabled: mako layer name is not stable
+# across SwayFX releases, so keep shadows on launcher only. Re-enable
+# when the notifications layer name is reliable.
+# layer_effects "notifications" {
+#     shadows enable;
+# }
+
+layer_effects "launcher" {
+    shadows enable;
+}
+
+
+# --- Mouse ---
+input type:pointer {
+    accel_profile "flat"
+    pointer_accel 0.0
+}
+
+# --- Window Rules ---
+for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt
+for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt
+for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, border normal
+for_window [class="Pinentry-gtk"] floating enable, border normal, resize set width 30 ppt height 20 ppt
+for_window [app_id="nm-connection-editor"] floating enable, border normal
+for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt
+for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, resize set width 50 ppt height 70 ppt
+for_window [app_id="thunar" title="File Operation Progress"] floating enable, border normal
+for_window [app_id="thunar" title="Set Title of File"] floating enable, border normal
+for_window [app_id="thunar" title="Bulk Rename"] floating enable, border normal
+for_window [app_id="thunar" title=".*Rename.*"] floating enable, border normal
+for_window [window_role="pop-up"] floating enable, border normal
+for_window [window_role="bubble"] floating enable, border normal
+for_window [window_role="dialog"] floating enable, border normal
+
+# --- Terminal Window Rules ---
+for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show
+for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad
+
+# Touchpad: flat accel with natural scroll, tap, and disable-while-typing.
+input type:touchpad {
+    accel_profile flat
+    pointer_accel 0.75
+    natural_scroll enabled
+    tap enabled
+    dwt enabled
+    scroll_method two_finger
+    middle_emulation enabled
+}
+
+# --- Autostart ---
+exec $HOME/.config/sway/scripts/autostart.sh
+
+# --- Keybindings - Applications ---
+bindsym $mod+Return exec $term
+bindsym $mod+d exec $menu
+bindsym $mod+Shift+v exec pavucontrol --tab=3
+bindsym $mod+Shift+b exec blueman-manager
+bindsym $mod+b exec $browser
+bindsym $mod+e exec $filemanager
+bindsym $mod+Shift+p exec $passwordmanager
+bindsym $mod+Shift+w exec $HOME/.config/sway/scripts/rotate_wallpaper.py
+bindsym --no-repeat $mod+Shift+i exec $HOME/.config/sway/scripts/toggle_idle.sh
+bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
+bindsym $mod+Ctrl+v exec $HOME/.config/sway/scripts/clipboard.sh
+
+# --- Keybindings - Navigation ---
+floating_modifier $mod normal
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+bindsym $mod+a focus parent
+bindsym $mod+Shift+a focus child
+
+# --- Notifications ---
+bindsym $mod+n exec makoctl dismiss
+bindsym $mod+Shift+n exec makoctl dismiss --all
+bindsym $mod+Ctrl+n exec $HOME/.config/sway/scripts/mako-history.sh
+bindsym $mod+Shift+d exec $HOME/.config/waybar/scripts/mako-dnd.sh --toggle
+
+# --- Workspaces ---
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# --- Layout ---
+bindsym $mod+o splith
+bindsym $mod+v splitv
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+p layout toggle split
+bindsym $mod+f fullscreen
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+bindsym $mod+c move position center
+bindsym $mod+q kill
+
+# --- Scratchpad ---
+bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move scratchpad
+bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
+
+# --- Resize Mode ---
+mode "resize" {
+  bindsym $left resize shrink width 10px
+  bindsym $down resize grow height 10px
+  bindsym $up resize shrink height 10px
+  bindsym $right resize grow width 10px
+  bindsym Left resize shrink width 10px
+  bindsym Down resize grow height 10px
+  bindsym Up resize shrink height 10px
+  bindsym Right resize grow width 10px
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# --- Media & Hardware Keys ---
+bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
+bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+bindsym --locked XF86AudioPlay exec playerctl play-pause
+bindsym --locked XF86AudioPause exec playerctl play-pause
+bindsym --locked XF86AudioPrev exec playerctl previous
+bindsym --locked XF86AudioNext exec playerctl next
+bindsym --locked XF86AudioStop exec playerctl stop
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+
+# --- Screenshots ---
+bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
+bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
+bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
+
+# --- Session ---
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+x exec $HOME/.config/sway/scripts/lock.sh
+
+# --- System Control ---
+bindsym $mod+Shift+BackSpace exec $HOME/.config/sway/scripts/power_control.sh poweroff
+bindsym $mod+Shift+r exec $HOME/.config/sway/scripts/power_control.sh reboot
+bindsym $mod+Shift+z exec $HOME/.config/sway/scripts/power_control.sh suspend
+bindsym $mod+Shift+e exec $HOME/.config/sway/scripts/power_control.sh logout
+
+# --- Bar ---
+bar {
+  swaybar_command waybar
+}
+
+# vim: ft=swayconfig
