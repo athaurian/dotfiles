@@ -2,7 +2,7 @@
 
 This page explains how colors work in this repository. It covers where the colors come from, how they get into your config files, how to switch between the dark and light variants, and how wallpapers are recolored to match. It is written for people who are new to this kind of setup, so every term is defined the first time it appears.
 
-Everything inside this repo uses a custom theme called Flint (dark) and its light counterpart, Sand. Flint is a soft dark-grey theme built from colors in One Dark and Sway. They are applied to almost every app config in this repo.
+Everything inside this repo uses a custom theme called Flint (dark) and its light counterpart, Sand. Flint is a soft dark-grey theme built from colors in One Dark, the color scheme of the Atom text editor, and from Sway, the compositor that SwayFX is built on. The two variants exist so the desktop can follow the dark and light appearance settings with every app switching at the same time. They are applied to almost every app config in this repo.
 
 ## The color pipeline
 

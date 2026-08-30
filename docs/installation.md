@@ -19,7 +19,7 @@ This setup assumes your environment already has the following:
 - `bash` as the interactive shell
 - systemd user services
 
-A few of those terms deserve a quick definition. CachyOS is an Arch-based distribution tuned for performance. Wayland is the display protocol that most Linux desktops use, and X11 is its older predecessor. The window manager in this repository, SwayFX, is built on Wayland. `bash` is the shell, the program that reads the commands you type in a terminal. systemd user services are background programs that systemd starts for your user account, instead of for the whole machine.
+A few of those terms deserve a quick definition. CachyOS is an Arch-based distribution tuned for performance. Wayland is the display protocol that most Linux desktops use, and X11 is its older predecessor. The window manager, the program that draws and arranges your windows, is SwayFX, which is built on Wayland. `bash` is the shell, the program that reads the commands you type in a terminal. systemd user services are background programs that systemd starts for your user account, instead of for the whole machine.
 
 The setup targets Arch-based systems, so other distributions might need adjustments.
 
@@ -82,7 +82,7 @@ The `run_onchange_` onboarding script installs needed packages automatically. Th
 Here is what each of those means:
 
 - Scripts that start with `run_onchange_` are chezmoi hooks. They run whenever their source file changes, which suits one-time setup work.
-- Files that start with `symlink_` are installed as symbolic links. The links that land in `sway-session.target.wants/` make systemd start those services together with `sway-session.target`.
+- Files that start with `symlink_` are installed as symbolic links. The links that land in `sway-session.target.wants/` make systemd start those services together with `sway-session.target`, the unit that groups the session services.
 
 ## Package management
 
