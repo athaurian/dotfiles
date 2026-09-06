@@ -1,15 +1,23 @@
 #!/usr/bin/env sh
 set -eu
 
-# Waybar custom/dnd module + toggle.
-# Shows DND state from mako and toggles `do-not-disturb` mode on click.
+# Waybar custom/dnd module and toggle.
+# DND pauses dunst at DND_PAUSE_LEVEL (partial pause). Script notices that
+# are direct user feedback (this toggle, caffeine, wallpaper, idle warning,
+# clipboard, ...) carry override_pause_level=90 via dunstrc rules, so they
+# stay visible during DND. The screen lock pauses at 100, which hides even
+# those. Do not use `set-paused true` here: that is level 100, the maximum,
+# which nothing can bypass, so the "dnd enabled" bubble and all other
+# script notices would queue silently in history.
 
-MODE="do-not-disturb"
-APP_NAME="mako-dnd"
-ID_FILE="$XDG_RUNTIME_DIR/mako_dnd_id"
-LOCK_FILE="$XDG_RUNTIME_DIR/mako_dnd.lock"
+APP_NAME="dunst-dnd"
+ID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd_id"
+LOCK_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd.lock"
+# Must stay below the dunstrc dnd_bypass override (90) and below the lock
+# pause level (100); keep in sync with lock.sh.
+DND_PAUSE_LEVEL=50
 
-# Icons and text labels
+# Icons and text labels.
 ICON_ENABLED=""
 ICON_DISABLED=""
 TEXT_ENABLED="dnd enabled"
@@ -29,7 +37,7 @@ send_notice() {
 
 	if [ "$old_id" -gt 0 ] 2>/dev/null; then
 		new_id=$(
-			notify-send \
+			dunstify \
 				-a "$APP_NAME" \
 				-u low \
 				-t 3000 \
@@ -43,7 +51,7 @@ send_notice() {
 
 	if [ -z "$new_id" ]; then
 		new_id=$(
-			notify-send \
+			dunstify \
 				-a "$APP_NAME" \
 				-u low \
 				-t 3000 \
@@ -60,29 +68,32 @@ send_notice() {
 }
 
 is_dnd() {
-	if command -v makoctl >/dev/null 2>&1; then
-		# makoctl mode prints current modes, one per line.
-		makoctl mode 2>/dev/null | grep -qx "$MODE" 2>/dev/null
+	if command -v dunstctl >/dev/null 2>&1; then
+		# Any nonzero pause level counts as DND. The lock screen pauses at
+		# 100 and restores the previous level on unlock, so a transient
+		# 100 while locked still reads as DND (waybar is hidden then
+		# anyway).
+		[ "$(dunstctl get-pause-level 2>/dev/null)" != "0" ] 2>/dev/null
 	else
 		return 1
 	fi
 }
 
 toggle_dnd() {
-	if ! command -v makoctl >/dev/null 2>&1; then
-		notify-send -u critical "mako" "makoctl not found" 2>/dev/null || true
+	if ! command -v dunstctl >/dev/null 2>&1; then
+		notify-send -u critical "dunst" "dunstctl not found" 2>/dev/null || true
 		exit 1
 	fi
-	# Serialize like toggle_idle.sh. Flock briefly
+	# Serialize with flock like the swayidle caffeine toggle. Briefly
 	exec 9>"$LOCK_FILE"
 	flock -w 2 9 || exit 0
 
 	if is_dnd; then
 		send_notice "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>notifications on.</b> popups and sounds will appear again"
-		makoctl mode -r "$MODE" 2>/dev/null || true
+		dunstctl set-pause-level 0 2>/dev/null || true
 	else
 		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>notifications silenced.</b> click the indicator or press Super+Shift+d to disable"
-		makoctl mode -a "$MODE" 2>/dev/null || true
+		dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
 	fi
 	pkill -RTMIN+9 waybar 2>/dev/null || true
 }

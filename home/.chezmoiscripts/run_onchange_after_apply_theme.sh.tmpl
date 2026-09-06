@@ -5,6 +5,9 @@ set -eu
 #'{{ $a := .flint.appearance }}'
 #'{{ $d := .flint.desktop }}'
 #'{{ $theme := .flint.active_theme }}'
+# Re-run when the notification daemon config changes, not just when this
+# script does. Chezmoi run_onchange_ hashes the script body only.
+# dunstrc content hash: '{{ include "dot_config/dunst/dunstrc.tmpl" | sha256sum }}'
 
 COLOR_SCHEME='{{ $a.color_scheme }}'
 GTK_THEME='{{ $a.gtk_theme }}'
@@ -30,10 +33,14 @@ if command -v gsettings >/dev/null 2>&1; then
 	gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
 fi
 
-# Restart notification daemon if active
-if command -v systemctl >/dev/null 2>&1; then
-	if systemctl --user is-active --quiet mako.service 2>/dev/null; then
-		systemctl --user restart mako.service || true
+# Reload the notification daemon whenever it answers on the bus, whether or
+# not it runs under its systemd unit. Fall back to a unit restart only when
+# the daemon is silent but the unit claims to be active.
+if command -v dunstctl >/dev/null 2>&1; then
+	if dunstctl reload 2>/dev/null; then
+		:
+	elif command -v systemctl >/dev/null 2>&1 && systemctl --user is-active --quiet dunst.service 2>/dev/null; then
+		systemctl --user restart dunst.service || true
 	fi
 fi
 
@@ -42,8 +49,15 @@ if [ -n "${SWAYSOCK:-}" ] && command -v swaymsg >/dev/null 2>&1; then
 	swaymsg reload || true
 fi
 
-# Apply themed wallpaper (expand tilde safely in POSIX sh)
-WALLPAPER_PATH=$(eval echo "$WALLPAPER")
+# Apply themed wallpaper (expand a leading tilde safely in POSIX sh)
+expand_tilde() {
+	case "$1" in
+	"~"/*) printf '%s/%s' "$HOME" "${1#~/}" ;;
+	"~") printf '%s' "$HOME" ;;
+	*) printf '%s' "$1" ;;
+	esac
+}
+WALLPAPER_PATH=$(expand_tilde "$WALLPAPER")
 
 # Prefer the last wallpaper used in this theme's rotation, falling back
 # to the theme's default wallpaper.
@@ -51,7 +65,7 @@ LAST_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/wallpaper_last_$THEME"
 if [ -s "$LAST_FILE" ]; then
 	LAST_WALLPAPER=$(sed -n '1p' "$LAST_FILE") || true
 	if [ -n "$LAST_WALLPAPER" ]; then
-		WALLPAPER_PATH=$(eval echo "$LAST_WALLPAPER") || true
+		WALLPAPER_PATH=$(expand_tilde "$LAST_WALLPAPER") || true
 	fi
 fi
 

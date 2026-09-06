@@ -21,7 +21,7 @@ packages:
     - libnotify # notify-send utility for scripts
     - cliphist
     - fzf
-    - mako
+    - dunst # notification daemon. Dunstify ships with it.
     - polkit-gnome
     - satty
     - slurp
@@ -41,6 +41,7 @@ packages:
     - pipewire
     - pipewire-pulse
     - playerctl
+    - mpv-mpris # MPRIS plugin for mpv; feeds the waybar player module
 
     # --- TUI & CLI ---
     - bat

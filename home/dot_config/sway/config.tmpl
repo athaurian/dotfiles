@@ -45,26 +45,25 @@ gaps inner 3
 gaps outer 1
 
 # --- SwayFX Effects ---
+blur enable
+blur_passes 3
+blur_radius 5
+blur_xray disable
+for_window [app_id="helium"] opacity 0.9
+for_window [app_id="vesktop"] opacity 0.9
+
 shadows enable
 shadow_blur_radius 14
 shadow_color #00000080
 shadow_offset 0 2
 shadow_inactive_color #00000080
 corner_radius 0
-default_dim_inactive 0.1
+default_dim_inactive 0.2
 dim_inactive_colors.unfocused #000000FF
-
-# layer_effects "notifications" disabled: mako layer name is not stable
-# across SwayFX releases, so keep shadows on launcher only. Re-enable
-# when the notifications layer name is reliable.
-# layer_effects "notifications" {
-#     shadows enable;
-# }
 
 layer_effects "launcher" {
     shadows enable;
 }
-
 
 # --- Mouse ---
 input type:pointer {
@@ -91,6 +90,7 @@ for_window [window_role="dialog"] floating enable, border normal
 # --- Terminal Window Rules ---
 for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show
 for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad
+for_window [app_id="foot_clipboard"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad
 
 # Touchpad: flat accel with natural scroll, tap, and disable-while-typing.
 input type:touchpad {
@@ -114,10 +114,11 @@ bindsym $mod+Shift+b exec blueman-manager
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
 bindsym $mod+Shift+p exec $passwordmanager
-bindsym $mod+Shift+w exec $HOME/.config/sway/scripts/rotate_wallpaper.py
+bindsym $mod+Shift+w exec $HOME/.config/sway/scripts/rotate_wallpaper.py --next
+bindsym $mod+Ctrl+w exec $HOME/.config/sway/scripts/rotate_wallpaper.py --prev
 bindsym --no-repeat $mod+Shift+i exec $HOME/.config/sway/scripts/toggle_idle.sh
 bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
-bindsym $mod+Ctrl+v exec $HOME/.config/sway/scripts/clipboard.sh
+bindsym $mod+Ctrl+v exec $HOME/.config/sway/scripts/toggle_clipboard.sh
 
 # --- Keybindings - Navigation ---
 floating_modifier $mod normal
@@ -141,10 +142,10 @@ bindsym $mod+a focus parent
 bindsym $mod+Shift+a focus child
 
 # --- Notifications ---
-bindsym $mod+n exec makoctl dismiss
-bindsym $mod+Shift+n exec makoctl dismiss --all
-bindsym $mod+Ctrl+n exec $HOME/.config/sway/scripts/mako-history.sh
-bindsym $mod+Shift+d exec $HOME/.config/waybar/scripts/mako-dnd.sh --toggle
+bindsym $mod+n exec dunstctl close
+bindsym $mod+Shift+n exec dunstctl close-all
+bindsym $mod+Ctrl+n exec $HOME/.config/sway/scripts/dunst-history
+bindsym --no-repeat $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
 
 # --- Workspaces ---
 bindsym $mod+1 workspace number 1
@@ -181,7 +182,7 @@ bindsym $mod+c move position center
 bindsym $mod+q kill
 
 # --- Scratchpad ---
-bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move scratchpad
+bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad, 
 bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
 
 # --- Resize Mode ---
