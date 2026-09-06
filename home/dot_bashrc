@@ -17,10 +17,16 @@ shopt -s cmdhist 2>/dev/null || true
 # --- Environment ---
 set -o vi
 bind -x '"\C-l": clear'
-PROMPT_COMMAND='history -a; EXIT_CODE=$?'
+PROMPT_COMMAND='EXIT_CODE=$?; history -a'
 PS1='\[\e[1;32m\]\u@\h \[\e[1;34m\]\w\[\e[0m\] $(if [ $EXIT_CODE -ne 0 ]; then echo "\[\e[1;31m\]($EXIT_CODE)\[\e[0m\]"; fi)\n\$ '
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+case ":$PATH:" in
+*":$HOME/.local/bin:"*) ;;
+*) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+case ":$PATH:" in
+*":$HOME/.local/share/nvim/mason/bin:"*) ;;
+*) export PATH="$HOME/.local/share/nvim/mason/bin:$PATH" ;;
+esac
 
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
@@ -31,8 +37,12 @@ esac
 # pnpm end
 
 # --- Other tools ---
-eval "$(zoxide init bash)"
-eval "$(fnm env --use-on-cd)"
+if command -v zoxide >/dev/null 2>&1; then
+	eval "$(zoxide init bash)"
+fi
+if command -v fnm >/dev/null 2>&1; then
+	eval "$(fnm env --use-on-cd)"
+fi
 
 # fzf keybindings (Ctrl-r history, Ctrl-t files, Alt-c dirs). (Only if installed)
 if command -v fzf >/dev/null 2>&1; then

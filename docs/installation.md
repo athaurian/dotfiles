@@ -30,7 +30,7 @@ The setup targets Arch-based systems, so other distributions might need adjustme
 
 Most Arch packages come from the official repositories, but some of the things this setup needs are not packaged there. They are built and served from `forge`, my own package repository, hosted under the same GitHub account as these dotfiles. The GTK theme, the fonts, and a few utilities come from there, so you must configure it before anything else can happen. You must add the `forge` repository to `/etc/pacman.conf` and import its GPG key into pacman's keyring before running `chezmoi apply`. The onboarding script fails and provides the copy-paste commands if it detects that the repository is missing.
 
-## Quick start
+## Install the configuration
 
 ### Initialize the repository
 
@@ -53,7 +53,7 @@ echo -e '\n[forge]\nSigLevel = Required DatabaseOptional\nServer = https://athau
 sudo pacman -Syu
 ```
 
-GPG is the encryption system used to sign and verify packages. The first two commands trust the repository's signing key, the third adds the repository to pacman's configuration, and the last one syncs your package database so pacman can resolve `forge` packages. The `<(...)` form feeds the output of the command inside as a file, and `tee -a` appends the echoed lines to `/etc/pacman.conf`.
+_GNU Privacy Guard_ (_GPG_) is the encryption system used to sign and verify packages. The first two commands trust the repository's signing key, the third adds the repository to pacman's configuration, and the last one syncs your package database so pacman can resolve `forge` packages. The `<(...)` form feeds the output of the command inside as a file, and `tee -a` appends the echoed lines to `/etc/pacman.conf`.
 
 ### Build your palette
 
@@ -99,4 +99,4 @@ This setup targets CachyOS, but the manifest is written so it works on plain Arc
 
 Package names can differ slightly between CachyOS and plain Arch. The manifest accounts for those differences in each section, so you do not have to adjust the names yourself.
 
-`paru` is a helper that installs packages from the Arch User Repository (AUR), which is where community-maintained packages live. When it is present, the onboarding script can install everything in one pass. When it is not, the onboarding script installs the packages from the official repositories and `forge` with pacman, then prints the AUR packages for you to install by hand. On plain Arch, install `paru` first, so the CachyOS packages can resolve from the AUR.
+`paru` is a helper that installs packages from the _Arch User Repository_ (_AUR_), which is where community-maintained packages live. When it is present, the onboarding script can install everything in one pass. When it is not, the onboarding script installs the packages from the official repositories and `forge` with pacman, then prints the AUR packages for you to install by hand. On plain Arch, install `paru` first, so the CachyOS packages can resolve from the AUR.

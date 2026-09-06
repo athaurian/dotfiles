@@ -7,16 +7,16 @@ set -eu
 # Dependencies: grim, slurp (region), satty or wl-copy, jq (focused mode), wayfreeze (optional).
 # Bound to Print / Ctrl+Print / Shift+Print in sway config.
 
-mode="$1"
+mode="${1:-}"
 case "$mode" in
 full | region | focused) ;;
-*) exit 1 ;;
+*)
+	echo "Usage: screenshot.sh {full|focused|region}" >&2
+	exit 1
+	;;
 esac
 
-tmp=$(mktemp "$XDG_RUNTIME_DIR/screenshot.XXXXXX")
-if [ -z "$tmp" ]; then
-	exit 1
-fi
+tmp=$(mktemp "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/screenshot.XXXXXX")
 
 geometry=""
 if [ "$mode" = "focused" ]; then
