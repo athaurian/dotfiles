@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Dunst notification history picker using fuzzel.
+
+Shows dismissed notifications, re-displays the most recent one via
+``dunstctl history-pop``, and re-displays the selected entry (looked up
+by id, so colons in the summary or body cannot corrupt it).
+"""
+
+import sys
+from pathlib import Path
+
+# Write bytecode caches under ~/.cache instead of next to the scripts,
+# so the chezmoi-managed tree stays clean.
+sys.pycache_prefix = str(Path.home() / ".cache" / "dotfiles" / "pycache")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from picker_lib import dunst_hist, model, notify, ui
+
+APP_NAME = "dunst"
+
+
+def main() -> int:
+    """Runs the notification history picker and returns the exit status."""
+    if not dunst_hist.have_dunstctl():
+        notify.send("dunstctl not found", app_name=APP_NAME, urgency="critical")
+        return 1
+    if not ui.have("fuzzel"):
+        notify.send("fuzzel not found", app_name=APP_NAME, urgency="critical")
+        return 1
+
+    items, raw_json = dunst_hist.fetch()
+    if items is None:
+        notify.send("No notification history", app_name=APP_NAME)
+        return 0
+
+    lines = dunst_hist.menu_lines(items)
+    if not lines:
+        notify.send("No notification history", app_name=APP_NAME)
+        return 0
+    selected = ui.run_fuzzel(
+        lines,
+        prompt=ui.FUZZEL_PROMPT_HISTORY,
+        placeholder="search notification history...",
+    )
+    if not selected:
+        return 0
+
+    eid, _display = model.split_entry(selected)
+    dunst_hist.restore_latest()
+    if eid is not None:
+        summary, body = dunst_hist.lookup(raw_json, eid)
+        notify.send(
+            summary or "notification",
+            body,
+            app_name=APP_NAME,
+            urgency="normal",
+            timeout_ms=5000,
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

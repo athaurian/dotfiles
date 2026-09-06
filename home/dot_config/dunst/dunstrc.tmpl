@@ -1,0 +1,134 @@
+#{{ $c := .flint.resolved }}
+#{{ $d := .flint.desktop }}
+#{{ $a := .flint.appearance }}
+
+[global]
+    monitor = 0
+    follow = none
+    width = 340
+    height = (0, 110)
+    origin = top-right
+    offset = (8, 8)
+    notification_limit = 4
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    indicate_hidden = yes
+    transparency = 0
+    separator_height = 2
+    padding = 10
+    horizontal_padding = 14
+    text_icon_padding = 0
+    frame_width = 1
+    frame_color = "{{ $c.overlay_strong.hex }}"
+    separator_color = frame
+    sort = no
+    font = {{ $d.font_family_nerd }} Propo {{ $d.font_size }}
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    min_icon_size = 0
+    max_icon_size = 32
+    icon_theme = {{ $a.icon_theme }}
+    sticky_history = yes
+    history_length = 50
+    title = Dunst
+    class = Dunst
+    corner_radius = 0
+    ignore_dbusclose = false
+    force_xwayland = false
+    mouse_left_click = close_current
+    mouse_middle_click = do_action
+    mouse_right_click = close_all
+    # Native Wayland backend exposes the stable ``notifications`` layer
+    # namespace, so SwayFX ``layer_effects`` can shadow these popups.
+    layer = overlay
+
+    # The card surface is the base background in every urgency.
+    # Urgency is carried by text, frame, and progress color, never the fill.
+    background = "{{ $c.background.hex }}"
+    foreground = "{{ $c.text.hex }}"
+    timeout = 5
+    highlight = "{{ $c.notice_accent.hex }}"
+
+[urgency_low]
+    background = "{{ $c.background.hex }}"
+    foreground = "{{ $c.text_secondary.hex }}"
+    frame_color = "{{ $c.border_inactive.hex }}"
+    highlight = "{{ $c.text_muted.hex }}"
+    timeout = 3
+
+[urgency_normal]
+    background = "{{ $c.background.hex }}"
+    foreground = "{{ $c.text.hex }}"
+    frame_color = "{{ $c.overlay_strong.hex }}"
+    highlight = "{{ $c.notice_accent.hex }}"
+    timeout = 5
+
+[urgency_critical]
+    background = "{{ $c.background.hex }}"
+    foreground = "{{ $c.error.hex }}"
+    frame_color = "{{ $c.error.hex }}"
+    highlight = "{{ $c.error.hex }}"
+    timeout = 0
+
+[mpd]
+    category = mpd
+    timeout = 2
+
+# DND bypass: direct user-feedback notices must stay visible while DND is
+# active. DND pauses at level 50 (see dunst-dnd.sh), the screen lock pauses
+# at level 100 (see lock.sh). A notification shows while paused when its
+# override_pause_level is above the current pause level, so 90 shows during
+# DND but stays hidden while locked. This replaces mako's old
+# [app-name="..." mode=do-not-disturb] invisible=0 exceptions, which were
+# lost in the mako -> dunst migration (set-paused true is level 100, which
+# nothing can bypass, so every script notice queued silently).
+[dnd_bypass_dunst_dnd]
+    appname = dunst-dnd
+    override_pause_level = 90
+
+[dnd_bypass_caffeine]
+    appname = caffeine-toggle
+    override_pause_level = 90
+
+[dnd_bypass_wallpaper]
+    appname = wallpaper-rotate
+    override_pause_level = 90
+
+[dnd_bypass_idle_warning]
+    appname = idle-warning
+    override_pause_level = 90
+
+[dnd_bypass_clipboard]
+    appname = clipboard
+    override_pause_level = 90
+
+[dnd_bypass_dunst]
+    appname = dunst
+    override_pause_level = 90
+
+[dnd_bypass_picker]
+    appname = picker
+    override_pause_level = 90
+
+[dnd_bypass_lock]
+    appname = lock
+    override_pause_level = 90
+
+[dnd_bypass_screenshot]
+    appname = screenshot
+    override_pause_level = 90
+
+# vim: ft=dosini

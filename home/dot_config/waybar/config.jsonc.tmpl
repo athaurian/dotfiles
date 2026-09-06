@@ -59,6 +59,7 @@
     },
   },
   "custom/mpris": {
+    // chezmoi renames ``executable_mpris.py`` to ``mpris.py`` on apply.
     "exec": "~/.config/waybar/scripts/mpris.py",
     "return-type": "json",
     "hide-empty-text": true,
@@ -88,6 +89,7 @@
     "on-click": "foot -e btop",
   },
   "custom/updates": {
+    // chezmoi renames ``executable_updates.sh`` to ``updates.sh`` on apply.
     "exec": "~/.config/waybar/scripts/updates.sh",
     "return-type": "json",
     "interval": 3600,
@@ -96,12 +98,12 @@
     "on-click": "~/.config/sway/scripts/toggle_topgrade.sh",
   },
   "custom/dnd": {
-    "exec": "~/.config/waybar/scripts/mako-dnd.sh",
+    "exec": "~/.config/waybar/scripts/dunst-dnd.sh",
     "return-type": "json",
     "interval": 5,
     "signal": 9,
     "tooltip": true,
-    "on-click": "~/.config/waybar/scripts/mako-dnd.sh --toggle",
+    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle",
   },
   "custom/separator": {
     "format": "|",
@@ -110,7 +112,8 @@
   "battery": {
     "states": { "warning": 30, "critical": 15 },
     "full-at": 100,
-    "format": "{icon} {capacity}%",
+    "interval": 30,
+    "format": "{icon} {capacity}% ({power:.1f} W)",
     "format-charging": "<span>󱐋</span> {capacity}%",
     "format-plugged": "<span>󰚥</span> {capacity}%",
     "format-full": "<span>󱟦</span> {capacity}%",

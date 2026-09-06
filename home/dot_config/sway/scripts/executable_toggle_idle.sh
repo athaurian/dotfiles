@@ -5,8 +5,8 @@ set -eu
 # Bound to $mod+Shift+i with --no-repeat in sway config.
 
 unit="swayidle-unlocked.service"
-id_file="$XDG_RUNTIME_DIR/caffeine_toggle_id"
-lock_file="$XDG_RUNTIME_DIR/caffeine_toggle.lock"
+id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle_id"
+lock_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle.lock"
 app_name="caffeine-toggle"
 
 # Serialize toggle invocations.
@@ -28,7 +28,7 @@ send_notice() {
 
 	if [ "$old_id" -gt 0 ] 2>/dev/null; then
 		new_id=$(
-			notify-send \
+			dunstify \
 				-a "$app_name" \
 				-u low \
 				-t 3000 \
@@ -42,7 +42,7 @@ send_notice() {
 
 	if [ -z "$new_id" ]; then
 		new_id=$(
-			notify-send \
+			dunstify \
 				-a "$app_name" \
 				-u low \
 				-t 3000 \

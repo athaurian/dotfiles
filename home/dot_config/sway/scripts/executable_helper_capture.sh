@@ -39,7 +39,7 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 	if command -v satty >/dev/null 2>&1; then
 		save_dir="$HOME/Pictures/Screenshots"
 		mkdir -p "$save_dir"
-		save_filename="$save_dir/screenshot-$(date '+%Y%m%d-%H:%M:%S').png"
+		save_filename="$save_dir/screenshot-$(date '+%Y%m%d-%H%M%S').png"
 
 		# Satty handles its own notifications for saving/copying.
 		# || true ensures cleanup runs regardless of how satty exits.
@@ -49,7 +49,7 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 			--early-exit || true
 
 	elif command -v wl-copy >/dev/null 2>&1; then
-		wl-copy <"$SCREENSHOT_TMP" && notify-send -u low -t 1500 "󰄄 screenshot" "copied to clipboard" 2>/dev/null || true
+		wl-copy <"$SCREENSHOT_TMP" && notify-send -a screenshot -u low -t 1500 "󰄄 screenshot" "copied to clipboard" 2>/dev/null || true
 	fi
 fi
 
