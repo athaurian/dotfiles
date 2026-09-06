@@ -32,23 +32,26 @@ chezmoi apply
 
 These steps assume you have already added my `forge` package repository and its key. If you have not, see [the installation guide](docs/installation.md) for the full walkthrough, including the `forge` setup and systemd services.
 
-## Highlights
+## Features
 
-- [Flint and Sand theming](docs/theming.md). How every color gets from the palette into your config files, with dark and light variants, contrast validation, and per-app color generation through chezmoi templates. The architecture details are in [the palette system guide](docs/palette-system.md).
+Use the following list to find the guide you need:
+
+- [Theming](docs/theming.md). How every color gets from the palette into your config files, with dark and light variants and wallpaper recoloring to match.
+- [Palette system](docs/palette-system.md). How the palette files, build script, validators, and templates fit together.
 - [Session manager](docs/session-manager.md). How your Sway session is saved when you log out, power off, or reboot, and rebuilt at login.
-- [Keybindings](docs/keybindings.md). How the shortcuts are connected, the shortcut reference table, and the movement and layout controls.
+- [Keybindings](docs/keybindings.md). How the shortcuts are connected, with the shortcut table and the movement and layout controls.
+- [Pickers](docs/pickers.md). How the launcher, clipboard history, and notification history help you find things fast.
+- [Screenshots, lock, and idle](docs/screenshots-lock-idle.md). How captures, the blurred lock screen, and the idle timer fit together.
+- [Status bar](docs/statusbar.md). What the Waybar modules show, with music controls, update counts, and do not disturb.
+- [Background services](docs/services.md). How the session target, power dialogs, drift check, ebook sync, and night light run without a window.
+- [Installation](docs/installation.md). How to install the dotfiles on a fresh machine, with the package manifest and forge repository.
 
 ## Tips
 
-- Press `Super+Shift+E` to log out. This action stops `sway-session.target`, the unit that groups the session services, so they start and stop together.
 - If a Qt6 app does not use the theme, install `qt6ct` and launch it with `QT_QPA_PLATFORMTHEME=qt6ct`.
-- If a service misbehaves, check it with `journalctl --user -u SERVICE_NAME`, replacing `SERVICE_NAME` with the service name.
 - If Sway misbehaves, inspect the window tree with `swaymsg -t get_tree | jq .`. The `jq` command formats the JSON output.
 
 ## Notes
 
 - `btop.conf` is managed entirely by chezmoi. Changes made inside the program itself do not persist unless you edit the file in the repo.
-- The lock script uses the `swaylock` binary. It comes from `swaylock-effects` when that package is installed, and from the plain `swaylock` package otherwise.
-- `~/.local/bin/flint-wallpaper` is a standalone helper that themes wallpaper images with lutgen and caches LUTs and outputs. It is not bound to any shortcut. The script that applies a theme runs it whenever a wallpaper path is set, so the wallpaper follows the active variant. Run it with `--help` for usage.
-- `calibre-sync.timer` mirrors every EPUB and PDF in `~/Library` to `gdrive:Books` with rclone every 30 minutes, staging the files flat and naming them from calibre's metadata. It needs an rclone remote named `gdrive` signed in to your Google Drive, which this repository does not set up. Without books, or without that remote, the timer fails and the journal says why. If you do not keep an ebook library, remove `symlink_calibre-sync.timer.tmpl` from `sway-session.target.wants/` before applying. Check on it with `journalctl --user -u calibre-sync`.
 - This repository contains no secrets. If you ever add a file with credentials, encrypt that specific file with `chezmoi age encrypt` rather than encrypting the whole repository.

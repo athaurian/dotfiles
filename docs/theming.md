@@ -37,7 +37,7 @@ make dark && chezmoi apply
 make light && chezmoi apply
 ```
 
-`make dark` runs the palette build script. Run `uv run --with pyyaml python3 scripts/build_palette_data.py --theme dark` to invoke it directly. The script validates the colors and exports the dark variant into `.chezmoidata.yaml`. The `make light` target does the same for Sand.
+`make dark` runs the palette build script. The script validates the colors and exports the dark variant into `.chezmoidata.yaml`. The `make light` target does the same for Sand.
 
 The generated `home/.chezmoidata.yaml` file is local-only and does not belong in version control. It is excluded by Git, because it changes every time you switch variants.
 
@@ -62,8 +62,4 @@ flint-wallpaper --rbf --shape 96.0 --set ~/Pictures/Wallpapers/scenery.jpg
 
 In these examples, `--theme light` forces the light variant. `--palette warm` picks the warm palette template. `--rbf` switches from the default blur-based recoloring to a _Gaussian radial basis function_ (_RBF_) method with the given shape value.
 
-The helper is not bound to any keyboard shortcut. When a wallpaper path is set, the script that applies the theme runs it after each variant switch, so the wallpaper matches the active variant without extra steps.
-
-## Screenshots
-
-The dark and light desktop screenshots live in `assets/` and are referenced from the `README.md` file. They are hand-staged captures, so they are not regenerated automatically.
+The helper is not bound to any keyboard shortcut. When a wallpaper path is set, the script that applies the theme runs it after each variant switch, so the wallpaper matches the active variant without extra steps. Run `flint-wallpaper --help` for usage.
