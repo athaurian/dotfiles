@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
-"""Pick the next wallpaper from a shuffled queue and recolor it via flint-wallpaper.
+"""Rotates wallpapers forward or back from a shuffled queue via ``flint-wallpaper``.
 
 Queue logic:
   1. Use the light/dark subdirectory of ~/Pictures/Wallpapers matching the
      active theme, resolved into ACTIVE_THEME at chezmoi apply time.
   2. Build a shuffled queue from the theme directory (recursive).
-  3. Pop the first entry, recolor it with flint-wallpaper to match the
-     active theme, rewrite the queue without it, and notify which
-     wallpaper was set.
-  4. When the queue is empty, rebuild it on the next invocation.
+  3. On --next (the default), pop the first entry, recolor it with
+     flint-wallpaper to match the active theme, rewrite the queue without
+     it, push the previously shown wallpaper onto the history stack, and
+     notify which wallpaper was set.
+  4. On --prev, pop the most recent entry from the history stack, push the
+     current wallpaper back to the front of the queue, recolor the history
+     entry, and notify which wallpaper was set.
+  5. When the queue is empty, rebuild it on the next --next invocation.
 """
 
 from __future__ import annotations
 
+import argparse
 import os
 import random
 import shutil
@@ -33,10 +38,11 @@ VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 NOTIFY_APP = "wallpaper-rotate"
 NOTIFY_ICON = "󰸉"
 NOTIFY_TIMEOUT_MS = 3000
+MAX_HISTORY = 50
 
 
 def wait_for_awww(timeout: float = 2.0) -> bool:
-    """Poll until the awww daemon answers or *timeout* expires."""
+    """Polls until the awww daemon answers or ``timeout`` expires."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         result = subprocess.run(
@@ -52,7 +58,7 @@ def wait_for_awww(timeout: float = 2.0) -> bool:
 
 
 def get_wallpapers(directory: Path) -> list[str]:
-    """Collect wallpaper paths from *directory* (recursive)."""
+    """Collects wallpaper paths from ``directory`` recursively."""
     if not directory.is_dir():
         return []
     return [
@@ -64,7 +70,7 @@ def get_wallpapers(directory: Path) -> list[str]:
 
 
 def find_flint_wallpaper() -> str:
-    """Locate flint-wallpaper, falling back to ~/.local/bin for sway exec."""
+    """Locates ``flint-wallpaper``, falling back to ``~/.local/bin`` for sway exec."""
     found = shutil.which("flint-wallpaper")
     if found:
         return found
@@ -76,7 +82,7 @@ def find_flint_wallpaper() -> str:
 
 
 def set_wallpaper(path: str) -> None:
-    """Recolor *path* with flint-wallpaper and set it as the wallpaper."""
+    """Recolors ``path`` with ``flint-wallpaper`` and sets it as the wallpaper."""
     flint_wallpaper = find_flint_wallpaper()
 
     subprocess.run(
@@ -92,7 +98,7 @@ def notify_id_file() -> Path:
 
 
 def send_notification(args: list[str]) -> str:
-    """Run notify-send and return a numeric notification ID, or ''."""
+    """Runs ``dunstify`` and returns a numeric notification ID, or an empty string."""
     try:
         result = subprocess.run(args, check=False, capture_output=True, text=True)
     except FileNotFoundError:
@@ -102,8 +108,15 @@ def send_notification(args: list[str]) -> str:
     return "".join(c for c in result.stdout if c.isdigit())
 
 
+def _atomic_write_text(path: Path, text: str) -> None:
+    """Writes ``text`` to ``path`` atomically via a PID-suffixed temp file."""
+    tmp = path.with_name(f"{path.name}.{os.getpid()}")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
 def notify(summary: str, body: str) -> None:
-    """Show a desktop notification, replacing the previous one (toggle_idle.sh style)."""
+    """Shows a desktop notification, replacing the previous one as ``toggle_idle.sh`` does."""
     id_file = notify_id_file()
 
     old_id = ""
@@ -114,7 +127,7 @@ def notify(summary: str, body: str) -> None:
             old_id = ""
 
     base_args = [
-        "notify-send",
+        "dunstify",
         "-a",
         NOTIFY_APP,
         "-u",
@@ -132,9 +145,7 @@ def notify(summary: str, body: str) -> None:
         new_id = send_notification([*base_args, summary, body])
 
     if new_id:
-        tmp = id_file.with_name(f"{id_file.name}.{os.getpid()}")
-        tmp.write_text(new_id)
-        os.replace(tmp, id_file)
+        _atomic_write_text(id_file, new_id)
 
 
 def last_wallpaper_file() -> Path:
@@ -144,32 +155,88 @@ def last_wallpaper_file() -> Path:
 
 
 def record_last_wallpaper(path: str) -> None:
-    """Remember the wallpaper that was just set, per theme."""
-    last_file = last_wallpaper_file()
-    tmp = last_file.with_name(f"{last_file.name}.{os.getpid()}")
-    tmp.write_text(path + "\n")
-    os.replace(tmp, last_file)
+    """Remembers the wallpaper that was just set, per theme."""
+    _atomic_write_text(last_wallpaper_file(), path + "\n")
 
 
-def main() -> None:
-    wallpaper_dir = BASE_WALLPAPER_DIR / ACTIVE_THEME
+def queue_file() -> Path:
+    """Queue of wallpapers still to show for the active theme."""
     cache_dir = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
-    queue_file = cache_dir / f"wallpaper_queue_{ACTIVE_THEME}"
+    return cache_dir / f"wallpaper_queue_{ACTIVE_THEME}"
+
+
+def history_file() -> Path:
+    """Stack of previously shown wallpapers for the active theme."""
+    cache_dir = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    return cache_dir / f"wallpaper_history_{ACTIVE_THEME}"
+
+
+def read_lines(path: Path) -> list[str]:
+    """Reads non-empty stripped lines from ``path``, or returns an empty list when missing."""
+    if not path.exists():
+        return []
+    try:
+        return [
+            stripped
+            for raw in path.read_text().splitlines()
+            if (stripped := raw.strip())
+        ]
+    except OSError:
+        return []
+
+
+def write_lines_atomic(path: Path, lines: list[str]) -> None:
+    """Writes ``lines`` to ``path`` atomically, leaving an empty file when blank."""
+    _atomic_write_text(path, "\n".join(lines) + "\n" if lines else "")
+
+
+def current_wallpaper() -> str | None:
+    """Returns the currently set wallpaper from the last file, if any."""
+    lines = read_lines(last_wallpaper_file())
+    return lines[0] if lines else None
+
+
+def push_history(previous: str) -> None:
+    """Appends ``previous`` to the history stack, keeping it bounded."""
+    history = read_lines(history_file())
+    if history and history[-1] == previous:
+        return
+    history.append(previous)
+    write_lines_atomic(history_file(), history[-MAX_HISTORY:])
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parses ``--next`` and ``--prev``, defaulting to ``--next`` for bare invocations."""
+    parser = argparse.ArgumentParser(
+        description="Rotate to the next or previous wallpaper.",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--next",
+        action="store_true",
+        help="show the next wallpaper in the queue (default)",
+    )
+    group.add_argument(
+        "--prev",
+        action="store_true",
+        help="go back to the previously shown wallpaper",
+    )
+    return parser.parse_args(argv)
+
+
+def go_next() -> None:
+    wallpaper_dir = BASE_WALLPAPER_DIR / ACTIVE_THEME
+    queue_path = queue_file()
+    previous = current_wallpaper()
 
     if not wait_for_awww():
         print("error: awww daemon is not responding after 2 seconds", file=sys.stderr)
         sys.exit(1)
 
-    queue_file.parent.mkdir(parents=True, exist_ok=True)
+    queue_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Load existing queue
-    queue: list[str] = []
-    if queue_file.exists():
-        queue = [
-            stripped
-            for raw in queue_file.read_text().splitlines()
-            if (stripped := raw.strip())
-        ]
+    queue = read_lines(queue_path)
 
     # Rebuild queue if empty
     if not queue:
@@ -183,6 +250,8 @@ def main() -> None:
                 )
                 sys.exit(1)
             set_wallpaper(FALLBACK)
+            if previous is not None and previous != FALLBACK:
+                push_history(previous)
             record_last_wallpaper(FALLBACK)
             notify(
                 f"{NOTIFY_ICON} wallpaper changed",
@@ -206,16 +275,71 @@ def main() -> None:
 
     if chosen is None:
         chosen = FALLBACK
-        queue_file.unlink(missing_ok=True)
+        queue_path.unlink(missing_ok=True)
     else:
-        queue_file.write_text("\n".join(remaining) + "\n" if remaining else "")
+        write_lines_atomic(queue_path, remaining)
 
+    if previous is not None and previous != chosen:
+        push_history(previous)
     set_wallpaper(chosen)
     record_last_wallpaper(chosen)
     notify(
         f"{NOTIFY_ICON} wallpaper changed",
         f"<b>{Path(chosen).name}</b> for {ACTIVE_THEME_NAME}.",
     )
+
+
+def go_prev() -> None:
+    queue_path = queue_file()
+    current = current_wallpaper()
+
+    if not wait_for_awww():
+        print("error: awww daemon is not responding after 2 seconds", file=sys.stderr)
+        sys.exit(1)
+
+    queue_path.parent.mkdir(parents=True, exist_ok=True)
+
+    history = read_lines(history_file())
+
+    # Pop the newest readable entry. Drop missing files silently.
+    target = None
+    while history:
+        candidate = history.pop()
+        if current is not None and candidate == current:
+            continue
+        if not os.access(candidate, os.R_OK):
+            continue
+        target = candidate
+        break
+
+    if target is None:
+        write_lines_atomic(history_file(), history)
+        notify(
+            f"{NOTIFY_ICON} no previous wallpaper",
+            "You are at the start of this theme's history.",
+        )
+        return
+
+    queue = [p for p in read_lines(queue_path) if p != target]
+    if current is not None and os.access(current, os.R_OK):
+        queue.insert(0, current)
+    write_lines_atomic(queue_path, queue)
+    write_lines_atomic(history_file(), history)
+
+    set_wallpaper(target)
+    record_last_wallpaper(target)
+    notify(
+        f"{NOTIFY_ICON} wallpaper changed",
+        f"<b>{Path(target).name}</b> for {ACTIVE_THEME_NAME}.",
+    )
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    if args.prev:
+        go_prev()
+    else:
+        go_next()
 
 
 if __name__ == "__main__":
