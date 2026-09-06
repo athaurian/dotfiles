@@ -17,7 +17,7 @@ return {
     require("catppuccin").setup({
       flavour = "{{ .flint.catppuccin_flavor }}",
       background = { light = "{{ .flint.catppuccin_flavor }}", dark = "{{ .flint.catppuccin_flavor }}" },
-      transparent_background = false,
+      transparent_background = true,
       term_colors = true,
       dim_inactive = { enabled = false, shade = "dark", percentage = 0.15 },
       float = { transparent = false, solid = false },
@@ -73,7 +73,6 @@ return {
           diff_delete = "{{ $ctp.diff_delete.hex }}",
           diff_text = "{{ $ctp.diff_text.hex }}",
         },
-        mocha = {},
       },
       custom_highlights = function(colors)
         return {

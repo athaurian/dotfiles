@@ -13,6 +13,7 @@ import math
 import sys
 from collections import OrderedDict
 from pathlib import Path
+from typing import NoReturn
 
 import yaml
 
@@ -21,7 +22,7 @@ class PaletteError(Exception):
     pass
 
 
-def fail(message: str) -> None:
+def fail(message: str) -> NoReturn:
     raise PaletteError(message)
 
 
@@ -593,8 +594,9 @@ def load_hue_budget(theme_name: str, shared: dict) -> dict:
 
 
 def validate_hue_budget(theme_name: str, raw: dict, shared: dict) -> None:
-    """Guard against palette drift: every raw token must be near-neutral or
-    belong to a declared hue family (matching the One Dark / Sway bases)."""
+    """Guards against palette drift. Every raw token must be near-neutral or
+    belong to a declared hue family matching the Orchis accents and
+    terminal spectrum."""
     budget = load_hue_budget(theme_name, shared)
     families = budget["families"]
     tolerance = float(budget["tolerance"])

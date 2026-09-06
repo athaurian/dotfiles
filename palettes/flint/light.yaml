@@ -5,20 +5,20 @@ appearance:
   wallpaper: ~/Pictures/Wallpapers/light/roman-forum.jpg
 catppuccin_flavor: latte
 meta:
-  description: A warm neutral cream theme, the light counterpart to Flint.
+  description: A neutral grey light theme with muted One Dark Pro-style ANSI hues.
   name: Sand
   variant: light
 raw:
-  accent_blue: "#225882"
+  accent_blue: "#166ad9"
   accent_blue_bright: "#4178a3"
   accent_border: "#205075"
   accent_cyan: "#38757d"
   accent_cyan_bright: "#6a989e"
-  ansi_black: "#141312"
+  ansi_black: "#242424"
   ansi_blue: "#225882"
-  ansi_bright_black: "#554f46"
+  ansi_bright_black: "#5a5a5a"
   ansi_bright_blue: "#174366"
-  ansi_bright_cyan: "#2f6168"
+  ansi_bright_cyan: "#32666e"
   ansi_bright_green: "#4a603b"
   ansi_bright_magenta: "#764884"
   ansi_bright_red: "#8b4449"
@@ -28,64 +28,63 @@ raw:
   ansi_green: "#5a7448"
   ansi_magenta: "#864e96"
   ansi_red: "#9f4950"
-  ansi_white: "#e6e0d6"
+  ansi_white: "#e8e8e8"
   ansi_yellow: "#75603a"
-  bg: "#f2eee8"
+  bg: "#f2f2f2"
   black: "#000000"
-  border_inactive: "#968e82"
-  critical_bg: "#a42a37"
-  bg_deep: "#d6cec0"
+  border_inactive: "#b0b0b0"
+  critical_bg: "#b71c1c"
+  coral: "#97552c"
+  bg_deep: "#c9c9c9"
   diff_add: "#d9edd4"
   diff_change: "#d7e8f5"
   diff_delete: "#f3e1df"
   diff_text: "#366d96"
   error: "#9f4950"
   error_bright: "#b3676c"
-  error_deep: "#75393d"
+  error_deep: "#7f1d1d"
   hover_blue: "#4178a3"
-  bg_subtle: "#e6e0d6"
-  overlay_dim: "#898075"
-  overlay_strong: "#6f675c"
+  bg_subtle: "#e8e8e8"
+  overlay_dim: "#767676"
+  overlay_strong: "#4f4f4f"
   peach: "#8a6543"
   peach_bright: "#98775a"
   purple: "#864e96"
-  purple_bright: "#9c6bab"
+  purple_bright: "#7e4f90"
   selection: "#295c81"
   success: "#5a7448"
   success_bright: "#6f865e"
-  surface_0: "#d9d5d0"
-  surface_1: "#ded6c9"
-  surface_2: "#cfc6b7"
-  text: "#282522"
-  text_max: "#141312"
-  text_muted: "#5e584f"
-  text_secondary: "#453f37"
+  surface_0: "#dddddd"
+  surface_1: "#d2d2d2"
+  surface_2: "#bfbfbf"
+  text: "#242424"
+  text_max: "#0a0a0a"
+  text_muted: "#5f5f5f"
+  text_secondary: "#3f3f3f"
   warning_deep: "#8c5820"
   warning_tint: "#faeed9"
   yellow: "#75603a"
   yellow_bright: "#8e7c5a"
 raw_aliases:
-  - [accent_blue, ansi_blue]
   - [accent_blue_bright, hover_blue]
   - [accent_cyan, ansi_cyan]
-  - [ansi_black, text_max]
+  - [ansi_black, text]
   - [ansi_green, success]
   - [ansi_magenta, purple]
   - [ansi_red, error]
   - [ansi_white, bg_subtle]
   - [ansi_yellow, yellow]
-raw_near_aliases:
-  - [ansi_white, surface_0]
-  - [bg_subtle, surface_0]
+raw_near_aliases: []
 
 semantic_overrides:
   accent_text: accent_blue
-  cherry_picked_fg: accent_blue
+  cherry_picked_fg: accent_border
   commit_hash: warning_deep
-  emphasis_bg: accent_blue
+  emphasis_bg: accent_border
   fastfetch_key: accent_blue
+  inc_search_bg: accent_blue
   interactive_text: accent_blue
-  jump_label_bg: accent_blue
+  jump_label_bg: accent_border
   notice_accent: accent_blue
   on_accent: bg
   on_critical: bg

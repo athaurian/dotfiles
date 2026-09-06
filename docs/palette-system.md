@@ -1,6 +1,6 @@
 # Palette system
 
-Updating colors across dozens of configuration files was tedious, so the palette, the set of files that defines every color in this setup, uses a single source of truth for the entire desktop.
+Updating colors across dozens of configuration files was tedious. The _palette_ uses a single source of truth for the entire desktop. The palette is the set of files that defines every color in this setup.
 
 This section explains how the palette system works. It covers how the files are organized, what the build script derives from them, why the colors stay readable, and how templates pull values out at apply time. It is written for people who are new to this kind of setup, so every term is defined the first time it appears.
 
@@ -17,12 +17,18 @@ palettes/flint/
 
 Before touching the files, learn two terms:
 
-- A **raw token** is a named color value, the actual hex like `#303030`.
-- A **semantic role** is a named job a color does, like `background` or `focus_border`. Roles point at tokens, and the same role can point at different tokens in different variants.
+- A _raw token_ is a named color value, the actual hex like `#303030`.
+- A _semantic role_ is a named job a color does, like `background` or `focus_border`. Roles point at tokens, and the same role can point at different tokens in different variants.
 
 `scripts/build_palette_data.py` validates the palette, computes all necessary formats and alpha blends, and writes `.chezmoidata.yaml` into `home/`. When you run `chezmoi apply`, chezmoi reads that file and injects the colors into any `.tmpl` configuration.
 
-Changing a color takes the same steps every time. Edit a palette file, run the build script, and apply with chezmoi. The sections that follow cover those steps, from the files to the derived data to the checks that catch mistakes.
+Changing a color takes the same steps every time:
+
+1. Edit a palette file.
+2. Run the build script.
+3. Apply with chezmoi.
+
+The sections that follow cover those steps, from the files to the derived data to the checks that catch mistakes.
 
 ## How the files are structured
 
@@ -44,25 +50,29 @@ This file defines everything that is not tied to a specific color variant:
 
 ### The `dark.yaml` and `light.yaml` files
 
-These contain the actual hex values (`raw`), GTK theme names (`appearance`), upstream Catppuccin flavors (`mocha` versus `latte`), `semantic_overrides`, and the `qt_bevel` ladder.
+These contain the actual hex values (`raw`), _GIMP Toolkit_ (_GTK_) theme names (`appearance`), upstream Catppuccin flavors (`mocha` versus `latte`), `semantic_overrides`, and the `qt_bevel` ladder.
 
 A flavor is the Catppuccin term for a complete color scheme. GTK is the widget toolkit that many Linux apps use. `semantic_overrides` is the per-variant list of roles that point somewhere different from the shared defaults. `qt_bevel` is the five-step Qt button ladder, declared as raw tokens from lightest to darkest instead of hand-picked hexes. Qt is the toolkit many desktop apps are built on. The design invariants section explains the ladder in detail.
 
 ## The accent
 
-Every variant carries exactly one accent, expressed through the semantic roles (`accent`, `accent_text`, `accent_bright`, `accent_strong`, `selection`, and `on_selection`) instead of swappable bundles. An accent is not a single color. Pointing `accent` at one raw token breaks selection contrast and fails in the light variant, so each accent is really three cooperating roles:
+Every variant carries exactly one accent. It is expressed through the semantic roles (`accent`, `accent_text`, `accent_bright`, `accent_strong`, `selection`, and `on_selection`), not through swappable bundles. An accent is not a single color. Pointing `accent` at one raw token breaks selection contrast and fails in the light variant. Each accent is really three cooperating roles:
 
-1. **Foreground text and icons.** Bright and readable against the base background, at 4.5:1 or more.
-2. **UI highlight.** Distinct for links, focus outlines, and interactive highlights.
-3. **Selection surface.** A tint with enough depth to keep the selection text readable, because `on_selection` against `selection` must reach 4.5:1. Flint uses a neutral grey-blue with near-white text. Sand uses the deep blue with the cream background as the text color.
+1. **Foreground text and icons.** Bright and readable against the base background, at 4.5:1 or more
+2. **UI highlight.** Distinct for links, focus outlines, and interactive highlights
+3. **Selection surface.** A tint with enough depth to keep the selection text readable, because `on_selection` against `selection` must reach 4.5:1. Flint uses a neutral grey-blue with near-white text. Sand uses the deep blue with the light background as the text color.
 
-Window borders follow the Sway white invariant instead of the accent, the Sway convention that the focused border takes the theme's most legible neutral color. The `window_focused_border` role is the theme's `text` color in both variants, light grey `#eae7e3` in Flint (the lit side of the ramp) and dark `#282522` in Sand (the dark side), so focus is the theme's most legible neutral. Blue was tested and rejected for this job, because the accent's hue matches the cool-grey inactive borders and therefore has neither luminance nor hue separation. The `focus_border` role stays the neutral `overlay_strong` grey, and the accent only appears in text, search matches, and interactive highlights.
+Window borders follow the Sway white invariant instead of the accent, the Sway convention that the focused border takes the theme's most legible neutral color. The `window_focused_border` role is the theme's `text` color in both variants, light grey `#EDEDED` in Flint (the lit side of the ramp) and dark `#242424` in Sand (the dark side), so focus is the theme's most legible neutral. Blue was tested and rejected for this job, because the accent's hue matches the cool-grey inactive borders and therefore has neither luminance nor hue separation. The `focus_border` role stays the neutral `overlay_strong` grey, and the accent only appears in text, search matches, and interactive highlights.
 
-Both variants carry the same blue accent, one hue system at two lightness extremes. Flint uses a mid blue (`accent_blue`) with a bright text variant, and Sand uses a deep blue so text keeps its contrast against the cream background.
+Both variants carry the same blue accent, one hue system at two lightness extremes. Flint uses the Orchis selection blue (`accent_blue`) with a brighter text variant, and Sand uses a darkened Orchis blue so text keeps its contrast against the light background.
 
-Both ramps are warm. Sand's cream neutrals and Flint's warm dark greys share the same hue family, which sits between 33 and 39 degrees. In Flint the warmth runs the whole way down the ramp. The deep background steps carry the same family hue, so the darkest shade is a warm near-black instead of a neutral one, and no surface sits on a cold base. Chroma stays low at every step, so the warmth reads as a cast rather than a tint. The warmth does not live in the accent.
+Both ramps are neutral. Every step of both neutral ramps measures 0% saturation, matching the Orchis GTK values the desktop already uses. Dark `bg` is `#212121` with `surface_0` at `#2C2C2C`. Light `bg` is `#F2F2F2`.
 
-The accent roles (`accent`, `accent_strong`, and `accent_bright`) are shared defaults. Only `accent_text` needs an override, because the bright blue fails contrast on cream, and the override lives in the light variant.
+Success, error, and warning follow the Orchis Material colors, darkened wherever the text-contrast floors demand it. The hue budget caps neutral saturation at 10% so the ramps cannot drift warm again.
+
+The remaining chromatic tokens are the working colors, not neutrals. They are cyan, purple, peach, and the terminal spectrum, and each sits inside a declared hue family. The accent stays neutral.
+
+The accent roles (`accent`, `accent_strong`, and `accent_bright`) are shared defaults. Only `accent_text` needs an override, because the bright blue fails contrast on the light background, and the override lives in the light variant.
 
 ## Design invariants
 
@@ -81,24 +91,24 @@ The rules are full of specialist terms, so this section explains them in plain E
 #### How colors behave on screen
 
 - **Wash and hover tint.** A wash, or hover tint, is a barely-there background tint, roughly 1:1 contrast with the base color. On its own it looks like nothing happened, which is by design. The rule that comes out of this is simple. Every hover style must also flip a border or text color in the same transition, or the hover reads as nothing at all.
-- **Bevel ladder.** Qt paints buttons as a band of five shades running from light to dark. If two of those steps are near-identical, the button looks flat. These steps stay subtle, usually in the ΔE 3 to 5 range, with two deliberate exceptions. In Flint the step from `surface_0` to `bg` is a full 14.0 ΔE, because `bg` is the desktop root and `surface_0` is the first panel shade, and the panel needs a clear step away from the root. In Sand the two darkest steps, from `surface_1` to `bg_deep` and from `bg_deep` to `surface_2`, sit at 2.9 ΔE, because the cream ramp's four surface shades sit close together, and Qt uses the two darkest shades only for subtle edges. Each variant declares its ladder once as `qt_bevel` (raw tokens, lightest to darkest), and the build derives the `qt_light`, `qt_midlight`, `qt_button`, `qt_mid`, and `qt_dark` roles from it. It enforces a strictly monotonic ramp, and any two adjacent steps that fall below 1.05:1 contrast and below ΔE 4.0 at the same time are rejected as indistinguishable. The ladder is a contiguous slice of the neutral ramp, so it cannot drift out of the ramp.
-- **Floor ceiling.** A floor ceiling is a color that is locked to a minimum contrast even when a "nicer" value would dip below it. Faint text must stay readable. In the dark variant, the surface ladder physically cannot carry 4.0:1 on `surface_2`, so `text_muted` on `surface_2` is floored at 3.0:1, which is the realistic limit. `overlay_strong` on the background gets the same floor.
-- **Two brights in the light variant.** The word _bright_ means two different things in Sand, the light variant. The ANSI `bright_*` slots are darker than their normal counterparts, because bright text must stay readable on the cream background. The accent and error `*_bright` colors are lighter, because they are hover tints meant to stand out against the base. Same word, opposite directions, both deliberate.
+- **Bevel ladder.** Qt paints buttons as a band of five shades running from light to dark. If two of those steps are near-identical, the button looks flat. These steps stay subtle, usually in the ΔE 3 to 5 range, with one wider step per variant. In Flint the step from `surface_0` to `bg` is 5.3 ΔE, because `bg` is the desktop root and `surface_0` is the first panel shade, and the panel needs a clear step away from the root. In Sand the step from `bg_subtle` to `surface_1` is 7.8 ΔE, because the light ramp jumps from chrome to raised surfaces there. Each variant declares its ladder once as `qt_bevel` (raw tokens, lightest to darkest), and the build derives the `qt_light`, `qt_midlight`, `qt_button`, `qt_mid`, and `qt_dark` roles from it. It enforces a strictly monotonic ramp, and any two adjacent steps that fall below 1.05:1 contrast and below ΔE 4.0 at the same time are rejected as indistinguishable. The ladder is a contiguous slice of the neutral ramp, so it cannot drift out of the ramp.
+- **Floor ceiling.** A floor ceiling is a color that is locked to a minimum contrast even when a "nicer" value dips below it. Faint text must stay readable. In the dark variant, the surface ladder physically cannot carry 4.0:1 on `surface_2`, so `text_muted` on `surface_2` is floored at 3.0:1, which is the realistic limit. `overlay_strong` on the background gets the same floor.
+- **Two brights in the light variant.** The word _bright_ means two different things in Sand, the light variant. The ANSI `bright_*` slots are darker than their normal counterparts, because bright text must stay readable on the light background. The accent and error `*_bright` colors are lighter, because they are hover tints meant to stand out against the base. Same word, opposite directions, both deliberate.
 - **Swaylock slices invert per variant.** The swaylock ring hosts the keystroke, backspace, and caps lock arcs. In Flint the ring is mid-grey and the arcs are light (`ansi_white`, `yellow_bright`, and `error_bright`). In Sand the ring is light (`surface_2`) and the arcs are the dark chromatic tokens (`text`, `yellow`, and `error`). A light-variant slice must be a dark color, because every light-variant chromatic token is dark by design. Pointing them at `overlay_strong` produced 1.35:1 arcs that were invisible.
 
 #### What the colors mean
 
 - **One gold hue.** `caution`, `warning`, and `yellow` are deliberately the same amber. That means syntax yellow in the editor, UI warnings, and the caution meter in btop all read as one color across the desktop. The three names are vocabulary, not three different colors. Keeping them identical is what makes warnings recognizable everywhere.
-- **Hue is reserved for outcomes.** Idle things stay neutral, and only states that mean something get color. The swaylock ring stays grey while it is verifying, and mako notification cards keep the base background in every urgency. Color appears only for progress and failure, never for "everything is fine". Like the swaylock text that turns red only when the password is wrong, a mako card changes its text, border, and progress colors instead of repainting its surface. Chroma marks the failure state, never idle or in-progress.
+- **Hue is reserved for outcomes.** Idle things stay neutral, and only states that mean something get color. The swaylock ring stays grey while it is verifying, and dunst notification cards keep the base background in every urgency. Color appears only for progress and failure, never for "everything is fine". Like the swaylock text that turns red only when the password is wrong, a dunst card changes its text, border, and progress colors instead of repainting its surface. Chroma marks the failure state, never idle or in-progress.
 - **Accent knob.** `accent` and `accent_strong` move together per variant, blue in both Flint and Sand, so links and highlights stay in agreement. `focus_border` and `window_focused_border` are deliberately split off from the accent. The `window_focused_border` role uses the `text` color, light grey in Flint and dark in Sand, the two ends of the same neutral ramp, while the `focus_border` role stays the neutral `overlay_strong` grey. Window borders stay readable against any wallpaper, while the accent lives in text, search matches, and interactive highlights.
-- **`fastfetch_key` stays accent-independent.** The fastfetch logo is fixed to the Catppuccin `peach` token, so the key color must not follow the accent hue. In Flint the key is the bright blue. In Sand it is the deep blue, because the bright blue fails contrast on cream.
-- **Terminal blue and UI blue are separate tokens.** In Flint, `ansi_blue` is the bright syntax blue (`#68a0ca`) and `accent_blue` is the muted UI blue (`#5a8bb0`). The terminal keeps the brighter one, because syntax highlights need the extra brightness against the dark background, and the UI accent stays muted, because it also paints fills, borders, and hover tints. One Dark, the palette's main hue source, does the same, with its bright syntax blue and its more saturated UI accent. In Sand the two share one token, because the cream background cannot host two different blues at the same lightness. The pair is context-separated, so the two blues do not appear together, and the split only exists in Flint.
+- **`fastfetch_key` stays accent-independent.** The fastfetch logo is fixed to the Catppuccin `peach` token, so the key color must not follow the accent hue. In Flint the key is the bright blue. In Sand it is the deep blue, because the bright blue fails contrast on the light background.
+- **Terminal blue and UI blue are separate tokens.** In Flint, `ansi_blue` is the bright syntax blue (`#61AFEF`) and `accent_blue` is the Orchis selection blue (`#3281EA`). The terminal keeps the brighter one, because syntax highlights need the extra brightness against the dark background. The UI accent stays at the Orchis value, because it also paints fills, borders, and hover tints and must match GTK. In Sand the two stay separate as well, with `ansi_blue` as the muted terminal blue (`#225882`) and `accent_blue` as the vivid fill blue (`#166AD9`). The two blues in each variant are context-separated, so the similarity across roles does not matter.
 
 #### Intentional lookalikes
 
 - **`raw_aliases` versus `raw_near_aliases`.** `raw_aliases` are groups of names that must all point at the same hex value. For example, `ansi_green` and `success` are aliases of each other. The build warns if a group drifts apart. `raw_near_aliases` are pairs that are almost identical, which is fine because they are context-separated. Almost identical is the point. Do not "fix" one without checking the other.
 - **Context-separated.** Two colors are context-separated when they are similar but never appear in the same place, so the similarity does not matter. Terminal text and button fill are a classic example.
-- **Accepted near-collisions.** `ansi_bright_red` and `error_deep` sit within ΔE 5.8 of each other. That is accepted, because the two are context-separated. One is terminal text, and the other is a button fill. Keep the gap when editing either side.
+- **Accepted near-collisions.** `ansi_black` and `surface_0` sit within ΔE 1.0 of each other in Flint. That is accepted and declared in `raw_near_aliases`, because the two are context-separated. One is terminal black, and the other is the first panel shade. Keep the gap when editing either side.
 
 #### Search highlight ladder
 
@@ -108,7 +118,7 @@ Search prominence comes from depth of blue, never brightness. The same three-ste
 2. **Other matches** (`search_bg`) are the lighter sibling in the accent-blue family, with whichever text contrast wins.
 3. **Current match** (`inc_search_bg`) is the deepest, most saturated blue of the ladder, with light text.
 
-Do not push a search fill toward the white-blue range. Colors in that range look flashy, and they stop following the depth-of-blue structure. In Flint the ladder is `#7bb3dc` for other matches over `#5a8bb0` for the current match. In Sand it is `#4178a3` over `#225882`. The zathura `highlight-active` color follows `search_bg` at 80% alpha (`search_80`) and must track any change to step 2.
+Do not push a search fill toward the white-blue range. Colors in that range look flashy, and they stop following the depth-of-blue structure. In Flint the ladder is `#7FB3F0` for other matches over `#3281EA` for the current match. In Sand it is `#4178a3` over `#166AD9`. The zathura `highlight-active` color follows `search_bg` at 80% alpha (`search_80`) and must track any change to step 2.
 
 ## What the build script derives
 
@@ -125,7 +135,7 @@ The `.flint.resolved.<role>` and `.flint.raw.<token>` paths expose the solid for
 
 ### Alpha tokens
 
-Alpha tokens represent transparent overlays. The derived `.hex` and `.bare` forms are 8-digit hex, like `#5a8bb0b2`, for apps that parse alpha such as swaylock and zathura. The `.rgba` form is a Cascading Style Sheets (CSS) `rgba(r, g, b, a)` string for waybar.
+Alpha tokens represent transparent overlays. The derived `.hex` and `.bare` forms are 8-digit hex, like `#3281EAb2`, for apps that parse alpha such as swaylock and zathura. The `.rgba` form is a _Cascading Style Sheets_ (_CSS_) `rgba(r, g, b, a)` string for waybar.
 
 ## Contrast checks
 
@@ -138,7 +148,7 @@ Alpha tokens represent transparent overlays. The derived `.hex` and `.bare` form
 - ANSI text must maintain at least 4.5:1 against the terminal background, and bright variants must have a measurable visual distinction from normal variants (1.05:1 or more).
 - LUT anchor palettes must contain at least 12 anchors, and any two anchors inside one list must stay at least ΔE 3.0 apart, just above the just-noticeable difference, so `lutgen` does not produce visible color banding, stepped edges that appear when a smooth gradient changes in coarse jumps, on complex wallpapers. The floor is data in `lut_min_anchor_delta_e`, and the build rejects lists that contain near-identical anchors.
 
-The hue-budget validator guards the neutrality thesis in code, the rule that hue is reserved for outcomes and everything else stays neutral. Every raw token must be near-neutral (saturation at or below 25%, which covers One Dark's neutral cast), near-black or near-white, or fall within 10 degrees of one of the seven declared hue families (One Dark's red, orange, yellow, green, cyan, blue, and purple). The `diff_*` washes and `warning_tint` are exempt, because they are intentional low-contrast tints. Any token that drifts outside the budget aborts the build.
+The hue-budget validator guards the neutrality thesis in code, the rule that hue is reserved for outcomes and everything else stays neutral. Every raw token must be near-neutral (saturation at or below 10%), near-black or near-white, or fall within 10 degrees of one of the eight declared hue families (red, orange, yellow, green, mint, cyan, blue, and purple, covering the Orchis accents and the terminal spectrum). The `diff_*` washes and `warning_tint` are exempt, because they are intentional low-contrast tints. Any token that drifts outside the budget aborts the build.
 
 If any pair fails to meet its contrast floor, the build script prints the failures and aborts before you can apply broken colors.
 
@@ -157,4 +167,4 @@ inside-color={{ $c.background.bare_ff }}
 text-color={{ $c.text.bare_ff }}
 ```
 
-To switch variants, see [Switch variants](theming.md#switch-variants) in the theming section.
+For more information about switching variants, see [Switch variants](theming.md#switch-variants) in the theming section.
