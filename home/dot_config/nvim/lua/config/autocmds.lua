@@ -31,7 +31,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = vim.api.nvim_create_augroup("session_cleanup", { clear = true }),
+  -- Named like PersistenceAutoload. It reads and writes the handshake flags
+  -- owned by the sway session manager (NVIM_SESSION_MANAGER_RESTORED,
+  -- SnacksExplorerOpen). See session_manager_lib and dashboard.lua.
+  group = vim.api.nvim_create_augroup("PersistenceCleanup", { clear = true }),
   callback = function()
     local explorer_open = 0
 

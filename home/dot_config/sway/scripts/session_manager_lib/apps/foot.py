@@ -78,7 +78,7 @@ def build_foot_nvim_args(node: dict) -> list[str]:
         return ["bash", "-ic", shell_cmd]
 
     if nvim_type == "dashboard":
-        return ["nvim", "bash"]
+        return ["nvim"]
 
     if (
         nvim_type in ("unknown", "session")

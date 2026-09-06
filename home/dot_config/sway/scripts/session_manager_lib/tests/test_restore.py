@@ -173,6 +173,89 @@ class TestRestoreFloating(RestoreHarnessTestCase):
         self.assertCommand("mark s")
 
 
+class TestApplyGeometry(RestoreHarnessTestCase):
+    """Saved rects are output-absolute; `move position` is workspace-relative
+    and anchors on the titlebar, so _apply_geometry must convert both."""
+
+    def _tree(self, ws_origin=(4, 28), deco_height=0, win_id=1000):
+        tree = self._fake_get_tree()
+        tree["nodes"].append(
+            {
+                "type": "output",
+                "name": "eDP-1",
+                "active": True,
+                "rect": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+                "nodes": [
+                    {
+                        "type": "workspace",
+                        "name": "1",
+                        "rect": {
+                            "x": ws_origin[0],
+                            "y": ws_origin[1],
+                            "width": 1912,
+                            "height": 1048,
+                        },
+                        "nodes": [],
+                        "floating_nodes": [
+                            {
+                                "id": win_id,
+                                "deco_rect": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "width": 100,
+                                    "height": deco_height,
+                                },
+                                "nodes": [],
+                                "floating_nodes": [],
+                            }
+                        ],
+                    }
+                ],
+                "floating_nodes": [],
+            }
+        )
+        return tree
+
+    def _apply(self, rect, ws_origin=(4, 28), deco_height=0):
+        import unittest.mock
+
+        tree = self._tree(ws_origin, deco_height)
+        with unittest.mock.patch.object(self.restore_mod, "get_tree", lambda: tree):
+            self.restore_mod._apply_geometry(1000, rect, "1")
+
+    def test_converts_output_to_workspace_coords(self):
+        self._apply({"x": 243, "y": 197, "width": 800, "height": 600})
+        self.assertCommand("move position 239 169")
+        self.assertCommand("resize set width 800 px height 600 px")
+
+    def test_titlebar_added_to_height_and_subtracted_from_y(self):
+        self._apply(
+            {"x": 243, "y": 197, "width": 1434, "height": 709},
+            deco_height=26,
+        )
+        self.assertCommand("move position 239 143")
+        self.assertCommand("resize set width 1434 px height 735 px")
+
+    def test_resize_precedes_move(self):
+        self._apply({"x": 243, "y": 197, "width": 800, "height": 600})
+        moves = [i for i, c in enumerate(self.calls) if "move position" in c]
+        resizes = [i for i, c in enumerate(self.calls) if "resize set" in c]
+        self.assertEqual(len(moves), 1)
+        self.assertEqual(len(resizes), 1)
+        self.assertLess(resizes[0], moves[0])
+
+    def test_missing_workspace_falls_back_to_saved_coords(self):
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            self.restore_mod, "get_tree", self._fake_get_tree
+        ):
+            self.restore_mod._apply_geometry(
+                1000, {"x": 10, "y": 20, "width": 800, "height": 600}, "1"
+            )
+        self.assertCommand("move position 10 20")
+
+
 class TestHeliumScratchpad(RestoreHarnessTestCase):
     def test_helium_in_hidden_scratchpad_is_restored(self):
         hel = make_window("helium", name="scratch hel tab")
