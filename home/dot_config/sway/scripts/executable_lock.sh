@@ -38,9 +38,9 @@ grim "$lockimg" 2>/dev/null || true
 # Downscale to ~33% (360p), blur, and darken. Swaylock upscales the image.
 # A 360p PNG instead of a full-res one saves CPU time and disk I/O.
 if command -v magick >/dev/null 2>&1; then
-	timeout 3 magick "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 10% "$lockimg" 2>/dev/null || true
+	timeout 3 magick "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 elif command -v convert >/dev/null 2>&1; then
-	timeout 3 convert "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 10% "$lockimg" 2>/dev/null || true
+	timeout 3 convert "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 fi
 
 # --- Transition to locked idle state ---
