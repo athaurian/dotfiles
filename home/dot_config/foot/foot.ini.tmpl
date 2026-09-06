@@ -10,6 +10,9 @@ resize-by-cells = no
 initial-color-theme = {{ .flint.active_theme }}
 
 [colors-dark]
+alpha=0.9
+blur = yes
+
 foreground = {{ $cd.text.bare }}
 background = {{ $cd.background.bare }}
 regular0 = {{ $ad.black.bare }}
@@ -34,6 +37,9 @@ jump-labels = {{ $cd.jump_label_fg.bare }} {{ $cd.jump_label_bg.bare }}
 urls = {{ $cd.url.bare }}
 
 [colors-light]
+alpha=0.85
+blur = yes
+
 foreground = {{ $cl.text.bare }}
 background = {{ $cl.background.bare }}
 regular0 = {{ $al.black.bare }}

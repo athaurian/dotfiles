@@ -5,77 +5,83 @@ appearance:
   wallpaper: ~/Pictures/Wallpapers/dark/flower-basket.jpg
 catppuccin_flavor: mocha
 meta:
-  description: A warm neutral dark-grey theme mixing One Dark hues with Sway chrome.
+  description: A neutral grey dark theme with muted One Dark Pro-style ANSI hues.
   name: Flint
   variant: dark
 raw:
-  accent_blue: "#5a8bb0"
-  accent_blue_bright: "#7bb3dc"
-  accent_border: "#5282a6"
+  accent_blue: "#3281EA"
+  accent_blue_bright: "#7FB3F0"
+  accent_border: "#4A90D9"
   accent_cyan: "#56b6c2"
   accent_cyan_bright: "#6ac9d4"
-  ansi_black: "#47423b"
-  ansi_blue: "#68a0ca"
-  ansi_bright_black: "#716b61"
-  ansi_bright_blue: "#8bc2ec"
-  ansi_bright_cyan: "#79dbe8"
-  ansi_bright_green: "#b2de91"
+  ansi_black: "#2E2E2E"
+  ansi_blue: "#61afef"
+  ansi_bright_black: "#636363"
+  ansi_bright_blue: "#98c3ff"
+  ansi_bright_cyan: "#7dd3e0"
+  ansi_bright_green: "#c4e8a0"
   ansi_bright_magenta: "#e3a2f8"
-  ansi_bright_red: "#f5a3aa"
+  ansi_bright_red: "#f0a0a5"
   ansi_bright_white: "#ffffff"
   ansi_bright_yellow: "#f5d898"
   ansi_cyan: "#56b6c2"
   ansi_green: "#98c379"
-  ansi_magenta: "#cb82e2"
-  ansi_red: "#e8757e"
-  ansi_white: "#e2dfdb"
+  ansi_magenta: "#c678dd"
+  ansi_red: "#e06c75"
+  ansi_white: "#E8E8E8"
   ansi_yellow: "#e5c07b"
-  bg: "#1c1a17"
+  bg: "#212121"
   black: "#000000"
-  border_inactive: "#686158"
-  critical_bg: "#900000"
-  bg_deep: "#100e0b"
+  border_inactive: "#5E5E5E"
+  critical_bg: "#B71C1C"
+  coral: "#CB8058"
+  bg_deep: "#121212"
   diff_add: "#2b4632"
   diff_change: "#2a4358"
   diff_delete: "#542a2e"
   diff_text: "#4d7a9e"
-  error: "#e8757e"
-  error_bright: "#f5a3aa"
-  error_deep: "#ba3636"
-  hover_blue: "#b2d3f2"
-  bg_subtle: "#151310"
-  overlay_dim: "#847d74"
-  overlay_strong: "#9e988d"
+  error: "#e06c75"
+  error_bright: "#f0a0a5"
+  error_deep: "#C62828"
+  hover_blue: "#A9CCF2"
+  bg_subtle: "#1B1B1B"
+  overlay_dim: "#8C8C8C"
+  overlay_strong: "#B0B0B0"
   peach: "#d19a66"
   peach_bright: "#dfaa7b"
   purple: "#c678dd"
   purple_bright: "#d890ea"
   selection: "#3a4451"
   success: "#98c379"
-  success_bright: "#a8d487"
-  surface_0: "#3b3731"
-  surface_1: "#443f39"
-  surface_2: "#504b45"
-  text: "#eae7e3"
+  success_bright: "#c4e8a0"
+  surface_0: "#2C2C2C"
+  surface_1: "#373737"
+  surface_2: "#414141"
+  text: "#EDEDED"
   text_max: "#ffffff"
-  text_muted: "#a9a298"
-  text_secondary: "#b9b3aa"
-  warning_deep: "#c28445"
-  warning_tint: "#3f3524"
+  text_muted: "#A3A3A3"
+  text_secondary: "#C2C2C2"
+  warning_deep: "#FF8F00"
+  warning_tint: "#3A2E12"
   yellow: "#e5c07b"
-  yellow_bright: "#f2d591"
+  yellow_bright: "#f5d898"
 raw_aliases:
   - [accent_cyan, ansi_cyan]
+  - [ansi_bright_green, success_bright]
   - [ansi_bright_red, error_bright]
   - [ansi_bright_white, text_max]
+  - [ansi_bright_yellow, yellow_bright]
   - [ansi_green, success]
   - [ansi_red, error]
   - [ansi_yellow, yellow]
-raw_near_aliases: []
+raw_near_aliases:
+  - [ansi_black, surface_0]
+  - [ansi_magenta, purple]
 
 semantic_overrides:
   inc_search_bg: accent
   swaylock_caps_key_hl: yellow_bright
+  swaylock_ring: overlay_dim
   window_focused_border: text
 qt_bevel:
   - surface_2

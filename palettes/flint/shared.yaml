@@ -156,7 +156,7 @@ semantic:
   caution: yellow
   caution_bright: yellow_bright
   commit_hash: peach
-  coral: error
+  coral: coral
   critical: error
   critical_bg: critical_bg
   cyan: accent_cyan
@@ -343,7 +343,7 @@ distinctness_checks:
       "swaylock caps vs typing arc",
     ]
 hue_budget:
-  neutral_max_saturation: 25
+  neutral_max_saturation: 10
   tolerance: 10
   near_white_lightness: 92
   near_black_lightness: 5
@@ -358,6 +358,7 @@ hue_budget:
     orange: 29
     yellow: 39
     green: 95
+    mint: 143
     cyan: 187
     blue: 207
     purple: 286
