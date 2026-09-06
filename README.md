@@ -1,4 +1,4 @@
-# dotfiles
+# Dotfiles
 
 Hi. This is the setup I use daily. My desktop runs CachyOS, an Arch-based Linux distribution, and [chezmoi](https://chezmoi.io) is the tool that manages it. The configuration files live in a repository, and chezmoi installs them into your home directory.
 
@@ -12,9 +12,14 @@ I wrote the sections in `docs/` for people who are new to this kind of setup. Th
 
 ## Screenshots
 
-Desktop screenshots live in [`assets/`](https://github.com/athaurian/dotfiles/tree/main/assets).
+The following table shows the dark and light desktop and launcher captures:
 
-## Quick start
+|          | Dark (Flint)                             | Light (Sand)                               |
+| -------- | ---------------------------------------- | ------------------------------------------ |
+| Desktop  | ![Dark desktop](assets/dark_stuff.png)   | ![Light desktop](assets/light_stuff.png)   |
+| Launcher | ![Dark launcher](assets/dark_fuzzel.png) | ![Light launcher](assets/light_fuzzel.png) |
+
+## Install the dotfiles
 
 Start with the following commands, which initialize the repository, build the dark palette, and apply the configs:
 
@@ -29,16 +34,16 @@ These steps assume you have already added my `forge` package repository and its 
 
 ## Highlights
 
-- **[Flint and Sand theming](docs/theming.md)**. How every color gets from the palette into your config files, with dark and light variants, contrast validation, and per-app color generation through chezmoi templates. The architecture details are in [the palette system guide](docs/palette-system.md).
-- **[Session manager](docs/session-manager.md)**. How your Sway session is saved when you log out, power off, or reboot, and rebuilt at login.
-- **[Keybindings](docs/keybindings.md)**. How the shortcuts are connected, the shortcut reference table, and the movement and layout controls.
+- [Flint and Sand theming](docs/theming.md). How every color gets from the palette into your config files, with dark and light variants, contrast validation, and per-app color generation through chezmoi templates. The architecture details are in [the palette system guide](docs/palette-system.md).
+- [Session manager](docs/session-manager.md). How your Sway session is saved when you log out, power off, or reboot, and rebuilt at login.
+- [Keybindings](docs/keybindings.md). How the shortcuts are connected, the shortcut reference table, and the movement and layout controls.
 
 ## Tips
 
-- Press `Super+Shift+E` to log out. This stops `sway-session.target`, the unit that groups the session services, so they start and stop together.
+- Press `Super+Shift+E` to log out. This action stops `sway-session.target`, the unit that groups the session services, so they start and stop together.
 - If a Qt6 app does not use the theme, install `qt6ct` and launch it with `QT_QPA_PLATFORMTHEME=qt6ct`.
 - If a service misbehaves, check it with `journalctl --user -u SERVICE_NAME`, replacing `SERVICE_NAME` with the service name.
-- If Sway misbehaves, inspect the window tree with `swaymsg -t get_tree | jq .` (the `jq` command formats the JSON output).
+- If Sway misbehaves, inspect the window tree with `swaymsg -t get_tree | jq .`. The `jq` command formats the JSON output.
 
 ## Notes
 

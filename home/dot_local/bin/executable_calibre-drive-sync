@@ -51,7 +51,10 @@ def find_books(library: Path) -> list[Path]:
 
 def db_fingerprint(library: Path) -> dict:
     """Identity of the Calibre database, used to invalidate the cache."""
-    stat = (library / "metadata.db").stat()
+    try:
+        stat = (library / "metadata.db").stat()
+    except OSError:
+        die(f"Calibre database not found at {library / 'metadata.db'}")
     return {"mtime_ns": stat.st_mtime_ns, "size": stat.st_size}
 
 
@@ -91,7 +94,7 @@ def load_metadata(library: Path) -> dict[str, dict] | None:
             cache = json.loads(METADATA_CACHE.read_text())
             if cache["fingerprint"] == fingerprint:
                 return cache["entries"]
-        except (json.JSONDecodeError, KeyError):
+        except (OSError, ValueError, KeyError):
             warn("metadata cache is corrupt; querying calibredb again")
 
     try:

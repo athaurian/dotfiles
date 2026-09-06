@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Notify when deployed dotfiles have drifted from the chezmoi source.
+# Notify when deployed dotfiles have drifted from the chezmoi source, or
+# when unmanaged files appear in directories that must be fully managed.
 # Used by chezmoi-drift.service (daily timer). Silent when in sync.
 
 # Need chezmoi and a display notification daemon.
@@ -14,6 +15,18 @@ if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
 	exit 0
 fi
 
+notify() {
+	if command -v notify-send >/dev/null 2>&1; then
+		notify-send -u normal -a "chezmoi" "$1" "$2"
+	fi
+}
+
+exclude_personal_bins="
+export-opencode-session
+termdown
+yt-dlp
+"
+
 # Use chezmoi status to detect drift. Output is empty when in sync.
 # --no-pager avoids paging, 2>/dev/null hides git fetch noise.
 status_output=""
@@ -24,15 +37,37 @@ else
 	exit 0
 fi
 
-if [ -z "$status_output" ]; then
-	exit 0
+if [ -n "$status_output" ]; then
+	# Count changed files by lines.
+	count=$(printf '%s\n' "$status_output" | wc -l | tr -d ' ')
+	# Truncate the preview to the first five lines for the notification body.
+	preview=$(printf '%s\n' "$status_output" | head -n 5)
+	notify "󰚰 dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp"
 fi
 
-# Count changed files (lines).
-count=$(printf '%s\n' "$status_output" | wc -l | tr -d ' ')
-# Truncate preview to first 5 lines for the notification body.
-preview=$(printf '%s\n' "$status_output" | head -n 5)
+# Flag unmanaged files in directories that must be fully managed, such as
+# stale scripts left behind by renames. The scan stays narrow because
+# a global one would include too much legitimate application state. Runtime caches
+# are excluded. They appear during normal development and test runs.
+unmanaged=""
+for dir in "$HOME/.config/sway/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
+	if [ -d "$dir" ]; then
+		exclude_patterns=$(printf '%s' "$exclude_personal_bins" | sed 's/^/-e /')
 
-if command -v notify-send >/dev/null 2>&1; then
-	notify-send -u normal -a "chezmoi" "󰚰 dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp"
+found=$(chezmoi unmanaged "$dir" 2>/dev/null | grep -v -e "__pycache__" -e "\.ruff_cache" -e "\.mypy_cache" $exclude_patterns || true)
+		if [ -n "$found" ]; then
+			if [ -n "$unmanaged" ]; then
+				unmanaged="$unmanaged
+$found"
+			else
+				unmanaged="$found"
+			fi
+		fi
+	fi
+done
+
+if [ -n "$unmanaged" ]; then
+	count=$(printf '%s\n' "$unmanaged" | wc -l | tr -d ' ')
+	preview=$(printf '%s\n' "$unmanaged" | head -n 5)
+	notify "󰚰 unmanaged file(s): ${count}" "${preview}\nRemove them or run: chezmoi add <file>"
 fi

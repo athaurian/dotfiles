@@ -35,11 +35,12 @@ bak() { cp -v "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"; }
 
 # Persistent notes in ~/Notes with searchable helpers.
 # Usage:
-#   notes              — create new note ~/Notes/YYYYMMDDTHHMMSSZ-xxxx-notes.md
-#   notes --last       — open most recent note
-#   notes --list       — list recent notes (ls -lt)
-#   notes --grep <pat> — search notes (ripgrep if available, else grep)
-#   notes --help       — show help
+#   notes              - create new note ~/Notes/YYYYMMDDTHHMMSSZ-xxxx-notes.md
+#   notes --last       - open most recent note
+#   notes --list       - list recent notes (ls -lt)
+#   notes --grep <pat> - search notes (ripgrep if available, else grep)
+#   notes --fzf        - pick a note with fzf
+#   notes --help       - show help
 unalias notes 2>/dev/null || true
 notes() {
 	local notes_dir="$HOME/Notes"
@@ -53,6 +54,7 @@ Usage: notes [OPTION] [PATTERN]
   --last           open most recent note
   --list           list recent notes
   --grep <pat>     search note contents (rg or grep)
+  --fzf            pick a note with fzf
   --help           show this help
 EOF
 		return 0
@@ -110,6 +112,7 @@ EOF
 			return 1
 		fi
 		file=$(find "$notes_dir" -type f -name '*.md' -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2- | fzf --preview 'bat --color=always --style=plain {} 2>/dev/null || cat {}' --preview-window=right:60%) || return 0
+		# find -printf is GNU-only. This setup targets CachyOS and Arch Linux.
 		[ -n "$file" ] && ${EDITOR:-nvim} "$file"
 		return 0
 		;;
