@@ -9,24 +9,26 @@ count=0
 tooltip="System up to date"
 has_checkupdates=0
 has_paru=0
+pacman_out=""
+paru_out=""
+paru_count=""
 
 if command -v checkupdates >/dev/null 2>&1; then
 	has_checkupdates=1
-	# checkupdates exits 2 when no db, 1 on error — ignore.
-	pacman_count=$(checkupdates 2>/dev/null | wc -l | tr -d ' ')
-	# shellcheck disable=SC2181
-	if [ $? -eq 0 ] || [ -n "$pacman_count" ]; then
-		count=$((count + ${pacman_count:-0}))
-	fi
+	# checkupdates exits 2 when no db, 1 on error. Capture output once.
+	# There is no pipefail in sh, so testing ``$?`` after a pipe would test ``wc``.
+	# An empty output means zero updates regardless of exit status.
+	pacman_out=$(checkupdates 2>/dev/null || true)
+	pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
+	count=$((count + ${pacman_count:-0}))
 fi
-
-paru_count=""
 
 if command -v paru >/dev/null 2>&1; then
 	has_paru=1
-	# paru -Qun lists AUR updates (quieter than -Qua). Cache the result
-	# so the later dedup path does not run the same query twice.
-	paru_count=$(paru -Qun 2>/dev/null | wc -l | tr -d ' ')
+	# paru -Qun lists AUR updates. Cache the result so the tooltip in the
+	# following block reuses it instead of running the same query twice.
+	paru_out=$(paru -Qun 2>/dev/null || true)
+	paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
 	count=$((count + ${paru_count:-0}))
 fi
 
@@ -36,25 +38,20 @@ if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
 	exit 0
 fi
 
-# Deduplicate when both tools counted the same pacman updates:
-# paru -Qun already includes repo updates on some setups, so if we used
-# both, paru's count already covers pacman. Prefer the cached paru count
-# alone when it reports updates, otherwise keep the pacman count (paru may
-# be stale).
-if [ "$has_checkupdates" -eq 1 ] && [ "$has_paru" -eq 1 ]; then
-	if [ -n "$paru_count" ] && [ "$paru_count" -gt 0 ] 2>/dev/null; then
-		count=$paru_count
-	fi
-fi
+# Both counts in the preceding block are additive. Checkupdates covers repo updates and
+# paru -Qun covers AUR updates. Earlier revisions preferred one count
+# over the other here, which dropped repo-only updates on setups where
+# paru reports AUR only.
 
 if [ "$count" -gt 0 ]; then
-	# Build a short tooltip with first few update names.
+	# Build a short tooltip with the first few update names, reusing the
+	# cached query output instead of running the tools a second time.
 	sample=""
-	if command -v checkupdates >/dev/null 2>&1; then
-		sample=$(checkupdates 2>/dev/null | head -n 5 | tr '\n' '; ' | sed 's/; $//')
+	if [ -n "$pacman_out" ]; then
+		sample=$(printf '%s' "$pacman_out" | head -n 5 | tr '\n' '; ' | sed 's/; $//')
 	fi
-	if [ -z "$sample" ] && command -v paru >/dev/null 2>&1; then
-		sample=$(paru -Qun 2>/dev/null | head -n 5 | tr '\n' '; ' | sed 's/; $//')
+	if [ -z "$sample" ] && [ -n "$paru_out" ]; then
+		sample=$(printf '%s' "$paru_out" | head -n 5 | tr '\n' '; ' | sed 's/; $//')
 	fi
 	if [ -n "$sample" ]; then
 		tooltip="${count} update(s): ${sample}"

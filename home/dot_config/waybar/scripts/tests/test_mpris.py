@@ -17,6 +17,7 @@ Or via::
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -252,8 +253,6 @@ def _run_scenario(name, spec):
             proc.wait(timeout=2)
         except subprocess.TimeoutExpired:
             proc.kill()
-
-    import shutil
 
     shutil.rmtree(tmpdir, ignore_errors=True)
 

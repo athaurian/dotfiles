@@ -33,6 +33,7 @@ The script emits only actual state changes, so Waybar is not re-rendered
 on every event.
 """
 
+import html
 import json
 import os
 import queue
@@ -61,7 +62,7 @@ POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))
 # qualifying consecutive readings required before downgrading to Paused.
 STALL_DETECTION = True
 STALL_MIN_TIME = float(os.environ.get("MPRIS_STALL_MIN_TIME", "1.0"))
-STALL_POLLS = 1
+STALL_POLLS = int(os.environ.get("MPRIS_STALL_POLLS", "1"))
 
 # During track transitions Chromium briefly reports an empty or Stopped
 # state. Here that shows up as a window of roughly 0.3 to 0.5 seconds of
@@ -206,6 +207,9 @@ def _render(status: str, artist: str, title: str) -> str:
         return _EMPTY_PAYLOAD
 
     label = _truncate(label)
+    # Waybar parses Pango markup. Escape is false in the module config,
+    # so escape track metadata that could contain ``&``, ``<``, or ``>``.
+    label = html.escape(label, quote=False)
     text = f"{span}  {label}"
 
     if status == "Paused":
@@ -380,6 +384,12 @@ def main() -> None:
             # Follow died, for example because no players are registered
             # or the player closed. Respawn on the next iteration. The
             # resync on the next timeout keeps state honest meanwhile.
+            # Reap the child so it does not linger as a zombie.
+            if proc is not None:
+                try:
+                    proc.wait(timeout=2.0)
+                except (OSError, subprocess.SubprocessError):
+                    pass
             proc = None
             continue
 
