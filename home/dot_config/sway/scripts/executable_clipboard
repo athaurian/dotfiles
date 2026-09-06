@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Clipboard history picker combining cliphist and fzf with a live preview.
+
+Shows clipboard history with the full entry in a preview pane (images
+render as terminal cell art, which erases cleanly on redraw) and copies
+the selection back with wl-copy. ``fzf`` needs a
+terminal for its interface: when stdout is not a terminal (e.g. when
+started from a Sway keybind, whose stdin is the login VT and not the
+Wayland session), relaunches itself inside a floating foot window
+unless ``PICKER_NO_RELAUNCH`` is set.
+"""
+
+import argparse
+import os
+import shlex
+import sys
+from pathlib import Path
+from signal import SIG_DFL, SIGPIPE, signal
+
+# Write bytecode caches under ~/.cache instead of next to the scripts,
+# so the chezmoi-managed tree stays clean.
+sys.pycache_prefix = str(Path.home() / ".cache" / "dotfiles" / "pycache")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from picker_lib import clip, model, notify, preview, ui
+
+APP_NAME = "clipboard"
+SELF = str(Path(__file__).resolve())
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parses picker options."""
+    parser = argparse.ArgumentParser(description="Pick clipboard history.")
+    parser.add_argument(
+        "--preview",
+        metavar="ID",
+        default=None,
+        help="print the preview for entry ID and exit (fzf hook)",
+    )
+    parser.add_argument(
+        "--db-path",
+        default=None,
+        help="cliphist database path (defaults to cliphist's own)",
+    )
+    return parser.parse_args(argv)
+
+
+def preview_mode(eid: str, db_path: str | None) -> int:
+    """Renders the preview for entry ``eid``. Fzf calls this per highlight."""
+    # Die quietly on a closed reader. Fzf moves on and closes the pipe
+    # every time the highlight changes, which would otherwise end each
+    # abandoned preview with a ``BrokenPipeError`` traceback.
+    signal(SIGPIPE, SIG_DFL)
+    if not eid.isdigit():
+        print(f"error: preview id must be numeric: {eid!r}", file=sys.stderr)
+        return 2
+    try:
+        data = clip.decode(eid.encode(), db_path)
+    except (FileNotFoundError, RuntimeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    preview.render(data)
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Runs the clipboard picker and returns the process exit status."""
+    args = parse_args(argv)
+    if args.preview is not None:
+        return preview_mode(args.preview, args.db_path)
+
+    if not clip.have_cliphist():
+        notify.send("cliphist not installed", app_name=APP_NAME, urgency="critical")
+        return 1
+    if not ui.have("fzf"):
+        notify.send("fzf not installed", app_name=APP_NAME, urgency="critical")
+        return 1
+
+    # Check history before relaunching into foot, so an empty history
+    # notifies directly instead of flashing a terminal first.
+    try:
+        entries = clip.list_entries(args.db_path)
+    except (FileNotFoundError, RuntimeError) as exc:
+        notify.send(str(exc), app_name=APP_NAME, urgency="critical")
+        return 1
+    if not entries:
+        notify.send("clipboard history empty", app_name=APP_NAME)
+        return 0
+
+    if not sys.stdout.isatty() and not os.environ.get("PICKER_NO_RELAUNCH"):
+        if ui.relaunch_in_foot([sys.executable, SELF, *sys.argv[1:]]):
+            return 0  # pragma: no cover - process replaced by foot
+        notify.send(
+            "foot is required to show the picker", app_name=APP_NAME, urgency="critical"
+        )
+        return 1
+
+    lines = [model.format_entry(eid, display) for eid, display in entries]
+    preview_argv = [sys.executable, SELF, "--preview", "{1}"]
+    if args.db_path is not None:
+        preview_argv += ["--db-path", args.db_path]
+    selected = ui.run_fzf(
+        lines,
+        prompt=ui.FZF_PROMPT_CLIPBOARD,
+        header="clipboard history",
+        preview_cmd=shlex.join(preview_argv),
+    )
+    if not selected:
+        return 0
+
+    try:
+        data = clip.decode(selected.encode(), args.db_path)
+    except clip.EntryNotFoundError:
+        notify.send("clipboard entry no longer available", app_name=APP_NAME)
+        return 0
+    except (FileNotFoundError, RuntimeError) as exc:
+        notify.send(str(exc), app_name=APP_NAME, urgency="critical")
+        return 1
+    try:
+        clip.copy_to_clipboard(data)
+    except (FileNotFoundError, RuntimeError) as exc:
+        notify.send(str(exc), app_name=APP_NAME, urgency="critical")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
