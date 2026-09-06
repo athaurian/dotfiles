@@ -1,5 +1,7 @@
 # Write Python bytecode caches outside the working tree so chezmoi never
 # sees __pycache__ in managed files.
+# (Canonical export lives below with the lint and file lists. It is kept here for
+# early use by every target.)
 export PYTHONPYCACHEPREFIX := $(HOME)/.cache/dotfiles/pycache
 
 # Palette tooling.
@@ -43,12 +45,21 @@ PRETTIER := prettier
 SHFMT    := shfmt
 STYLUA   := stylua
 
+# Keep bytecode out of the source tree. Test runners do not inherit the
+# pycache_prefix that the entry-point scripts set, so point them at the
+# same cache dir through the environment instead.
+# (Uses the single export at the top of this file.)
+
 PY_FILES := scripts/*.py \
             home/dot_local/bin/executable_calibre-drive-sync \
             home/dot_local/bin/executable_flint-wallpaper \
             home/dot_local/bin/tests/test_calibre_drive_sync.py \
             home/dot_config/sway/scripts/executable_rotate_wallpaper.py.tmpl \
+            home/dot_config/sway/scripts/executable_clipboard \
+            home/dot_config/sway/scripts/executable_dunst-history \
             $(shell find home/dot_config/sway/scripts/session_manager_lib -name '*.py') \
+            $(shell find home/dot_config/sway/scripts/picker_lib -name '*.py') \
+            home/dot_config/waybar/scripts/executable_mpris.py \
             home/dot_config/waybar/scripts/tests/fake_playerctl.py \
             home/dot_config/waybar/scripts/tests/test_mpris.py
 
@@ -58,8 +69,9 @@ SH_FILES := $(shell find home/dot_config/sway/scripts home/dot_config/waybar/scr
 	   -o -name 'executable_wlsunset-location' \) | sort -u)
 # Python executables (executable_mpris.py, executable_session_manager,
 # executable_calibre-drive-sync, executable_flint-wallpaper,
-# executable_rotate_wallpaper.py.tmpl) are intentionally excluded from
-# SH_FILES; they are covered by PY_FILES / check-mpris / check-calibre.
+# executable_rotate_wallpaper.py.tmpl, executable_clipboard,
+# executable_dunst-history) are intentionally excluded from
+# SH_FILES. They are covered by PY_FILES, check-mpris, and check-calibre.
 
 BASH_FILES := home/dot_bashrc home/dot_bash_profile home/dot_bash_aliases.tmpl
 
@@ -77,8 +89,8 @@ YAML_FILES := palettes/*/*.yaml \
 
 LUA_FILES := $(shell find home/dot_config/nvim -name '*.lua')
 
-.PHONY: help dark light check check-session check-mpris check-calibre lint format \
-        lint-py lint-sh lint-md lint-json lint-yaml lint-lua \
+.PHONY: help dark light check check-session check-shell check-picker check-mpris check-calibre lint format \
+        lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary \
         format-py format-sh format-md format-json format-yaml format-lua \
         pack pack-no-scripts pack-colors \
         pack-session pack-session-one pack-session-two
@@ -98,8 +110,11 @@ help:
 	@echo "  pack-session-two  - Only nested session_manager_lib files"
 
 # --- Quality gates ---
-check: check-session check-mpris check-calibre
+check: check-session check-shell check-picker check-mpris check-calibre
 	@echo "all checks passed"
+
+check-shell:
+	for t in home/dot_config/sway/scripts/tests/test_*.sh; do sh "$$t" || exit 1; done
 
 check-session:
 	$(CHECK_PY) -m ruff check --no-cache home/dot_config/sway/scripts/session_manager_lib
@@ -107,15 +122,21 @@ check-session:
 	$(CHECK_PY) -m mypy --cache-dir=/dev/null home/dot_config/sway/scripts/session_manager_lib
 	PYTHONPATH=home/dot_config/sway/scripts $(CHECK_PY) -m unittest discover -s home/dot_config/sway/scripts/session_manager_lib/tests
 
+check-picker:
+	$(CHECK_PY) -m ruff check --no-cache home/dot_config/sway/scripts/picker_lib home/dot_config/sway/scripts/executable_clipboard home/dot_config/sway/scripts/executable_dunst-history
+	$(CHECK_PY) -m ruff format --check --no-cache home/dot_config/sway/scripts/picker_lib home/dot_config/sway/scripts/executable_clipboard home/dot_config/sway/scripts/executable_dunst-history
+	$(CHECK_PY) -m mypy --cache-dir=/dev/null home/dot_config/sway/scripts/picker_lib
+	PYTHONPATH=home/dot_config/sway/scripts $(CHECK_PY) -m unittest discover -s home/dot_config/sway/scripts/picker_lib/tests
+
 check-mpris:
-	$(CHECK_PY) -m ruff check --no-cache home/dot_config/waybar/scripts/tests/fake_playerctl.py home/dot_config/waybar/scripts/tests/test_mpris.py
-	$(CHECK_PY) -m ruff format --check --no-cache home/dot_config/waybar/scripts/tests/fake_playerctl.py home/dot_config/waybar/scripts/tests/test_mpris.py
-	python3 home/dot_config/waybar/scripts/tests/test_mpris.py
+	$(CHECK_PY) -m ruff check --no-cache home/dot_config/waybar/scripts/executable_mpris.py home/dot_config/waybar/scripts/tests/fake_playerctl.py home/dot_config/waybar/scripts/tests/test_mpris.py
+	$(CHECK_PY) -m ruff format --check --no-cache home/dot_config/waybar/scripts/executable_mpris.py home/dot_config/waybar/scripts/tests/fake_playerctl.py home/dot_config/waybar/scripts/tests/test_mpris.py
+	$(CHECK_PY) home/dot_config/waybar/scripts/tests/test_mpris.py
 
 check-calibre:
 	$(CHECK_PY) -m ruff check --no-cache home/dot_local/bin/tests/test_calibre_drive_sync.py
 	$(CHECK_PY) -m ruff format --check --no-cache home/dot_local/bin/tests/test_calibre_drive_sync.py
-	python3 home/dot_local/bin/tests/test_calibre_drive_sync.py
+	$(CHECK_PY) home/dot_local/bin/tests/test_calibre_drive_sync.py
 
 # --- Formatting & linting by filetype ---
 format: format-py format-sh format-md format-json format-yaml format-lua
@@ -140,7 +161,7 @@ format-yaml:
 format-lua:
 	$(STYLUA) $(LUA_FILES)
 
-lint: lint-py lint-sh lint-md lint-json lint-yaml lint-lua
+lint: lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary
 	@echo "lint passed"
 
 lint-py:
@@ -165,6 +186,15 @@ lint-yaml:
 
 lint-lua:
 	$(STYLUA) --check $(LUA_FILES)
+
+# Architecture boundary (see picker_lib/__init__.py). The pickers must not
+# issue compositor IPC. That belongs to the shell toggle scripts.
+# session_manager_lib is out of scope. It owns a native IPC client by
+# design. Matches the quoted command name in either quote style so prose
+# mentioning bare swaymsg passes.
+lint-boundary:
+	! grep -rn '"swaymsg"' home/dot_config/sway/scripts/picker_lib
+	! grep -rn "'swaymsg'" home/dot_config/sway/scripts/picker_lib
 
 # --- Theme generation ---
 dark light:
