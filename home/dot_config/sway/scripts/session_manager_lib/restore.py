@@ -158,12 +158,16 @@ def has_restorable_content() -> bool:
 
 
 def _clamp_rect_to_output(rect: dict, workspace_name: str | None = None) -> dict:
-    """Clamp floating rect to stay fully inside output if off-screen."""
+    """Clamp floating rect to stay fully inside output if off-screen.
+
+    Saved rects are output-absolute (e.g. workspace 1 content starts at
+    4,28 after bar/gaps). Clamping therefore happens in output coordinates;
+    _apply_geometry converts to workspace-relative afterwards because
+    `move position` anchors on the workspace content origin (live probe:
+    `move position 100 100` lands at output 104,128 on a 4,28 workspace).
+    """
     try:
         tree = get_tree()
-        # Use output rect (0,0 1920x1080) — move position is output-relative,
-        # workspace 4,31 is derived after gaps/bar, so clamping to workspace
-        # gives -25 offset. Output 0,0 -> final 4,31 correctly.
         target_rect = None
         for out in tree.get("nodes", []):
             if (
@@ -198,13 +202,84 @@ def _clamp_rect_to_output(rect: dict, workspace_name: str | None = None) -> dict
         return rect
 
 
+def _workspace_origin(workspace_name: str | None) -> tuple[int, int]:
+    """Top-left of a workspace in output coordinates.
+
+    Falls back to (0, 0) — the old behaviour — when the workspace cannot
+    be found (e.g. in unit tests or if it was never created).
+    """
+    if not workspace_name:
+        return (0, 0)
+    try:
+        tree = get_tree()
+    except OSError:
+        return (0, 0)
+    for out in tree.get("nodes", []):
+        for ws in out.get("nodes", []):
+            if ws.get("type") == "workspace" and ws.get("name") == workspace_name:
+                rect = ws.get("rect", {})
+                try:
+                    return (int(rect.get("x", 0)), int(rect.get("y", 0)))
+                except (ValueError, TypeError):
+                    return (0, 0)
+    return (0, 0)
+
+
+def _live_deco_height(win_id: int) -> int:
+    """Live titlebar height of a window, or 0 for border styles without one.
+
+    With `border normal`, `move position` anchors on the decoration
+    top-left (live probe: requesting 100,100 places deco at 100,100 and the
+    content rect 26px below), so the content lands exactly on the saved
+    position only when this height is subtracted from the target y.
+    Pixel borders report a zero-height deco_rect and are unaffected.
+    """
+    try:
+        tree = get_tree()
+    except OSError:
+        return 0
+
+    def _find(node: dict) -> dict | None:
+        if node.get("id") == win_id:
+            return node
+        for child in node.get("nodes", []) + node.get("floating_nodes", []):
+            found = _find(child)
+            if found is not None:
+                return found
+        return None
+
+    try:
+        node = _find(tree)
+        if not node:
+            return 0
+        return int(node.get("deco_rect", {}).get("height", 0) or 0)
+    except (ValueError, TypeError, AttributeError):
+        return 0
+
+
 def _apply_geometry(win_id: int, rect: dict, workspace_name: str | None = None) -> None:
     rect = _clamp_rect_to_output(rect, workspace_name)
-    cmd(f"[con_id={win_id}] move position {rect.get('x', 0)} {rect.get('y', 0)}")
-    cmd(
-        f"[con_id={win_id}] resize set width {rect.get('width', DEFAULT_WINDOW_WIDTH)} px "
-        f"height {rect.get('height', DEFAULT_WINDOW_HEIGHT)} px"
-    )
+    # Queried before resize: callers set the border first, so a `border
+    # normal` titlebar is already present. `resize set` budgets that titlebar
+    # inside the requested height (live probe: requesting 300 yields a 274
+    # content rect under a 26 titlebar), so the saved content height is
+    # restored exactly only when the titlebar is added back on top.
+    deco_height = _live_deco_height(win_id)
+    width = rect.get("width", DEFAULT_WINDOW_WIDTH)
+    try:
+        height = int(rect.get("height", DEFAULT_WINDOW_HEIGHT)) + deco_height
+    except (ValueError, TypeError):
+        height = rect.get("height", DEFAULT_WINDOW_HEIGHT)
+    # Resize first: growing the window can shift its position, so the move
+    # must come last (same order as the toggle scripts' resize-then-center).
+    cmd(f"[con_id={win_id}] resize set width {width} px height {height} px")
+    origin_x, origin_y = _workspace_origin(workspace_name)
+    try:
+        x = int(rect.get("x", 0)) - origin_x
+        y = int(rect.get("y", 0)) - origin_y - deco_height
+    except (ValueError, TypeError):
+        x, y = rect.get("x", 0), rect.get("y", 0)
+    cmd(f"[con_id={win_id}] move position {x} {y}")
 
 
 def _apply_marks(win_id: int, marks: list[str]) -> None:
@@ -272,10 +347,7 @@ def _restore_floating(node: dict, ctx: RestoreContext) -> None:
         cmd(f"[con_id={win_id}] border normal")
         cmd(f"[con_id={win_id}] move scratchpad")
         cmd(f"[con_id={win_id}] scratchpad show")
-        width = rect.get("width", DEFAULT_WINDOW_WIDTH)
-        height = rect.get("height", DEFAULT_WINDOW_HEIGHT)
-        cmd(f"[con_id={win_id}] resize set width {width} px height {height} px")
-        cmd(f"[con_id={win_id}] move position center")
+        _apply_geometry(win_id, rect, ctx.current_workspace)
         _apply_fullscreen(win_id, fullscreen_mode)
         return
 
@@ -303,7 +375,11 @@ def _restore_hidden_scratchpad(node: dict, ctx: RestoreContext) -> None:
     _apply_marks(win_id, node.get("marks", []))
     cmd(f"[con_id={win_id}] floating enable")
     cmd(f"[con_id={win_id}] border normal")
-    _apply_geometry(win_id, node.get("rect", {}))
+    # Geometry is applied while the window sits on SCRATCH_RESTORE_WORKSPACE
+    # (callers switch there first); its origin matches a normal workspace on
+    # the same output, so the saved output-absolute rect converts correctly
+    # and survives the later `scratchpad show` on any same-output workspace.
+    _apply_geometry(win_id, node.get("rect", {}), SCRATCH_RESTORE_WORKSPACE)
     cmd(f"[con_id={win_id}] move scratchpad")
 
 
@@ -427,17 +503,21 @@ def diff_sessions() -> None:
         live_c = live_ws.get(name)
         saved = saved_ws_map.get(name)
         if saved:
-            # count saved windows
+            # Count saved windows with the same predicate as the live count in the preceding block.
             def scnt(node: dict) -> int:
                 if node.get("type") == "window":
+                    return 1
+                if node.get("type") in ("con", "floating_con") and node.get("app_id"):
                     return 1
                 s = 0
                 for c in node.get("nodes", []):
                     s += scnt(c)
+                for c in node.get("floating_nodes", []):
+                    s += scnt(c)
                 return s
 
-            saved_c = sum(scnt(n) for n in saved.get("nodes", [])) + len(
-                saved.get("floating_nodes", [])
+            saved_c = sum(scnt(n) for n in saved.get("nodes", [])) + sum(
+                scnt(n) for n in saved.get("floating_nodes", [])
             )
         else:
             saved_c = None

@@ -18,7 +18,7 @@ timeout 15 swaynag -t warning \
 
 nag_pid=$!
 
-for i in $(seq 1 60); do
+for i in $(seq 1 18); do
 	[ -f "$choice_file" ] && break
 	sleep 1
 done

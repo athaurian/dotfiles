@@ -12,16 +12,16 @@ Saving is wired into the power controls in the SwayFX config. When you log out, 
 
 ## When the session is restored
 
-Restoring happens at login. On startup you get a `swaynag` bar, the confirmation prompt that ships with Sway. It asks **restore previous session?**, with buttons for **Restore** and **Start fresh**. Choose **Restore** and the manager relaunches your apps and rebuilds the desktop. The prompt waits about a minute. If you make no choice, nothing is restored. Silence counts as a no.
+Restoring happens at login. On startup you get a `swaynag` bar, the confirmation prompt that ships with Sway. It asks **restore previous session?**, with buttons for **Restore** and **Start fresh**. Choose **Restore**, and the manager relaunches your apps and rebuilds the desktop. The prompt waits about a minute. If you make no choice, nothing is restored. Silence counts as a no.
 
-The prompt only appears when there is something to bring back. You are not asked at all when the state file is missing, or when the previous session was empty with no windows, scratchpad entries, or background apps. The dropdown terminal, the hidden one on `Super` + `` ` ``, does not count on its own, since its keybind spawns it whenever it is missing.
+The prompt only appears when there is something to bring back. You are not asked at all when the state file is missing, or when the previous session was empty with no windows, scratchpad entries, or background apps. The dropdown terminal, the hidden one on `Super` + `` ` ``, does not count on its own, since its keybinding spawns it whenever it is missing.
 
 ## What is restored
 
 The restore covers the following:
 
-- Workspaces, layouts, floating windows, the scratchpad, marks, geometry, and fullscreen state.
-- Terminals with their working directories, including Neovim sessions inside them.
+- Workspaces, layouts, floating windows, the scratchpad, marks, geometry, and fullscreen state
+- Terminals with their working directories, including Neovim sessions inside them
 - Open documents, down to the page of the PDF you were reading in zathura, the PDF reader.
 - The browser, restored with a single launch of Helium's `--restore-last-session` flag, then matched back to the windows you had.
 - Apps that live in the tray, the panel's icon area, with no visible window, like a minimized Vesktop, the Discord client.

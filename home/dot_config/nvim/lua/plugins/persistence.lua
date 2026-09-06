@@ -2,6 +2,8 @@ return {
   "folke/persistence.nvim",
   event = "BufReadPre",
   opts = {
+    -- Session file contents. Keep in sync with vim.o.sessionoptions in
+    -- lua/config/options.lua. Both lists must match.
     options = {
       "buffers",
       "curdir",

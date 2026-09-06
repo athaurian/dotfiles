@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
 from typing import Any
 
@@ -37,7 +38,10 @@ def _ensure_background_daemons() -> None:
     """Best-effort health check for daily-use daemons. Logs to file + notification path."""
     from .logging_setup import notify
 
-    # Skip health checks when subprocess is mocked in tests
+    # Skip health checks in tests via explicit opt-out, not by detecting mocks.
+    if os.getenv("SWAY_SESSION_SKIP_DAEMON_CHECKS") == "1":
+        return
+    # Skip health checks when subprocess is mocked in tests.
     if subprocess.Popen is not _ORIGINAL_POPEN:
         return
 
