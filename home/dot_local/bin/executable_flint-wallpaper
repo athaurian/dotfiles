@@ -27,6 +27,11 @@ VALID_THEMES = ("dark", "light")
 HASH_CHUNK_SIZE = 1024 * 1024
 CHEZMOI_TIMEOUT_SECONDS = 10
 
+# --- ``awww img`` parameters ---
+# The definitive reference is awww-img(1).
+TRANSITION_DURATION = 0.6
+TRANSITION_TYPE = "random"
+
 PROFILE_DEFAULTS = {
     "PALETTE": ("flint", "flint"),
     "LUM": ("1.05", "1.05"),
@@ -555,7 +560,13 @@ def set_wallpaper(path: Path) -> bool:
 
         try:
             subprocess.run(
-                [executable, "img", str(path)],
+                [
+                    executable,
+                    "img",
+                    str(path),
+                    f"--transition-duration={TRANSITION_DURATION}",
+                    f"--transition-type={TRANSITION_TYPE}",
+                ],
                 check=True,
             )
         except subprocess.CalledProcessError as exc:
