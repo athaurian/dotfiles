@@ -90,7 +90,7 @@ YAML_FILES := palettes/*/*.yaml \
 LUA_FILES := $(shell find home/dot_config/nvim -name '*.lua')
 
 .PHONY: help dark light check check-session check-shell check-picker check-mpris check-calibre lint format \
-        lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary \
+        lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary lint-docs \
         format-py format-sh format-md format-json format-yaml format-lua \
         pack pack-no-scripts pack-colors \
         pack-session pack-session-one pack-session-two
@@ -102,6 +102,7 @@ help:
 	@echo "  check             - Lint, type check, and test all modules"
 	@echo "  format            - Format files by filetype (ruff, shfmt, prettier, stylua)"
 	@echo "  lint              - Lint files by filetype without modifying them"
+	@echo "  lint-docs         - Check docs and docstrings against style-guide.md"
 	@echo "  pack              - Create a zip of the dotfiles"
 	@echo "  pack-no-scripts   - Create a zip of the dotfiles (excluding scripts/)"
 	@echo "  pack-colors       - Create a zip of color-related config files only"
@@ -110,7 +111,7 @@ help:
 	@echo "  pack-session-two  - Only nested session_manager_lib files"
 
 # --- Quality gates ---
-check: check-session check-shell check-picker check-mpris check-calibre
+check: check-session check-shell check-picker check-mpris check-calibre lint-docs
 	@echo "all checks passed"
 
 check-shell:
@@ -161,7 +162,7 @@ format-yaml:
 format-lua:
 	$(STYLUA) $(LUA_FILES)
 
-lint: lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary
+lint: lint-py lint-sh lint-md lint-json lint-yaml lint-lua lint-boundary lint-docs
 	@echo "lint passed"
 
 lint-py:
@@ -195,6 +196,12 @@ lint-lua:
 lint-boundary:
 	! grep -rn '"swaymsg"' home/dot_config/sway/scripts/picker_lib
 	! grep -rn "'swaymsg'" home/dot_config/sway/scripts/picker_lib
+
+# Style-guide checks for docs and inline documentation (see style-guide.md).
+# Errors fail; punctuation deviations (semicolons, em/en dashes,
+# label-then-colon) report as warnings. Pass --strict to fail on those too.
+lint-docs:
+	python3 scripts/check_docs_style.py
 
 # --- Theme generation ---
 dark light:
