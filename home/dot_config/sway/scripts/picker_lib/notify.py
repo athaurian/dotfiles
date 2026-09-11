@@ -13,7 +13,8 @@ def send(
     urgency: str = "low",
     timeout_ms: int = 3000,
 ) -> None:
-    """Shows a desktop notification, silently skipping when ``notify-send`` is missing."""
+    """Shows a desktop notification, silently skipping when ``notify-send``
+    is missing."""
     args = [
         "notify-send",
         "-a",

@@ -41,7 +41,7 @@ def _line(player, status, pos, artist, title):
 
 
 def _norm(text):
-    """Extract (label, italic) from a Waybar payload for assertion."""
+    """Extracts (label, italic) from a Waybar payload for assertion."""
     t = re.sub(r"<span>[^<]*</span>", "", text)
     italic = "<i>" in t
     t = re.sub(r"</?i>", "", t).strip()
@@ -56,7 +56,8 @@ def _sc(events, delay=0.15):
 
 
 def _make_fakebin():
-    """Create a temp dir with a 'playerctl' symlink pointing to fake_playerctl.py."""
+    """Creates a temp dir with a 'playerctl' symlink pointing to
+    fake_playerctl.py."""
     tmpdir = Path(tempfile.mkdtemp(prefix="mpris_fake_"))
     fakebin = tmpdir / "bin"
     fakebin.mkdir()

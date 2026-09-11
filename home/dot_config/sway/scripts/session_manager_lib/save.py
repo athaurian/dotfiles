@@ -1,4 +1,4 @@
-"""Session save orchestration."""
+"""Orchestrates session saves."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ log = logging.getLogger("session_manager")
 
 
 def _focused_workspace_name(tree: dict) -> str | None:
-    """Name of the focused non-scratchpad workspace, if any."""
+    """Gets the name of the focused non-scratchpad workspace, if any."""
 
     def _walk(node: dict, ws_name: str | None) -> str | None:
         if node.get("type") == "workspace":
@@ -96,7 +96,8 @@ def save_session(*, notify_user: bool = True) -> None:
             background_apps = detect_background_apps(cache, tree=tree)
 
             # If helium windows are present, give it a moment to flush its
-            # Session/Tabs files so --restore-last-session will see both windows.
+            # Session/Tabs files so --restore-last-session will see
+            # both windows.
             has_helium = any(
                 n.get("app_id") == "helium" for ws in workspaces for n in walk_tree(ws)
             )
@@ -111,7 +112,8 @@ def save_session(*, notify_user: bool = True) -> None:
                 "focused_workspace": _focused_workspace_name(tree),
             }
 
-            # Rotate backups before overwriting: STATE_FILE.3 <- .2 <- .1 <- STATE_FILE
+            # Rotate backups before overwriting:
+            # STATE_FILE.3 <- .2 <- .1 <- STATE_FILE
             backup_msg = ""
             if STATE_FILE.exists():
                 try:

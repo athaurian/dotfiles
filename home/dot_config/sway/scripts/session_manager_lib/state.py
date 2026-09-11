@@ -1,4 +1,6 @@
-"""Mutable restore context threaded through the restore call chain."""
+"""Defines the mutable restore context threaded through the restore
+call chain.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +9,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class RestoreContext:
-    """Mutable state for a single restore run."""
+    """Holds the mutable state for a single restore run."""
 
     claimed_ids: set[int] = field(default_factory=set)
     current_workspace: str | None = None

@@ -6,8 +6,8 @@ import unittest.mock
 
 from picker_lib import dunst_hist
 
-# Shape of real ``dunstctl history`` output. Prints {"data": [[entry, ...]]} with
-# every field wrapped as {"type": ..., "data": value}.
+# Shape of real ``dunstctl history`` output. Prints {"data": [[entry, ...]]}
+# with every field wrapped as {"type": ..., "data": value}.
 TYPED = {
     "data": [
         [

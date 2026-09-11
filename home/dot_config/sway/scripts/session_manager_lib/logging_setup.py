@@ -1,4 +1,4 @@
-"""Logging and desktop notification helpers."""
+"""Provides logging and desktop notification helpers."""
 
 from __future__ import annotations
 

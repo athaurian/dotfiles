@@ -38,10 +38,10 @@ if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
 	exit 0
 fi
 
-# Both counts in the preceding block are additive. Checkupdates covers repo updates and
-# paru -Qun covers AUR updates. Earlier revisions preferred one count
-# over the other here, which dropped repo-only updates on setups where
-# paru reports AUR only.
+# Both counts in the preceding block are additive. Checkupdates covers
+# repo updates and paru -Qun covers AUR updates. Earlier revisions
+# preferred one count over the other here, which dropped repo-only updates
+# on setups where paru reports AUR only.
 
 if [ "$count" -gt 0 ]; then
 	# Build a short tooltip with the first few update names, reusing the

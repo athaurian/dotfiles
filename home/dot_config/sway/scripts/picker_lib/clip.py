@@ -9,7 +9,7 @@ from picker_lib import model
 
 
 class EntryNotFoundError(RuntimeError):
-    """A cliphist entry vanished between listing and decoding it."""
+    """Raised when a cliphist entry vanishes between listing and decoding."""
 
 
 def have_cliphist() -> bool:
@@ -59,10 +59,16 @@ def list_entries(db_path: str | None = None) -> list[tuple[int, str]]:
 
 
 def decode(payload: bytes, db_path: str | None = None) -> bytes:
-    """Decodes a cliphist selection from a full menu line or bare id to raw bytes.
+    """Decodes a cliphist selection from a full menu line or bare id
+    to raw bytes.
 
     The payload must not end with a newline. Cliphist rejects bare ids
     with a trailing newline, so callers pass exact bytes.
+
+    Raises:
+        FileNotFoundError: When cliphist is not installed.
+        EntryNotFoundError: When the entry vanished after listing.
+        RuntimeError: When decoding fails for another reason.
     """
     try:
         result = subprocess.run(

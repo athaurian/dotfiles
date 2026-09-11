@@ -1,12 +1,14 @@
-"""Menu line model shared by the clipboard and notification pickers.
+"""Provides the menu line model shared by the clipboard and
+notification pickers.
 
-The picker contract is that every menu line is ``"<id>\\t<display>"`` where ``<id>``
-is a zero-padded decimal id of fixed width and ``<display>`` is a
-single-line human-readable summary. Zero-padding keeps the display
-column aligned under 2-space tab stops, and ``cliphist decode`` accepts
-zero-padded ids since it parses them with ``Atoi``, so the full menu line stays
-a valid decode key. Space-padded ids are rejected by ``cliphist`` and
-must not be used.
+The picker contract is that every menu line is
+``"<id>\\t<display>"`` where ``<id>`` is a zero-padded decimal id of
+fixed width and ``<display>`` is a single-line human-readable
+summary. Zero-padding keeps the display column aligned under 2-space
+tab stops, and ``cliphist decode`` accepts zero-padded ids since it
+parses them with ``Atoi``, so the full menu line stays a valid decode
+key. Space-padded ids are rejected by ``cliphist`` and must not be
+used.
 """
 
 from __future__ import annotations
@@ -20,7 +22,9 @@ def format_entry(eid: int, display: str) -> str:
 
 
 def split_entry(line: str) -> tuple[int | None, str]:
-    """Splits a menu line into an id and display text. The id is None when malformed."""
+    """Splits a menu line into an id and display text. The id is None
+    when malformed.
+    """
     eid, tab, display = line.partition("\t")
     if not tab or not eid.isdigit():
         return None, line

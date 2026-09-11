@@ -1,4 +1,4 @@
-"""Stale swapfile detection and cleanup."""
+"""Detects and cleans up stale swapfiles."""
 
 from __future__ import annotations
 
@@ -15,7 +15,9 @@ _PATH_COMMANDS = ("badd", "edit", "buffer", "cd", "lcd")
 
 
 def _parse_vim_token(text: str) -> str:
-    """Consume one whitespace-terminated Vim token, honouring backslash escapes."""
+    """Consumes one whitespace-terminated Vim token, honouring
+    backslash escapes.
+    """
     out: list[str] = []
     i = 0
     while i < len(text):

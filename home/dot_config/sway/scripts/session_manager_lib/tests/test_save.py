@@ -21,7 +21,7 @@ class TestFocusedWorkspaceName(unittest.TestCase):
         return {"nodes": [make_output(ws_nodes)]}
 
     def test_finds_focused_via_leaf_ancestor(self):
-        """Sway marks only the focused LEAF container; the workspace name
+        """Sway marks only the focused LEAF container. The workspace name
         must come from the ancestor walk."""
         ws3 = make_workspace("3", nodes=[make_window("foot")])
         ws3["nodes"][0]["focused"] = True

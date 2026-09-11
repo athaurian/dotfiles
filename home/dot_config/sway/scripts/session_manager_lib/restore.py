@@ -1,4 +1,4 @@
-"""Session restore orchestration."""
+"""Orchestrates session restores."""
 
 from __future__ import annotations
 
@@ -131,7 +131,7 @@ def _normalise_restore_payload(
 
 
 def has_restorable_content() -> bool:
-    """Report whether the saved session contains anything worth restoring.
+    """Reports whether the saved session contains anything worth restoring.
 
     Backs the login prompt, which stays hidden when restore would be a
     no-op. Missing, unreadable, and invalid state files count as empty,
@@ -158,13 +158,22 @@ def has_restorable_content() -> bool:
 
 
 def _clamp_rect_to_output(rect: dict, workspace_name: str | None = None) -> dict:
-    """Clamp floating rect to stay fully inside output if off-screen.
+    """Clamps the floating rect to stay fully inside the output when off-screen.
 
     Saved rects are output-absolute (e.g. workspace 1 content starts at
-    4,28 after bar/gaps). Clamping therefore happens in output coordinates;
+    4,28 after bar/gaps). Clamping therefore happens in output coordinates.
     _apply_geometry converts to workspace-relative afterwards because
     `move position` anchors on the workspace content origin (live probe:
     `move position 100 100` lands at output 104,128 on a 4,28 workspace).
+
+    Args:
+        rect: Floating rect with x, y, width, and height.
+        workspace_name: Workspace the rect belongs to, kept for
+            call clarity.
+
+    Returns:
+        The clamped rect, or the original rect when clamping is
+        impossible.
     """
     try:
         tree = get_tree()
@@ -203,10 +212,17 @@ def _clamp_rect_to_output(rect: dict, workspace_name: str | None = None) -> dict
 
 
 def _workspace_origin(workspace_name: str | None) -> tuple[int, int]:
-    """Top-left of a workspace in output coordinates.
+    """Returns the top-left of a workspace in output coordinates.
 
     Falls back to (0, 0) — the old behaviour — when the workspace cannot
     be found (e.g. in unit tests or if it was never created).
+
+    Args:
+        workspace_name: Name of the workspace to locate, or None.
+
+    Returns:
+        The (x, y) origin, or (0, 0) when the workspace cannot be
+        found.
     """
     if not workspace_name:
         return (0, 0)
@@ -226,13 +242,21 @@ def _workspace_origin(workspace_name: str | None) -> tuple[int, int]:
 
 
 def _live_deco_height(win_id: int) -> int:
-    """Live titlebar height of a window, or 0 for border styles without one.
+    """Gets the live titlebar height of a window, or 0 for border styles
+    without one.
 
     With `border normal`, `move position` anchors on the decoration
     top-left (live probe: requesting 100,100 places deco at 100,100 and the
     content rect 26px below), so the content lands exactly on the saved
     position only when this height is subtracted from the target y.
     Pixel borders report a zero-height deco_rect and are unaffected.
+
+    Args:
+        win_id: Sway container id of the window to inspect.
+
+    Returns:
+        The decoration height, or 0 when the window has no
+        titlebar or cannot be found.
     """
     try:
         tree = get_tree()
@@ -295,7 +319,8 @@ def _apply_fullscreen(win_id: int, fullscreen_mode: int) -> None:
 def _apply_percent(win_id: int, percent: float | None, parent_layout: str) -> None:
     if percent is None or not isinstance(percent, (int, float)):
         return
-    # Skip single-window or nearly 100% — nothing to resize and sway returns parse error
+    # Skip shares near 0 or 1, including single-window splits. There is
+    # nothing to resize, and sway returns a parse error for those values.
     if float(percent) >= 0.99 or float(percent) <= 0.01:
         return
     ppt = round(float(percent) * 100)
@@ -430,11 +455,17 @@ def _restore_node(
 def restore_session(
     *, notify_user: bool = True, workspace_filter: str | None = None
 ) -> None:
-    """Restore the previously saved Sway session.
+    """Restores the previously saved Sway session.
 
-    Acquires the interprocess operation lock to serialize against concurrent
-    save/restore invocations (for example, from power-control bindings), then hands
-    off to _restore_session_locked() to perform the actual restoration.
+    Acquires the interprocess operation lock to serialize against
+    concurrent save/restore invocations (for example, from power-control
+    bindings), then hands off to _restore_session_locked() to perform
+    the actual restoration.
+
+    Args:
+        notify_user: Whether to show desktop notifications.
+        workspace_filter: Restores only this workspace when set,
+            otherwise restores everything.
     """
     if not STATE_FILE.exists():
         log.info("No session file found.")
@@ -447,7 +478,7 @@ def restore_session(
 
 
 def diff_sessions() -> None:
-    """Show a plain-English diff of live vs saved session."""
+    """Shows a plain-English diff of live vs saved session."""
     try:
         with open(STATE_FILE, encoding="utf-8") as f:
             payload = json.load(f)
@@ -503,7 +534,8 @@ def diff_sessions() -> None:
         live_c = live_ws.get(name)
         saved = saved_ws_map.get(name)
         if saved:
-            # Count saved windows with the same predicate as the live count in the preceding block.
+            # Count saved windows with the same predicate as the live count in
+            # the preceding block.
             def scnt(node: dict) -> int:
                 if node.get("type") == "window":
                     return 1
@@ -542,7 +574,7 @@ def diff_sessions() -> None:
 def _restore_session_locked(
     *, notify_user: bool = True, workspace_filter: str | None = None
 ) -> None:
-    """Perform the actual session restoration under the operation lock."""
+    """Performs the actual session restoration under the operation lock."""
     if not STATE_FILE.exists():
         log.info("No session file found.")
         return

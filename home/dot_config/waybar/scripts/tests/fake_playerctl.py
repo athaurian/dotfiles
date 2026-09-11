@@ -3,8 +3,8 @@
 
 Serves one-shot metadata queries and --follow streams from scenario files.
 Scenario files are JSON with ``{"oneshot": [...], "follow": [...]}`` keys.
-Each entry is a dict like ``{"line": "..."}``, ``{"line": "...", "delay": 0.15}``,
-or ``{"exit": 1}``.
+Each entry is a dict like ``{"line": "..."}``, ``{"line": "...", "delay":
+0.15}``, or ``{"exit": 1}``.
 """
 
 import json

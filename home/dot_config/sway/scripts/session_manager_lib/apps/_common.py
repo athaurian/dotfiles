@@ -19,12 +19,13 @@ def reap_if_needed(proc: subprocess.Popen[bytes] | None) -> None:
 
 
 def normalize_title(title: str) -> str:
-    """Normalize a window title for comparison (collapsed whitespace, lowercase)."""
+    """Normalizes a window title for comparison (collapsed whitespace,
+    lowercase)."""
     return re.sub(r"\s+", " ", title.strip().lower())
 
 
 def read_cmdline(pid: int) -> list[str]:
-    """Read /proc/<pid>/cmdline, returning argv as a list of strings."""
+    """Reads /proc/<pid>/cmdline, returning argv as a list of strings."""
     try:
         raw = Path(f"/proc/{pid}/cmdline").read_bytes()
     except OSError:

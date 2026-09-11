@@ -1,4 +1,4 @@
-"""Sway tree serialization (save-side clean_tree)."""
+"""Provides Sway tree serialization (save-side clean_tree)."""
 
 from __future__ import annotations
 

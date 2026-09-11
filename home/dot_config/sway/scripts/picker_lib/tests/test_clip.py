@@ -117,7 +117,8 @@ class TestListAndDecode(unittest.TestCase):
 
     def test_missing_db_is_empty_history(self):
         # No database file yet means a fresh machine with nothing copied.
-        # It lists as empty instead of raising, using the real cliphist error path.
+        # It lists as empty instead of raising, using the real cliphist
+        # error path.
         missing = str(Path(self.db_path).parent / "no-such-db")
         self.assertEqual(clip.list_entries(missing), [])
 

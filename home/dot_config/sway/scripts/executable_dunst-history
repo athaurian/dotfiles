@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dunst notification history picker using fuzzel.
+"""Provides the dunst notification history picker using fuzzel.
 
 Shows dismissed notifications, re-displays the most recent one via
 ``dunstctl history-pop``, and re-displays the selected entry (looked up

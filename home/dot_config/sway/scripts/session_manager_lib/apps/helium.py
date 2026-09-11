@@ -1,4 +1,4 @@
-"""Helium browser: group save/restore with title matching."""
+"""Saves and restores Helium browser groups with title matching."""
 
 from __future__ import annotations
 
@@ -30,10 +30,20 @@ def _assign_by_title(
     titles: dict[int, str],
     ctx: RestoreContext,
 ) -> bool:
-    """Match saved helium windows to live windows by title.
+    """Matches saved helium windows to live windows by title.
 
     Tries exact match first, then normalised (lowercased, collapsed
     whitespace).  Returns True if at least one new match was made.
+
+    Args:
+        remaining_saved: Indexes of saved windows still needing a
+            live window.
+        unassigned: Live window ids available for assignment.
+        titles: Mapping of live window id to current title.
+        ctx: Restore context holding assignment results.
+
+    Returns:
+        True when at least one new match was made.
     """
     matched_any = False
     for idx in list(remaining_saved):
@@ -193,9 +203,10 @@ def _restore_helium_group(ctx: RestoreContext) -> None:
 
         try:
             while len(windows) < count and time.monotonic() < deadline:
-                # If the launcher exited quickly (helium already running and just
-                # signaled the existing instance), don't burn the full 30s timeout
-                # waiting for new windows that will never appear.
+                # If the launcher exited quickly (helium already running
+                # and just signaled the existing instance), don't burn
+                # the full 30s timeout waiting for new windows that will
+                # never appear.
                 if proc.poll() is not None:
                     before = len(windows)
                     windows.update(_live_new_helium_windows(baseline_ids))
@@ -203,10 +214,12 @@ def _restore_helium_group(ctx: RestoreContext) -> None:
                         break
                     if len(windows) > before:
                         last_new = time.monotonic()
-                    # Have some windows but not all; give a short grace for titles
+                    # Have some windows but not all; give a short grace
+                    # for titles.
                     if deadline - time.monotonic() > HELIUM_TITLE_GRACE_PERIOD:
                         deadline = time.monotonic() + HELIUM_TITLE_GRACE_PERIOD
-                # Stall detection: if we have some windows but no new one for a while, stop waiting
+                # Stall detection: if we have some windows but no new one
+                # for a while, stop waiting.
                 if (
                     windows
                     and time.monotonic() - last_new > HELIUM_WINDOW_STALL_TIMEOUT

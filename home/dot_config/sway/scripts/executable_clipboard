@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Clipboard history picker combining cliphist and fzf with a live preview.
+"""Provides the clipboard history picker combining cliphist and fzf
+with a live preview.
 
 Shows clipboard history with the full entry in a preview pane (images
 render as terminal cell art, which erases cleanly on redraw) and copies

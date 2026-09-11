@@ -7,7 +7,8 @@ set -eu
 #'{{ $theme := .flint.active_theme }}'
 # Re-run when the notification daemon config changes, not just when this
 # script does. Chezmoi run_onchange_ hashes the script body only.
-# dunstrc content hash: '{{ include "dot_config/dunst/dunstrc.tmpl" | sha256sum }}'
+# dunstrc content hash:
+# '{{ include "dot_config/dunst/dunstrc.tmpl" | sha256sum }}'
 
 COLOR_SCHEME='{{ $a.color_scheme }}'
 GTK_THEME='{{ $a.gtk_theme }}'
@@ -20,8 +21,9 @@ DOCUMENT_FONT_NAME="'{{ $d.font_family_sans }}' '{{ $d.font_size }}'"
 CURSOR_THEME='{{ $d.cursor_theme }}'
 CURSOR_SIZE='{{ $d.cursor_size }}'
 
-# Apply GTK / Desktop interface preferences (hot-reload for GTK 3/4 via GSettings;
-# .gtkrc-2.0 and gtk-3.0/gtk-4.0/settings.ini are also templated and updated by chezmoi)
+# Apply GTK / Desktop interface preferences (hot-reload for GTK 3/4 via
+# GSettings; .gtkrc-2.0 and gtk-3.0/gtk-4.0/settings.ini are also templated
+# and updated by chezmoi)
 if command -v gsettings >/dev/null 2>&1; then
 	gsettings set org.gnome.desktop.interface color-scheme "$COLOR_SCHEME" || true
 	gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
