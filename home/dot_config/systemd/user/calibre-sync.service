@@ -1,5 +1,7 @@
 # One-shot upload of the Calibre library to Google Drive.
-# Triggered by calibre-sync.timer; see that unit for the schedule.
+# Triggered by calibre-sync.timer (every 30 minutes) and by
+# calibre-sync-netmon.service promptly on reconnect. When offline the
+# script stages locally and exits cleanly without uploading.
 
 [Unit]
 Description=Mirror Calibre books flat to Google Drive

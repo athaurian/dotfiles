@@ -1,0 +1,19 @@
+# Reconnect watcher: start a Calibre sync promptly when the network
+# returns. The 30-minute calibre-sync.timer remains the fallback.
+# Triggered lines are debounced inside calibre-sync-netmon so flapping
+# Wi-Fi cannot hammer Drive.
+
+[Unit]
+Description=Sync Calibre library promptly on reconnect
+After=sway-session.target
+PartOf=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/calibre-sync-netmon
+Restart=on-failure
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=sway-session.target
