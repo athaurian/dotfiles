@@ -1,4 +1,4 @@
-"""Tests for ``picker_lib.ui`` covering fuzzel and fzf invocation and foot relaunch."""
+"""Tests for ``picker_lib.ui``: fuzzel/fzf invocation and foot relaunch."""
 
 import subprocess
 import unittest
@@ -24,8 +24,27 @@ class TestRunFuzzel(unittest.TestCase):
             )
         argv = run.call_args[0][0]
         self.assertEqual(argv[0], "fuzzel")
-        for flag in ("--dmenu", "--match-nth=2", "--tabs=2"):
+        for flag in ("--dmenu", "--anchor=center", "--match-nth=2", "--tabs=2"):
             self.assertIn(flag, argv)
+        self.assertEqual(argv[argv.index("--lines") + 1], "1")
+
+    def test_lines_match_input_and_cap(self):
+        with unittest.mock.patch.object(
+            ui.subprocess, "run", return_value=_completed("0003\tc\n")
+        ) as run:
+            ui.run_fuzzel(
+                ["0001\ta", "0002\tb", "0003\tc"], prompt="> ", placeholder="ph"
+            )
+        argv = run.call_args[0][0]
+        self.assertEqual(argv[argv.index("--lines") + 1], "3")
+
+        many = [f"{i:04d}\titem" for i in range(ui.FUZZEL_MAX_LINES + 5)]
+        with unittest.mock.patch.object(
+            ui.subprocess, "run", return_value=_completed(many[0] + "\n")
+        ) as run:
+            ui.run_fuzzel(many, prompt="> ", placeholder="ph")
+        argv = run.call_args[0][0]
+        self.assertEqual(argv[argv.index("--lines") + 1], str(ui.FUZZEL_MAX_LINES))
 
     def test_cancel_returns_none(self):
         with unittest.mock.patch.object(
