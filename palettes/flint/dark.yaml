@@ -34,7 +34,6 @@ raw:
   black: "#000000"
   border_inactive: "#5E5E5E"
   critical_bg: "#B71C1C"
-  coral: "#CB8058"
   bg_deep: "#121212"
   diff_add: "#2b4632"
   diff_change: "#2a4358"

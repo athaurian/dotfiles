@@ -1,5 +1,6 @@
 """
-Shared Flint palette loading, validation, derivation, and linting logic.
+Provides shared Flint palette loading, validation, derivation, and
+linting logic.
 
 Used by scripts/build_palette_data.py, reading palette definitions from::
 
@@ -91,7 +92,7 @@ def contrast_ratio(rgb_a: tuple[int, int, int], rgb_b: tuple[int, int, int]) -> 
 
 
 def rgb_to_lab(rgb: tuple[int, int, int]) -> tuple[float, float, float]:
-    """Convert an sRGB tuple to CIE L*a*b* (D65) for perceptual distance."""
+    """Converts an sRGB tuple to CIE L*a*b* (D65) for perceptual distance."""
     r = srgb_channel_to_linear(rgb[0])
     g = srgb_channel_to_linear(rgb[1])
     b = srgb_channel_to_linear(rgb[2])
@@ -110,7 +111,9 @@ def rgb_to_lab(rgb: tuple[int, int, int]) -> tuple[float, float, float]:
 
 
 def delta_e(rgb_a: tuple[int, int, int], rgb_b: tuple[int, int, int]) -> float:
-    """CIE76 perceptual distance. About 2.3 is just noticeable and about 10 is clearly distinct."""
+    """Computes the CIE76 perceptual distance. About 2.3 is just
+    noticeable and about 10 is clearly distinct.
+    """
     l1, a1, b1 = rgb_to_lab(rgb_a)
     l2, a2, b2 = rgb_to_lab(rgb_b)
     return math.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2)
@@ -356,8 +359,10 @@ def validate_ansi_relationships(
     is_light = base_lum > 0.5
     errors = []
 
-    # In light mode, black and chromatic colors are foreground text; white/bright_white are light background/badges
-    # In dark mode, white and chromatic colors are foreground text; black/bright_black are dark backgrounds
+    # In light mode, black and chromatic colors are foreground text;
+    # white/bright_white are light background/badges
+    # In dark mode, white and chromatic colors are foreground text;
+    # black/bright_black are dark backgrounds
     excluded_from_text = (
         ("white", "bright_white") if is_light else ("black", "bright_black")
     )
@@ -463,13 +468,21 @@ def validate_state_distinctness(
 
 
 def check_raw_duplicates(theme_name: str, raw: dict, theme: dict) -> list[str]:
-    """Warn on raw-token duplication or alias drift.
+    """Warns on raw-token duplication or alias drift.
 
-    - ``raw_aliases`` groups are deliberately identical; the build warns if any
+    - ``raw_aliases`` groups are deliberately identical. The build warns if any
       member drifts from the group (they must stay in sync).
     - ``raw_near_aliases`` pairs are accepted near-duplicates and are skipped.
-    - Any other pair within ΔE 1.0 is unexpected and is flagged; the remedy is
-      to resolve one through `semantic` or to declare the pair.
+    - Any other pair within ΔE 1.0 is unexpected and is flagged. The remedy is
+      to resolve one through ``semantic`` or to declare the pair.
+
+    Args:
+        theme_name: Name of the theme being checked.
+        raw: Mapping of raw token to hex value.
+        theme: Theme definition holding alias declarations.
+
+    Returns:
+        A list of warning strings, empty when clean.
     """
     warnings = []
     alias_groups = theme.get("raw_aliases", [])
@@ -726,15 +739,6 @@ def validate_theme(
     contrast_checks = load_contrast_checks(theme_name, shared)
     distinctness_checks = load_distinctness_checks(theme_name, shared)
 
-    base16 = shared.get("base16")
-    if not isinstance(base16, dict) or not base16:
-        fail(f"{theme_name}: shared palette definition is missing base16")
-
-    for slot, target in base16.items():
-        if not slot.startswith("base"):
-            fail(f"{theme_name}: base16 key {slot} must be a baseXX slot name")
-        resolve_alias_target(theme_name, "Base16", slot, target, raw, semantic)
-
     validate_hue_budget(theme_name, raw, shared)
 
     contrast_errors = validate_contrast(theme_name, raw, semantic, contrast_checks)
@@ -879,12 +883,6 @@ def derive_theme(
                 entries.append(raw_derived[resolved_token])
             lut_resolved[variant] = entries
 
-    base16 = shared.get("base16", {})
-    base16_resolved = OrderedDict()
-    for slot, target in base16.items():
-        token = resolve_alias_target(theme_name, "Base16", slot, target, raw, semantic)
-        base16_resolved[slot] = raw_derived[token]
-
     return OrderedDict(
         [
             ("meta", theme.get("meta", {})),
@@ -899,8 +897,6 @@ def derive_theme(
             ("catppuccin_resolved", catppuccin_resolved),
             ("lut_palette", lut_palette),
             ("lut_resolved", lut_resolved),
-            ("base16", base16),
-            ("base16_resolved", base16_resolved),
             ("appearance", theme.get("appearance", {})),
             ("desktop", shared.get("desktop", {})),
         ]
@@ -912,12 +908,21 @@ def build_active_data(
     definitions_dir: Path,
     generated_by: str = "flint_palette",
 ) -> OrderedDict[str, object]:
-    """Export every theme plus active-theme aliases for templates.
+    """Exports every theme plus active-theme aliases for templates.
 
-    The top-level sections (`resolved`, `alpha`, ...) alias the active theme's
-    data so existing templates keep working unchanged. Each theme also gets a
-    named block (`flint.dark`, `flint.light`, ...) so apps that support
-    dual-theme rendering can reference both palettes in one file.
+    The top-level sections (``resolved``, ``alpha``, ...) alias the
+    active theme's data so existing templates keep working unchanged.
+    Each theme also gets a named block (``flint.dark``,
+    ``flint.light``, ...) so apps that support dual-theme rendering
+    can reference both palettes in one file.
+
+    Args:
+        theme_name: Active theme to alias at the top level.
+        definitions_dir: Directory holding the palette definitions.
+        generated_by: Label recorded in the generated output.
+
+    Returns:
+        Ordered mapping with the ``flint`` block for templates.
     """
     definitions_dir = Path(definitions_dir)
     theme_names = discover_themes(definitions_dir)
@@ -949,8 +954,6 @@ def build_active_data(
                 ("ansi_resolved", data["ansi_resolved"]),
                 ("catppuccin_resolved", data["catppuccin_resolved"]),
                 ("lut_resolved", data["lut_resolved"]),
-                ("base16", data["base16"]),
-                ("base16_resolved", data["base16_resolved"]),
             ]
         )
 
@@ -975,8 +978,6 @@ def build_active_data(
             ("ansi_resolved", active["ansi_resolved"]),
             ("catppuccin_resolved", active["catppuccin_resolved"]),
             ("lut_resolved", active["lut_resolved"]),
-            ("base16", active["base16"]),
-            ("base16_resolved", active["base16_resolved"]),
         ]
     )
     flint.update(theme_blocks)
