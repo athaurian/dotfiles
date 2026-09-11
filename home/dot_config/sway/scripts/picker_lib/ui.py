@@ -1,4 +1,4 @@
-"""Launcher helpers for fuzzel dmenu mode and fzf pickers."""
+"""Provides launcher helpers for fuzzel dmenu mode and fzf pickers."""
 
 from __future__ import annotations
 
@@ -9,6 +9,11 @@ import subprocess
 FUZZEL_PROMPT_HISTORY = "󰂚 "
 FZF_PROMPT_CLIPBOARD = " "
 
+# Fuzzel shows this many rows when no explicit --lines is given. Dmenu
+# prompts pass an explicit --lines capped here, so short lists render
+# without empty rows while long lists keep the familiar scrolled height.
+FUZZEL_MAX_LINES = 15
+
 
 def have(cmd: str) -> bool:
     """Checks whether ``cmd`` is available on PATH."""
@@ -18,15 +23,21 @@ def have(cmd: str) -> bool:
 def run_fuzzel(lines: list[str], *, prompt: str, placeholder: str) -> str | None:
     """Shows ``lines`` in fuzzel dmenu mode and returns the full selected line.
 
-    Ids stay visible while ``--match-nth=2`` keeps them out of search and
-    ``--tabs=2`` keeps the id column narrow. Cancellation and empty
-    selections return None.
+    The menu is anchored to the screen center and sized to the input:
+    ``--lines`` is the input length capped at ``FUZZEL_MAX_LINES``, so a
+    short list shows no empty rows. Ids stay visible while ``--match-nth=2``
+    keeps them out of search and ``--tabs=2`` keeps the id column narrow.
+    Cancellation and empty selections return None.
     """
+    lines_arg = str(max(1, min(len(lines), FUZZEL_MAX_LINES)))
     try:
         result = subprocess.run(
             [
                 "fuzzel",
                 "--dmenu",
+                "--anchor=center",
+                "--lines",
+                lines_arg,
                 "--match-nth=2",
                 "--tabs=2",
                 "--prompt",
