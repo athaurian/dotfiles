@@ -12,6 +12,7 @@ import importlib.util
 import unittest
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
+from unittest import mock
 
 _HERE = Path(__file__).resolve().parent
 _SCRIPT = _HERE.parent / "executable_calibre-drive-sync"
@@ -117,6 +118,20 @@ class PlanNamesTest(unittest.TestCase):
         self.assertEqual(
             sync.plan_names(books, metadata), ["TurtleMe - Saga 03 - Some Book.epub"]
         )
+
+
+class HaveNetworkTest(unittest.TestCase):
+    def test_returns_true_when_endpoint_reachable(self):
+        with mock.patch.object(
+            sync.socket, "create_connection", return_value=mock.MagicMock()
+        ):
+            self.assertTrue(sync.have_network())
+
+    def test_returns_false_when_offline(self):
+        with mock.patch.object(
+            sync.socket, "create_connection", side_effect=OSError("unreachable")
+        ):
+            self.assertFalse(sync.have_network())
 
 
 if __name__ == "__main__":

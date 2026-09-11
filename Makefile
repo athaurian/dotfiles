@@ -66,7 +66,7 @@ PY_FILES := scripts/*.py \
 SH_FILES := $(shell find home/dot_config/sway/scripts home/dot_config/waybar/scripts home/.chezmoiscripts home/dot_local/bin \
 	-not -path '*__pycache__*' \
 	\( -name '*.sh' -o -name '*.sh.tmpl' -o -name 'executable_chezmoi-drift-check' \
-	   -o -name 'executable_wlsunset-location' \) | sort -u)
+	   -o -name 'executable_wlsunset-location' -o -name 'executable_calibre-sync-netmon' \) | sort -u)
 # Python executables (executable_mpris.py, executable_session_manager,
 # executable_calibre-drive-sync, executable_flint-wallpaper,
 # executable_rotate_wallpaper.py.tmpl, executable_clipboard,

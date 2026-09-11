@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+set -eu
+
+# Start a Calibre sync promptly when the network comes back.
+# Used by calibre-sync-netmon.service. The 30-minute timer remains the
+# fallback; this only shortens the wait after reconnecting. Triggers are
+# debounced so flapping Wi-Fi cannot hammer Drive.
+
+COOLDOWN_SEC=120
+SETTLE_SEC=10
+STAMP="${XDG_CACHE_HOME:-$HOME/.cache}/calibre-drive-sync/last-net-trigger"
+
+if ! command -v nmcli >/dev/null 2>&1; then
+	echo "calibre-sync-netmon: nmcli not found" >&2
+	exit 1
+fi
+
+mkdir -p "$(dirname "$STAMP")"
+# Don't sync immediately at login; the timer's Persistent=true already
+# does the catch-up run.
+touch "$STAMP"
+
+should_trigger() {
+	if [ -f "$STAMP" ]; then
+		last=$(stat -c %Y "$STAMP" 2>/dev/null || echo 0)
+		now=$(date +%s)
+		if [ $((now - last)) -lt "$COOLDOWN_SEC" ]; then
+			return 1
+		fi
+	fi
+	if systemctl --user is-active --quiet calibre-sync.service 2>/dev/null; then
+		return 1
+	fi
+	if [ "$(nmcli networking connectivity check 2>/dev/null || echo none)" != "full" ]; then
+		return 1
+	fi
+	return 0
+}
+
+# nmcli monitor blocks until NetworkManager reports a change; restart it
+# if it ever exits (e.g. NM restarted).
+while true; do
+	nmcli monitor 2>/dev/null | while IFS= read -r line; do
+		case "$line" in
+		*full* | *connected* | *connectivity*)
+			sleep "$SETTLE_SEC"
+			if should_trigger; then
+				touch "$STAMP"
+				echo "network reconnected; starting calibre-sync.service"
+				systemctl --user start calibre-sync.service || true
+			else
+				# Count the burst against the cooldown so a flurry of
+				# NM events causes a single sync, not one per line.
+				touch "$STAMP"
+			fi
+			;;
+		esac
+	done
+	sleep 10
+done
