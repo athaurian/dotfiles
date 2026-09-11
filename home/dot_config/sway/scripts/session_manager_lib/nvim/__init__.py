@@ -1,1 +1,3 @@
-"""Neovim integration: sockets, RPC, snapshots, swapfile management."""
+"""Provides Neovim integration covering sockets, RPC, snapshots, and
+swapfile management.
+"""

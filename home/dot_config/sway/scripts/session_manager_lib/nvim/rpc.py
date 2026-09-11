@@ -1,4 +1,4 @@
-"""Low-level Neovim RPC via --remote-expr."""
+"""Provides low-level Neovim RPC via --remote-expr."""
 
 from __future__ import annotations
 

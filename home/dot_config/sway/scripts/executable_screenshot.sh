@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-# Capture a screenshot and annotate via satty (or copy to clipboard as fallback).
+# Capture a screenshot and annotate via satty, or copy to clipboard as fallback.
 # Usage: screenshot.sh <full|focused|region>
 # Optionally freezes the screen with wayfreeze during capture/selection.
-# Dependencies: grim, slurp (region), satty or wl-copy, jq (focused mode), wayfreeze (optional).
+# Dependencies: grim, slurp (region), satty or wl-copy, jq (focused mode),
+# and wayfreeze (optional).
 # Bound to Print / Ctrl+Print / Shift+Print in sway config.
 
 mode="${1:-}"

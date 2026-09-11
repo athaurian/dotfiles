@@ -1,4 +1,4 @@
-"""Tests for ``picker_lib.preview`` covering text, UTF-16, images, and binary."""
+"""Tests for ``picker_lib.preview``: text, UTF-16, images, and binary."""
 
 import io
 import shutil
@@ -126,7 +126,8 @@ class TestRenderImage(unittest.TestCase):
         blue = _solid_png(1, 1, "blue")
         art = preview.render_image(blue)
         assert art is not None
-        # Unpaired last row uses foreground color only, with no invented background.
+        # Unpaired last row uses foreground color only, with no invented
+        # background.
         self.assertIn("\x1b[38;2;0;0;255m▀\x1b[0m", art)
         self.assertNotIn("48;2;", art)
 

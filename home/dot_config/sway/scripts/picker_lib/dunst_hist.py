@@ -102,7 +102,8 @@ def fetch() -> tuple[list[dict[str, Any]] | None, str]:
 
 
 def menu_lines(items: list[dict[str, Any]]) -> list[str]:
-    """Builds menu lines for ``items``. Each line holds the id, summary, and body."""
+    """Builds menu lines for ``items``. Each line holds the id, summary, and
+    body."""
     lines = []
     for entry in items:
         try:
@@ -116,7 +117,8 @@ def menu_lines(items: list[dict[str, Any]]) -> list[str]:
 
 
 def lookup(raw_json: str, eid: int) -> tuple[str, str]:
-    """Looks up the exact summary and body for ``eid`` in previously fetched JSON.
+    """Looks up the exact summary and body for ``eid`` in previously fetched
+    JSON.
 
     Looks the record up by id instead of re-splitting the display text,
     so colons in the summary or body cannot corrupt the result.

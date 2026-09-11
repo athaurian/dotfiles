@@ -1,4 +1,6 @@
-"""Single-pass /proc indexer. O(N) once, O(1) lookups thereafter."""
+"""Provides a single-pass /proc indexer. Indexing costs O(N) once,
+lookups cost O(1) thereafter.
+"""
 
 from __future__ import annotations
 
@@ -17,12 +19,18 @@ class ProcEntry:
 
 
 def _parse_stat_ppid(text: str) -> int:
-    """Extract ppid (field 4) from /proc/<pid>/stat.
+    """Extracts ppid (field 4) from /proc/<pid>/stat.
 
     The comm field (field 2) is wrapped in parens and may itself contain
     parens or spaces, so we cannot use text.split(). The last ')' in the
-    line reliably terminates comm; everything after it is space-separated
+    line reliably terminates comm. Everything after it is space-separated
     single tokens.
+
+    Args:
+        text: Contents of /proc/<pid>/stat for one process.
+
+    Returns:
+        The parent process id.
     """
     end = text.rindex(")")
     after = text[end + 1 :].split()
@@ -31,7 +39,7 @@ def _parse_stat_ppid(text: str) -> int:
 
 
 class ProcCache:
-    """Snapshot of /proc at a point in time."""
+    """Holds a snapshot of /proc at a point in time."""
 
     def __init__(self) -> None:
         self._entries: dict[int, ProcEntry] = {}
@@ -41,7 +49,7 @@ class ProcCache:
 
     @classmethod
     def snapshot(cls) -> ProcCache:
-        """Take a single-pass snapshot of all processes."""
+        """Takes a single-pass snapshot of all processes."""
         cache = cls()
         proc_dir = Path("/proc")
 

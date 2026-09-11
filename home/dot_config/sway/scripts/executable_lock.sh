@@ -4,10 +4,12 @@ set -eu
 # Lock the screen with swaylock, managing swayidle lifecycle via systemd.
 #
 # Flags:
-#   --now   Skip notification and delay, background swaylock (used by before-sleep)
+#   --now   Skip notification and delay, background swaylock
+#           (used by before-sleep)
 #
 # Called by: Super+Shift+x keybinding, swayidle timeout, before-sleep
-# This script needs swaylock, grim, imagemagick, systemd, notify-send, and dunstctl. For imagemagick use magick or convert.
+# This script needs swaylock, grim, imagemagick, systemd, notify-send, and
+# dunstctl. For imagemagick use magick or convert.
 
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then

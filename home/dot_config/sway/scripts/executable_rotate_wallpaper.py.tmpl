@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Rotates wallpapers forward or back from a shuffled queue via ``flint-wallpaper``.
+"""Rotates wallpapers forward or back from a shuffled queue via
+``flint-wallpaper``.
 
 Queue logic:
   1. Use the light/dark subdirectory of ~/Pictures/Wallpapers matching the
@@ -70,7 +71,8 @@ def get_wallpapers(directory: Path) -> list[str]:
 
 
 def find_flint_wallpaper() -> str:
-    """Locates ``flint-wallpaper``, falling back to ``~/.local/bin`` for sway exec."""
+    """Locates ``flint-wallpaper``, falling back to ``~/.local/bin`` for
+    sway exec."""
     found = shutil.which("flint-wallpaper")
     if found:
         return found
@@ -82,7 +84,8 @@ def find_flint_wallpaper() -> str:
 
 
 def set_wallpaper(path: str) -> None:
-    """Recolors ``path`` with ``flint-wallpaper`` and sets it as the wallpaper."""
+    """Recolors ``path`` with ``flint-wallpaper`` and sets it as the
+    wallpaper."""
     flint_wallpaper = find_flint_wallpaper()
 
     subprocess.run(
@@ -98,7 +101,8 @@ def notify_id_file() -> Path:
 
 
 def send_notification(args: list[str]) -> str:
-    """Runs ``dunstify`` and returns a numeric notification ID, or an empty string."""
+    """Runs ``dunstify`` and returns a numeric notification ID, or an empty
+    string."""
     try:
         result = subprocess.run(args, check=False, capture_output=True, text=True)
     except FileNotFoundError:
@@ -116,7 +120,8 @@ def _atomic_write_text(path: Path, text: str) -> None:
 
 
 def notify(summary: str, body: str) -> None:
-    """Shows a desktop notification, replacing the previous one as ``toggle_idle.sh`` does."""
+    """Shows a desktop notification, replacing the previous one as
+    ``toggle_idle.sh`` does."""
     id_file = notify_id_file()
 
     old_id = ""
@@ -172,7 +177,8 @@ def history_file() -> Path:
 
 
 def read_lines(path: Path) -> list[str]:
-    """Reads non-empty stripped lines from ``path``, or returns an empty list when missing."""
+    """Reads non-empty stripped lines from ``path``, or returns an empty
+    list when missing."""
     if not path.exists():
         return []
     try:
@@ -186,7 +192,8 @@ def read_lines(path: Path) -> list[str]:
 
 
 def write_lines_atomic(path: Path, lines: list[str]) -> None:
-    """Writes ``lines`` to ``path`` atomically, leaving an empty file when blank."""
+    """Writes ``lines`` to ``path`` atomically, leaving an empty file when
+    blank."""
     _atomic_write_text(path, "\n".join(lines) + "\n" if lines else "")
 
 
@@ -206,7 +213,8 @@ def push_history(previous: str) -> None:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Parses ``--next`` and ``--prev``, defaulting to ``--next`` for bare invocations."""
+    """Parses ``--next`` and ``--prev``, defaulting to ``--next`` for bare
+    invocations."""
     parser = argparse.ArgumentParser(
         description="Rotate to the next or previous wallpaper.",
     )

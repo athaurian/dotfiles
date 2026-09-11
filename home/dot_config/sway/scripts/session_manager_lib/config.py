@@ -1,4 +1,4 @@
-"""Paths, constants, and application profiles."""
+"""Defines paths, constants, and application profiles."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ DEFAULT_WINDOW_HEIGHT = 600
 
 
 def escape_cwd(cwd: str) -> str:
-    """Escape a cwd for use as a snapshot/swap filename."""
+    """Escapes a cwd for use as a snapshot/swap filename."""
     return re.sub(r"[/\\:]+", "%", cwd)
 
 

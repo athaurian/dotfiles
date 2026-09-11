@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Waybar MPRIS module script.
+Provides the Waybar MPRIS module script.
 
 The script uses a hybrid of event handling and polling. The `playerctl --follow`
 stream provides instant, event-driven updates. A periodic resync every
@@ -114,7 +114,8 @@ def _emit(payload: str) -> None:
 
 
 def _parse_position(pos: str) -> int | None:
-    """Parses the playerctl position string and returns None when the position is missing or non-positive."""
+    """Parses the playerctl position string and returns None when the
+    position is missing or non-positive."""
     try:
         value = int(pos.strip())
     except (AttributeError, ValueError):
@@ -145,7 +146,8 @@ def _playerctl_cmd(follow: bool) -> list[str]:
 
 
 def _split_fields(line: str) -> tuple[str, str, str, str, str] | None:
-    """Parses one playerctl output line into `(player, status, position, artist, title)`."""
+    """Parses one playerctl output line into `(player, status, position,
+    artist, title)`."""
     line = line.strip()
     if not line:
         return None

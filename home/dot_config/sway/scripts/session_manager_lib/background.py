@@ -1,4 +1,4 @@
-"""Background app detection and restoration (for example, minimized Vesktop)."""
+"""Detects and restores background apps (for example, minimized Vesktop)."""
 
 from __future__ import annotations
 
@@ -35,7 +35,9 @@ def detect_background_apps(
 
 
 def _ensure_background_daemons() -> None:
-    """Best-effort health check for daily-use daemons. Logs to file + notification path."""
+    """Performs a best-effort health check for daily-use daemons. Logs
+    to file + notification path.
+    """
     from .logging_setup import notify
 
     # Skip health checks in tests via explicit opt-out, not by detecting mocks.
@@ -80,7 +82,8 @@ def _ensure_background_daemons() -> None:
         ):
             continue
 
-    # Ensure sway-session.target is active (covers polkit, portal, etc. via autostart)
+    # Ensure sway-session.target is active (covers polkit, portal, etc.
+    # via autostart)
     try:
         r = subprocess.run(
             ["systemctl", "--user", "is-active", "--quiet", "sway-session.target"],

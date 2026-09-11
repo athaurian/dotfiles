@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export the active Flint or Sand palette for chezmoi.
+Exports the active Flint or Sand palette for chezmoi.
 
 Palette definitions live in::
 
@@ -53,12 +53,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def to_plain_data(value: object) -> object:
     """
-    Recursively convert generated palette data to YAML-safe built-in types.
+    Recursively converts generated palette data to YAML-safe built-in types.
 
     flint_palette uses OrderedDict internally to make output ordering
     explicit. PyYAML's general dumper can serialize those values with
     Python-specific object tags, so the generated data is normalized at the
     export boundary before being passed to safe_dump().
+
+    Args:
+        value: Palette data with OrderedDicts, lists, and scalars.
+
+    Returns:
+        The same data using only YAML-safe built-in types.
     """
 
     if isinstance(value, Mapping):

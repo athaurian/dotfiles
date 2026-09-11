@@ -174,7 +174,7 @@ class TestRestoreFloating(RestoreHarnessTestCase):
 
 
 class TestApplyGeometry(RestoreHarnessTestCase):
-    """Saved rects are output-absolute; `move position` is workspace-relative
+    """Saved rects are output-absolute. `move position` is workspace-relative
     and anchors on the titlebar, so _apply_geometry must convert both."""
 
     def _tree(self, ws_origin=(4, 28), deco_height=0, win_id=1000):
@@ -294,7 +294,7 @@ class TestHeliumScratchpad(RestoreHarnessTestCase):
 
 class TestFocusedWorkspace(RestoreHarnessTestCase):
     def _run_locked(self, payload, focused=None):
-        """Run _restore_session_locked against a temp state file."""
+        """Runs _restore_session_locked against a temp state file."""
         import json
         import tempfile
         import unittest.mock

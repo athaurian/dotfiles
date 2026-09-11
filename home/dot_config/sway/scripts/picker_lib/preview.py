@@ -35,7 +35,7 @@ def _magick() -> str | None:
 
 
 def pane_size() -> tuple[int, int]:
-    """The preview pane size in cells from fzf, with sane fallbacks."""
+    """Gets the preview pane size in cells from fzf, with sane fallbacks."""
     try:
         width = int(os.environ.get("FZF_PREVIEW_COLUMNS", "80"))
     except ValueError:
@@ -72,7 +72,7 @@ def decode_text(data: bytes) -> str | None:
     Accepts UTF-8 and BOM-less UTF-16 (browsers may place copied content,
     for example image URLs from search results, on the clipboard UTF-16
     encoded). Endianness comes from the NUL-byte parity of ASCII-range
-    text; anything else must clear a strongly-ASCII bar, because CJK
+    text. Anything else must clear a strongly-ASCII bar, because CJK
     text decodes to printable characters either way.
     """
     try:
@@ -147,7 +147,7 @@ def _parse_pixels(txt: str) -> tuple[int, int, list[tuple[int, int, int]]]:
 
 
 def render_image(data: bytes) -> str | None:
-    """Render image bytes as half-block art, or None when impossible."""
+    """Renders image bytes as half-block art, or None when impossible."""
     magick = _magick()
     if magick is None:
         return None
@@ -195,7 +195,7 @@ def render_image(data: bytes) -> str | None:
 
 
 def render(data: bytes) -> None:
-    """Write *data* to stdout as cell art (images) or text."""
+    """Writes ``data`` to stdout as cell art (images) or text."""
     out = sys.stdout.buffer
     if is_image(data):
         art = render_image(data)

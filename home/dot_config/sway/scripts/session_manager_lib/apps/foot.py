@@ -1,4 +1,4 @@
-"""Foot terminal: nvim session argument building, launch logic."""
+"""Builds nvim session arguments and launches the foot terminal."""
 
 from __future__ import annotations
 
@@ -33,7 +33,8 @@ def build_foot_nvim_args(node: dict) -> list[str]:
 
     was_ssh = node.get("was_ssh")
     if was_ssh and isinstance(was_ssh, str):
-        # Leave a clue for the user to reconnect, don't auto-run ssh (needs password)
+        # Leave a clue for the user to reconnect, don't auto-run ssh
+        # (needs password)
         safe = shlex.quote(was_ssh)
         return ["bash", "-ic", f"echo 'was: {safe} — press Up to reconnect'; exec bash"]
 

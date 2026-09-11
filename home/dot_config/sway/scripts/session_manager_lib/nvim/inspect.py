@@ -1,4 +1,4 @@
-"""Live Neovim instance inspection via RPC."""
+"""Inspects live Neovim instances via RPC."""
 
 from __future__ import annotations
 

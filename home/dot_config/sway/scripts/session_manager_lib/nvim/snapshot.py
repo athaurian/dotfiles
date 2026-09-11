@@ -1,4 +1,4 @@
-"""Manager-owned Neovim session snapshots and Snacks sidecar files."""
+"""Creates manager-owned Neovim session snapshots and Snacks sidecar files."""
 
 from __future__ import annotations
 

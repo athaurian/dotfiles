@@ -33,7 +33,8 @@ status_output=""
 if status_output=$(chezmoi status 2>/dev/null); then
 	:
 else
-	# chezmoi status exits non-zero when not in a working tree or on error — ignore.
+	# chezmoi status exits non-zero when not in a working tree or on
+	# error. That outcome is safe to ignore.
 	exit 0
 fi
 
@@ -46,15 +47,15 @@ if [ -n "$status_output" ]; then
 fi
 
 # Flag unmanaged files in directories that must be fully managed, such as
-# stale scripts left behind by renames. The scan stays narrow because
-# a global one would include too much legitimate application state. Runtime caches
-# are excluded. They appear during normal development and test runs.
+# stale scripts left behind by renames. The scan stays narrow because a
+# global one would include too much legitimate application state. Runtime
+# caches are excluded. They appear during normal development and test runs.
 unmanaged=""
 for dir in "$HOME/.config/sway/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
 	if [ -d "$dir" ]; then
 		exclude_patterns=$(printf '%s' "$exclude_personal_bins" | sed 's/^/-e /')
 
-found=$(chezmoi unmanaged "$dir" 2>/dev/null | grep -v -e "__pycache__" -e "\.ruff_cache" -e "\.mypy_cache" $exclude_patterns || true)
+		found=$(chezmoi unmanaged "$dir" 2>/dev/null | grep -v -e "__pycache__" -e "\.ruff_cache" -e "\.mypy_cache" $exclude_patterns || true)
 		if [ -n "$found" ]; then
 			if [ -n "$unmanaged" ]; then
 				unmanaged="$unmanaged

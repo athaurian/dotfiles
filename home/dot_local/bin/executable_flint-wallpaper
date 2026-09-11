@@ -141,7 +141,7 @@ def is_nonempty_file(path: Path) -> bool:
 
 
 def _read_theme_without_yaml(text: str) -> str | None:
-    """Extract flint.active_theme from the expected generated YAML layout."""
+    """Extracts flint.active_theme from the expected generated YAML layout."""
 
     lines = text.splitlines()
 
@@ -169,7 +169,7 @@ def _read_theme_without_yaml(text: str) -> str | None:
 
 
 def read_theme_from_data_file(path: Path) -> str | None:
-    """Read flint.active_theme from a chezmoi data file.
+    """Reads flint.active_theme from a chezmoi data file.
 
     PyYAML is preferred when available. A targeted parser is used otherwise
     because the data file is machine-generated with a stable structure and
@@ -602,7 +602,7 @@ theme-aware environment overrides:
 examples:
   flint-wallpaper --set ~/Pictures/Wallpapers/ghibli.jpg
   flint-wallpaper --theme light --set ~/Pictures/Wallpapers/ghibli.jpg
-  flint-wallpaper --palette cool --lum 1.1 --set ~/Pictures/Wallpapers/forest.png
+  flint-wallpaper --palette cool --lum 1.1 --set ~/Pictures/ghibli.jpg
   flint-wallpaper --theme auto --palette balanced ~/Pictures/Wallpapers/*.jpg
   flint-wallpaper --rbf --shape 96.0 --set ~/Pictures/Wallpapers/river.jpg
 """

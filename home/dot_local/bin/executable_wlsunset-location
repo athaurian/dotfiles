@@ -259,8 +259,8 @@ guard_target_not_vcs() {
 
 write_env_file() {
 	# $1 latitude, $2 longitude. Temp file in the destination directory,
-	# then rename, so readers only ever see a complete file — the pattern
-	# the session manager uses for its state file.
+	# then rename, so readers only ever see a complete file. This matches
+	# the pattern the session manager uses for its state file.
 	dir=$(dirname -- "$TARGET")
 	if [ ! -d "$dir" ]; then
 		mkdir -p -- "$dir" || die "cannot create directory: $dir"

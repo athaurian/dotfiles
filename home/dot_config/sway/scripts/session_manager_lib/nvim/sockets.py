@@ -1,4 +1,4 @@
-"""Neovim runtime socket discovery and PID extraction."""
+"""Discovers Neovim runtime sockets and extracts PIDs."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def sock_pid(socket: Path) -> int | None:
-    """Extract PID from nvim.<PID>.0 socket filename."""
+    """Extracts the PID from an nvim.<PID>.0 socket filename."""
     parts = socket.name.split(".")
     try:
         return int(parts[1])

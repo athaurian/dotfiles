@@ -1,4 +1,4 @@
-"""Sway IPC: connections, window watchers, and tree helpers."""
+"""Provides Sway IPC connections, window watchers, and tree helpers."""
 
 from __future__ import annotations
 
@@ -47,7 +47,9 @@ class WindowEvent:
 
 
 class IpcConnection:
-    """One Sway IPC socket for request/reply. Use a dedicated instance for subscriptions."""
+    """Holds one Sway IPC socket for request/reply. Subscriptions need
+    a dedicated instance.
+    """
 
     def __init__(
         self,
@@ -143,7 +145,9 @@ class IpcConnection:
     # -- requests ------------------------------------------------------
 
     def command(self, cmd: str, *, timeout: float | None = None) -> list[dict]:
-        """Run a Sway command. Returns per-command results; never raises on Sway failure."""
+        """Runs a Sway command. Returns per-command results. It never raises
+        on Sway failure.
+        """
         with self._lock:
             self._send(MSG_RUN_COMMAND, cmd)
             msg_type, payload = self._recv(
@@ -154,7 +158,7 @@ class IpcConnection:
         return payload if isinstance(payload, list) else []
 
     def command_checked(self, cmd: str, *, timeout: float | None = None) -> list[dict]:
-        """Run a command and raise if Sway reported failure."""
+        """Runs a command and raises when Sway reports failure."""
         result = self.command(cmd, timeout=timeout)
         bad = [r for r in result if not r.get("success", False)]
         if bad:
@@ -175,7 +179,7 @@ class IpcConnection:
 
 
 class WindowEventWatcher:
-    """Window event stream on a dedicated IPC connection."""
+    """Provides the window event stream on a dedicated IPC connection."""
 
     def __init__(self, sock_path: str | None = None) -> None:
         self._conn = IpcConnection(sock_path).connect()
@@ -248,7 +252,7 @@ _shared_lock = threading.Lock()
 
 
 def connection() -> IpcConnection:
-    """Lazily-created process-wide command/query connection."""
+    """Holds the lazily-created process-wide command/query connection."""
     global _shared
     with _shared_lock:
         if _shared is None:
@@ -265,12 +269,14 @@ def close_connection() -> None:
 
 
 def run_command(cmd: str) -> list[dict]:
-    """Run a sway command without raising on Sway failure."""
+    """Runs a sway command without raising on Sway failure."""
     return connection().command(cmd)
 
 
 def run_command_logged(cmd: str) -> bool:
-    """run_command + warn on failure. Returns True if all sub-commands ok."""
+    """Runs a command and warns on failure. Returns True when all
+    sub-commands are ok.
+    """
     result = run_command(cmd)
     bad = [r for r in result if not r.get("success", False)]
     if bad:
