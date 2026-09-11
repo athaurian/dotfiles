@@ -1,9 +1,6 @@
 # Generated palette data (regenerate with scripts/build_palette_data.py)
 home/.chezmoidata.yaml
 
-# Local docs tooling
-style-guide.md
-
 # Local syntax-highlighting test files. Screenshots in assets/ are
 # committed normally.
 assets/hl_*
