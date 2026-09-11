@@ -34,7 +34,6 @@ raw:
   black: "#000000"
   border_inactive: "#b0b0b0"
   critical_bg: "#b71c1c"
-  coral: "#97552c"
   bg_deep: "#c9c9c9"
   diff_add: "#d9edd4"
   diff_change: "#d7e8f5"
@@ -44,7 +43,7 @@ raw:
   error_bright: "#b3676c"
   error_deep: "#7f1d1d"
   hover_blue: "#4178a3"
-  bg_subtle: "#e8e8e8"
+  bg_subtle: "#fafafa"
   overlay_dim: "#767676"
   overlay_strong: "#4f4f4f"
   peach: "#8a6543"
@@ -72,7 +71,6 @@ raw_aliases:
   - [ansi_green, success]
   - [ansi_magenta, purple]
   - [ansi_red, error]
-  - [ansi_white, bg_subtle]
   - [ansi_yellow, yellow]
 raw_near_aliases: []
 
@@ -101,7 +99,7 @@ semantic_overrides:
   window_focused_border: text
 qt_bevel:
   - bg
-  - bg_subtle
+  - surface_0
   - surface_1
   - bg_deep
   - surface_2

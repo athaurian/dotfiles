@@ -41,7 +41,7 @@ catppuccin:
   base: background
   blue: accent_text
   border: border_inactive
-  coral: coral
+  coral: peach
   critical: critical_bg
   crust: background_deep
   diff_add: diff_add
@@ -156,7 +156,7 @@ semantic:
   caution: yellow
   caution_bright: yellow_bright
   commit_hash: peach
-  coral: coral
+  coral: peach
   critical: error
   critical_bg: critical_bg
   cyan: accent_cyan
@@ -315,7 +315,7 @@ contrast_checks:
   - [rose, selection_subtle, 3.0]
   # Match & pick
   - [on_accent, diff_text, 4.5]
-  - [accent_bright, surface_1, 3.0]
+  - [accent_text, surface_1, 3.0]
   - [cherry_picked_fg, cherry_picked_bg, 4.5]
   # Subtle backgrounds
   - [text_secondary, background_subtle, 4.5]
@@ -362,34 +362,3 @@ hue_budget:
     cyan: 187
     blue: 207
     purple: 286
-base16:
-  base00: background
-  base01: background_subtle
-  base02: surface_0
-  base03: text_muted
-  base04: text_secondary
-  base05: text
-  base06: overlay_strong
-  base07: text_max
-  base08: error
-  base09: peach
-  base0A: yellow
-  base0B: success
-  base0C: cyan
-  base0D: accent
-  base0E: purple
-  base0F: error_deep
-  base16: error_bright
-  base17: peach_bright
-  base18: yellow_bright
-  base19: success_bright
-  base1A: cyan_bright
-  base1B: accent_bright
-  base1C: purple_bright
-  base1D: error
-  base1E: overlay_strong
-  base1F: text_secondary
-  base20: surface_1
-  base21: surface_2
-  base22: overlay_dim
-  base23: border_inactive
