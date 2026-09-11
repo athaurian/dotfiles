@@ -23,15 +23,15 @@ has_mark() {
 	swaymsg -t get_marks 2>/dev/null | grep -qF "\"$mark\""
 }
 
-if swaymsg "[con_mark=$mark] scratchpad show" >/dev/null 2>&1; then
-	# Sway's `move position center` only works on the visible workspace,
-	# so centering must happen after `scratchpad show` (the for_window
-	# rule can only size and hide the window while it is still on the
-	# scratchpad). Re-apply geometry here so resize + center actually
-	# take effect. The `|| true` keeps `set -e` from aborting if the
-	# mark disappeared between the two swaymsg calls (for example, the
-	# picker exited after a selection).
-	swaymsg "[con_mark=$mark] resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
+if has_mark; then
+	# has_mark tests existence without changing state (no render).
+	# Show + geometry then runs as one transaction so Sway renders
+	# once. NOTE: do NOT fold the test into the transaction
+	# (`if swaymsg "... scratchpad show, resize ..., move ..."`): when
+	# hiding, the trailing `move position center` fails on the hidden
+	# scratchpad window and poisons the exit status, so every hide
+	# would fall through and spawn a duplicate picker.
+	swaymsg "[con_mark=$mark] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
 	release_sway_lock "toggle_clipboard"
 	exit 0
 fi
@@ -51,7 +51,8 @@ while [ "$i" -lt 40 ]; do
 	i=$((i + 1))
 done
 if has_mark; then
-	swaymsg "[con_mark=$mark] scratchpad show" >/dev/null 2>&1 || true
-	swaymsg "[con_mark=$mark] resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
+	# New picker starts hidden (no auto-show in its for_window rule),
+	# so show + geometry in one transaction maps it already centered.
+	swaymsg "[con_mark=$mark] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
 fi
 release_sway_lock "toggle_clipboard"

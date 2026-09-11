@@ -17,16 +17,16 @@ cat >"$T/fakebin/swaymsg" <<'EOF'
 #!/usr/bin/env sh
 if [ "$1" = "-t" ] && [ "$2" = "get_marks" ]; then
 	if [ -f "$TOGGLE_TEST_STATE/mark" ]; then
-		echo '["clipboard_term"]'
+		echo '["drop_term", "topgrade_term", "clipboard_term"]'
 	else
 		echo '[]'
 	fi
 	exit 0
 fi
 case "$1" in
-"[con_mark=drop_term] scratchpad show" | \
-	"[con_mark=topgrade_term] scratchpad show" | \
-	"[con_mark=clipboard_term] scratchpad show")
+"[con_mark=drop_term] scratchpad show"* | \
+	"[con_mark=topgrade_term] scratchpad show"* | \
+	"[con_mark=clipboard_term] scratchpad show"*)
 	echo "show $1" >>"$TOGGLE_TEST_STATE/log"
 	if [ -f "$TOGGLE_TEST_STATE/mark" ]; then exit 0; else exit 1; fi
 	;;
@@ -59,7 +59,8 @@ check() {
 		echo "FAIL: $1 (got $2, want $3)"
 	fi
 }
-# ``grep -c`` exits 1 on zero matches. The ``|| true`` keeps ``set -e`` from aborting.
+# ``grep -c`` exits 1 on zero matches. The ``|| true`` keeps ``set -e``
+# from aborting.
 count() {
 	grep -c "$1" "$TOGGLE_TEST_STATE/log" || true
 }
