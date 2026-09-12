@@ -20,7 +20,7 @@ set $passwordmanager sh -c 'exec ${PASSWORD_MANAGER:-keepassxc}'
 #{{ $focus_border := .flint.resolved.window_focused_border.hex }}
 #{{ $inactive_border := .flint.resolved.window_inactive_border.hex }}
 #{{ $focused_bg := .flint.resolved.surface_1.hex }}
-#{{ $focused_fg := .flint.resolved.text_max.hex }}
+#{{ $focused_fg := .flint.resolved.text.hex }}
 #{{ $focused_inactive_bg := .flint.resolved.window_focused_inactive_bg.hex }}
 #{{ $focused_inactive_fg := .flint.resolved.window_focused_inactive_text.hex }}
 #{{ $unfocused_bg := .flint.resolved.window_unfocused_bg.hex }}
@@ -38,11 +38,11 @@ client.background       {{ $bg }}
 
 # --- Appearance ---
 font pango:{{ $d.font_family_sans }} {{ $d.font_size }}
-hide_edge_borders smart_no_gaps
+hide_edge_borders smart
 default_border pixel 1
 default_floating_border normal 1
-gaps inner 3
-gaps outer 1
+# gaps inner 3
+# gaps outer 1
 
 # --- SwayFX Effects ---
 blur enable
@@ -57,7 +57,8 @@ shadow_blur_radius 14
 shadow_color #00000080
 shadow_offset 0 2
 shadow_inactive_color #00000080
-corner_radius 0
+smart_corner_radius enable
+corner_radius {{ $d.corner_radius }}
 default_dim_inactive 0.2
 dim_inactive_colors.unfocused #000000FF
 

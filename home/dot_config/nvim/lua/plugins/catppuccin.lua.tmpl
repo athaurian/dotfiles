@@ -80,15 +80,15 @@ return {
           Comment = { fg = colors.subtext0, style = { "italic" } },
           ["@comment"] = { fg = colors.subtext0, style = { "italic" } },
           ["@comment.todo"] = { fg = flint.on_warning, bg = colors.rosewater, style = { "bold" } },
-          ["@comment.note"] = { fg = colors.text_max, bg = colors.surface2, style = { "bold" } },
+          ["@comment.note"] = { fg = colors.text, bg = colors.surface2, style = { "bold" } },
 
           -- Selections (Bound to active accent)
           Visual = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
           VisualNOS = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
 
           -- Popup Menus
-          PmenuSel = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
-          WildMenu = { bg = colors.surface1, fg = colors.text_max },
+          PmenuSel = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
+          WildMenu = { bg = colors.surface1, fg = colors.text },
 
           -- Floating Windows
           FloatBorder = { fg = colors.border, bg = colors.mantle },
@@ -126,22 +126,22 @@ return {
           Directory = { fg = colors.teal },
 
           -- Telescope (Neutral Overlay)
-          TelescopeSelection = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          TelescopeSelection = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
           TelescopeSelectionCaret = { bg = colors.surface1, fg = colors.blue },
-          TelescopeMultiSelection = { bg = colors.surface1, fg = colors.text_max },
+          TelescopeMultiSelection = { bg = colors.surface1, fg = colors.text },
           TelescopeMatching = { fg = colors.blue, style = { "bold" } },
           TelescopePreviewLine = { bg = colors.surface0 },
 
           -- File Trees (Neutral Overlay)
-          NeoTreeCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
-          NvimTreeCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
-          NeoTreeSelected = { bg = colors.surface1, fg = colors.text_max },
+          NeoTreeCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
+          NvimTreeCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
+          NeoTreeSelected = { bg = colors.surface1, fg = colors.text },
           NeoTreeSelectedSymbol = { fg = colors.peach },
           NeoTreeDirectoryName = { fg = colors.teal },
           NeoTreeDirectoryIcon = { fg = colors.blue },
           NeoTreeRootName = { fg = colors.mauve, style = { "bold" } },
           NeoTreeFileName = { fg = colors.text },
-          NeoTreeFileNameOpened = { fg = colors.text_max, style = { "bold" } },
+          NeoTreeFileNameOpened = { fg = colors.text, style = { "bold" } },
           NeoTreeIndentMarker = { fg = colors.overlay1 },
           NeoTreeGitModified = { fg = colors.yellow },
           NeoTreeGitAdded = { fg = colors.green },
@@ -155,7 +155,7 @@ return {
           SnacksPickerPreview = { bg = colors.base },
           SnacksPickerInput = { bg = colors.mantle },
           SnacksPickerSelected = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
-          SnacksPickerListCursorLine = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
+          SnacksPickerListCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
           SnacksPickerMatch = { fg = colors.blue, style = { "bold" } },
           SnacksPickerDir = { fg = colors.teal },
           SnacksPickerFile = { fg = colors.text },
