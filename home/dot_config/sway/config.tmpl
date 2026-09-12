@@ -59,6 +59,9 @@ shadow_offset 0 2
 shadow_inactive_color #00000080
 # smart_corner_radius enable
 corner_radius 0
+# Floating-window radius, resolved from the shared token once and reused
+# in every for_window rule below.
+set $float_radius {{ $d.corner_radius }}
 default_dim_inactive 0.2
 dim_inactive_colors.unfocused #000000FF
 
@@ -75,20 +78,20 @@ input type:pointer {
 # --- Window Rules ---
 # Tiled windows stay square (corner_radius 0 above); every floating
 # surface takes the shared radius token instead.
-for_window [floating] corner_radius {{ $d.corner_radius }}
-for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="^(polkit-gnome-authentication-agent-1|nm-connection-editor)$"] floating enable, border normal, move position center, corner_radius {{ $d.corner_radius }}
-for_window [class="Pinentry-gtk"] floating enable, border normal, resize set width 30 ppt height 20 ppt, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, resize set width 50 ppt height 70 ppt, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="thunar" title="^(File Operation Progress|Set Title of File|.*Rename.*)$"] floating enable, border normal, move position center, corner_radius {{ $d.corner_radius }}
-for_window [window_role="^(pop-up|bubble|dialog)$"] floating enable, border normal, move position center, corner_radius {{ $d.corner_radius }}
+for_window [floating] corner_radius $float_radius
+for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center, corner_radius $float_radius
+for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center, corner_radius $float_radius
+for_window [app_id="^(polkit-gnome-authentication-agent-1|nm-connection-editor)$"] floating enable, border normal, move position center, corner_radius $float_radius
+for_window [class="Pinentry-gtk"] floating enable, border normal, resize set width 30 ppt height 20 ppt, move position center, corner_radius $float_radius
+for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center, corner_radius $float_radius
+for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, resize set width 50 ppt height 70 ppt, move position center, corner_radius $float_radius
+for_window [app_id="thunar" title="^(File Operation Progress|Set Title of File|.*Rename.*)$"] floating enable, border normal, move position center, corner_radius $float_radius
+for_window [window_role="^(pop-up|bubble|dialog)$"] floating enable, border normal, move position center, corner_radius $float_radius
 
 # --- Terminal Window Rules ---
-for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center, corner_radius {{ $d.corner_radius }}
-for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius {{ $d.corner_radius }}
-for_window [app_id="foot_clipboard"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius {{ $d.corner_radius }}
+for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center, corner_radius $float_radius
+for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius $float_radius
+for_window [app_id="foot_clipboard"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius $float_radius
 
 # Touchpad: flat accel with natural scroll, tap, and disable-while-typing.
 input type:touchpad {
