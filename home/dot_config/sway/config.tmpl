@@ -57,8 +57,8 @@ shadow_blur_radius 14
 shadow_color #00000080
 shadow_offset 0 2
 shadow_inactive_color #00000080
-smart_corner_radius enable
-corner_radius {{ $d.corner_radius }}
+# smart_corner_radius enable
+corner_radius 0
 default_dim_inactive 0.2
 dim_inactive_colors.unfocused #000000FF
 
@@ -73,6 +73,7 @@ input type:pointer {
 }
 
 # --- Window Rules ---
+for_window [floating] corner_radius {{ $d.corner_radius }}
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
