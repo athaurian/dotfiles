@@ -76,6 +76,9 @@ catppuccin:
 desktop:
   cursor_size: 24
   cursor_theme: Adwaita
+  # Single corner-radius source for compositor-layer surfaces (sway,
+  # fuzzel, dunst, waybar). Change here, not in each template.
+  corner_radius: 4
   font_family: Geist Mono
   font_family_nerd: GeistMono Nerd Font
   font_family_sans: Geist
@@ -142,7 +145,6 @@ lut_palette:
     - success_bright
     - accent_text
     - purple_text
-lut_min_anchor_delta_e: 3.0
 semantic:
   accent: accent_blue
   accent_bright: hover_blue
@@ -261,32 +263,53 @@ apps:
   zellij:
     background_zero: bg
 contrast_checks:
-  # Core text on backgrounds
+  # Core body text. WCAG AA 1.4.3 requires 4.5:1 for normal text.
   - [text, background, 4.5]
   - [text_max, background, 4.5]
   - [text_secondary, background, 4.5]
   - [text_muted, background, 4.5]
   - [text_secondary, surface_1, 4.5]
-  - [text_muted, surface_0, 4.0]
-  - [text_muted, surface_1, 4.0]
+  - [text_muted, surface_0, 4.5]
+  - [text_muted, surface_1, 4.5]
   - [text_max, surface_1, 4.5]
   - [text_max, surface_2, 4.5]
-  # Selection & status surfaces
+  # Selected and status text. Normal text, so 4.5:1.
   - [on_selection, selection, 4.5]
-  - [swaylock_key_hl, swaylock_ring, 2.0]
-  - [swaylock_caps_key_hl, swaylock_ring, 1.8]
-  - [swaylock_bs_hl, swaylock_ring, 1.2]
+  # Swaylock arcs are UI graphics. WCAG AA 1.4.11 requires 3:1
+  # against the adjacent ring color. The arcs also sit against the
+  # inside fill, which templates set to the background, so both
+  # adjacencies carry the 3:1 floor.
+  - [swaylock_key_hl, swaylock_ring, 3.0]
+  - [swaylock_caps_key_hl, swaylock_ring, 3.0]
+  - [swaylock_bs_hl, swaylock_ring, 3.0]
+  - [swaylock_key_hl, background, 3.0]
+  - [swaylock_caps_key_hl, background, 3.0]
+  - [swaylock_bs_hl, background, 3.0]
   - [on_critical, critical_bg, 4.5]
   - [on_warning, warning, 4.5]
-  - [search_fg, search_bg, 3.0]
-  - [on_accent, inc_search_bg, 3.0]
+  # Search matches render normal-size text, so 4.5:1.
+  - [search_fg, search_bg, 4.5]
+  - [on_accent, inc_search_bg, 4.5]
   - [emphasis_fg, emphasis_bg, 4.5]
   - [jump_label_fg, jump_label_bg, 4.5]
-  # Borders
-  - [border, background, 1.5]
+  # Boundaries. WCAG 2.2 AA 1.4.11 requires 3:1 for boundaries required
+  # to identify components, against the adjacent color. This is an
+  # adjacent-color check only. It does not meet 2.4.13 AAA focus
+  # appearance, which also needs area plus a focused-versus-unfocused
+  # change. Inactive borders are exempt as inactive components, so
+  # they carry no floor.
+  # Note: no focus_border-vs-selection check exists on purpose. No
+  # mid-gray passes background, selection, and surface adjacencies at
+  # once, so focus rings are scoped to pane frames and backgrounds and
+  # never drawn on selection fills (verified in lazygit, waybar, and
+  # fuzzel templates). Add the check if a template starts doing that.
   - [focus_border, background, 3.0]
-  - [window_inactive_border, background, 1.5]
-  # Accent & interactive
+  # Window frames signal focus the same way. The focused frame clears
+  # 3:1 against both the background and the inactive frame at seams.
+  - [window_focused_border, background, 3.0]
+  - [window_focused_border, window_inactive_border, 3.0]
+  # Accent fills used behind or as graphics. 3:1 per 1.4.11.
+  # Accent text roles below stay at 4.5 because they render body text.
   - [emphasis_bg, background, 3.0]
   - [accent_text, background, 4.5]
   - [interactive_text, background, 4.5]
@@ -295,70 +318,55 @@ contrast_checks:
   - [purple_text, background, 4.5]
   - [error_text, background, 4.5]
   - [commit_hash, background, 4.5]
-  # Qt surfaces
+  # Qt surfaces carry body text, so 4.5:1.
   - [text, qt_base, 4.5]
   - [text, qt_button, 4.5]
   - [text, qt_tooltip_base, 4.5]
-  # Notices & warnings
+  # Notification cards carry body text, so 4.5:1, including
+  # their accent and error text.
   - [notice_fg, notice_bg, 4.5]
   - [warning_fg, warning_bg, 4.5]
   - [error_fg, error_bg, 4.5]
-  - [notice_accent, notice_bg, 3.0]
-  - [warning_accent, warning_bg, 3.0]
-  - [error_text, error_bg, 3.0]
-  # Network & status
+  - [notice_accent, notice_bg, 4.5]
+  - [warning_accent, warning_bg, 4.5]
+  - [error_text, error_bg, 4.5]
+  # Status strokes and fills. Graphic-only by contract, never
+  # body text, so 3:1 per 1.4.11. Do not reuse these roles for text.
   - [network_start, background, 3.0]
   - [network_mid, background, 3.0]
   - [network_end, background, 3.0]
   - [warning, background, 3.0]
   - [accent_strong, background, 3.0]
   - [rose, selection_subtle, 3.0]
-  # Match & pick
+  # Match and pick text, so 4.5:1.
   - [on_accent, diff_text, 4.5]
-  - [accent_text, surface_1, 3.0]
+  - [accent_text, surface_1, 4.5]
   - [cherry_picked_fg, cherry_picked_bg, 4.5]
-  # Subtle backgrounds
+  # Diff washes keep syntax-colored code, not remapped text, so the
+  # working green and blue must clear 4.5:1 on their washes directly.
+  - [success, diff_add, 4.5]
+  - [accent_text, diff_change, 4.5]
+  # Captions can land on the deepest surface and on raised panels, so
+  # muted text and cyan carry 4.5:1 there as well as on the background.
+  - [text_muted, surface_2, 4.5]
+  - [cyan, surface_1, 4.5]
+  # Overlay captions render body text on the background, so 4.5:1.
+  - [overlay_dim, background, 4.5]
+  # Subtle backgrounds carry body text, so 4.5:1.
   - [text_secondary, background_subtle, 4.5]
   - [text_muted, background_subtle, 4.5]
   - [text_secondary, background_deep, 4.5]
-  # Floor ceilings (documented honest limits)
-  - [overlay_strong, background, 3.0]
-  - [text_muted, surface_2, 3.0]
-distinctness_checks:
-  - [accent_text, accent_bright, 1.2, 10.0, "waybar focused:hover"]
-  - [error_text, error_bright, 1.2, 10.0, "waybar urgent:hover"]
-  - [fastfetch_key, fastfetch_logo, 1.2, 10.0, "fastfetch key vs logo"]
-  - [
-      focus_border,
-      border_inactive,
-      1.2,
-      10.0,
-      "sway/lazygit active vs inactive border",
-    ]
-  - [
-      swaylock_caps_key_hl,
-      swaylock_key_hl,
-      1.2,
-      10.0,
-      "swaylock caps vs typing arc",
-    ]
-hue_budget:
-  neutral_max_saturation: 10
-  tolerance: 10
-  near_white_lightness: 92
-  near_black_lightness: 5
-  exempt:
-    - diff_add
-    - diff_change
-    - diff_delete
-    - diff_text
-    - warning_tint
-  families:
-    red: 355
-    orange: 29
-    yellow: 39
-    green: 95
-    mint: 143
-    cyan: 187
-    blue: 207
-    purple: 286
+  # Muted text on the deepest surface still renders body text,
+  # so 4.5:1. If a future palette cannot carry it, rename the role
+  # to a large-only or decorative role instead of lowering this floor.
+  # Note: selection fills and the dark delete wash are text-backed by
+  # house contract, not by WCAG exemption (WCAG has none). Every consumer
+  # remaps the text on top (terminal_selection_fg, on_selection,
+  # on_accent, error_text), verified in foot, zellij, btop, zathura,
+  # nvim, and fuzzel templates, so they carry no bare-fill 3:1 floor. The dark delete
+  # wash stays shallow on purpose to protect red-text contrast, and
+  # deletion always pairs with a non-color cue (gitsigns gutter signs,
+  # lazygit +/- markers). State-vs-state pairs (error vs warning,
+  # success vs cyan) have no WCAG ratio floor; separation there comes
+  # from hue plus those non-color cues (dunst varies text, frame, and
+  # progress together, never the fill alone).
