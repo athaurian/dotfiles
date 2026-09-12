@@ -5,8 +5,13 @@ set -eu
 #'{{ $a := .flint.appearance }}'
 #'{{ $d := .flint.desktop }}'
 #'{{ $theme := .flint.active_theme }}'
-# Re-run when the notification daemon config changes, not just when this
-# script does. Chezmoi run_onchange_ hashes the script body only.
+# Chezmoi run_onchange_ hashes the rendered script body only, so embed
+# content hashes for everything that must trigger a full desktop reload.
+# Any palette data change (colors, desktop tokens, appearance, active
+# theme) re-renders this line and re-runs the hook.
+# flint data hash:
+# '{{ .flint | toJson | sha256sum }}'
+# Re-run when the notification daemon template changes too.
 # dunstrc content hash:
 # '{{ include "dot_config/dunst/dunstrc.tmpl" | sha256sum }}'
 
