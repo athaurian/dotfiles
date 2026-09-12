@@ -5,65 +5,66 @@ appearance:
   wallpaper: ~/Pictures/Wallpapers/light/roman-forum.jpg
 catppuccin_flavor: latte
 meta:
-  description: A neutral grey light theme with muted One Dark Pro-style ANSI hues.
+  description:
+    Sand v3 draft. Sterile cool-gray neutrals with separated chromatics.
   name: Sand
   variant: light
 raw:
-  accent_blue: "#166ad9"
-  accent_blue_bright: "#4178a3"
-  accent_border: "#205075"
-  accent_cyan: "#38757d"
-  accent_cyan_bright: "#6a989e"
-  ansi_black: "#242424"
-  ansi_blue: "#225882"
-  ansi_bright_black: "#5a5a5a"
-  ansi_bright_blue: "#174366"
-  ansi_bright_cyan: "#32666e"
-  ansi_bright_green: "#4a603b"
-  ansi_bright_magenta: "#764884"
-  ansi_bright_red: "#8b4449"
-  ansi_bright_white: "#ffffff"
-  ansi_bright_yellow: "#695838"
-  ansi_cyan: "#38757d"
-  ansi_green: "#5a7448"
-  ansi_magenta: "#864e96"
-  ansi_red: "#9f4950"
-  ansi_white: "#e8e8e8"
-  ansi_yellow: "#75603a"
-  bg: "#f2f2f2"
+  accent_blue: "#244A9A"
+  accent_blue_bright: "#3A6A8A"
+  accent_border: "#244A9A"
+  accent_cyan: "#015F88"
+  accent_cyan_bright: "#3F6B6D"
+  ansi_black: "#313338"
+  ansi_blue: "#1C56D8"
+  ansi_bright_black: "#5C5E66"
+  ansi_bright_blue: "#2C4A62"
+  ansi_bright_cyan: "#35585A"
+  ansi_bright_green: "#3F6238"
+  ansi_bright_magenta: "#6C447A"
+  ansi_bright_red: "#8A3E43"
+  ansi_bright_white: "#FFFFFF"
+  ansi_bright_yellow: "#5F4E2E"
+  ansi_cyan: "#015F88"
+  ansi_green: "#346134"
+  ansi_magenta: "#A626A4"
+  ansi_red: "#B02518"
+  ansi_white: "#E3E5E8"
+  ansi_yellow: "#875C00"
+  bg: "#F2F3F5"
   black: "#000000"
-  border_inactive: "#b0b0b0"
-  critical_bg: "#b71c1c"
-  bg_deep: "#c9c9c9"
-  diff_add: "#d9edd4"
-  diff_change: "#d7e8f5"
-  diff_delete: "#f3e1df"
-  diff_text: "#366d96"
-  error: "#9f4950"
-  error_bright: "#b3676c"
-  error_deep: "#7f1d1d"
-  hover_blue: "#4178a3"
-  bg_subtle: "#fafafa"
-  overlay_dim: "#767676"
-  overlay_strong: "#4f4f4f"
-  peach: "#8a6543"
-  peach_bright: "#98775a"
-  purple: "#864e96"
-  purple_bright: "#7e4f90"
-  selection: "#295c81"
-  success: "#5a7448"
-  success_bright: "#6f865e"
-  surface_0: "#dddddd"
-  surface_1: "#d2d2d2"
-  surface_2: "#bfbfbf"
-  text: "#242424"
-  text_max: "#0a0a0a"
-  text_muted: "#5f5f5f"
-  text_secondary: "#3f3f3f"
-  warning_deep: "#8c5820"
-  warning_tint: "#faeed9"
-  yellow: "#75603a"
-  yellow_bright: "#8e7c5a"
+  border_inactive: "#B5BAC1"
+  critical_bg: "#8F2F2F"
+  bg_deep: "#C4C9CE"
+  diff_add: "#DDE8D2"
+  diff_change: "#D9E2EA"
+  diff_delete: "#EAD9D2"
+  diff_text: "#33617F"
+  error: "#B02518"
+  error_bright: "#93454B"
+  error_deep: "#7A2E2E"
+  hover_blue: "#3A6A8A"
+  bg_subtle: "#FFFFFF"
+  overlay_dim: "#64666D"
+  overlay_strong: "#5C5E66"
+  peach: "#8A4B00"
+  peach_bright: "#7C5A36"
+  purple: "#A626A4"
+  purple_bright: "#75507E"
+  selection: "#335F7E"
+  success: "#346134"
+  success_bright: "#3F6238"
+  surface_0: "#E3E5E8"
+  surface_1: "#D4D7DC"
+  surface_2: "#B5BAC1"
+  text: "#313338"
+  text_max: "#1E1F22"
+  text_muted: "#45474D"
+  text_secondary: "#3F4147"
+  warning_deep: "#875C00"
+  warning_tint: "#F3E8D2"
+  yellow: "#875C00"
+  yellow_bright: "#6B5A36"
 raw_aliases:
   - [accent_blue_bright, hover_blue]
   - [accent_cyan, ansi_cyan]
@@ -72,12 +73,13 @@ raw_aliases:
   - [ansi_magenta, purple]
   - [ansi_red, error]
   - [ansi_yellow, yellow]
-raw_near_aliases: []
+raw_near_aliases:
+  - [ansi_blue, selection]
+  - [ansi_bright_green, success_bright]
 
 semantic_overrides:
   accent_text: accent_blue
   cherry_picked_fg: accent_border
-  commit_hash: warning_deep
   emphasis_bg: accent_border
   fastfetch_key: accent_blue
   inc_search_bg: accent_blue
@@ -89,11 +91,12 @@ semantic_overrides:
   on_selection: bg
   purple_text: purple
   qt_shadow: overlay_strong
+  search_bg: accent_blue
   search_fg: bg
   selection_subtle: surface_0
   swaylock_bs_hl: error
   swaylock_key_hl: text
-  swaylock_ring: surface_2
+  swaylock_ring: background_subtle
   terminal_selection_fg: bg
   url: accent_blue
   window_focused_border: text

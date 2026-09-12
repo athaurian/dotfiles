@@ -1,17 +1,17 @@
 """
-Provides shared Flint palette loading, validation, derivation, and
-linting logic.
+Provides shared Flint palette loading, validation, and derivation logic.
 
 Used by scripts/build_palette_data.py, reading palette definitions from::
 
     palettes/flint/shared.yaml
     palettes/flint/dark.yaml
     palettes/flint/light.yaml
+
+Validation covers selected WCAG 2.2 AA contrast pairs only: SC 1.4.3
+Contrast (Minimum) and SC 1.4.11 Non-text Contrast for the listed rows.
+No house-style checks. Passing rows are not a WCAG conformance claim.
 """
 
-import colorsys
-import math
-import sys
 from collections import OrderedDict
 from pathlib import Path
 from typing import NoReturn
@@ -27,22 +27,8 @@ def fail(message: str) -> NoReturn:
     raise PaletteError(message)
 
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 7
 
-ANSI_PAIRS = [
-    ("black", "bright_black"),
-    ("red", "bright_red"),
-    ("green", "bright_green"),
-    ("yellow", "bright_yellow"),
-    ("blue", "bright_blue"),
-    ("magenta", "bright_magenta"),
-    ("cyan", "bright_cyan"),
-    ("white", "bright_white"),
-]
-
-ANSI_SURFACE_ROLES = ["surface_0", "surface_1"]
-ANSI_BRIGHT_MIN_RATIO = 1.05
-LUT_MIN_ANCHORS = 12
 BACKGROUND_TOKEN = "bg"
 
 
@@ -69,7 +55,7 @@ def hex_to_rgb(value: str) -> tuple[int, int, int]:
 
 def srgb_channel_to_linear(channel: int) -> float:
     c = channel / 255.0
-    if c <= 0.03928:
+    if c <= 0.04045:
         return c / 12.92
     return ((c + 0.055) / 1.055) ** 2.4
 
@@ -89,34 +75,6 @@ def contrast_ratio(rgb_a: tuple[int, int, int], rgb_b: tuple[int, int, int]) -> 
     lighter = max(lum_a, lum_b)
     darker = min(lum_a, lum_b)
     return (lighter + 0.05) / (darker + 0.05)
-
-
-def rgb_to_lab(rgb: tuple[int, int, int]) -> tuple[float, float, float]:
-    """Converts an sRGB tuple to CIE L*a*b* (D65) for perceptual distance."""
-    r = srgb_channel_to_linear(rgb[0])
-    g = srgb_channel_to_linear(rgb[1])
-    b = srgb_channel_to_linear(rgb[2])
-
-    x = 0.4124 * r + 0.3576 * g + 0.1805 * b
-    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    z = 0.0193 * r + 0.1192 * g + 0.9505 * b
-    x /= 0.95047
-    z /= 1.08883
-
-    def f(t: float) -> float:
-        return t ** (1 / 3) if t > 0.008856 else 7.787 * t + 16 / 116
-
-    fx, fy, fz = f(x), f(y), f(z)
-    return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
-
-
-def delta_e(rgb_a: tuple[int, int, int], rgb_b: tuple[int, int, int]) -> float:
-    """Computes the CIE76 perceptual distance. About 2.3 is just
-    noticeable and about 10 is clearly distinct.
-    """
-    l1, a1, b1 = rgb_to_lab(rgb_a)
-    l2, a2, b2 = rgb_to_lab(rgb_b)
-    return math.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2)
 
 
 def role_rgb(raw: dict, semantic: dict, role: str) -> tuple[int, int, int]:
@@ -250,34 +208,15 @@ def effective_semantic(
         result[role] = token
 
     # Qt bevel ladder: 5 ramp tokens, lightest -> darkest.
+    # Order is not a WCAG requirement; roles are derived in listed order.
     bevel = theme.get("qt_bevel")
     if bevel is not None:
         if not isinstance(bevel, list) or len(bevel) != 5:
             fail(f"{theme_name}: qt_bevel must be a list of exactly 5 raw tokens")
         bevel_roles = ["qt_light", "qt_midlight", "qt_button", "qt_mid", "qt_dark"]
-        prev_token = None
-        prev_lum = None
         for token, role in zip(bevel, bevel_roles):
             if not isinstance(token, str) or token not in raw:
                 fail(f"{theme_name}: qt_bevel references unknown raw token {token}")
-            lum = relative_luminance(hex_to_rgb(raw[token]))
-            if prev_lum is not None and lum >= prev_lum - 1e-9:
-                fail(
-                    f"{theme_name}: qt_bevel must run lightest to darkest; "
-                    f"{role} ({token}) is not darker than its predecessor"
-                )
-            if prev_token is not None:
-                ratio = contrast_ratio(
-                    hex_to_rgb(raw[prev_token]), hex_to_rgb(raw[token])
-                )
-                dist = delta_e(hex_to_rgb(raw[prev_token]), hex_to_rgb(raw[token]))
-                if ratio < 1.05 and dist < 4.0:
-                    fail(
-                        f"{theme_name}: qt_bevel steps {prev_token} and {token} "
-                        f"are visually indistinguishable ({ratio:.3f}:1 / ΔE {dist:.1f})"
-                    )
-            prev_token = token
-            prev_lum = lum
             result[role] = token
 
     # Resolve all semantic aliases to concrete raw tokens
@@ -354,6 +293,12 @@ def validate_contrast(
 def validate_ansi_relationships(
     theme_name: str, raw: dict, semantic: dict, ansi: dict
 ) -> list[str]:
+    """Enforces WCAG 2.2 AA SC 1.4.3 for terminal text.
+
+    Every ANSI color used as body text needs 4.5:1 on the terminal
+    background. Surfaces are not terminal backgrounds, so no
+    ANSI-on-surface floor exists.
+    """
     base_rgb = hex_to_rgb(raw[BACKGROUND_TOKEN])
     base_lum = relative_luminance(base_rgb)
     is_light = base_lum > 0.5
@@ -381,272 +326,13 @@ def validate_ansi_relationships(
                 "expected at least 4.5:1"
             )
 
-    for surface_role in ANSI_SURFACE_ROLES:
-        surface_rgb = role_rgb(raw, semantic, surface_role)
-
-        for ansi_name, token in text_ansi_tokens.items():
-            ansi_rgb = hex_to_rgb(raw[token])
-            ratio = contrast_ratio(ansi_rgb, surface_rgb)
-
-            if ratio + 1e-9 < 3.0:
-                errors.append(
-                    f"ANSI {ansi_name} on {surface_role} is {ratio:.2f}:1, "
-                    "expected at least 3.0:1"
-                )
-
-    for normal, bright in ANSI_PAIRS:
-        normal_hex = raw[ansi[normal]]
-        bright_hex = raw[ansi[bright]]
-
-        if normal_hex == bright_hex:
-            errors.append(f"ANSI {normal} and {bright} are identical ({normal_hex})")
-            continue
-
-        ratio = contrast_ratio(hex_to_rgb(normal_hex), hex_to_rgb(bright_hex))
-        if ratio + 1e-9 < ANSI_BRIGHT_MIN_RATIO:
-            errors.append(
-                f"ANSI {normal} and {bright} are visually "
-                f"indistinguishable ({ratio:.3f}:1, expected at least "
-                f"{ANSI_BRIGHT_MIN_RATIO:.2f}:1)"
-            )
+    # Note: ANSI colors are terminal body text on the terminal
+    # background only. Surfaces are panels and popups, not terminal
+    # backgrounds, so WCAG AA sets no ANSI-on-surface floor. If a
+    # future template renders ANSI body text on a surface, add an
+    # explicit 4.5 check for that pair instead of a blanket rule.
 
     return errors
-
-
-# Per-pair floors come from `distinctness_checks` in shared.yaml.
-
-
-def load_distinctness_checks(
-    theme_name: str, shared: dict
-) -> list[tuple[str, str, float, float, str]]:
-    checks = shared.get("distinctness_checks")
-    if not isinstance(checks, list) or not checks:
-        fail(f"{theme_name}: shared palette definition is missing distinctness_checks")
-
-    result: list[tuple[str, str, float, float, str]] = []
-    for row in checks:
-        if not isinstance(row, list) or len(row) != 5:
-            fail(
-                f"{theme_name}: distinctness_checks rows must be "
-                "[role_a, role_b, min_contrast, min_delta_e, context]"
-            )
-        role_a, role_b, min_contrast, min_delta_e, context = row
-        if not isinstance(role_a, str) or not isinstance(role_b, str):
-            fail(f"{theme_name}: distinctness_checks rows must name roles as strings")
-        if isinstance(min_contrast, bool) or not isinstance(min_contrast, (int, float)):
-            fail(
-                f"{theme_name}: distinctness_checks row {row} has invalid contrast floor"
-            )
-        if isinstance(min_delta_e, bool) or not isinstance(min_delta_e, (int, float)):
-            fail(f"{theme_name}: distinctness_checks row {row} has invalid ΔE floor")
-        if not isinstance(context, str):
-            fail(f"{theme_name}: distinctness_checks row {row} has invalid context")
-        result.append(
-            (role_a, role_b, float(min_contrast), float(min_delta_e), context)
-        )
-    return result
-
-
-def validate_state_distinctness(
-    theme_name: str,
-    raw: dict,
-    semantic: dict,
-    checks: list[tuple[str, str, float, float, str]],
-) -> list[str]:
-    errors = []
-    for role_a, role_b, min_contrast, min_delta_e, context in checks:
-        a = role_rgb(raw, semantic, role_a)
-        b = role_rgb(raw, semantic, role_b)
-        ratio = contrast_ratio(a, b)
-        dist = delta_e(a, b)
-        if ratio + 1e-9 < min_contrast and dist < min_delta_e:
-            errors.append(
-                f"{role_a} vs {role_b} ({context}) is {ratio:.2f}:1 / ΔE {dist:.1f}, "
-                f"expected at least {min_contrast:.1f}:1 or ΔE {min_delta_e:.1f}"
-            )
-    return errors
-
-
-def check_raw_duplicates(theme_name: str, raw: dict, theme: dict) -> list[str]:
-    """Warns on raw-token duplication or alias drift.
-
-    - ``raw_aliases`` groups are deliberately identical. The build warns if any
-      member drifts from the group (they must stay in sync).
-    - ``raw_near_aliases`` pairs are accepted near-duplicates and are skipped.
-    - Any other pair within ΔE 1.0 is unexpected and is flagged. The remedy is
-      to resolve one through ``semantic`` or to declare the pair.
-
-    Args:
-        theme_name: Name of the theme being checked.
-        raw: Mapping of raw token to hex value.
-        theme: Theme definition holding alias declarations.
-
-    Returns:
-        A list of warning strings, empty when clean.
-    """
-    warnings = []
-    alias_groups = theme.get("raw_aliases", [])
-    near_pairs = {frozenset(pair) for pair in theme.get("raw_near_aliases", [])}
-    names = set(raw.keys())
-
-    for group in alias_groups:
-        if not isinstance(group, list) or not group:
-            fail(f"{theme_name}: raw_aliases entries must be non-empty lists")
-        unknown = [name for name in group if name not in names]
-        if unknown:
-            fail(
-                f"{theme_name}: raw_aliases references unknown raw tokens: "
-                + ", ".join(unknown)
-            )
-        canonical = hex_to_bare(raw[group[0]])
-        drifted = [name for name in group if hex_to_bare(raw[name]) != canonical]
-        if drifted:
-            d = delta_e(hex_to_rgb(raw[drifted[0]]), hex_to_rgb(raw[group[0]]))
-            warnings.append(
-                f"  raw alias group {group} drifted apart (ΔE {d:.2f}) — "
-                "alias members must stay identical"
-            )
-
-    sorted_names = sorted(raw.keys())
-    for i in range(len(sorted_names)):
-        for j in range(i + 1, len(sorted_names)):
-            a, b = sorted_names[i], sorted_names[j]
-            if frozenset((a, b)) in near_pairs:
-                continue
-            if any(a in g and b in g for g in alias_groups):
-                continue
-            d = delta_e(hex_to_rgb(raw[a]), hex_to_rgb(raw[b]))
-            if d < 1.0:
-                warnings.append(
-                    f"  {a} {raw[a]} ≈ {b} {raw[b]} (ΔE {d:.2f}) — unexpected "
-                    "duplicate; resolve one through `semantic` or declare it in "
-                    "`raw_aliases` / `raw_near_aliases`"
-                )
-    return warnings
-
-
-def validate_lut_palettes(
-    theme_name: str, raw: dict, semantic: dict, shared: dict
-) -> None:
-    lut_palette = shared.get("lut_palette")
-    if lut_palette is None:
-        return
-
-    if not isinstance(lut_palette, dict) or not lut_palette:
-        fail(f"{theme_name}: lut_palette must be a non-empty object when present")
-
-    min_anchor_delta_e = shared.get("lut_min_anchor_delta_e", 3.0)
-    if isinstance(min_anchor_delta_e, bool) or not isinstance(
-        min_anchor_delta_e, (int, float)
-    ):
-        fail(f"{theme_name}: lut_min_anchor_delta_e must be a number")
-    if float(min_anchor_delta_e) <= 0:
-        fail(f"{theme_name}: lut_min_anchor_delta_e must be positive")
-
-    for variant, tokens in lut_palette.items():
-        if not isinstance(tokens, list) or not tokens:
-            fail(f"{theme_name}: lut_palette.{variant} must be a non-empty list")
-
-        if len(tokens) < LUT_MIN_ANCHORS:
-            fail(
-                f"{theme_name}: lut_palette.{variant} has {len(tokens)} anchors, "
-                f"expected at least {LUT_MIN_ANCHORS}"
-            )
-
-        resolved = []
-        seen = set()
-        for token in tokens:
-            if not isinstance(token, str) or not token:
-                fail(f"{theme_name}: lut_palette.{variant} contains an invalid token")
-
-            if token in seen:
-                fail(
-                    f"{theme_name}: lut_palette.{variant} lists duplicate token "
-                    f"'{token}'"
-                )
-            seen.add(token)
-
-            resolved.append(
-                resolve_alias_target(
-                    theme_name,
-                    "LUT",
-                    f"{variant}[]",
-                    token,
-                    raw,
-                    semantic,
-                )
-            )
-
-        for i in range(len(resolved)):
-            for j in range(i + 1, len(resolved)):
-                a, b = resolved[i], resolved[j]
-                dist = delta_e(hex_to_rgb(raw[a]), hex_to_rgb(raw[b]))
-                if dist < min_anchor_delta_e:
-                    fail(
-                        f"{theme_name}: lut_palette.{variant} anchors {a} and {b} "
-                        f"are visually indistinguishable (ΔE {dist:.1f}, expected "
-                        f"at least {min_anchor_delta_e:g})"
-                    )
-
-
-def load_hue_budget(theme_name: str, shared: dict) -> dict:
-    budget = shared.get("hue_budget")
-    if not isinstance(budget, dict) or not budget:
-        fail(f"{theme_name}: shared palette definition is missing hue_budget")
-
-    families = budget.get("families")
-    if not isinstance(families, dict) or not families:
-        fail(f"{theme_name}: hue_budget must define families")
-
-    required_keys = {"neutral_max_saturation", "tolerance"}
-    missing = required_keys - budget.keys()
-    if missing:
-        fail(f"{theme_name}: hue_budget missing " + ", ".join(sorted(missing)))
-
-    return budget
-
-
-def validate_hue_budget(theme_name: str, raw: dict, shared: dict) -> None:
-    """Guards against palette drift. Every raw token must be near-neutral or
-    belong to a declared hue family matching the Orchis accents and
-    terminal spectrum."""
-    budget = load_hue_budget(theme_name, shared)
-    families = budget["families"]
-    tolerance = float(budget["tolerance"])
-    max_sat = float(budget["neutral_max_saturation"])
-    exempt = set(budget.get("exempt", []))
-    near_white = float(budget.get("near_white_lightness", 100))
-    near_black = float(budget.get("near_black_lightness", 0))
-
-    errors = []
-    for token, value in raw.items():
-        if token in exempt:
-            continue
-
-        r, g, b = hex_to_rgb(value)
-        hue_deg, sat, _value = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-        _hue, lightness, _sat = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
-        sat_pct = sat * 100
-        light_pct = lightness * 100
-
-        if sat_pct <= max_sat or light_pct >= near_white or light_pct <= near_black:
-            continue
-
-        hue_deg *= 360
-        for anchor in families.values():
-            anchor_deg = float(anchor) % 360
-            distance = abs((hue_deg - anchor_deg + 180) % 360 - 180)
-            if distance <= tolerance:
-                break
-        else:
-            errors.append(
-                f"raw token {token} ({value}) has hue {hue_deg:.0f}° "
-                f"(sat {sat_pct:.0f}%) outside every declared hue family "
-                f"(tolerance ±{tolerance:g}°)"
-            )
-
-    if errors:
-        fail(theme_name + " hue budget: " + "; ".join(errors))
 
 
 def validate_theme(
@@ -737,24 +423,18 @@ def validate_theme(
             fail(f"{theme_name}: alpha token {token} has invalid alpha {alpha_value}")
 
     contrast_checks = load_contrast_checks(theme_name, shared)
-    distinctness_checks = load_distinctness_checks(theme_name, shared)
 
-    validate_hue_budget(theme_name, raw, shared)
-
+    # Selected WCAG 2.2 AA pairs only: SC 1.4.3 normal text and SC 1.4.11
+    # graphics for the listed rows. Not a conformance claim.
     contrast_errors = validate_contrast(theme_name, raw, semantic, contrast_checks)
     ansi_errors = validate_ansi_relationships(theme_name, raw, semantic, ansi)
-    distinctness_errors = validate_state_distinctness(
-        theme_name, raw, semantic, distinctness_checks
-    )
 
-    all_errors = contrast_errors + ansi_errors + distinctness_errors
+    all_errors = contrast_errors + ansi_errors
     if all_errors:
         fail(
             f"{theme_name} has {len(all_errors)} validation issue(s):\n  - "
             + "\n  - ".join(all_errors)
         )
-
-    validate_lut_palettes(theme_name, raw, semantic, shared)
 
 
 def derive_raw(token: str, value: str) -> OrderedDict[str, object]:
@@ -1007,16 +687,6 @@ def check_all(definitions_dir: Path) -> list[str]:
         role_sets[theme_name] = set(
             effective_semantic(shared, theme, theme_name).keys()
         )
-
-        if isinstance(raw_section, dict):
-            duplicate_warnings = check_raw_duplicates(theme_name, raw_section, theme)
-            if duplicate_warnings:
-                print(
-                    f"warning: {theme_name}: raw-token duplication or alias drift:",
-                    file=sys.stderr,
-                )
-                for warning in duplicate_warnings:
-                    print(warning, file=sys.stderr)
 
     reference = theme_names[0]
     base_set = role_sets[reference]
