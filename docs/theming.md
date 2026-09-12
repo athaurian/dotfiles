@@ -7,12 +7,12 @@ written for people who are new to this kind of setup, so every term is defined
 the first time it appears.
 
 Everything inside this repository uses a custom theme called Flint (dark) and
-its light counterpart, Sand. Flint is a neutral grey theme whose chrome matches
-Orchis, the GTK theme of this desktop, with its working colors drawn from the
-One Dark terminal spectrum. The two variants exist so the desktop can follow the
-dark and light appearance settings with every app switching at the same time.
-They are applied to every app config in this repo except Vesktop, which keeps
-its own styling and only inherits fonts.
+its light counterpart, Sand. Flint is a neutral cool-gray theme with a dusty
+steel-blue accent, and Sand is the same system on neutral light gray. The two
+variants exist so the desktop can follow the dark and light appearance settings
+with every app switching at the same time. They are applied to every app config
+in this repo except Vesktop, which keeps its own styling and only inherits
+fonts.
 
 ## The color pipeline
 
@@ -45,15 +45,17 @@ is Sand.
 
 Each variant carries exactly one accent, built into the semantic roles
 (`accent`, `accent_text`, `accent_bright`, `accent_strong`, `selection`, and
-`on_selection`). Both Flint and Sand use the same blue accent, one hue system at
-two lightness extremes. The neutrals of both variants are true greys matching
-the Orchis GTK theme, not tints. The blue accent carries the strong hue in the
-chrome.
+`on_selection`). Flint uses Discord blurple `#5865F2` for fills and One Dark Pro
+`#61AFEF` for text, Sand uses the same hues darkened to `#244A9A` so text keeps
+its contrast on light. The neutrals of both variants are sterile cool-grays with
+chromatic color reserved for meaningful states, so third-party apps like Chrome
+and Discord blend in and photos sit calmly against the chrome.
 
 Window borders are the one deliberate exception. The `window_focused_border`
-role follows the theme's `text` color instead of the accent, light grey in Flint
-and dark in Sand. The `focus_border` role stays the neutral `overlay_strong`
-grey in both variants, so window borders stay neutral against any wallpaper.
+role follows the neutral `overlay_strong` grey in Flint and the theme's `text`
+color, near-black, in Sand, instead of the accent. The `focus_border` role stays
+the neutral `overlay_strong` grey in both variants, so window borders stay
+neutral against any wallpaper.
 
 A semantic role is a named job that a color does, like `background` or a focused
 window border. The actual color behind a role can change per variant, but the
