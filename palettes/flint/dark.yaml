@@ -5,86 +5,88 @@ appearance:
   wallpaper: ~/Pictures/Wallpapers/dark/flower-basket.jpg
 catppuccin_flavor: mocha
 meta:
-  description:
-    Flint v3 draft. Sterile cool-gray neutrals with separated chromatics.
+  description: Obsidian dark with strengthened selection surfaces.
   name: Flint
   variant: dark
 raw:
-  accent_blue: "#5865F2"
-  accent_blue_bright: "#98C3FF"
-  accent_border: "#61AFEF"
-  accent_cyan: "#56B6C2"
-  accent_cyan_bright: "#7DD3E0"
-  ansi_black: "#2B2D31"
-  ansi_blue: "#61AFEF"
-  ansi_bright_black: "#5C5E66"
-  ansi_bright_blue: "#98C3FF"
-  ansi_bright_cyan: "#7DD3E0"
-  ansi_bright_green: "#C4E8A0"
-  ansi_bright_magenta: "#E3A2F8"
-  ansi_bright_red: "#F0A0A5"
-  ansi_bright_white: "#F2F3F5"
-  ansi_bright_yellow: "#F5D898"
-  ansi_cyan: "#56B6C2"
-  ansi_green: "#98C379"
-  ansi_magenta: "#C678DD"
-  ansi_red: "#E06C75"
-  ansi_white: "#DBDEE1"
-  ansi_yellow: "#E5C07B"
-  bg: "#1E1F22"
+  accent_blue: "#8A5CF5"
+  accent_blue_bright: "#AF90F8"
+  accent_border: "#8A5CF5"
+  accent_cyan: "#53DFDD"
+  accent_cyan_bright: "#87E9E7"
+  ansi_black: "#1C1C1C"
+  ansi_blue: "#1182FF"
+  ansi_bright_black: "#666666"
+  ansi_bright_blue: "#6AB1FF"
+  ansi_bright_cyan: "#87E9E7"
+  ansi_bright_green: "#76DC95"
+  ansi_bright_magenta: "#FA99CD"
+  ansi_bright_red: "#FC6B70"
+  ansi_bright_white: "#FFFFFF"
+  ansi_bright_yellow: "#E7E692"
+  ansi_cyan: "#53DFDD"
+  ansi_green: "#44CF6E"
+  ansi_magenta: "#A882FF"
+  ansi_red: "#FB464C"
+  ansi_white: "#DADADA"
+  ansi_yellow: "#E0DE71"
+  bg: "#1C1C1C"
   black: "#000000"
-  border_inactive: "#43454D"
-  critical_bg: "#B71C1C"
-  bg_deep: "#101114"
-  diff_add: "#2B4632"
-  diff_change: "#1F3A52"
-  diff_delete: "#332024"
-  diff_text: "#2C5372"
-  error: "#E06C75"
-  error_bright: "#F0A0A5"
-  error_deep: "#C62828"
-  hover_blue: "#A9CCF2"
-  bg_subtle: "#17181B"
-  overlay_dim: "#9AA0A8"
-  overlay_strong: "#8E9299"
-  peach: "#D19A66"
-  peach_bright: "#DFAA7B"
-  purple: "#C678DD"
-  purple_bright: "#D890EA"
-  selection: "#2E3B46"
-  success: "#98C379"
-  success_bright: "#C4E8A0"
-  surface_0: "#2B2D31"
-  surface_1: "#313338"
-  surface_2: "#3F4147"
-  text: "#DBDEE1"
-  text_max: "#F2F3F5"
-  text_muted: "#ADB2B9"
-  text_secondary: "#B5BAC1"
-  warning_deep: "#FF8F00"
-  warning_tint: "#3A2E12"
-  yellow: "#E5C07B"
-  yellow_bright: "#F5D898"
-raw_aliases:
-  - [accent_cyan, ansi_cyan]
-  - [ansi_bright_green, success_bright]
-  - [ansi_bright_red, error_bright]
-  - [ansi_bright_white, text_max]
-  - [ansi_bright_yellow, yellow_bright]
-  - [ansi_green, success]
-  - [ansi_red, error]
-  - [ansi_yellow, yellow]
-raw_near_aliases:
-  - [ansi_black, surface_0]
-  - [ansi_magenta, purple]
-
+  border_inactive: "#333333"
+  critical_bg: "#D53C41"
+  # == bg by design: Obsidian exposes no step below base-00.
+  bg_deep: "#1C1C1C"
+  diff_add: "#1E3327"
+  diff_change: "#1E1E28"
+  diff_delete: "#2C1B1F"
+  diff_text: "#027AFF"
+  error: "#FB464C"
+  error_bright: "#FEC8C9"
+  error_deep: "#802427"
+  hover_blue: "#B497F9"
+  bg_subtle: "#212121"
+  ink_amber: "#2E2412"
+  ink_blue: "#1C2A3E"
+  ink_red: "#331B1F"
+  overlay_dim: "#999999"
+  overlay_strong: "#999999"
+  peach: "#E9973F"
+  peach_bright: "#ECA356"
+  pink: "#FA99CD"
+  purple: "#A882FF"
+  purple_bright: "#B595FF"
+  ring_mid: "#757575"
+  secondary_alt: "#333333"
+  selection: "#8459EA"
+  selection_wash: "#423363"
+  success: "#44CF6E"
+  success_bright: "#76DC95"
+  surface_0: "#232323"
+  surface_1: "#373737"
+  surface_2: "#2E2E2E"
+  track: "#555555"
+  text: "#DADADA"
+  text_faint: "#666666"
+  text_max: "#FFFFFF"
+  text_muted: "#B3B3B3"
+  text_secondary: "#B3B3B3"
+  warning_deep: "#E0DE71"
+  warning_tint: "#2E2A10"
+  yellow: "#E0DE71"
+  yellow_bright: "#E7E692"
 semantic_overrides:
   inc_search_bg: diff_text
+  on_blue: black
+  purple_text: purple
+  # Shadow must read against the secondary-alt Window, so it takes
+  # black instead of the bg-duplicate bg_deep.
+  qt_shadow: black
+  selection_subtle: surface_1
   swaylock_caps_key_hl: yellow_bright
-  swaylock_ring: surface_2
+  swaylock_ring: ring_mid
 qt_bevel:
-  - surface_2
+  - track
   - surface_1
+  - surface_2
   - surface_0
-  - bg
-  - bg_subtle
+  - black

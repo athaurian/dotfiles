@@ -1,3 +1,4 @@
+// Managed by chezmoi. Edit the template in the dotfiles repository instead.
 //{{ $c := .flint.resolved }}
 themes {
   flint {
@@ -11,12 +12,12 @@ themes {
     }
 
     text_selected {
-      base {{ $c.on_selection.triple }}
-      background {{ $c.selection.triple }}
-      emphasis_0 {{ $c.on_selection.triple }}
-      emphasis_1 {{ $c.on_selection.triple }}
-      emphasis_2 {{ $c.on_selection.triple }}
-      emphasis_3 {{ $c.on_selection.triple }}
+      base {{ $c.text.triple }}
+      background {{ $c.selection_wash.triple }}
+      emphasis_0 {{ $c.text.triple }}
+      emphasis_1 {{ $c.text.triple }}
+      emphasis_2 {{ $c.text.triple }}
+      emphasis_3 {{ $c.text.triple }}
     }
 
     ribbon_selected {
@@ -32,7 +33,7 @@ themes {
       base {{ $c.text.triple }}
       background {{ $c.zellij_background_zero.triple }}
       emphasis_0 {{ $c.error_text.triple }}
-      emphasis_1 {{ $c.rose.triple }}
+      emphasis_1 {{ $c.pink.triple }}
       emphasis_2 {{ $c.accent_text.triple }}
       emphasis_3 {{ $c.purple_text.triple }}
     }
@@ -47,12 +48,12 @@ themes {
     }
 
     table_cell_selected {
-      base {{ $c.on_selection.triple }}
-      background {{ $c.selection.triple }}
-      emphasis_0 {{ $c.on_selection.triple }}
-      emphasis_1 {{ $c.on_selection.triple }}
-      emphasis_2 {{ $c.on_selection.triple }}
-      emphasis_3 {{ $c.on_selection.triple }}
+      base {{ $c.text.triple }}
+      background {{ $c.selection_wash.triple }}
+      emphasis_0 {{ $c.text.triple }}
+      emphasis_1 {{ $c.text.triple }}
+      emphasis_2 {{ $c.text.triple }}
+      emphasis_3 {{ $c.text.triple }}
     }
 
     table_cell_unselected {
@@ -65,12 +66,12 @@ themes {
     }
 
     list_selected {
-      base {{ $c.on_selection.triple }}
-      background {{ $c.selection.triple }}
-      emphasis_0 {{ $c.on_selection.triple }}
-      emphasis_1 {{ $c.on_selection.triple }}
-      emphasis_2 {{ $c.on_selection.triple }}
-      emphasis_3 {{ $c.on_selection.triple }}
+      base {{ $c.text.triple }}
+      background {{ $c.selection_wash.triple }}
+      emphasis_0 {{ $c.text.triple }}
+      emphasis_1 {{ $c.text.triple }}
+      emphasis_2 {{ $c.text.triple }}
+      emphasis_3 {{ $c.text.triple }}
     }
 
     list_unselected {
@@ -92,12 +93,12 @@ themes {
     }
 
     frame_highlight {
-      base {{ $c.rose.triple }}
+      base {{ $c.pink.triple }}
       background {{ $c.zellij_background_zero.triple }}
       emphasis_0 {{ $c.purple_text.triple }}
-      emphasis_1 {{ $c.rose.triple }}
-      emphasis_2 {{ $c.rose.triple }}
-      emphasis_3 {{ $c.rose.triple }}
+      emphasis_1 {{ $c.pink.triple }}
+      emphasis_2 {{ $c.pink.triple }}
+      emphasis_3 {{ $c.pink.triple }}
     }
 
     exit_code_success {

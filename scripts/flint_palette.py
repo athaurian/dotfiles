@@ -9,7 +9,12 @@ Used by scripts/build_palette_data.py, reading palette definitions from::
 
 Validation covers selected WCAG 2.2 AA contrast pairs only: SC 1.4.3
 Contrast (Minimum) and SC 1.4.11 Non-text Contrast for the listed rows.
-No house-style checks. Passing rows are not a WCAG conformance claim.
+The Qt bevel ladder carries one house-style check on top: its five
+steps must run lightest to darkest with visibly separated edges.
+The pinned selection wash carries one blend-aware check on top:
+the raw token must equal its source blend (contrast rides the
+generic [text, selection_wash, 4.5] row).
+Passing rows are not a WCAG conformance claim.
 """
 
 from collections import OrderedDict
@@ -30,6 +35,13 @@ def fail(message: str) -> NoReturn:
 SCHEMA_VERSION = 7
 
 BACKGROUND_TOKEN = "bg"
+
+# Qt bevel house rule: adjacent ladder steps must differ by at least
+# this contrast ratio so each 3D edge stays visible. WCAG 1.4.11 needs
+# 3:1 for boundaries against their neighbor, but bevel edges are
+# shading, not information boundaries; 1.10:1 marks the floor where a
+# step stops reading as flat on commodity displays.
+BEVEL_MIN_ADJACENT_RATIO = 1.10
 
 
 def hex_to_bare(value: str) -> str:
@@ -192,7 +204,6 @@ def effective_semantic(
                     )
                 result[role] = token
 
-    # Apply variant overrides
     overrides = theme.get("semantic_overrides", {})
     if not isinstance(overrides, dict):
         fail(f"{theme_name}: semantic_overrides must be an object")
@@ -207,8 +218,11 @@ def effective_semantic(
             )
         result[role] = token
 
-    # Qt bevel ladder: 5 ramp tokens, lightest -> darkest.
-    # Order is not a WCAG requirement; roles are derived in listed order.
+    # Qt bevel ladder: 5 ramp tokens, lightest -> darkest. QPalette
+    # reads the roles in listed order (Light, Midlight, Button, Mid,
+    # Dark), so the validator enforces non-increasing luminance plus
+    # the BEVEL_MIN_ADJACENT_RATIO floor on every neighboring pair
+    # (see validate_bevel).
     bevel = theme.get("qt_bevel")
     if bevel is not None:
         if not isinstance(bevel, list) or len(bevel) != 5:
@@ -219,7 +233,6 @@ def effective_semantic(
                 fail(f"{theme_name}: qt_bevel references unknown raw token {token}")
             result[role] = token
 
-    # Resolve all semantic aliases to concrete raw tokens
     final_result = OrderedDict()
     for role, target in result.items():
         resolved = resolve_alias_target(
@@ -326,11 +339,122 @@ def validate_ansi_relationships(
                 "expected at least 4.5:1"
             )
 
-    # Note: ANSI colors are terminal body text on the terminal
-    # background only. Surfaces are panels and popups, not terminal
-    # backgrounds, so WCAG AA sets no ANSI-on-surface floor. If a
-    # future template renders ANSI body text on a surface, add an
-    # explicit 4.5 check for that pair instead of a blanket rule.
+    return errors
+
+
+# The selection wash is the selection color flattened over the Qt Base
+# backing at Obsidian's --text-selection color-mix percentages: 33% in
+# .theme-dark, 20% on body. Every selection-wash consumer (Qt item
+# selections, terminal and editor selections) shares this one pinned
+# value so rows and single-coat surfaces render identically. The
+# bytes pin those percentages: 0x54 = round(0.33 * 255),
+# 0x33 = round(0.20 * 255). The validator pins the raw token to the
+# blend, so the value cannot drift from the tokens it derives from.
+SELECTION_WASH_ALPHA_BYTE = {"dark": 0x54, "light": 0x33}
+
+
+def blend_over(
+    rgb_fg: tuple[int, int, int], alpha: float, rgb_bg: tuple[int, int, int]
+) -> tuple[int, int, int]:
+    return tuple(
+        round(alpha * fg + (1.0 - alpha) * bg) for fg, bg in zip(rgb_fg, rgb_bg)
+    )
+
+
+def validate_selection_wash(
+    theme_name: str, variant: str, raw: dict, semantic: OrderedDict[str, str]
+) -> list[str]:
+    """Pins the selection wash to the blend it derives from.
+
+    Requires the raw selection_wash token to equal the selection token
+    blended at SELECTION_WASH_ALPHA_BYTE over the Qt Base backing, so
+    the pinned value cannot drift from its inputs. Body-text contrast
+    on the wash is covered by the generic [text, selection_wash, 4.5]
+    row. The solid [on_selection, selection, 4.5] row stays for the
+    consumers that still use the fill opaque.
+    """
+    if variant not in SELECTION_WASH_ALPHA_BYTE:
+        return [
+            (
+                f"{theme_name} has unknown variant {variant!r} "
+                "for the selection wash check"
+            )
+        ]
+
+    for token in ("selection", "selection_wash"):
+        if token not in raw:
+            return [
+                (
+                    f"{theme_name} is missing raw token {token} "
+                    "for the selection wash check"
+                )
+            ]
+
+    if "qt_base" not in semantic:
+        return [
+            (f"{theme_name} has no semantic role qt_base for the selection wash check")
+        ]
+
+    base_token = semantic["qt_base"]
+    if base_token not in raw:
+        return [
+            (
+                f"{theme_name} is missing raw token {base_token} "
+                "for the selection wash check"
+            )
+        ]
+
+    alpha = SELECTION_WASH_ALPHA_BYTE[variant] / 255.0
+    baked = blend_over(hex_to_rgb(raw["selection"]), alpha, hex_to_rgb(raw[base_token]))
+    expected = f"{baked[0]:02x}{baked[1]:02x}{baked[2]:02x}"
+    actual = hex_to_bare(raw["selection_wash"])
+
+    if actual != expected:
+        return [
+            (
+                f"{theme_name} selection_wash is #{actual}, expected "
+                f"#{expected} (selection at {SELECTION_WASH_ALPHA_BYTE[variant]:#04x} "
+                f"over {base_token}); update the raw token to the blend"
+            )
+        ]
+
+    return []
+
+
+def validate_bevel(theme_name: str, raw: dict, bevel: list | None) -> list[str]:
+    """Enforces the Qt bevel house rule: lightest to darkest.
+
+    QPalette shades 3D edges from the Light role down to the Dark
+    role, so the five ladder tokens must lose luminance in listed
+    order with every neighboring pair clearing
+    BEVEL_MIN_ADJACENT_RATIO. A missing ladder is fine. A present
+    one must read as a ramp, never as flat or inverted steps.
+    """
+    if bevel is None:
+        return []
+
+    errors = []
+    luminances = [relative_luminance(hex_to_rgb(raw[token])) for token in bevel]
+    roles = ["qt_light", "qt_midlight", "qt_button", "qt_mid", "qt_dark"]
+
+    for index in range(len(bevel) - 1):
+        upper, lower = bevel[index], bevel[index + 1]
+        if luminances[index] + 1e-9 < luminances[index + 1]:
+            errors.append(
+                f"Qt bevel {roles[index]} ({upper}) is darker than "
+                f"{roles[index + 1]} ({lower}); the ladder must run "
+                "lightest to darkest"
+            )
+            continue
+
+        ratio = contrast_ratio(hex_to_rgb(raw[upper]), hex_to_rgb(raw[lower]))
+        if ratio + 1e-9 < BEVEL_MIN_ADJACENT_RATIO:
+            errors.append(
+                f"Qt bevel {roles[index]} ({upper}) vs "
+                f"{roles[index + 1]} ({lower}) is {ratio:.2f}:1, "
+                f"expected at least {BEVEL_MIN_ADJACENT_RATIO:.1f}:1 "
+                "so the edge stays visible"
+            )
 
     return errors
 
@@ -424,12 +548,13 @@ def validate_theme(
 
     contrast_checks = load_contrast_checks(theme_name, shared)
 
-    # Selected WCAG 2.2 AA pairs only: SC 1.4.3 normal text and SC 1.4.11
-    # graphics for the listed rows. Not a conformance claim.
     contrast_errors = validate_contrast(theme_name, raw, semantic, contrast_checks)
     ansi_errors = validate_ansi_relationships(theme_name, raw, semantic, ansi)
+    bevel_errors = validate_bevel(theme_name, raw, theme.get("qt_bevel"))
+    variant = theme.get("meta", {}).get("variant", theme_name)
+    wash_errors = validate_selection_wash(theme_name, variant, raw, semantic)
 
-    all_errors = contrast_errors + ansi_errors
+    all_errors = contrast_errors + ansi_errors + bevel_errors + wash_errors
     if all_errors:
         fail(
             f"{theme_name} has {len(all_errors)} validation issue(s):\n  - "
@@ -590,11 +715,9 @@ def build_active_data(
 ) -> OrderedDict[str, object]:
     """Exports every theme plus active-theme aliases for templates.
 
-    The top-level sections (``resolved``, ``alpha``, ...) alias the
-    active theme's data so existing templates keep working unchanged.
-    Each theme also gets a named block (``flint.dark``,
-    ``flint.light``, ...) so apps that support dual-theme rendering
-    can reference both palettes in one file.
+    Top-level sections alias the active theme. Each theme also gets a
+    named block (``flint.dark``, ...) for apps that render both
+    palettes from one file, like the foot terminal.
 
     Args:
         theme_name: Active theme to alias at the top level.
@@ -647,7 +770,7 @@ def build_active_data(
             ("ansi", shared.get("ansi", {})),
             ("catppuccin", shared.get("catppuccin", {})),
             ("lut_palette", shared.get("lut_palette", {})),
-            # Active-theme aliases so templates keep using .flint.resolved
+            # Active-theme aliases for .flint.resolved consumers
             ("meta", active["meta"]),
             ("catppuccin_flavor", active["catppuccin_flavor"]),
             ("appearance", active["appearance"]),
