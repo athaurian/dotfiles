@@ -36,11 +36,11 @@ def detect_background_apps(
 
 def _ensure_background_daemons() -> None:
     """Performs a best-effort health check for daily-use daemons. Logs
-    to file + notification path.
+    through the session_manager logger and sends a notification.
     """
     from .logging_setup import notify
 
-    # Skip health checks in tests via explicit opt-out, not by detecting mocks.
+    # Skip health checks in tests via explicit opt-out.
     if os.getenv("SWAY_SESSION_SKIP_DAEMON_CHECKS") == "1":
         return
     # Skip health checks when subprocess is mocked in tests.
@@ -59,7 +59,7 @@ def _ensure_background_daemons() -> None:
                 msg = f"Background daemon {label} not running, attempting restart"
                 log.warning(msg)
                 notify(msg, urgency="normal", timeout_ms=4000)
-                # Try systemd first, fall back to direct start for swayidle
+                # Best-effort restart through systemd.
                 try:
                     subprocess.run(
                         ["systemctl", "--user", "start", "--no-block", name],

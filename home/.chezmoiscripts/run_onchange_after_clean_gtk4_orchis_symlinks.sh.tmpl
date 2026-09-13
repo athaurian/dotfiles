@@ -8,9 +8,9 @@ set -eu
 # Remove Orchis installer symlinks from ~/.config/gtk-4.0 when they point at a
 # variant that differs from the active GTK theme. Orchis's install.sh -l links
 # gtk.css/gtk-dark.css/assets into ~/.config/gtk-4.0 so every GTK4 app uses
-# that variant's colors, overriding the active theme (this kept pavucontrol
-# dark in light mode). Links that match the active theme are kept, and links
-# that do not point at an Orchis theme are never touched.
+# that variant's colors, overriding the active theme. Links that match the
+# active theme are kept, and links that do not point at an Orchis theme are
+# never touched.
 
 gtk4_dir="${HOME}/.config/gtk-4.0"
 [ -d "$gtk4_dir" ] || exit 0

@@ -173,10 +173,10 @@ def wait_for_window_by_pid(
     *,
     timeout: float = 15.0,
 ) -> int | None:
-    """Event-driven replacement for the 150x get_tree() poll loops.
+    """Waits for the window with the given pid to appear.
 
-    Matches on pid, which is exact: no title/app_id ambiguity.
-    Falls back to one tree scan if the event was missed.
+    Matching on pid is exact, so there is no title ambiguity. Falls back
+    to one tree scan if the event was missed.
     """
     deadline = time.monotonic() + timeout
     while True:

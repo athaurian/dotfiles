@@ -5,9 +5,9 @@ set -eu
 
 # Global timing policy (in seconds)
 IDLE_LOCK=30
-WARNING_OFFSET=10    # warning before lock
-SCREEN_OFF_OFFSET=60 # screen turning off after lock
-SUSPEND_OFFSET=10    # system suspending after screen off
+WARNING_OFFSET=10
+SCREEN_OFF_OFFSET=60
+SUSPEND_OFFSET=10
 
 SCRIPT_DIR="$HOME/.config/sway/scripts"
 

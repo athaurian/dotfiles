@@ -243,10 +243,8 @@ def go_next() -> None:
 
     queue_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load existing queue
     queue = read_lines(queue_path)
 
-    # Rebuild queue if empty
     if not queue:
         wallpapers = get_wallpapers(wallpaper_dir)
 

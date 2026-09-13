@@ -40,15 +40,15 @@ if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "
 		pkill -f "fuzzel.*confirm " 2>/dev/null || true
 	fi
 
-	# If the same action was triggered again, cancel and exit.
 	if [ "$current_action" = "$action" ]; then
 		rm -f "$state_file"
 		exit 0
 	fi
 fi
 
-# One-time migration from the swaynag bar: drop its state file and any
-# lingering nag left open across the upgrade.
+# Keep the confirmation exclusive to fuzzel: remove any swaynag state
+# file and kill a nag left open, so a stale window cannot sit over the
+# prompt.
 rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaynag_action"
 if command -v pkill >/dev/null 2>&1; then
 	pkill -x swaynag 2>/dev/null || true

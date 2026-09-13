@@ -1,3 +1,4 @@
+# Managed by chezmoi. Edit the template in the dotfiles repository instead.
 #{{ $c := .flint.resolved }}
 #{{ $d := .flint.desktop }}
 #{{ $a := .flint.appearance }}
@@ -91,10 +92,7 @@
 # active. DND pauses at level 50 (see dunst-dnd.sh), the screen lock pauses
 # at level 100 (see lock.sh). A notification shows while paused when its
 # override_pause_level is above the current pause level, so 90 shows during
-# DND but stays hidden while locked. This replaces mako's old
-# [app-name="..." mode=do-not-disturb] invisible=0 exceptions, which were
-# lost in the mako -> dunst migration (set-paused true is level 100, which
-# nothing can bypass, so every script notice queued silently).
+# DND but stays hidden while locked.
 [dnd_bypass_dunst_dnd]
     appname = dunst-dnd
     override_pause_level = 90
