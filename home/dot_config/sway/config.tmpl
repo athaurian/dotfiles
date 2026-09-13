@@ -92,10 +92,9 @@ for_window [window_role="^(pop-up|bubble|dialog)$"] floating enable, border norm
 
 # --- Terminal Window Rules ---
 for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center, corner_radius $float_radius
-for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius $float_radius
+for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center, corner_radius $float_radius
 for_window [app_id="foot_clipboard"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad, corner_radius $float_radius
 
-# Touchpad: flat accel with natural scroll, tap, and disable-while-typing.
 input type:touchpad {
     accel_profile flat
     pointer_accel 0.75
