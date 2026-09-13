@@ -26,7 +26,7 @@ HELIUM_CONFIG_DIR = (
 
 LOCK_FILE_NAME = "sway_session.lock"
 
-# Sway scratchpad workspace name (still "__i3_scratch" in Sway).
+# Sway keeps the i3 scratchpad workspace name.
 SCRATCHPAD_WORKSPACE = "__i3_scratch"
 SCRATCH_RESTORE_WORKSPACE = "__scratch_restore"
 
@@ -115,7 +115,7 @@ DEFAULT_APP_PROFILE: AppProfile = {
     "singleton": False,
 }
 
-# Centralised timeouts previously scattered across modules.
+# Shared timeouts for the waits other modules perform.
 FOOT_WAIT_TIMEOUT = 15.0
 APP_WAIT_TIMEOUT = 15.0
 ZATHURA_DBUS_TIMEOUT = 2.0
@@ -135,7 +135,8 @@ APP_ID_COMMANDS: dict[str, str] = {
     "mpv": "mpv",
     "blueman-manager": "blueman-manager",
     "pavucontrol": "pavucontrol",
-    "org.keepassxc.KeePassXC": "keepassxc",
+    # Qt5 wrapper desktop entry, which pins qt5ct.
+    "org.keepassxc.KeePassXC": "gtk-launch org.keepassxc.KeePassXC",
     "org.pwmt.zathura": "zathura",
     "calibre-gui": "calibre",
     "calibre-ebook-viewer": "ebook-viewer",

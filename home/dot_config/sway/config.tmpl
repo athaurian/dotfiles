@@ -13,7 +13,9 @@ set $term foot
 set $menu fuzzel
 set $browser $HOME/.config/sway/scripts/wrapper_browser.sh
 set $filemanager sh -c 'exec ${FILEMANAGER:-thunar}'
-set $passwordmanager sh -c 'exec ${PASSWORD_MANAGER:-keepassxc}'
+# KeePassXC is Qt5: route through the wrapper desktop entry, which
+# pins QT_QPA_PLATFORMTHEME=qt5ct.
+set $passwordmanager sh -c 'exec ${PASSWORD_MANAGER:-gtk-launch org.keepassxc.KeePassXC}'
 
 # --- Colors ---
 #{{ $bg := .flint.resolved.background.hex }}
