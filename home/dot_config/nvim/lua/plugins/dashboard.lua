@@ -12,13 +12,9 @@ return {
     opts = {
       dashboard = {
         -- Disable dashboard when the session manager restores a session.
-        -- The manager uses its own reduced snapshot mechanism rather than
-        -- persistence.nvim files, and should not trigger the dashboard.
-        -- Check both the environment (fresh instance) and vim.g (set via
-        -- RPC on a running instance). See autocmds.lua.
-        enabled = vim.env.NVIM_RESTORE_SESSION ~= "1"
-          and vim.env.NVIM_SESSION_MANAGER_RESTORED ~= "1"
-          and vim.g.NVIM_SESSION_MANAGER_RESTORED ~= "1",
+        -- The manager launches Neovim with NVIM_RESTORE_SESSION=1, so a
+        -- restored instance skips the dashboard. See autocmds.lua.
+        enabled = vim.env.NVIM_RESTORE_SESSION ~= "1",
         width = 30,
         preset = {
           header = header,

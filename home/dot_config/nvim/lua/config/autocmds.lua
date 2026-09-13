@@ -15,25 +15,17 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     require("lazy").load({ plugins = { "persistence.nvim" } })
 
-    -- Only start persistence if we are not being restored by the session manager.
-    -- If the session manager handles snapshots, persistence can remain active,
-    -- but the manager uses its own reduced snapshots rather than persistence files.
-    if vim.g.NVIM_SESSION_MANAGER_RESTORED == "1" then
-      -- The manager restored this instance; persistence should not overwrite
-      -- the manager-owned snapshot.
+    -- Stop persistence for launches with file arguments or stdin, so the
+    -- session only tracks bare, argumentless launches.
+    if vim.fn.argc() > 0 or vim.g.started_with_stdin then
       require("persistence").stop()
-    else
-      if vim.fn.argc() > 0 or vim.g.started_with_stdin then
-        require("persistence").stop()
-      end
     end
   end,
 })
 
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  -- Named like PersistenceAutoload. It reads and writes the handshake flags
-  -- owned by the sway session manager (NVIM_SESSION_MANAGER_RESTORED,
-  -- SnacksExplorerOpen). See session_manager_lib and dashboard.lua.
+  -- Writes the SnacksExplorerOpen flag on exit for the <leader>qs keymap
+  -- in persistence.lua.
   group = vim.api.nvim_create_augroup("PersistenceCleanup", { clear = true }),
   callback = function()
     local explorer_open = 0
@@ -45,7 +37,8 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
       vim.cmd("redraw")
     end
 
-    -- This is preserved; the manager reads SnacksExplorerOpen independently.
+    -- Preserved in persistence sessions by the globals option, so the
+    -- <leader>qs keymap in persistence.lua can reopen the explorer.
     vim.g.SnacksExplorerOpen = explorer_open
   end,
 })
