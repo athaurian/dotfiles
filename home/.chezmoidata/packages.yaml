@@ -70,8 +70,9 @@ packages:
     - fnm
     - keepassxc
     - pinentry
-    - qt5-wayland
-    - qt5ct
+    - qt5ct # Qt5 straggler (keepassxc); drop after 2.8
+    - qt6-wayland
+    - qt6ct
     - thunar
     - zathura
     - zathura-pdf-mupdf
@@ -90,13 +91,14 @@ packages:
 
   custom:
     # Built in the 'forge' pacman repository. Vanilla Arch equivalents:
-    #   lutgen-cli-git          -> AUR lutgen-git or lutgen-bin orchis-theme-square     -> extra orchis-theme (round corners, not identical)
+    #   lutgen-cli-git          -> AUR lutgen-git or lutgen-bin
+    #   orchis-theme-square     -> extra orchis-theme (round corners, not identical)
     #   ttf-noto-sans-mono-nerd -> extra ttf-noto-nerd (different package name)
     #   wayfreeze-git           -> AUR wayfreeze-git or wayfreeze
     #   xdg-terminal-exec       -> AUR xdg-terminal-exec
     - lutgen-cli-git
     - orchis-theme-square
-    - swayfx-git # wlroots 0.20; replaces cachyos/swayfx which is stuck on wlroots 0.19
+    - swayfx-git # wlroots 0.20 build
     - ttf-geist
     - ttf-geist-mono
     - wayfreeze-git
