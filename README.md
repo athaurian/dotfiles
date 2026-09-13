@@ -1,41 +1,32 @@
 # Dotfiles
 
-Hi. This is the setup I use daily. My desktop runs CachyOS, an Arch-based Linux
-distribution, and [chezmoi](https://chezmoi.io) is the tool that manages it. The
-configuration files live in a repository, and chezmoi installs them into your
-home directory.
+This is the setup I use daily. The desktop runs CachyOS, an Arch-based Linux
+distribution, and [chezmoi](https://chezmoi.io) manages it. Configuration files
+live in this repository, and chezmoi installs them into the home directory.
 
-It's built around my color system. Instead of copying hex values into each
-config file, the setup pulls every color from one palette, a single named set of
-color definitions. The palette comes in two variants so the whole desktop can
-switch between dark and light together. Flint is the dark variant, a neutral
-grey theme, and Sand is the light variant with the same structure. Scripts and
-services around the palette apply it to every app except Vesktop, which keeps
-its own styling, and a session manager saves your open windows at logout and
-restores them at login.
+The repository is large by dotfile standards, and the config files are the
+smaller half of it by lines of code. The other half is the tooling that builds
+and checks what goes into them, plus the scripts and services that run the
+desktop day to day.
 
-It's sort of wrong to call this repository `dotfiles`. The configuration files
-are the dotfiles. By lines of code, they are the smaller half.
+Every part has its own guide under `docs/`, and the Features section below is
+the index.
 
-Look around and copy anything useful.
-
-I wrote the sections in `docs/` for people who are new to this kind of setup.
-They define terms as they appear, so if you already know your way around, skim
-to what you need.
+Look around and take anything useful.
 
 ## Screenshots
 
-The following table shows the dark and light desktop and launcher captures:
+The following table shows the desktop and launcher captures in both themes:
 
 |          | Dark (Flint)                             | Light (Sand)                               |
 | -------- | ---------------------------------------- | ------------------------------------------ |
 | Desktop  | ![Dark desktop](assets/dark_stuff.png)   | ![Light desktop](assets/light_stuff.png)   |
 | Launcher | ![Dark launcher](assets/dark_fuzzel.png) | ![Light launcher](assets/light_fuzzel.png) |
 
-## Install the dotfiles
+## Install
 
-Start with the following commands, which initialize the repository, build the
-dark palette, and apply the configs:
+The following commands initialize the repository, build the dark palette, and
+apply the configs:
 
 ```sh
 chezmoi init https://github.com/athaurian/dotfiles
@@ -44,44 +35,43 @@ make dark
 chezmoi apply
 ```
 
-These steps assume you have already added my `forge` package repository and its
-key. If you have not, see [the installation guide](docs/installation.md) for the
-full walkthrough, including the `forge` setup and systemd services.
+These steps assume the `forge` package repository and its key are already
+configured. See [the installation guide](docs/installation.md) for the full
+walkthrough, including the `forge` setup and the systemd services.
 
 ## Features
 
-Use the following list to find the guide you need:
+Use the following list to find the guide for each part:
 
-- [Theming](docs/theming.md). How every color gets from the palette into your
-  config files, with dark and light variants and wallpaper recoloring to match.
-- [Palette system](docs/palette-system.md). How the palette files, build script,
-  validators, and templates fit together.
-- [Session manager](docs/session-manager.md). How your Sway session is saved
-  when you log out, power off, or reboot, and rebuilt at login.
-- [Keybindings](docs/keybindings.md). How the shortcuts are connected, with the
-  shortcut table and the movement and layout controls.
-- [Pickers](docs/pickers.md). How the launcher, clipboard history, and
-  notification history help you find things fast.
-- [Screenshots, lock, and idle](docs/screenshots-lock-idle.md). How captures,
-  the blurred lock screen, and the idle timer fit together.
-- [Status bar](docs/statusbar.md). What the Waybar modules show, with music
-  controls, update counts, and do not disturb.
-- [Background services](docs/services.md). How the session target, power
-  dialogs, drift check, ebook sync, and night light run without a window.
-- [Installation](docs/installation.md). How to install the dotfiles on a fresh
-  machine, with the package manifest and forge repository.
+- [Themes](docs/theming.md). How colors get from the palette into each config
+  file, and how wallpapers are recolored to match.
+- [Palette system](docs/palette-system.md). The palette files, the build script,
+  and the contrast checks.
+- [Session manager](docs/session-manager.md). How the Sway session is saved at
+  logout and restored at login.
+- [Keybindings](docs/keybindings.md). The shortcut table and the wiring behind
+  it.
+- [Pickers](docs/pickers.md). The launcher, clipboard history, and notification
+  history.
+- [Screenshots, lock, and idle](docs/screenshots-lock-idle.md). Captures, the
+  lock screen, and the idle timer.
+- [Status bar](docs/statusbar.md). What the Waybar modules show.
+- [Background services](docs/services.md). The session group, drift check, ebook
+  sync, and night light.
+- [Installation](docs/installation.md). A fresh-machine install, with the
+  package manifest and the forge repository.
 
 ## Tips
 
-- If a Qt6 app does not use the theme, install `qt6ct` and launch it with
-  `QT_QPA_PLATFORMTHEME=qt6ct`.
-- If Sway misbehaves, inspect the window tree with `swaymsg -t get_tree | jq .`.
-  The `jq` command formats the JSON output.
+- Qt applications use the Fusion style, configured through `qt6ct`
+  (`QT_QPA_PLATFORMTHEME=qt6ct`). KeePassXC is still Qt5, so its launcher pins
+  it to `qt5ct`.
+- To inspect the Sway window tree, run `swaymsg -t get_tree | jq .`.
 
 ## Notes
 
-- `btop.conf` is managed entirely by chezmoi. Changes made inside the program
-  itself do not persist unless you edit the file in the repo.
-- This repository contains no secrets. If you ever add a file with credentials,
-  encrypt that specific file with `chezmoi age encrypt` rather than encrypting
-  the whole repository.
+- `btop.conf` is managed by chezmoi. Changes made inside the program are
+  overwritten the next time chezmoi applies, so edit the file in the repository
+  instead.
+- The repository contains no secrets. If a file ever gains credentials, encrypt
+  that file with `chezmoi age encrypt` rather than the whole repository.
