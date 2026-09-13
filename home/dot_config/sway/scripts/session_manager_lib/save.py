@@ -143,8 +143,8 @@ def save_session(*, notify_user: bool = True) -> None:
             # this file when present, preventing mixed-generation restore.
             _atomic_write(STATE_FILE, json.dumps(payload, indent=2))
 
-            # Compatibility sidecar for older versions/tools. It is no longer
-            # authoritative and must not make the main save fail.
+            # Sidecar for tools that read the background apps file
+            # directly. It must not fail the main save.
             try:
                 _atomic_write(
                     BACKGROUND_APPS_FILE, json.dumps(background_apps, indent=2)

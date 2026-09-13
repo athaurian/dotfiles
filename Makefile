@@ -1,7 +1,6 @@
 # Write Python bytecode caches outside the working tree so chezmoi never
-# sees __pycache__ in managed files.
-# (Canonical export lives below with the lint and file lists. It is kept here for
-# early use by every target.)
+# sees __pycache__ in managed files. Test runners run without the
+# entry-point scripts, so this export applies make-wide.
 export PYTHONPYCACHEPREFIX := $(HOME)/.cache/dotfiles/pycache
 
 # Palette tooling.
@@ -13,10 +12,8 @@ PALETTE_PY := uv run --with pyyaml python3
 # Pulls in ruff and mypy on demand so no project venv is required.
 CHECK_PY := uv run --with ruff --with mypy python3
 
-# Unique prefix for generated zip files
 ZIP_PREFIX := dotfiles_$(shell date +%Y%m%d_%H%M%S)
 
-# Output zip paths
 ZIP_FILE_DEFAULT := /tmp/$(ZIP_PREFIX).zip
 ZIP_FILE_COLORS  := /tmp/$(ZIP_PREFIX)_colors.zip
 ZIP_FILE_SESSION := /tmp/$(ZIP_PREFIX)_session.zip
@@ -45,11 +42,6 @@ PRETTIER := prettier
 SHFMT    := shfmt
 STYLUA   := stylua
 
-# Keep bytecode out of the source tree. Test runners do not inherit the
-# pycache_prefix that the entry-point scripts set, so point them at the
-# same cache dir through the environment instead.
-# (Uses the single export at the top of this file.)
-
 PY_FILES := scripts/*.py \
             home/dot_local/bin/executable_calibre-drive-sync \
             home/dot_local/bin/executable_flint-wallpaper \
@@ -67,11 +59,12 @@ SH_FILES := $(shell find home/dot_config/sway/scripts home/dot_config/waybar/scr
 	-not -path '*__pycache__*' \
 	\( -name '*.sh' -o -name '*.sh.tmpl' -o -name 'executable_chezmoi-drift-check' \
 	   -o -name 'executable_wlsunset-location' -o -name 'executable_calibre-sync-netmon' \) | sort -u)
-# Python executables (executable_mpris.py, executable_session_manager,
-# executable_calibre-drive-sync, executable_flint-wallpaper,
-# executable_rotate_wallpaper.py.tmpl, executable_clipboard,
-# executable_dunst-history) are intentionally excluded from
-# SH_FILES. They are covered by PY_FILES, check-mpris, and check-calibre.
+# Python executables (executable_mpris.py, executable_calibre-drive-sync,
+# executable_flint-wallpaper, executable_rotate_wallpaper.py.tmpl,
+# executable_clipboard, executable_dunst-history) are intentionally excluded
+# from SH_FILES. They are covered by PY_FILES, check-mpris, and
+# check-calibre. executable_session_manager is excluded as well: it is a
+# thin entry point around the linted session_manager_lib.
 
 BASH_FILES := home/dot_bashrc home/dot_bash_profile home/dot_bash_aliases.tmpl
 
@@ -188,18 +181,16 @@ lint-yaml:
 lint-lua:
 	$(STYLUA) --check $(LUA_FILES)
 
-# Architecture boundary (see picker_lib/__init__.py). The pickers must not
-# issue compositor IPC. That belongs to the shell toggle scripts.
-# session_manager_lib is out of scope. It owns a native IPC client by
-# design. Matches the quoted command name in either quote style so prose
-# mentioning bare swaymsg passes.
+# Architecture boundary (see picker_lib/__init__.py): pickers never issue
+# compositor IPC; the shell toggle scripts own that. session_manager_lib
+# is exempt with its native IPC client by design. Both quote styles match
+# so prose mentioning bare swaymsg passes.
 lint-boundary:
 	! grep -rn '"swaymsg"' home/dot_config/sway/scripts/picker_lib
 	! grep -rn "'swaymsg'" home/dot_config/sway/scripts/picker_lib
 
 # Style-guide checks for docs and inline documentation (see style-guide.md).
-# Errors fail; punctuation deviations (semicolons, em/en dashes,
-# label-then-colon) report as warnings. Pass --strict to fail on those too.
+# Punctuation deviations warn; pass --strict to fail on them too.
 lint-docs:
 	python3 scripts/check_docs_style.py
 

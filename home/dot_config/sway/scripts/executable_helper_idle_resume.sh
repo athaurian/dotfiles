@@ -5,7 +5,6 @@ set -eu
 # Reads the notification ID saved by idle_warning.sh and closes it via dunstctl.
 # Called by swayidle resume hook via wrapper_swayidle.sh.
 
-# Dismiss the idle warning notification if it is still showing
 id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/idle_warning_id"
 
 if [ -f "$id_file" ]; then

@@ -63,7 +63,6 @@ fi
 # (for example, left open on Workspace 1 and switched to Workspace 2).
 # Action: Pull it to the current workspace and focus it.
 if [ -n "$visible_ids" ]; then
-	# Only the first visible window is needed here.
 	first_id=${visible_ids%% *}
 	swaymsg "[con_id=$first_id] scratchpad show"
 	exit 0

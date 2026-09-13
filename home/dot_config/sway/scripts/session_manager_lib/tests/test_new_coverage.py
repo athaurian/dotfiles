@@ -1,4 +1,4 @@
-"""New coverage for helpers introduced/cleaned in refactor."""
+"""Tests for shared helpers, nvim sockets, and restore geometry."""
 
 import os
 import subprocess
@@ -86,7 +86,6 @@ class TestConfigXdgAndConstants(unittest.TestCase):
             # ensure fallback used when var absent
             if "XDG_STATE_HOME" in os.environ:
                 del os.environ["XDG_STATE_HOME"]
-            # can't easily test without env, just check fallback path
             self.assertEqual(
                 cfg_mod._xdg_dir("XDG_STATE_HOME", Path("/fallback")), Path("/fallback")
             )

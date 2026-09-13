@@ -14,8 +14,7 @@ def get_thunar_info(pid: int) -> str:
     for arg in reversed(read_cmdline(pid)[1:]):
         if arg and not arg.startswith("-") and Path(arg).is_dir():
             return arg
-    # Fallback to cmdline folder or window title parsing not needed
-    # Try to infer from /proc cwd if no arg
+    # No directory argument: infer it from the process working directory.
     try:
         cwd = Path(f"/proc/{pid}/cwd").readlink()
         if cwd.is_dir():
@@ -29,7 +28,6 @@ def launch_thunar(node: dict, claimed_ids: set[int]) -> int | None:
     from .generic import wait_for_window_by_pid
 
     folder = node.get("folder_path", "")
-    # Validate folder exists, else fallback to home
     if not folder or not Path(folder).is_dir():
         folder = str(Path.home())
 

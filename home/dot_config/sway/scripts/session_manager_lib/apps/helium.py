@@ -162,7 +162,6 @@ def _restore_helium_group(ctx: RestoreContext) -> None:
         ProcCache.snapshot().process_named_running("helium")
         and len(baseline_ids) >= count
     ):
-        # Collect current titles for existing windows
         existing_windows: dict[int, str] = {}
         for n in walk_tree(get_tree()):
             cid = n.get("id")
@@ -176,7 +175,6 @@ def _restore_helium_group(ctx: RestoreContext) -> None:
                 if len(existing_windows) >= count:
                     break
         if existing_windows:
-            # Directly assign without launching
             remaining_saved = list(range(count))
             unassigned = list(existing_windows.keys())
 
@@ -218,8 +216,6 @@ def _restore_helium_group(ctx: RestoreContext) -> None:
                     # for titles.
                     if deadline - time.monotonic() > HELIUM_TITLE_GRACE_PERIOD:
                         deadline = time.monotonic() + HELIUM_TITLE_GRACE_PERIOD
-                # Stall detection: if we have some windows but no new one
-                # for a while, stop waiting.
                 if (
                     windows
                     and time.monotonic() - last_new > HELIUM_WINDOW_STALL_TIMEOUT

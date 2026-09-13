@@ -10,7 +10,6 @@ if ! command -v chezmoi >/dev/null 2>&1; then
 	exit 0
 fi
 
-# Only check when the working tree exists.
 if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
 	exit 0
 fi
@@ -27,8 +26,7 @@ termdown
 yt-dlp
 "
 
-# Use chezmoi status to detect drift. Output is empty when in sync.
-# --no-pager avoids paging, 2>/dev/null hides git fetch noise.
+# Empty output means in sync. Stderr is hidden to mute git noise.
 status_output=""
 if status_output=$(chezmoi status 2>/dev/null); then
 	:
@@ -39,17 +37,15 @@ else
 fi
 
 if [ -n "$status_output" ]; then
-	# Count changed files by lines.
 	count=$(printf '%s\n' "$status_output" | wc -l | tr -d ' ')
-	# Truncate the preview to the first five lines for the notification body.
 	preview=$(printf '%s\n' "$status_output" | head -n 5)
 	notify "󰚰 dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp"
 fi
 
-# Flag unmanaged files in directories that must be fully managed, such as
-# stale scripts left behind by renames. The scan stays narrow because a
-# global one would include too much legitimate application state. Runtime
-# caches are excluded. They appear during normal development and test runs.
+# Flag unmanaged files in fully managed directories, usually stale
+# scripts left by renames. The scan stays narrow: a global one would
+# catch legitimate application state. Caches are excluded; test runs
+# create them normally.
 unmanaged=""
 for dir in "$HOME/.config/sway/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
 	if [ -d "$dir" ]; then

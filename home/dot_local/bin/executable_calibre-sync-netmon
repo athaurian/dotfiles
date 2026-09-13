@@ -5,6 +5,7 @@ set -eu
 # Used by calibre-sync-netmon.service. The 30-minute timer remains the
 # fallback; this only shortens the wait after reconnecting. Triggers are
 # debounced so flapping Wi-Fi cannot hammer Drive.
+# Exit codes: 1 when nmcli is missing.
 
 COOLDOWN_SEC=120
 SETTLE_SEC=10

@@ -214,8 +214,8 @@ def _clamp_rect_to_output(rect: dict, workspace_name: str | None = None) -> dict
 def _workspace_origin(workspace_name: str | None) -> tuple[int, int]:
     """Returns the top-left of a workspace in output coordinates.
 
-    Falls back to (0, 0) — the old behaviour — when the workspace cannot
-    be found (e.g. in unit tests or if it was never created).
+    Falls back to (0, 0) when the workspace cannot be found (e.g. in
+    unit tests or before the workspace exists).
 
     Args:
         workspace_name: Name of the workspace to locate, or None.
@@ -498,7 +498,6 @@ def diff_sessions() -> None:
         except OSError:
             pass
 
-    # Count live workspaces/windows
     live_ws = {}
     for out in live_tree.get("nodes", []):
         for ws in out.get("nodes", []):

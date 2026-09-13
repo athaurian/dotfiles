@@ -80,15 +80,12 @@ class ProcCache:
             )
             cache._entries[pid] = proc_entry
 
-            # Index by comm
             cache._by_comm.setdefault(comm.lower(), set()).add(pid)
 
-            # Index by cmdline executable name
             if cmdline:
                 exe_name = Path(cmdline[0]).name.lower()
                 cache._by_cmdline_name.setdefault(exe_name, set()).add(pid)
 
-            # Build children map
             cache._children.setdefault(ppid, set()).add(pid)
 
         return cache

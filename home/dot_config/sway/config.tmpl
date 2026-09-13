@@ -2,6 +2,7 @@
 #{{ $a := .flint.appearance }}
 
 # SwayFX configuration.
+# Managed by chezmoi. Edit the template in the dotfiles repository instead.
 # Colors and fonts are injected from the active Flint/Sand palette.
 
 set $mod Mod4
@@ -43,15 +44,12 @@ font pango:{{ $d.font_family_sans }} {{ $d.font_size }}
 hide_edge_borders smart
 default_border pixel 1
 default_floating_border normal 1
-# gaps inner 3
-# gaps outer 1
 
 # --- SwayFX Effects ---
 blur enable
 blur_passes 3
 blur_radius 5
 blur_xray disable
-# for_window [app_id="helium"] opacity 0.9
 for_window [app_id="vesktop"] opacity 0.9
 
 shadows enable
@@ -59,7 +57,6 @@ shadow_blur_radius 14
 shadow_color #00000080
 shadow_offset 0 2
 shadow_inactive_color #00000080
-# smart_corner_radius enable
 corner_radius 0
 # Floating-window radius, resolved from the shared token once and reused
 # in every for_window rule below.

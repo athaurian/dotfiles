@@ -24,11 +24,10 @@ if [ "$immediate" -eq 0 ]; then
 	sleep 2.5
 fi
 
-# Suppress notifications while locked at the maximum pause level, which
-# hides even the DND-bypass script notices (their override is 90).
-# Save the current level so unlock restores DND instead of clearing it.
-# timeout is critical here, especially for --now (before-sleep), so a hanging
-# dunst instance doesn't prevent the system from suspending.
+# Pause notifications at the maximum level while locked, above the
+# DND-bypass notices at 90. Save the current level so unlock restores
+# it. Every dunst call here has a timeout so a hanging daemon cannot
+# block suspend.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
 timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
@@ -37,8 +36,8 @@ timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaylock_bg.png"
 grim "$lockimg" 2>/dev/null || true
 
-# Downscale to ~33% (360p), blur, and darken. Swaylock upscales the image.
-# A 360p PNG instead of a full-res one saves CPU time and disk I/O.
+# Downscale to ~33% (360p), blur, and darken before swaylock upscales
+# the image. The small file saves CPU time and disk I/O.
 if command -v magick >/dev/null 2>&1; then
 	timeout 3 magick "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 elif command -v convert >/dev/null 2>&1; then
