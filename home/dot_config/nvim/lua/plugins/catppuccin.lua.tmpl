@@ -1,11 +1,16 @@
+-- Managed by chezmoi. Edit the template in the dotfiles repository instead.
 --{{ $ctp := .flint.catppuccin_resolved }}
 --{{ $ansi := .flint.ansi_resolved }}
 --{{ $c := .flint.resolved }}
 
 local flint = {
-  on_selection = "{{ $c.on_selection.hex }}",
+  accent = "{{ $c.accent.hex }}",
   on_accent = "{{ $c.on_accent.hex }}",
   on_warning = "{{ $c.on_warning.hex }}",
+  search_bg = "{{ $c.search_bg.hex }}",
+  search_fg = "{{ $c.search_fg.hex }}",
+  inc_search_bg = "{{ $c.inc_search_bg.hex }}",
+  on_blue = "{{ $c.on_blue.hex }}",
 }
 
 return {
@@ -66,6 +71,9 @@ return {
           coral = "{{ $ctp.coral.hex }}",
           border = "{{ $ctp.border.hex }}",
           selection = "{{ $ctp.selection.hex }}",
+          selection_wash = "{{ $ctp.selection_wash.hex }}",
+          secondary_alt = "{{ $ctp.secondary_alt.hex }}",
+          faint = "{{ $ctp.faint.hex }}",
           critical = "{{ $ctp.critical.hex }}",
           text_max = "{{ $ctp.text_max.hex }}",
           diff_add = "{{ $ctp.diff_add.hex }}",
@@ -76,15 +84,21 @@ return {
       },
       custom_highlights = function(colors)
         return {
-          -- Custom Notes and Comments
-          Comment = { fg = colors.subtext0, style = { "italic" } },
-          ["@comment"] = { fg = colors.subtext0, style = { "italic" } },
-          ["@comment.todo"] = { fg = flint.on_warning, bg = colors.rosewater, style = { "bold" } },
+          -- Custom Notes and Comments (faint matches --code-comment).
+          Comment = { fg = colors.faint, style = { "italic" } },
+          ["@comment"] = { fg = colors.faint, style = { "italic" } },
+          ["@comment.todo"] = { fg = flint.on_warning, bg = colors.peach, style = { "bold" } },
           ["@comment.note"] = { fg = colors.text, bg = colors.surface2, style = { "bold" } },
 
-          -- Selections (Bound to active accent)
-          Visual = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
-          VisualNOS = { bg = colors.selection, fg = flint.on_selection, style = { "bold" } },
+          -- Text selection follows Obsidian: wash background, normal text.
+          Visual = { bg = colors.selection_wash, fg = colors.text, style = { "bold" } },
+          VisualNOS = { bg = colors.selection_wash, fg = colors.text, style = { "bold" } },
+
+          -- Search matches share the foot/zathura search tokens so
+          -- first-match and follow-up matches read the same everywhere.
+          Search = { bg = flint.search_bg, fg = flint.search_fg },
+          IncSearch = { bg = flint.inc_search_bg, fg = flint.on_blue },
+          CurSearch = { bg = flint.inc_search_bg, fg = flint.on_blue },
 
           -- Popup Menus
           PmenuSel = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
@@ -97,30 +111,39 @@ return {
 
           -- Status and Tab Lines
           StatusLineNC = { fg = colors.subtext0, bg = colors.mantle },
-          TabLine = { bg = colors.crust, fg = colors.subtext1 },
-          TabLineSel = { fg = colors.text, bg = colors.mantle, style = { "bold" } },
+          TabLine = { bg = colors.secondary_alt, fg = colors.subtext1 },
+          TabLineSel = { fg = colors.text, bg = colors.base, style = { "bold" } },
 
           -- Custom Diffs
           DiffAdd = { bg = colors.diff_add },
           DiffChange = { bg = colors.diff_change },
           DiffDelete = { bg = colors.diff_delete },
-          DiffText = { bg = colors.diff_text, fg = flint.on_accent },
+          DiffText = { bg = colors.diff_text, fg = flint.on_blue },
 
           -- One Dark Syntax Overrides
           Special = { fg = colors.red },
           SpecialChar = { fg = colors.red },
           Identifier = { fg = colors.red },
           ["@variable.parameter"] = { fg = colors.red, style = { "italic" } },
-          ["@property"] = { fg = colors.peach },
-          ["@variable.member"] = { fg = colors.peach },
-          ["@field"] = { fg = colors.peach },
+          ["@property"] = { fg = colors.teal },
+          ["@variable.member"] = { fg = colors.teal },
+          ["@field"] = { fg = colors.teal },
+
+          -- Code keywords follow Obsidian --code-keyword (pink).
+          Keyword = { fg = colors.pink },
+          ["@keyword"] = { fg = colors.pink },
 
           -- LSP Semantic Token Enhancements
           ["@lsp.type.enumMember"] = { fg = colors.teal },
-          ["@lsp.type.namespace"] = { fg = colors.rosewater },
+          ["@lsp.type.namespace"] = { fg = colors.peach },
 
           -- Dashboard and UI
           SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
+          -- The cursor is the only opaque accent fill.
+          Cursor = { bg = flint.accent, fg = flint.on_accent },
+          -- White beam for insert mode; guicursor in lua/config/options.lua
+          -- points the insert shapes here.
+          CursorInsert = { bg = colors.text_max, fg = colors.base },
           CursorLine = { bg = colors.surface0 },
           CursorLineNr = { fg = colors.blue, style = { "bold" } },
           Directory = { fg = colors.teal },
@@ -132,6 +155,12 @@ return {
           TelescopeMatching = { fg = colors.blue, style = { "bold" } },
           TelescopePreviewLine = { bg = colors.surface0 },
 
+          -- Base background for non-picker snacks windows (plain
+          -- splits such as scratch buffers). The explorer sidebar is
+          -- a left-anchored float, so it is painted by the
+          -- SnacksPicker* groups below instead.
+          SnacksNormal = { bg = colors.mantle },
+          SnacksNormalNC = { bg = colors.mantle },
           -- File Trees (Neutral Overlay)
           NeoTreeCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
           NvimTreeCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
@@ -147,13 +176,16 @@ return {
           NeoTreeGitAdded = { fg = colors.green },
           NeoTreeGitDeleted = { fg = colors.red },
 
-          -- Snacks Picker (Neutral Overlay)
-          SnacksPicker = { bg = colors.mantle },
-          SnacksPickerBorder = { fg = colors.border, bg = colors.mantle },
-          SnacksPickerTitle = { fg = colors.subtext1, bg = colors.mantle },
-          SnacksPickerList = { bg = colors.mantle },
+          -- Snacks Picker (Neutral Overlay). Sampled from the app:
+          -- panel surfaces sit one step below the editor background
+          -- (surface2); the preview keeps the editor background.
+          SnacksPicker = { bg = colors.surface2 },
+          SnacksPickerBox = { bg = colors.surface2 },
+          SnacksPickerBorder = { fg = colors.border, bg = colors.surface2 },
+          SnacksPickerTitle = { fg = colors.subtext1, bg = colors.surface2 },
+          SnacksPickerList = { bg = colors.surface2 },
           SnacksPickerPreview = { bg = colors.base },
-          SnacksPickerInput = { bg = colors.mantle },
+          SnacksPickerInput = { bg = colors.surface2 },
           SnacksPickerSelected = { bg = colors.surface1, fg = colors.text_max, style = { "bold" } },
           SnacksPickerListCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
           SnacksPickerMatch = { fg = colors.blue, style = { "bold" } },

@@ -1,3 +1,4 @@
+# Managed by chezmoi. Edit the template in the dotfiles repository instead.
 #{{ $cd := .flint.dark.resolved }}
 #{{ $cl := .flint.light.resolved }}
 #{{ $d := .flint.desktop }}
@@ -15,6 +16,8 @@ blur = yes
 
 foreground = {{ $cd.text.bare }}
 background = {{ $cd.background.bare }}
+# Caret follows Obsidian --caret-color: accent fill, on-accent text.
+cursor = {{ $cd.on_accent.bare }} {{ $cd.accent.bare }}
 regular0 = {{ $ad.black.bare }}
 regular1 = {{ $ad.red.bare }}
 regular2 = {{ $ad.green.bare }}
@@ -42,6 +45,8 @@ blur = yes
 
 foreground = {{ $cl.text.bare }}
 background = {{ $cl.background.bare }}
+# Caret follows Obsidian --caret-color: accent fill, on-accent text.
+cursor = {{ $cl.on_accent.bare }} {{ $cl.accent.bare }}
 regular0 = {{ $al.black.bare }}
 regular1 = {{ $al.red.bare }}
 regular2 = {{ $al.green.bare }}

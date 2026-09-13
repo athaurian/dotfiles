@@ -5,78 +5,76 @@ appearance:
   wallpaper: ~/Pictures/Wallpapers/light/roman-forum.jpg
 catppuccin_flavor: latte
 meta:
-  description:
-    Sand v3 draft. Sterile cool-gray neutrals with separated chromatics.
+  description: Obsidian light with strengthened selection surfaces.
   name: Sand
   variant: light
 raw:
-  accent_blue: "#244A9A"
-  accent_blue_bright: "#3A6A8A"
-  accent_border: "#244A9A"
-  accent_cyan: "#015F88"
-  accent_cyan_bright: "#3F6B6D"
-  ansi_black: "#313338"
-  ansi_blue: "#1C56D8"
-  ansi_bright_black: "#5C5E66"
-  ansi_bright_blue: "#2C4A62"
-  ansi_bright_cyan: "#35585A"
-  ansi_bright_green: "#3F6238"
-  ansi_bright_magenta: "#6C447A"
-  ansi_bright_red: "#8A3E43"
+  accent_blue: "#6946BC"
+  accent_blue_bright: "#8A5CF5"
+  accent_border: "#6946BC"
+  accent_cyan: "#006867"
+  accent_cyan_bright: "#00BFBC"
+  ansi_black: "#222222"
+  ansi_blue: "#086DDD"
+  ansi_bright_black: "#5C5C5C"
+  ansi_bright_blue: "#0656AF"
+  ansi_bright_cyan: "#006362"
+  ansi_bright_green: "#04662B"
+  ansi_bright_magenta: "#5F41BC"
+  ansi_bright_red: "#B12536"
   ansi_bright_white: "#FFFFFF"
-  ansi_bright_yellow: "#5F4E2E"
-  ansi_cyan: "#015F88"
-  ansi_green: "#346134"
-  ansi_magenta: "#A626A4"
-  ansi_red: "#B02518"
-  ansi_white: "#E3E5E8"
-  ansi_yellow: "#875C00"
-  bg: "#F2F3F5"
+  ansi_bright_yellow: "#826400"
+  ansi_cyan: "#006867"
+  ansi_green: "#068036"
+  ansi_magenta: "#7852EE"
+  ansi_red: "#D22C40"
+  ansi_white: "#E4E4E4"
+  ansi_yellow: "#927000"
+  bg: "#FFFFFF"
   black: "#000000"
-  border_inactive: "#B5BAC1"
-  critical_bg: "#8F2F2F"
-  bg_deep: "#C4C9CE"
-  diff_add: "#DDE8D2"
-  diff_change: "#D9E2EA"
-  diff_delete: "#EAD9D2"
-  diff_text: "#33617F"
-  error: "#B02518"
-  error_bright: "#93454B"
-  error_deep: "#7A2E2E"
-  hover_blue: "#3A6A8A"
-  bg_subtle: "#FFFFFF"
-  overlay_dim: "#64666D"
-  overlay_strong: "#5C5E66"
-  peach: "#8A4B00"
-  peach_bright: "#7C5A36"
-  purple: "#A626A4"
-  purple_bright: "#75507E"
-  selection: "#335F7E"
-  success: "#346134"
-  success_bright: "#3F6238"
-  surface_0: "#E3E5E8"
-  surface_1: "#D4D7DC"
-  surface_2: "#B5BAC1"
-  text: "#313338"
-  text_max: "#1E1F22"
-  text_muted: "#45474D"
-  text_secondary: "#3F4147"
-  warning_deep: "#875C00"
-  warning_tint: "#F3E8D2"
-  yellow: "#875C00"
-  yellow_bright: "#6B5A36"
-raw_aliases:
-  - [accent_blue_bright, hover_blue]
-  - [accent_cyan, ansi_cyan]
-  - [ansi_black, text]
-  - [ansi_green, success]
-  - [ansi_magenta, purple]
-  - [ansi_red, error]
-  - [ansi_yellow, yellow]
-raw_near_aliases:
-  - [ansi_blue, selection]
-  - [ansi_bright_green, success_bright]
-
+  border_inactive: "#BDBDBD"
+  critical_bg: "#B12536"
+  # Reuses the base-35 border step: the lightest background callers
+  # (search-fg text) need, kept under the bg_deep role name for parity.
+  bg_deep: "#DADADA"
+  diff_add: "#E9F6EE"
+  diff_change: "#E6F0F9"
+  diff_delete: "#FBF2F3"
+  diff_text: "#086DDD"
+  error: "#D22C40"
+  error_bright: "#B12536"
+  error_deep: "#731823"
+  hover_blue: "#7A58C9"
+  bg_subtle: "#FCFCFC"
+  ink_amber: "#3F1E00"
+  ink_blue: "#08264B"
+  ink_red: "#4B1118"
+  overlay_dim: "#707070"
+  overlay_strong: "#5C5C5C"
+  peach: "#B85B00"
+  peach_bright: "#EC7500"
+  pink: "#D53984"
+  purple: "#7852EE"
+  purple_bright: "#5F41BC"
+  ring_mid: "#707070"
+  secondary_alt: "#FAFAFA"
+  selection: "#8458EB"
+  selection_wash: "#E4DBF9"
+  success: "#068036"
+  success_bright: "#04662B"
+  surface_0: "#EFEFEF"
+  surface_1: "#E4E4E4"
+  surface_2: "#F6F6F6"
+  track: "#707070"
+  text: "#222222"
+  text_faint: "#ABABAB"
+  text_max: "#000000"
+  text_muted: "#5C5C5C"
+  text_secondary: "#505050"
+  warning_deep: "#826400"
+  warning_tint: "#F5EBD4"
+  yellow: "#927000"
+  yellow_bright: "#826400"
 semantic_overrides:
   accent_text: accent_blue
   cherry_picked_fg: accent_border
@@ -85,6 +83,7 @@ semantic_overrides:
   inc_search_bg: accent_blue
   interactive_text: accent_blue
   jump_label_bg: accent_border
+  meter_bg: border_inactive
   notice_accent: accent_blue
   on_accent: bg
   on_critical: bg
@@ -93,16 +92,16 @@ semantic_overrides:
   qt_shadow: overlay_strong
   search_bg: accent_blue
   search_fg: bg
-  selection_subtle: surface_0
-  swaylock_bs_hl: error
-  swaylock_key_hl: text
-  swaylock_ring: background_subtle
-  terminal_selection_fg: bg
+  selection_subtle: surface_1
+  swaylock_bs_hl: ink_red
+  swaylock_caps_key_hl: ink_amber
+  swaylock_key_hl: ink_blue
+  swaylock_ring: ring_mid
   url: accent_blue
   window_focused_border: text
 qt_bevel:
   - bg
   - surface_0
   - surface_1
-  - bg_deep
-  - surface_2
+  - border_inactive
+  - track

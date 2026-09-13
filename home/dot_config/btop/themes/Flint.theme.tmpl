@@ -1,7 +1,6 @@
 #{{ $c := .flint.resolved }}
 #{{ $theme_name := .flint.meta.name }}
 # Theme: {{ $theme_name }}
-# Revamp based on OneDark by Vitor Melo
 
 # --- Basic UI Colors ---
 # Main bg
@@ -13,16 +12,16 @@ theme[title]="{{ $c.text.hex }}"
 # Highlight color for keyboard shortcuts
 theme[hi_fg]="{{ $c.accent_text.hex }}"
 # Background color of selected item in processes box
-theme[selected_bg]="{{ $c.selection.hex }}"
+theme[selected_bg]="{{ $c.selection_wash.hex }}"
 # Foreground color of selected item in processes box
-# Colored background needs maximum contrast
-theme[selected_fg]="{{ $c.on_selection.hex }}"
+# Selected rows keep body text on the wash
+theme[selected_fg]="{{ $c.text.hex }}"
 # Color of inactive/disabled text
 theme[inactive_fg]="{{ $c.text_muted.hex }}"
 # Graph scale labels and annotations
 theme[graph_text]="{{ $c.text_muted.hex }}"
 # Background/fill-behind color used by percentage meters
-theme[meter_bg]="{{ $c.surface_2.hex }}"
+theme[meter_bg]="{{ $c.meter_bg.hex }}"
 # Misc colors for processes box including mini cpu graphs, details memory graph and details status text
 theme[proc_misc]="{{ $c.accent_text.hex }}"
 
@@ -78,14 +77,14 @@ theme[upload_end]="{{ $c.network_end.hex }}"
 # Banner background when process list is paused
 theme[proc_pause_bg]="{{ $c.warning_bg.hex }}"
 # Banner background when process following is active
-theme[proc_follow_bg]="{{ $c.selection.hex }}"
+theme[proc_follow_bg]="{{ $c.surface_1.hex }}"
 # Banner background when BOTH pause and follow are active
 theme[proc_banner_bg]="{{ $c.error_bg.hex }}"
 # Banner foreground/text color
 theme[proc_banner_fg]="{{ $c.text.hex }}"
 # Background of the currently followed process
-theme[followed_bg]="{{ $c.selection.hex }}"
+theme[followed_bg]="{{ $c.selection_wash.hex }}"
 # Foreground/text of the currently followed process
-theme[followed_fg]="{{ $c.on_selection.hex }}"
+theme[followed_fg]="{{ $c.text.hex }}"
 
 # vim: ft=dosini

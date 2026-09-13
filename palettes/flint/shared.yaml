@@ -1,13 +1,18 @@
 alpha:
-  border_70:
+  # Zathura highlight fills composite over the page, so the checker
+  # cannot express them. Text-over-composite was verified offline at
+  # 4.5:1 or better in both variants and recolor modes. The 3:1
+  # indicator floor is unattainable with a translucent fill in dark
+  # recolor mode, so text readability wins there.
+  border_40:
     - accent
-    - 0.7
+    - 0.4
   error_90:
     - error
     - 0.9
-  search_80:
+  search_35:
     - search_bg
-    - 0.8
+    - 0.35
   success_90:
     - success
     - 0.9
@@ -40,7 +45,7 @@ ansi:
 catppuccin:
   base: background
   blue: accent_text
-  border: border_inactive
+  border: overlay_strong
   coral: peach
   critical: critical_bg
   crust: background_deep
@@ -49,6 +54,7 @@ catppuccin:
   diff_delete: diff_delete
   diff_text: diff_text
   flamingo: rose
+  faint: text_faint
   green: success
   lavender: purple
   mantle: background_subtle
@@ -58,11 +64,13 @@ catppuccin:
   overlay1: overlay_strong
   overlay2: border_inactive
   peach: peach
-  pink: error_bright
+  pink: pink
   red: error
   rosewater: peach_bright
   sapphire: accent_border
   selection: selection
+  selection_wash: selection_wash
+  secondary_alt: secondary_alt
   sky: cyan_bright
   subtext0: text_muted
   subtext1: text_secondary
@@ -78,7 +86,7 @@ desktop:
   cursor_theme: Adwaita
   # Single corner-radius source for compositor-layer surfaces (sway,
   # fuzzel, dunst, waybar). Change here, not in each template.
-  corner_radius: 4
+  corner_radius: 0
   font_family: Geist Mono
   font_family_nerd: GeistMono Nerd Font
   font_family_sans: Geist
@@ -97,6 +105,7 @@ lut_palette:
     - overlay_dim
     - focus_border
     - accent_text
+    - diff_text
     - cyan
     - cyan_bright
     - success
@@ -121,6 +130,7 @@ lut_palette:
     - overlay_dim
     - focus_border
     - accent_text
+    - diff_text
     - cyan
     - cyan_bright
     - success
@@ -153,13 +163,10 @@ semantic:
   background: bg
   background_deep: bg_deep
   background_subtle: bg_subtle
-  border: border_inactive
   border_inactive: border_inactive
   caution: yellow
   caution_bright: yellow_bright
   commit_hash: peach
-  coral: peach
-  critical: error
   critical_bg: critical_bg
   cyan: accent_cyan
   cyan_bright: accent_cyan_bright
@@ -178,29 +185,37 @@ semantic:
   hover_warning_bg: warning_tint
   inc_search_bg: accent_text
   interactive_text: accent_blue_bright
+  meter_bg: track
   network_end: accent_blue_bright
   network_mid: accent_blue
   network_start: accent_cyan
   on_accent: text_max
   on_critical: text_max
+  # Text on blue fills. The official dark blue is too light for white
+  # text, so the dark theme flips this to black; light keeps on_accent.
+  on_blue: on_accent
   on_selection: text_max
   on_warning: bg
   overlay_dim: overlay_dim
   overlay_strong: overlay_strong
   peach: peach
+  pink: pink
   purple: purple
   purple_bright: purple_bright
   purple_text: purple_bright
   rose: error
   selected_line_bg: surface_1
+  secondary_alt: secondary_alt
   selection: selection
   selection_subtle: bg_subtle
+  selection_wash: selection_wash
   success: success
   success_bright: success_bright
   surface_0: surface_0
   surface_1: surface_1
   surface_2: surface_2
   text: text
+  text_faint: text_faint
   text_max: text_max
   text_muted: text_muted
   text_secondary: text_secondary
@@ -221,6 +236,8 @@ apps:
     gradient_4: yellow
     gradient_5: peach
     gradient_6: error
+    gradient_7: purple
+    gradient_8: pink
   cherry_picked:
     bg: surface_1
     fg: text_max
@@ -251,8 +268,8 @@ apps:
     key_hl: ansi_white
     ring: overlay_strong
   terminal_selection:
-    bg: selection
-    fg: text_max
+    bg: selection_wash
+    fg: text
   window:
     focused_border: overlay_strong
     focused_inactive_bg: surface_0
@@ -263,7 +280,10 @@ apps:
   zellij:
     background_zero: bg
 contrast_checks:
-  # Core body text. WCAG AA 1.4.3 requires 4.5:1 for normal text.
+  # WCAG 2.2 AA implementation. Body text clears 4.5:1 (SC 1.4.3) and
+  # boundaries and meaningful graphics clear 3:1 (SC 1.4.11). The
+  # build aborts below any floor. Passing is not a conformance claim.
+  # Body text on the background and on panels.
   - [text, background, 4.5]
   - [text_max, background, 4.5]
   - [text_secondary, background, 4.5]
@@ -273,43 +293,56 @@ contrast_checks:
   - [text_muted, surface_1, 4.5]
   - [text_max, surface_1, 4.5]
   - [text_max, surface_2, 4.5]
-  # Selected and status text. Normal text, so 4.5:1.
+  # Selected rows carry body text on surface_1 (fuzzel selection,
+  # lazygit lines, sway titles, nvim popups, btop banner).
+  - [text, surface_1, 4.5]
+  # Highlight fills must read against the background so selected rows
+  # scan as selected. House rule, not WCAG: 3:1 would force striped
+  # panels, so 1.25:1 marks the floor here (light surface_1 is the
+  # evidence-pinned official base-30 #E4E4E4, which caps this pair at
+  # ~1.27:1). Text on top keeps its own 4.5:1 rows above.
+  - [surface_1, background, 1.25]
+  - [selection_subtle, background, 1.25]
+  # btop meter troughs are fill-behind shading that must read against
+  # the box background, or the unfilled portion of a meter vanishes.
+  # Same house floor as the selection fills: shading, not a text
+  # boundary, so 1.4:1 rather than 3:1.
+  - [meter_bg, background, 1.4]
+  # Selected and status text.
   - [on_selection, selection, 4.5]
-  # Swaylock arcs are UI graphics. WCAG AA 1.4.11 requires 3:1
-  # against the adjacent ring color. The arcs also sit against the
-  # inside fill, which templates set to the background, so both
-  # adjacencies carry the 3:1 floor.
+  # Body text keeps its own color on the selection wash.
+  - [text, selection_wash, 4.5]
+  # Swaylock arcs are graphics: 3:1 against the ring and against the
+  # background fill. The ring sits in a narrow band, 3:1 against both
+  # the fill and the bright arcs, so move it only with the checker.
   - [swaylock_key_hl, swaylock_ring, 3.0]
   - [swaylock_caps_key_hl, swaylock_ring, 3.0]
   - [swaylock_bs_hl, swaylock_ring, 3.0]
   - [swaylock_key_hl, background, 3.0]
   - [swaylock_caps_key_hl, background, 3.0]
   - [swaylock_bs_hl, background, 3.0]
+  - [swaylock_ring, background, 3.0]
   - [on_critical, critical_bg, 4.5]
   - [on_warning, warning, 4.5]
-  # Search matches render normal-size text, so 4.5:1.
+  # Search matches render body text.
   - [search_fg, search_bg, 4.5]
-  - [on_accent, inc_search_bg, 4.5]
+  - [on_blue, inc_search_bg, 4.5]
   - [emphasis_fg, emphasis_bg, 4.5]
   - [jump_label_fg, jump_label_bg, 4.5]
-  # Boundaries. WCAG 2.2 AA 1.4.11 requires 3:1 for boundaries required
-  # to identify components, against the adjacent color. This is an
-  # adjacent-color check only. It does not meet 2.4.13 AAA focus
-  # appearance, which also needs area plus a focused-versus-unfocused
-  # change. Inactive borders are exempt as inactive components, so
-  # they carry no floor.
-  # Note: no focus_border-vs-selection check exists on purpose. No
-  # mid-gray passes background, selection, and surface adjacencies at
-  # once, so focus rings are scoped to pane frames and backgrounds and
-  # never drawn on selection fills (verified in lazygit, waybar, and
-  # fuzzel templates). Add the check if a template starts doing that.
+  # Boundaries clear 3:1 against the adjacent color only (SC 1.4.11,
+  # not 2.4.13 focus appearance). Inactive borders are exempt. Focus
+  # rings never sit on selection fills (verified in lazygit, waybar,
+  # and fuzzel), so no focus-vs-selection pair exists. Add one if a
+  # template starts doing that.
   - [focus_border, background, 3.0]
-  # Window frames signal focus the same way. The focused frame clears
-  # 3:1 against both the background and the inactive frame at seams.
+  # Popup frames sit on the float background (nvim FloatBorder).
+  - [focus_border, background_subtle, 3.0]
+  # Window frames clear 3:1 against the background and each other.
   - [window_focused_border, background, 3.0]
   - [window_focused_border, window_inactive_border, 3.0]
-  # Accent fills used behind or as graphics. 3:1 per 1.4.11.
-  # Accent text roles below stay at 4.5 because they render body text.
+  # Waybar marks focused workspaces with accent text plus an accent
+  # underline; the underline is the graphic here.
+  # Accent fills as graphics (3:1); the text roles below stay at 4.5.
   - [emphasis_bg, background, 3.0]
   - [accent_text, background, 4.5]
   - [interactive_text, background, 4.5]
@@ -318,55 +351,57 @@ contrast_checks:
   - [purple_text, background, 4.5]
   - [error_text, background, 4.5]
   - [commit_hash, background, 4.5]
-  # Qt surfaces carry body text, so 4.5:1.
+  # Status text on the background: lazygit options and authors plus
+  # zellij exit codes (success), lazygit file types plus zellij cues
+  # (cyan), lazygit marked commits plus waybar battery icons (caution),
+  # and dunst progress text (notice_accent). Waybar urgent hovers pair
+  # the bright error text with the error wash.
+  - [success, background, 4.5]
+  - [cyan, background, 4.5]
+  - [caution, background, 4.5]
+  - [notice_accent, background, 4.5]
+  - [error_bright, error_bg, 4.5]
+  # Qt and notification surfaces carry body text.
   - [text, qt_base, 4.5]
   - [text, qt_button, 4.5]
   - [text, qt_tooltip_base, 4.5]
-  # Notification cards carry body text, so 4.5:1, including
-  # their accent and error text.
   - [notice_fg, notice_bg, 4.5]
   - [warning_fg, warning_bg, 4.5]
   - [error_fg, error_bg, 4.5]
   - [notice_accent, notice_bg, 4.5]
   - [warning_accent, warning_bg, 4.5]
+  # Waybar mode-pill text sits on the warning wash, not the background.
+  - [warning_deep, warning_bg, 4.5]
   - [error_text, error_bg, 4.5]
-  # Status strokes and fills. Graphic-only by contract, never
-  # body text, so 3:1 per 1.4.11. Do not reuse these roles for text.
+  # Status strokes are graphics-only by contract, never body text.
   - [network_start, background, 3.0]
   - [network_mid, background, 3.0]
   - [network_end, background, 3.0]
   - [warning, background, 3.0]
   - [accent_strong, background, 3.0]
   - [rose, selection_subtle, 3.0]
-  # Match and pick text, so 4.5:1.
-  - [on_accent, diff_text, 4.5]
+  # Match and pick text (blue fills take the on_blue role, which the
+  # dark theme flips to black).
+  - [on_blue, diff_text, 4.5]
   - [accent_text, surface_1, 4.5]
   - [cherry_picked_fg, cherry_picked_bg, 4.5]
-  # Diff washes keep syntax-colored code, not remapped text, so the
-  # working green and blue must clear 4.5:1 on their washes directly.
+  # Diff washes keep syntax-colored code, so working green and blue
+  # clear 4.5:1 on their washes directly.
   - [success, diff_add, 4.5]
   - [accent_text, diff_change, 4.5]
-  # Captions can land on the deepest surface and on raised panels, so
-  # muted text and cyan carry 4.5:1 there as well as on the background.
+  # Captions on raised panels and the deepest surface.
   - [text_muted, surface_2, 4.5]
   - [cyan, surface_1, 4.5]
-  # Overlay captions render body text on the background, so 4.5:1.
   - [overlay_dim, background, 4.5]
-  # Subtle backgrounds carry body text, so 4.5:1.
   - [text_secondary, background_subtle, 4.5]
   - [text_muted, background_subtle, 4.5]
   - [text_secondary, background_deep, 4.5]
-  # Muted text on the deepest surface still renders body text,
-  # so 4.5:1. If a future palette cannot carry it, rename the role
-  # to a large-only or decorative role instead of lowering this floor.
-  # Note: selection fills and the dark delete wash are text-backed by
-  # house contract, not by WCAG exemption (WCAG has none). Every consumer
-  # remaps the text on top (terminal_selection_fg, on_selection,
-  # on_accent, error_text), verified in foot, zellij, btop, zathura,
-  # nvim, and fuzzel templates, so they carry no bare-fill 3:1 floor. The dark delete
-  # wash stays shallow on purpose to protect red-text contrast, and
-  # deletion always pairs with a non-color cue (gitsigns gutter signs,
-  # lazygit +/- markers). State-vs-state pairs (error vs warning,
-  # success vs cyan) have no WCAG ratio floor; separation there comes
-  # from hue plus those non-color cues (dunst varies text, frame, and
-  # progress together, never the fill alone).
+  # Muted text on the deepest surface still renders body text. If a
+  # future palette cannot carry it, rename the role instead of
+  # lowering this floor.
+  # Selection fills and the dark delete wash are text-backed by house
+  # contract, not by exemption: every consumer remaps the text on top
+  # (verified in foot, zellij, btop, zathura, nvim, and fuzzel), so
+  # they carry no bare-fill floor. Deletion always pairs with a
+  # non-color cue (gutter signs, +/- markers). State-vs-state pairs
+  # have no WCAG floor; hue plus non-color cues separate them.

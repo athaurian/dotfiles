@@ -1,3 +1,4 @@
+# Managed by chezmoi. Edit the template in the dotfiles repository instead.
 #{{ $c := .flint.resolved }}
 #{{ $d := .flint.desktop }}
 #{{ $al := .flint.alpha }}
@@ -14,16 +15,16 @@ set default-fg "{{ $c.text.hex }}"
 set completion-bg "{{ $c.surface_0.hex }}"
 set completion-group-fg "{{ $c.text_muted.hex }}"
 set completion-group-bg "{{ $c.selection_subtle.hex }}"
-set completion-highlight-bg "{{ $c.selection.hex }}"
-set completion-highlight-fg "{{ $c.on_selection.hex }}"
+set completion-highlight-bg "{{ $c.selection_wash.hex }}"
+set completion-highlight-fg "{{ $c.text.hex }}"
 
 # --- Inputbar ---
 set inputbar-bg "{{ $c.selection_subtle.hex }}"
-set inputbar-fg "{{ $c.rose.hex }}"
+set inputbar-fg "{{ $c.text.hex }}"
 
 # --- Notifications ---
-set notification-bg "{{ $c.selection.hex }}"
-set notification-fg "{{ $c.on_selection.hex }}"
+set notification-bg "{{ $c.selection_wash.hex }}"
+set notification-fg "{{ $c.text.hex }}"
 set notification-error-bg "{{ $c.critical_bg.hex }}"
 set notification-error-fg "{{ $c.on_critical.hex }}"
 set notification-warning-bg "{{ $c.warning.hex }}"
@@ -38,8 +39,8 @@ set statusbar-v-padding 4
 # --- Index / table of contents ---
 set index-bg "{{ $c.selection_subtle.hex }}"
 set index-fg "{{ $c.text.hex }}"
-set index-active-bg "{{ $c.selection.hex }}"
-set index-active-fg "{{ $c.on_selection.hex }}"
+set index-active-bg "{{ $c.selection_wash.hex }}"
+set index-active-fg "{{ $c.text.hex }}"
 
 # --- Page rendering ---
 set page-v-padding 8
@@ -48,8 +49,8 @@ set render-loading-bg "{{ $c.background.hex }}"
 set render-loading-fg "{{ $c.text_muted.hex }}"
 
 # --- Search and highlights ---
-set highlight-color "{{ $al.border_70.hex }}"
-set highlight-active-color "{{ $al.search_80.hex }}"
+set highlight-color "{{ $al.border_40.hex }}"
+set highlight-active-color "{{ $al.search_35.hex }}"
 
 # --- Recoloring / dark PDF mode ---
 map <C-r> set recolor
