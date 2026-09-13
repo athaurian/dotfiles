@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Style-guide checks for docs and inline documentation.
 
-Covers the ratified patterns from style-guide.md as errors, and the
-team punctuation bans (semicolons, em/en dashes, label-then-colon) plus
-a docstring-voice heuristic as warnings. First-person voice ('my', 'I')
-is never flagged, by explicit team choice. See the Enforcement section
-in style-guide.md for the rule-to-check mapping.
+Enforces the mechanical rules from style-guide.md as errors, and the
+punctuation bans (semicolons, em/en dashes, label-then-colon) plus a
+docstring-voice heuristic as warnings. First-person voice ('my', 'I')
+is never flagged. See the Enforcement section in style-guide.md for
+the rule-to-check mapping.
 
 Usage: python3 scripts/check_docs_style.py [--strict]
 
@@ -44,18 +44,56 @@ DOC_SECTION = re.compile(r"^\s*(Args|Returns|Raises|Note|Caution|Warning):")
 # case/action labels, caller metadata, numbered scenario titles, and
 # function signature headers. The guide exempts them from the
 # label-then-colon and em/en dash bans.
-SCHEMATIC_HEADER = re.compile(r"^(Case [A-Z]|Action|Called by|\d+\.\s+[A-Z][A-Za-z ]*):")
+SCHEMATIC_HEADER = re.compile(
+    r"^(Case [A-Z]|Action|Called by|\d+\.\s+[A-Z][A-Za-z ]*):"
+)
 SIG_HEADER = re.compile(r"^[a-z_]+(\s+[A-Z_]+)+ — ")
 
 # Bare imperative verb forms that must not open a docstring first line.
 # Third-person forms (Renders, Exports, Checks, ...) pass.
 IMPERATIVES = (
-    "Render", "Export", "Return", "Convert", "Run", "Check", "Parse",
-    "Match", "Take", "Consume", "Extract", "Warn", "Build", "Create",
-    "Provide", "Define", "Detect", "Orchestrate", "Compute", "Load",
-    "Save", "Restore", "Show", "Perform", "Clamp", "Report", "List",
-    "Copy", "Decode", "Split", "Collapse", "Format", "Launch", "Toggle",
-    "Write", "Read", "Send", "Delete", "Update", "Remove", "Add", "Map",
+    "Render",
+    "Export",
+    "Return",
+    "Convert",
+    "Run",
+    "Check",
+    "Parse",
+    "Match",
+    "Take",
+    "Consume",
+    "Extract",
+    "Warn",
+    "Build",
+    "Create",
+    "Provide",
+    "Define",
+    "Detect",
+    "Orchestrate",
+    "Compute",
+    "Load",
+    "Save",
+    "Restore",
+    "Show",
+    "Perform",
+    "Clamp",
+    "Report",
+    "List",
+    "Copy",
+    "Decode",
+    "Split",
+    "Collapse",
+    "Format",
+    "Launch",
+    "Toggle",
+    "Write",
+    "Read",
+    "Send",
+    "Delete",
+    "Update",
+    "Remove",
+    "Add",
+    "Map",
 )
 IMPERATIVE_LEAD = re.compile(r"^(" + "|".join(IMPERATIVES) + r")\b(?!s\b)")
 
@@ -148,7 +186,7 @@ def check_python(path: Path) -> None:
     text = path.read_text()
     lines = text.splitlines()
     for start, end, span in docstring_spans(text):
-        first = span[0].strip().lstrip('uUrRbBfF')
+        first = span[0].strip().lstrip("uUrRbBfF")
         body = first.lstrip("\"'").strip()
         if body and not DOC_SECTION.match(body):
             word = body.split()[0].rstrip(",:;.")
@@ -227,9 +265,11 @@ def main() -> int:
         print(f"error: {item}")
     for item in warnings:
         print(f"warning: {item}")
-    print(f"{len(errors)} errors, {len(warnings)} warnings "
-          f"({len(MD_FILES)} docs, {len(py_files)} python, "
-          f"{len(sh_files)} shell files)")
+    print(
+        f"{len(errors)} errors, {len(warnings)} warnings "
+        f"({len(MD_FILES)} docs, {len(py_files)} python, "
+        f"{len(sh_files)} shell files)"
+    )
     if errors or (strict and warnings):
         return 1
     return 0
