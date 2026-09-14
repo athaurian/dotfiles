@@ -1,14 +1,14 @@
 -- Managed by chezmoi. Edit the template in the dotfiles repository instead.
 --{{ $ctp := .flint.catppuccin_resolved }}
 --{{ $ansi := .flint.ansi_resolved }}
---{{ $c := .flint.resolved }}
+--{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 
 local flint = {
-  accent = "{{ $c.accent.hex }}",
+  accent = "{{ $r.interactive_accent.hex }}",
   on_accent = "{{ $c.on_accent.hex }}",
-  on_warning = "{{ $c.on_warning.hex }}",
+  on_warning = "{{ $r.background_primary.hex }}",
   search_bg = "{{ $c.search_bg.hex }}",
-  search_fg = "{{ $c.search_fg.hex }}",
+  search_fg = "{{ $r.background_primary.hex }}",
   inc_search_bg = "{{ $c.inc_search_bg.hex }}",
   on_blue = "{{ $c.on_blue.hex }}",
 }

@@ -1,6 +1,6 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $cd := .flint.dark.resolved }}
-#{{ $cl := .flint.light.resolved }}
+#{{ $cd := .flint.dark.raw }}{{ $cdr := .flint.dark.resolved }}
+#{{ $cl := .flint.light.raw }}{{ $clr := .flint.light.resolved }}
 #{{ $d := .flint.desktop }}
 #{{ $ad := .flint.dark.ansi_resolved }}
 #{{ $al := .flint.light.ansi_resolved }}
@@ -14,10 +14,10 @@ initial-color-theme = {{ .flint.active_theme }}
 alpha=0.9
 blur = yes
 
-foreground = {{ $cd.text.bare }}
-background = {{ $cd.background.bare }}
+foreground = {{ $cd.text_normal.bare }}
+background = {{ $cd.background_primary.bare }}
 # Caret follows Obsidian --caret-color: accent fill, on-accent text.
-cursor = {{ $cd.on_accent.bare }} {{ $cd.accent.bare }}
+cursor = {{ $cdr.on_accent.bare }} {{ $cd.interactive_accent.bare }}
 regular0 = {{ $ad.black.bare }}
 regular1 = {{ $ad.red.bare }}
 regular2 = {{ $ad.green.bare }}
@@ -34,19 +34,19 @@ bright4 = {{ $ad.bright_blue.bare }}
 bright5 = {{ $ad.bright_magenta.bare }}
 bright6 = {{ $ad.bright_cyan.bare }}
 bright7 = {{ $ad.bright_white.bare }}
-selection-foreground = {{ $cd.terminal_selection_fg.bare }}
-selection-background = {{ $cd.terminal_selection_bg.bare }}
-jump-labels = {{ $cd.jump_label_fg.bare }} {{ $cd.jump_label_bg.bare }}
-urls = {{ $cd.url.bare }}
+selection-foreground = {{ $cd.text_normal.bare }}
+selection-background = {{ $cd.selection_wash.bare }}
+jump-labels = {{ $cd.background_primary.bare }} {{ $cdr.jump_label_bg.bare }}
+urls = {{ $cdr.text_accent.bare }}
 
 [colors-light]
 alpha=0.85
 blur = yes
 
-foreground = {{ $cl.text.bare }}
-background = {{ $cl.background.bare }}
+foreground = {{ $cl.text_normal.bare }}
+background = {{ $cl.background_primary.bare }}
 # Caret follows Obsidian --caret-color: accent fill, on-accent text.
-cursor = {{ $cl.on_accent.bare }} {{ $cl.accent.bare }}
+cursor = {{ $clr.on_accent.bare }} {{ $cl.interactive_accent.bare }}
 regular0 = {{ $al.black.bare }}
 regular1 = {{ $al.red.bare }}
 regular2 = {{ $al.green.bare }}
@@ -63,9 +63,9 @@ bright4 = {{ $al.bright_blue.bare }}
 bright5 = {{ $al.bright_magenta.bare }}
 bright6 = {{ $al.bright_cyan.bare }}
 bright7 = {{ $al.bright_white.bare }}
-selection-foreground = {{ $cl.terminal_selection_fg.bare }}
-selection-background = {{ $cl.terminal_selection_bg.bare }}
-jump-labels = {{ $cl.jump_label_fg.bare }} {{ $cl.jump_label_bg.bare }}
-urls = {{ $cl.url.bare }}
+selection-foreground = {{ $cl.text_normal.bare }}
+selection-background = {{ $cl.selection_wash.bare }}
+jump-labels = {{ $cl.background_primary.bare }} {{ $clr.jump_label_bg.bare }}
+urls = {{ $clr.text_accent.bare }}
 
 # vim: ft=dosini

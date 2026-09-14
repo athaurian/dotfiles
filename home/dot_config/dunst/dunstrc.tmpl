@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $c := .flint.resolved }}
+#{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 #{{ $d := .flint.desktop }}
 #{{ $a := .flint.appearance }}
 
@@ -23,7 +23,7 @@
     horizontal_padding = 14
     text_icon_padding = 0
     frame_width = 1
-    frame_color = "{{ $c.overlay_strong.hex }}"
+    frame_color = "{{ $r.overlay_strong.hex }}"
     separator_color = frame
     sort = no
     font = {{ $d.font_family_nerd }} Propo {{ $d.font_size }}
@@ -58,30 +58,30 @@
 
     # The card surface is the base background in every urgency.
     # Urgency is carried by text, frame, and progress color, never the fill.
-    background = "{{ $c.background.hex }}"
-    foreground = "{{ $c.text.hex }}"
+    background = "{{ $r.background_primary.hex }}"
+    foreground = "{{ $r.text_normal.hex }}"
     timeout = 5
     highlight = "{{ $c.notice_accent.hex }}"
 
 [urgency_low]
-    background = "{{ $c.background.hex }}"
-    foreground = "{{ $c.text_secondary.hex }}"
-    frame_color = "{{ $c.border_inactive.hex }}"
-    highlight = "{{ $c.text_muted.hex }}"
+    background = "{{ $r.background_primary.hex }}"
+    foreground = "{{ $r.text_secondary.hex }}"
+    frame_color = "{{ $r.border_inactive.hex }}"
+    highlight = "{{ $r.text_muted.hex }}"
     timeout = 3
 
 [urgency_normal]
-    background = "{{ $c.background.hex }}"
-    foreground = "{{ $c.text.hex }}"
-    frame_color = "{{ $c.overlay_strong.hex }}"
+    background = "{{ $r.background_primary.hex }}"
+    foreground = "{{ $r.text_normal.hex }}"
+    frame_color = "{{ $r.overlay_strong.hex }}"
     highlight = "{{ $c.notice_accent.hex }}"
     timeout = 5
 
 [urgency_critical]
-    background = "{{ $c.background.hex }}"
-    foreground = "{{ $c.error.hex }}"
-    frame_color = "{{ $c.error.hex }}"
-    highlight = "{{ $c.error.hex }}"
+    background = "{{ $r.background_primary.hex }}"
+    foreground = "{{ $r.error.hex }}"
+    frame_color = "{{ $r.error.hex }}"
+    highlight = "{{ $r.error.hex }}"
     timeout = 0
 
 [mpd]

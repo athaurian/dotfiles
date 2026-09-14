@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $c := .flint.resolved }}
+#{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 #{{ $d := .flint.desktop }}
 
 # --- Appearance (global defaults) ---
@@ -13,28 +13,28 @@ details-border-size=2
 
 [warning]
 # Bar
-background={{ $c.warning_bg.hex }}
-border={{ $c.warning_accent.hex }}
-border-bottom={{ $c.warning_accent.hex }}
+background={{ $r.warning_tint.hex }}
+border={{ $r.warning_deep.hex }}
+border-bottom={{ $r.warning_deep.hex }}
 # Message text
-text={{ $c.warning_fg.hex }}
+text={{ $r.text_normal.hex }}
 # Buttons
-button-background={{ $c.warning_bg.hex }}
-button-text={{ $c.warning_fg.hex }}
+button-background={{ $r.warning_tint.hex }}
+button-text={{ $r.text_normal.hex }}
 # Details panel
-details-background={{ $c.background_subtle.hex }}
+details-background={{ $r.background_secondary_alt.hex }}
 
 [error]
 # Bar
-background={{ $c.error_bg.hex }}
-border={{ $c.error_text.hex }}
-border-bottom={{ $c.error_text.hex }}
+background={{ $r.diff_delete.hex }}
+border={{ $r.error.hex }}
+border-bottom={{ $r.error.hex }}
 # Message text
-text={{ $c.error_fg.hex }}
+text={{ $r.text_normal.hex }}
 # Buttons
-button-background={{ $c.error_bg.hex }}
-button-text={{ $c.error_fg.hex }}
+button-background={{ $r.diff_delete.hex }}
+button-text={{ $r.text_normal.hex }}
 # Details panel
-details-background={{ $c.error_bg.hex }}
+details-background={{ $r.diff_delete.hex }}
 
 # vim: ft=dosini

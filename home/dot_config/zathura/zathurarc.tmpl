@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $c := .flint.resolved }}
+#{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 #{{ $d := .flint.desktop }}
 #{{ $al := .flint.alpha }}
 
@@ -8,45 +8,45 @@ set font "{{ $d.font_family }} normal {{ $d.font_size }}"
 
 
 # --- Base UI ---
-set default-bg "{{ $c.background.hex }}"
-set default-fg "{{ $c.text.hex }}"
+set default-bg "{{ $r.background_primary.hex }}"
+set default-fg "{{ $r.text_normal.hex }}"
 
 # --- Completion ---
-set completion-bg "{{ $c.surface_0.hex }}"
-set completion-group-fg "{{ $c.text_muted.hex }}"
-set completion-group-bg "{{ $c.selection_subtle.hex }}"
-set completion-highlight-bg "{{ $c.selection_wash.hex }}"
-set completion-highlight-fg "{{ $c.text.hex }}"
+set completion-bg "{{ $r.background_modifier_form_field.hex }}"
+set completion-group-fg "{{ $r.text_muted.hex }}"
+set completion-group-bg "{{ $r.background_modifier_hover.hex }}"
+set completion-highlight-bg "{{ $r.selection_wash.hex }}"
+set completion-highlight-fg "{{ $r.text_normal.hex }}"
 
 # --- Inputbar ---
-set inputbar-bg "{{ $c.selection_subtle.hex }}"
-set inputbar-fg "{{ $c.text.hex }}"
+set inputbar-bg "{{ $r.background_modifier_hover.hex }}"
+set inputbar-fg "{{ $r.text_normal.hex }}"
 
 # --- Notifications ---
-set notification-bg "{{ $c.selection_wash.hex }}"
-set notification-fg "{{ $c.text.hex }}"
-set notification-error-bg "{{ $c.critical_bg.hex }}"
-set notification-error-fg "{{ $c.on_critical.hex }}"
+set notification-bg "{{ $r.selection_wash.hex }}"
+set notification-fg "{{ $r.text_normal.hex }}"
+set notification-error-bg "{{ $r.critical_bg.hex }}"
+set notification-error-fg "{{ $c.on_accent.hex }}"
 set notification-warning-bg "{{ $c.warning.hex }}"
-set notification-warning-fg "{{ $c.on_warning.hex }}"
+set notification-warning-fg "{{ $r.background_primary.hex }}"
 
 # --- Statusbar ---
-set statusbar-bg "{{ $c.selection_subtle.hex }}"
-set statusbar-fg "{{ $c.text.hex }}"
+set statusbar-bg "{{ $r.background_modifier_hover.hex }}"
+set statusbar-fg "{{ $r.text_normal.hex }}"
 set statusbar-h-padding 10
 set statusbar-v-padding 4
 
 # --- Index / table of contents ---
-set index-bg "{{ $c.selection_subtle.hex }}"
-set index-fg "{{ $c.text.hex }}"
-set index-active-bg "{{ $c.selection_wash.hex }}"
-set index-active-fg "{{ $c.text.hex }}"
+set index-bg "{{ $r.background_modifier_hover.hex }}"
+set index-fg "{{ $r.text_normal.hex }}"
+set index-active-bg "{{ $r.selection_wash.hex }}"
+set index-active-fg "{{ $r.text_normal.hex }}"
 
 # --- Page rendering ---
 set page-v-padding 8
 set page-h-padding 8
-set render-loading-bg "{{ $c.background.hex }}"
-set render-loading-fg "{{ $c.text_muted.hex }}"
+set render-loading-bg "{{ $r.background_primary.hex }}"
+set render-loading-fg "{{ $r.text_muted.hex }}"
 
 # --- Search and highlights ---
 set highlight-color "{{ $al.border_40.hex }}"
@@ -56,8 +56,8 @@ set highlight-active-color "{{ $al.search_35.hex }}"
 map <C-r> set recolor
 set recolor true
 set recolor-reverse-video true
-set recolor-lightcolor "{{ $c.background.hex }}"
-set recolor-darkcolor "{{ $c.text.hex }}"
+set recolor-lightcolor "{{ $r.background_primary.hex }}"
+set recolor-darkcolor "{{ $r.text_normal.hex }}"
 
 # --- Signature information ---
 set show-signature-information true

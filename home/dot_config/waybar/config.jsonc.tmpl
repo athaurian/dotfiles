@@ -1,10 +1,10 @@
 // Managed by chezmoi. Edit the template in the dotfiles repository instead.
-//{{ $c := .flint.resolved }}
-//{{ $err := $c.error_text.hex }}
+//{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
+//{{ $err := $r.error.hex }}
 //{{ $warn := $c.warning.hex }}
-//{{ $caution := $c.caution.hex }}
-//{{ $accent_strong := $c.accent_strong.hex }}
-//{{ $accent_text := $c.accent_text.hex }}
+//{{ $caution := $r.yellow.hex }}
+//{{ $accent_strong := $r.interactive_accent.hex }}
+//{{ $accent_text := $c.text_accent.hex }}
 
 {
   "layer": "top",
@@ -72,7 +72,7 @@
   },
   "pulseaudio": {
     "format": "<span>󰕾</span> {volume}%",
-    "format-muted": "<span color='{{ $c.text_muted.hex }}'>󰖁 Muted</span>",
+    "format-muted": "<span color='{{ $r.text_muted.hex }}'>󰖁 Muted</span>",
     "on-click": "pavucontrol",
     "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
     "scroll-step": 5,

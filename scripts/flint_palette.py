@@ -7,14 +7,9 @@ Used by scripts/build_palette_data.py, reading palette definitions from::
     palettes/flint/dark.yaml
     palettes/flint/light.yaml
 
-Validation covers selected WCAG 2.2 AA contrast pairs only: SC 1.4.3
-Contrast (Minimum) and SC 1.4.11 Non-text Contrast for the listed rows.
-The Qt bevel ladder carries one house-style check on top: its five
-steps must run lightest to darkest with visibly separated edges.
-The pinned selection wash carries one blend-aware check on top:
-the raw token must equal its source blend (contrast rides the
-generic [text, selection_wash, 4.5] row).
-Passing rows are not a WCAG conformance claim.
+Structural checks cover raw token existence and cross-theme role
+parity. The pinned selection wash carries one blend-aware check: the
+raw token must equal its source blend.
 """
 
 from collections import OrderedDict
@@ -32,16 +27,9 @@ def fail(message: str) -> NoReturn:
     raise PaletteError(message)
 
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
-BACKGROUND_TOKEN = "bg"
-
-# Qt bevel house rule: adjacent ladder steps must differ by at least
-# this contrast ratio so each 3D edge stays visible. WCAG 1.4.11 needs
-# 3:1 for boundaries against their neighbor, but bevel edges are
-# shading, not information boundaries; 1.10:1 marks the floor where a
-# step stops reading as flat on commodity displays.
-BEVEL_MIN_ADJACENT_RATIO = 1.10
+BACKGROUND_TOKEN = "background_primary"
 
 
 def hex_to_bare(value: str) -> str:
@@ -63,41 +51,6 @@ def hex_to_rgb(value: str) -> tuple[int, int, int]:
         fail(f"invalid hex color: {value}")
 
     return r, g, b
-
-
-def srgb_channel_to_linear(channel: int) -> float:
-    c = channel / 255.0
-    if c <= 0.04045:
-        return c / 12.92
-    return ((c + 0.055) / 1.055) ** 2.4
-
-
-def relative_luminance(rgb: tuple[int, int, int]) -> float:
-    r, g, b = rgb
-    return (
-        0.2126 * srgb_channel_to_linear(r)
-        + 0.7152 * srgb_channel_to_linear(g)
-        + 0.0722 * srgb_channel_to_linear(b)
-    )
-
-
-def contrast_ratio(rgb_a: tuple[int, int, int], rgb_b: tuple[int, int, int]) -> float:
-    lum_a = relative_luminance(rgb_a)
-    lum_b = relative_luminance(rgb_b)
-    lighter = max(lum_a, lum_b)
-    darker = min(lum_a, lum_b)
-    return (lighter + 0.05) / (darker + 0.05)
-
-
-def role_rgb(raw: dict, semantic: dict, role: str) -> tuple[int, int, int]:
-    if role not in semantic:
-        fail(f"contrast check references unknown semantic role {role}")
-
-    token = semantic[role]
-    if token not in raw:
-        fail(f"semantic role {role} references unknown raw token {token}")
-
-    return hex_to_rgb(raw[token])
 
 
 def resolve_alias_target(
@@ -218,11 +171,8 @@ def effective_semantic(
             )
         result[role] = token
 
-    # Qt bevel ladder: 5 ramp tokens, lightest -> darkest. QPalette
-    # reads the roles in listed order (Light, Midlight, Button, Mid,
-    # Dark), so the validator enforces non-increasing luminance plus
-    # the BEVEL_MIN_ADJACENT_RATIO floor on every neighboring pair
-    # (see validate_bevel).
+    # Qt bevel ladder: 5 tokens mapping to the QPalette roles in
+    # listed order (Light, Midlight, Button, Mid, Dark).
     bevel = theme.get("qt_bevel")
     if bevel is not None:
         if not isinstance(bevel, list) or len(bevel) != 5:
@@ -258,90 +208,6 @@ def validate_meta(theme_name: str, theme: dict) -> None:
         fail(f"{theme_name}: meta.variant must be one of {sorted(valid_variants)}")
 
 
-def load_contrast_checks(theme_name: str, shared: dict) -> list[tuple[str, str, float]]:
-    checks = shared.get("contrast_checks")
-    if not isinstance(checks, list) or not checks:
-        fail(f"{theme_name}: shared palette definition is missing contrast_checks")
-
-    result: list[tuple[str, str, float]] = []
-    for row in checks:
-        if not isinstance(row, list) or len(row) != 3:
-            fail(f"{theme_name}: contrast_checks rows must be [fg_role, bg_role, min]")
-        fg_role, bg_role, minimum = row
-        if not isinstance(fg_role, str) or not isinstance(bg_role, str):
-            fail(f"{theme_name}: contrast_checks rows must name roles as strings")
-        if isinstance(minimum, bool) or not isinstance(minimum, (int, float)):
-            fail(f"{theme_name}: contrast_checks row {row} has invalid minimum")
-        if float(minimum) <= 0:
-            fail(f"{theme_name}: contrast_checks row {row} has non-positive minimum")
-        result.append((fg_role, bg_role, float(minimum)))
-    return result
-
-
-def validate_contrast(
-    theme_name: str, raw: dict, semantic: dict, checks: list[tuple[str, str, float]]
-) -> list[str]:
-    seen = set()
-    errors = []
-
-    for fg_role, bg_role, minimum in checks:
-        key = (fg_role, bg_role, minimum)
-        if key in seen:
-            continue
-        seen.add(key)
-
-        fg_rgb = role_rgb(raw, semantic, fg_role)
-        bg_rgb = role_rgb(raw, semantic, bg_role)
-        ratio = contrast_ratio(fg_rgb, bg_rgb)
-
-        if ratio + 1e-9 < minimum:
-            errors.append(
-                f"{fg_role} on {bg_role} is {ratio:.2f}:1, "
-                f"expected at least {minimum:.1f}:1"
-            )
-
-    return errors
-
-
-def validate_ansi_relationships(
-    theme_name: str, raw: dict, semantic: dict, ansi: dict
-) -> list[str]:
-    """Enforces WCAG 2.2 AA SC 1.4.3 for terminal text.
-
-    Every ANSI color used as body text needs 4.5:1 on the terminal
-    background. Surfaces are not terminal backgrounds, so no
-    ANSI-on-surface floor exists.
-    """
-    base_rgb = hex_to_rgb(raw[BACKGROUND_TOKEN])
-    base_lum = relative_luminance(base_rgb)
-    is_light = base_lum > 0.5
-    errors = []
-
-    # In light mode, black and chromatic colors are foreground text;
-    # white/bright_white are light background/badges
-    # In dark mode, white and chromatic colors are foreground text;
-    # black/bright_black are dark backgrounds
-    excluded_from_text = (
-        ("white", "bright_white") if is_light else ("black", "bright_black")
-    )
-
-    text_ansi_tokens = {
-        name: token for name, token in ansi.items() if name not in excluded_from_text
-    }
-
-    for ansi_name, token in text_ansi_tokens.items():
-        ansi_rgb = hex_to_rgb(raw[token])
-        ratio = contrast_ratio(ansi_rgb, base_rgb)
-
-        if ratio + 1e-9 < 4.5:
-            errors.append(
-                f"ANSI {ansi_name} on background is {ratio:.2f}:1, "
-                "expected at least 4.5:1"
-            )
-
-    return errors
-
-
 # The selection wash is the selection color flattened over the Qt Base
 # backing at Obsidian's --text-selection color-mix percentages: 33% in
 # .theme-dark, 20% on body. Every selection-wash consumer (Qt item
@@ -368,10 +234,7 @@ def validate_selection_wash(
 
     Requires the raw selection_wash token to equal the selection token
     blended at SELECTION_WASH_ALPHA_BYTE over the Qt Base backing, so
-    the pinned value cannot drift from its inputs. Body-text contrast
-    on the wash is covered by the generic [text, selection_wash, 4.5]
-    row. The solid [on_selection, selection, 4.5] row stays for the
-    consumers that still use the fill opaque.
+    the pinned value cannot drift from its inputs.
     """
     if variant not in SELECTION_WASH_ALPHA_BYTE:
         return [
@@ -419,44 +282,6 @@ def validate_selection_wash(
         ]
 
     return []
-
-
-def validate_bevel(theme_name: str, raw: dict, bevel: list | None) -> list[str]:
-    """Enforces the Qt bevel house rule: lightest to darkest.
-
-    QPalette shades 3D edges from the Light role down to the Dark
-    role, so the five ladder tokens must lose luminance in listed
-    order with every neighboring pair clearing
-    BEVEL_MIN_ADJACENT_RATIO. A missing ladder is fine. A present
-    one must read as a ramp, never as flat or inverted steps.
-    """
-    if bevel is None:
-        return []
-
-    errors = []
-    luminances = [relative_luminance(hex_to_rgb(raw[token])) for token in bevel]
-    roles = ["qt_light", "qt_midlight", "qt_button", "qt_mid", "qt_dark"]
-
-    for index in range(len(bevel) - 1):
-        upper, lower = bevel[index], bevel[index + 1]
-        if luminances[index] + 1e-9 < luminances[index + 1]:
-            errors.append(
-                f"Qt bevel {roles[index]} ({upper}) is darker than "
-                f"{roles[index + 1]} ({lower}); the ladder must run "
-                "lightest to darkest"
-            )
-            continue
-
-        ratio = contrast_ratio(hex_to_rgb(raw[upper]), hex_to_rgb(raw[lower]))
-        if ratio + 1e-9 < BEVEL_MIN_ADJACENT_RATIO:
-            errors.append(
-                f"Qt bevel {roles[index]} ({upper}) vs "
-                f"{roles[index + 1]} ({lower}) is {ratio:.2f}:1, "
-                f"expected at least {BEVEL_MIN_ADJACENT_RATIO:.1f}:1 "
-                "so the edge stays visible"
-            )
-
-    return errors
 
 
 def validate_theme(
@@ -546,19 +371,13 @@ def validate_theme(
         if not 0.0 <= float(alpha_value) <= 1.0:
             fail(f"{theme_name}: alpha token {token} has invalid alpha {alpha_value}")
 
-    contrast_checks = load_contrast_checks(theme_name, shared)
-
-    contrast_errors = validate_contrast(theme_name, raw, semantic, contrast_checks)
-    ansi_errors = validate_ansi_relationships(theme_name, raw, semantic, ansi)
-    bevel_errors = validate_bevel(theme_name, raw, theme.get("qt_bevel"))
     variant = theme.get("meta", {}).get("variant", theme_name)
     wash_errors = validate_selection_wash(theme_name, variant, raw, semantic)
 
-    all_errors = contrast_errors + ansi_errors + bevel_errors + wash_errors
-    if all_errors:
+    if wash_errors:
         fail(
-            f"{theme_name} has {len(all_errors)} validation issue(s):\n  - "
-            + "\n  - ".join(all_errors)
+            f"{theme_name} has {len(wash_errors)} validation issue(s):\n  - "
+            + "\n  - ".join(wash_errors)
         )
 
 

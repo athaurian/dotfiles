@@ -5,7 +5,7 @@ alpha:
   # indicator floor is unattainable with a translucent fill in dark
   # recolor mode, so text readability wins there.
   border_40:
-    - accent
+    - interactive_accent
     - 0.4
   error_90:
     - error
@@ -17,7 +17,7 @@ alpha:
     - success
     - 0.9
   text_8:
-    - text
+    - text_normal
     - 0.08
   transparent:
     - black
@@ -43,8 +43,8 @@ ansi:
   white: ansi_white
   yellow: ansi_yellow
 catppuccin:
-  base: background
-  blue: accent_text
+  base: background_primary
+  blue: text_accent
   border: overlay_strong
   coral: peach
   critical: critical_bg
@@ -53,11 +53,11 @@ catppuccin:
   diff_change: diff_change
   diff_delete: diff_delete
   diff_text: diff_text
-  flamingo: rose
+  flamingo: error
   faint: text_faint
   green: success
   lavender: purple
-  mantle: background_subtle
+  mantle: background_secondary_alt
   maroon: error_deep
   mauve: purple_bright
   overlay0: overlay_dim
@@ -67,18 +67,18 @@ catppuccin:
   pink: pink
   red: error
   rosewater: peach_bright
-  sapphire: accent_border
+  sapphire: interactive_accent
   selection: selection
   selection_wash: selection_wash
   secondary_alt: secondary_alt
-  sky: cyan_bright
+  sky: accent_cyan_bright
   subtext0: text_muted
   subtext1: text_secondary
-  surface0: surface_0
-  surface1: surface_1
-  surface2: surface_2
-  teal: cyan
-  text: text
+  surface0: background_modifier_form_field
+  surface1: background_modifier_hover
+  surface2: background_primary_alt
+  teal: accent_cyan
+  text: text_normal
   text_max: text_max
   yellow: yellow
 desktop:
@@ -94,24 +94,24 @@ desktop:
   qt_style: Fusion
 lut_palette:
   balanced:
-    - background
-    - surface_0
-    - surface_1
-    - surface_2
+    - background_primary
+    - background_modifier_form_field
+    - background_modifier_hover
+    - background_primary_alt
     - text_muted
     - text_secondary
-    - text
+    - text_normal
     - text_max
     - overlay_dim
-    - focus_border
-    - accent_text
+    - overlay_strong
+    - text_accent
     - diff_text
-    - cyan
-    - cyan_bright
+    - accent_cyan
+    - accent_cyan_bright
     - success
     - success_bright
-    - caution
-    - caution_bright
+    - yellow
+    - yellow_bright
     - peach
     - warning_deep
     - error
@@ -119,20 +119,20 @@ lut_palette:
     - purple
     - purple_bright
   cool:
-    - background
-    - surface_0
-    - surface_1
-    - surface_2
+    - background_primary
+    - background_modifier_form_field
+    - background_modifier_hover
+    - background_primary_alt
     - text_muted
     - text_secondary
-    - text
+    - text_normal
     - text_max
     - overlay_dim
-    - focus_border
-    - accent_text
+    - overlay_strong
+    - text_accent
     - diff_text
-    - cyan
-    - cyan_bright
+    - accent_cyan
+    - accent_cyan_bright
     - success
     - success_bright
     - purple
@@ -140,268 +140,53 @@ lut_palette:
     - error
     - error_bright
   warm:
-    - background
-    - surface_0
-    - surface_1
-    - surface_2
+    - background_primary
+    - background_modifier_form_field
+    - background_modifier_hover
+    - background_primary_alt
     - text_muted
     - peach
     - warning_deep
-    - caution
-    - caution_bright
+    - yellow
+    - yellow_bright
     - error
     - error_bright
     - success
     - success_bright
-    - accent_text
-    - purple_text
+    - text_accent
+    - purple
 semantic:
-  accent: accent_blue
-  accent_bright: hover_blue
-  accent_strong: accent_blue
-  accent_text: accent_blue_bright
-  background: bg
-  background_deep: bg_deep
-  background_subtle: bg_subtle
-  border_inactive: border_inactive
-  caution: yellow
-  caution_bright: yellow_bright
-  commit_hash: peach
-  critical_bg: critical_bg
-  cyan: accent_cyan
-  cyan_bright: accent_cyan_bright
-  diff_add: diff_add
-  diff_change: diff_change
-  diff_delete: diff_delete
-  diff_text: diff_text
-  error: error
-  error_bg: diff_delete
-  error_bright: error_bright
-  error_deep: error_deep
-  error_fg: text
-  error_text: error
-  focus_border: overlay_strong
-  hover_error_bg: diff_delete
-  hover_warning_bg: warning_tint
-  inc_search_bg: accent_text
-  interactive_text: accent_blue_bright
+  inc_search_bg: diff_text
   meter_bg: track
-  network_end: accent_blue_bright
-  network_mid: accent_blue
-  network_start: accent_cyan
   on_accent: text_max
-  on_critical: text_max
-  # Text on blue fills. The official dark blue is too light for white
-  # text, so the dark theme flips this to black; light keeps on_accent.
+  # Text on the accent-ish highlight fills. The official dark blue is
+  # too light for white text, so the dark theme flips this to black;
+  # light keeps on_accent.
   on_blue: on_accent
-  on_selection: text_max
-  on_warning: bg
-  overlay_dim: overlay_dim
-  overlay_strong: overlay_strong
-  peach: peach
-  pink: pink
-  purple: purple
-  purple_bright: purple_bright
-  purple_text: purple_bright
-  rose: error
-  selected_line_bg: surface_1
-  secondary_alt: secondary_alt
-  selection: selection
-  selection_subtle: bg_subtle
-  selection_wash: selection_wash
-  success: success
-  success_bright: success_bright
-  surface_0: surface_0
-  surface_1: surface_1
-  surface_2: surface_2
-  text: text
-  text_faint: text_faint
-  text_max: text_max
-  text_muted: text_muted
-  text_secondary: text_secondary
-  url: accent_blue_bright
+  text_accent: color_accent_1
   warning: yellow
-  warning_accent: warning_deep
-  warning_bg: warning_tint
-  warning_deep: warning_deep
-  warning_fg: text
-  yellow: yellow
 apps:
-  cava:
-    bg: bg
-    fg: accent_blue
-    gradient_1: accent_blue
-    gradient_2: accent_cyan
-    gradient_3: success
-    gradient_4: yellow
-    gradient_5: peach
-    gradient_6: error
-    gradient_7: purple
-    gradient_8: pink
   cherry_picked:
-    bg: surface_1
     fg: text_max
   emphasis:
-    bg: accent_blue_bright
-    fg: bg
+    bg: color_accent_1
   fastfetch:
-    key: accent_blue_bright
-    logo: peach
+    key: color_accent_1
   jump_label:
-    bg: accent_blue_bright
-    fg: bg
+    bg: color_accent_1
   notice:
-    accent: accent_blue_bright
-    bg: surface_0
-    fg: text
+    accent: color_accent_1
   qt:
-    alternate_base: surface_0
-    base: bg_subtle
-    shadow: bg_deep
-    tooltip_base: surface_1
+    alternate_base: background_modifier_form_field
+    base: background_primary
+    # Shadow rides the base-30 border tone; light swaps in its base-30
+    # surface. Obsidian draws no bevel outlines.
+    shadow: secondary_alt
   search:
-    bg: accent_blue_bright
-    fg: bg_deep
+    bg: color_accent_1
   swaylock:
     bs_hl: error_bright
-    caps_key_hl: yellow
+    caps_key_hl: yellow_bright
     key_hl: ansi_white
-    ring: overlay_strong
-  terminal_selection:
-    bg: selection_wash
-    fg: text
   window:
     focused_border: overlay_strong
-    focused_inactive_bg: surface_0
-    focused_inactive_text: text
-    inactive_border: border_inactive
-    unfocused_bg: bg_subtle
-    unfocused_text: text_muted
-  zellij:
-    background_zero: bg
-contrast_checks:
-  # WCAG 2.2 AA implementation. Body text clears 4.5:1 (SC 1.4.3) and
-  # boundaries and meaningful graphics clear 3:1 (SC 1.4.11). The
-  # build aborts below any floor. Passing is not a conformance claim.
-  # Body text on the background and on panels.
-  - [text, background, 4.5]
-  - [text_max, background, 4.5]
-  - [text_secondary, background, 4.5]
-  - [text_muted, background, 4.5]
-  - [text_secondary, surface_1, 4.5]
-  - [text_muted, surface_0, 4.5]
-  - [text_muted, surface_1, 4.5]
-  - [text_max, surface_1, 4.5]
-  - [text_max, surface_2, 4.5]
-  # Selected rows carry body text on surface_1 (fuzzel selection,
-  # lazygit lines, sway titles, nvim popups, btop banner).
-  - [text, surface_1, 4.5]
-  # Highlight fills must read against the background so selected rows
-  # scan as selected. House rule, not WCAG: 3:1 would force striped
-  # panels, so 1.25:1 marks the floor here (light surface_1 is the
-  # evidence-pinned official base-30 #E4E4E4, which caps this pair at
-  # ~1.27:1). Text on top keeps its own 4.5:1 rows above.
-  - [surface_1, background, 1.25]
-  - [selection_subtle, background, 1.25]
-  # btop meter troughs are fill-behind shading that must read against
-  # the box background, or the unfilled portion of a meter vanishes.
-  # Same house floor as the selection fills: shading, not a text
-  # boundary, so 1.4:1 rather than 3:1.
-  - [meter_bg, background, 1.4]
-  # Selected and status text.
-  - [on_selection, selection, 4.5]
-  # Body text keeps its own color on the selection wash.
-  - [text, selection_wash, 4.5]
-  # Swaylock arcs are graphics: 3:1 against the ring and against the
-  # background fill. The ring sits in a narrow band, 3:1 against both
-  # the fill and the bright arcs, so move it only with the checker.
-  - [swaylock_key_hl, swaylock_ring, 3.0]
-  - [swaylock_caps_key_hl, swaylock_ring, 3.0]
-  - [swaylock_bs_hl, swaylock_ring, 3.0]
-  - [swaylock_key_hl, background, 3.0]
-  - [swaylock_caps_key_hl, background, 3.0]
-  - [swaylock_bs_hl, background, 3.0]
-  - [swaylock_ring, background, 3.0]
-  - [on_critical, critical_bg, 4.5]
-  - [on_warning, warning, 4.5]
-  # Search matches render body text.
-  - [search_fg, search_bg, 4.5]
-  - [on_blue, inc_search_bg, 4.5]
-  - [emphasis_fg, emphasis_bg, 4.5]
-  - [jump_label_fg, jump_label_bg, 4.5]
-  # Boundaries clear 3:1 against the adjacent color only (SC 1.4.11,
-  # not 2.4.13 focus appearance). Inactive borders are exempt. Focus
-  # rings never sit on selection fills (verified in lazygit, waybar,
-  # and fuzzel), so no focus-vs-selection pair exists. Add one if a
-  # template starts doing that.
-  - [focus_border, background, 3.0]
-  # Popup frames sit on the float background (nvim FloatBorder).
-  - [focus_border, background_subtle, 3.0]
-  # Window frames clear 3:1 against the background and each other.
-  - [window_focused_border, background, 3.0]
-  - [window_focused_border, window_inactive_border, 3.0]
-  # Waybar marks focused workspaces with accent text plus an accent
-  # underline; the underline is the graphic here.
-  # Accent fills as graphics (3:1); the text roles below stay at 4.5.
-  - [emphasis_bg, background, 3.0]
-  - [accent_text, background, 4.5]
-  - [interactive_text, background, 4.5]
-  - [url, background, 4.5]
-  - [fastfetch_key, background, 4.5]
-  - [purple_text, background, 4.5]
-  - [error_text, background, 4.5]
-  - [commit_hash, background, 4.5]
-  # Status text on the background: lazygit options and authors plus
-  # zellij exit codes (success), lazygit file types plus zellij cues
-  # (cyan), lazygit marked commits plus waybar battery icons (caution),
-  # and dunst progress text (notice_accent). Waybar urgent hovers pair
-  # the bright error text with the error wash.
-  - [success, background, 4.5]
-  - [cyan, background, 4.5]
-  - [caution, background, 4.5]
-  - [notice_accent, background, 4.5]
-  - [error_bright, error_bg, 4.5]
-  # Qt and notification surfaces carry body text.
-  - [text, qt_base, 4.5]
-  - [text, qt_button, 4.5]
-  - [text, qt_tooltip_base, 4.5]
-  - [notice_fg, notice_bg, 4.5]
-  - [warning_fg, warning_bg, 4.5]
-  - [error_fg, error_bg, 4.5]
-  - [notice_accent, notice_bg, 4.5]
-  - [warning_accent, warning_bg, 4.5]
-  # Waybar mode-pill text sits on the warning wash, not the background.
-  - [warning_deep, warning_bg, 4.5]
-  - [error_text, error_bg, 4.5]
-  # Status strokes are graphics-only by contract, never body text.
-  - [network_start, background, 3.0]
-  - [network_mid, background, 3.0]
-  - [network_end, background, 3.0]
-  - [warning, background, 3.0]
-  - [accent_strong, background, 3.0]
-  - [rose, selection_subtle, 3.0]
-  # Match and pick text (blue fills take the on_blue role, which the
-  # dark theme flips to black).
-  - [on_blue, diff_text, 4.5]
-  - [accent_text, surface_1, 4.5]
-  - [cherry_picked_fg, cherry_picked_bg, 4.5]
-  # Diff washes keep syntax-colored code, so working green and blue
-  # clear 4.5:1 on their washes directly.
-  - [success, diff_add, 4.5]
-  - [accent_text, diff_change, 4.5]
-  # Captions on raised panels and the deepest surface.
-  - [text_muted, surface_2, 4.5]
-  - [cyan, surface_1, 4.5]
-  - [overlay_dim, background, 4.5]
-  - [text_secondary, background_subtle, 4.5]
-  - [text_muted, background_subtle, 4.5]
-  - [text_secondary, background_deep, 4.5]
-  # Muted text on the deepest surface still renders body text. If a
-  # future palette cannot carry it, rename the role instead of
-  # lowering this floor.
-  # Selection fills and the dark delete wash are text-backed by house
-  # contract, not by exemption: every consumer remaps the text on top
-  # (verified in foot, zellij, btop, zathura, nvim, and fuzzel), so
-  # they carry no bare-fill floor. Deletion always pairs with a
-  # non-color cue (gutter signs, +/- markers). State-vs-state pairs
-  # have no WCAG floor; hue plus non-color cues separate them.

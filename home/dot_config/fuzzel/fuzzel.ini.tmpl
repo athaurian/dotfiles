@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $c := .flint.resolved }}
+#{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 #{{ $d := .flint.desktop }}
 #{{ $a := .flint.appearance }}
 
@@ -17,17 +17,17 @@ placeholder="find something..."
 namespace = launcher
 
 [colors]
-background={{ $c.background.bare_ff }}
-text={{ $c.text.bare_ff }}
-message={{ $c.text.bare_ff }}
-prompt={{ $c.text.bare_ff }}
-placeholder={{ $c.text_muted.bare_ff }}
-input={{ $c.text.bare_ff }}
-match={{ $c.accent_text.bare_ff }}
-selection={{ $c.surface_1.bare_ff }}
-selection-text={{ $c.text.bare_ff }}
-selection-match={{ $c.accent_text.bare_ff }}
-counter={{ $c.text_muted.bare_ff }}
+background={{ $r.background_primary.bare_ff }}
+text={{ $r.text_normal.bare_ff }}
+message={{ $r.text_normal.bare_ff }}
+prompt={{ $r.text_normal.bare_ff }}
+placeholder={{ $r.text_muted.bare_ff }}
+input={{ $r.text_normal.bare_ff }}
+match={{ $c.text_accent.bare_ff }}
+selection={{ $r.background_modifier_hover.bare_ff }}
+selection-text={{ $r.text_normal.bare_ff }}
+selection-match={{ $c.text_accent.bare_ff }}
+counter={{ $r.text_muted.bare_ff }}
 border={{ $c.window_focused_border.bare_ff }}
 
 [border]
