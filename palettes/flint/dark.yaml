@@ -9,9 +9,8 @@ meta:
   name: Flint
   variant: dark
 raw:
-  accent_blue: "#8A5CF5"
-  accent_blue_bright: "#AF90F8"
-  accent_border: "#8A5CF5"
+  interactive_accent: "#8A5CF5"
+  color_accent_1: "#A68AF9"
   accent_cyan: "#53DFDD"
   accent_cyan_bright: "#87E9E7"
   ansi_black: "#1C1C1C"
@@ -30,12 +29,13 @@ raw:
   ansi_red: "#FB464C"
   ansi_white: "#DADADA"
   ansi_yellow: "#E0DE71"
-  bg: "#1C1C1C"
+  background_primary: "#1C1C1C"
   black: "#000000"
   border_inactive: "#333333"
   critical_bg: "#D53C41"
-  # == bg by design: Obsidian exposes no step below base-00.
-  bg_deep: "#1C1C1C"
+  # == background_primary by design: Obsidian exposes no step below
+  # base-00.
+  background_deep: "#1C1C1C"
   diff_add: "#1E3327"
   diff_change: "#1E1E28"
   diff_delete: "#2C1B1F"
@@ -43,8 +43,8 @@ raw:
   error: "#FB464C"
   error_bright: "#FEC8C9"
   error_deep: "#802427"
-  hover_blue: "#B497F9"
-  bg_subtle: "#212121"
+  interactive_accent_hover: "#B497F9"
+  background_secondary_alt: "#212121"
   ink_amber: "#2E2412"
   ink_blue: "#1C2A3E"
   ink_red: "#331B1F"
@@ -57,15 +57,21 @@ raw:
   purple_bright: "#B595FF"
   ring_mid: "#757575"
   secondary_alt: "#333333"
-  selection: "#8459EA"
-  selection_wash: "#423363"
+  selection: "#8A5CF5"
+  selection_wash: "#403163"
   success: "#44CF6E"
   success_bright: "#76DC95"
-  surface_0: "#232323"
-  surface_1: "#373737"
-  surface_2: "#2E2E2E"
+  background_modifier_form_field: "#232323"
+  background_modifier_hover: "#373737"
+  background_primary_alt: "#2E2E2E"
+  # Obsidian chrome (base-20), interactive hover (base-35), and the
+  # tooltip pair (black at 90% over base-00, fixed #FAFAFA text).
+  background_secondary: "#282828"
+  interactive_hover: "#3F3F3F"
+  tooltip_bg: "#030303"
+  tooltip_fg: "#FAFAFA"
   track: "#555555"
-  text: "#DADADA"
+  text_normal: "#DADADA"
   text_faint: "#666666"
   text_max: "#FFFFFF"
   text_muted: "#B3B3B3"
@@ -75,18 +81,10 @@ raw:
   yellow: "#E0DE71"
   yellow_bright: "#E7E692"
 semantic_overrides:
-  inc_search_bg: diff_text
   on_blue: black
-  purple_text: purple
-  # Shadow must read against the secondary-alt Window, so it takes
-  # black instead of the bg-duplicate bg_deep.
-  qt_shadow: black
-  selection_subtle: surface_1
-  swaylock_caps_key_hl: yellow_bright
-  swaylock_ring: ring_mid
 qt_bevel:
-  - track
-  - surface_1
-  - surface_2
-  - surface_0
-  - black
+  - interactive_hover
+  - interactive_hover
+  - secondary_alt
+  - secondary_alt
+  - secondary_alt

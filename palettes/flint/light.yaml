@@ -9,9 +9,8 @@ meta:
   name: Sand
   variant: light
 raw:
-  accent_blue: "#6946BC"
-  accent_blue_bright: "#8A5CF5"
-  accent_border: "#6946BC"
+  interactive_accent: "#6946BC"
+  color_accent_1: "#9873F7"
   accent_cyan: "#006867"
   accent_cyan_bright: "#00BFBC"
   ansi_black: "#222222"
@@ -30,13 +29,13 @@ raw:
   ansi_red: "#D22C40"
   ansi_white: "#E4E4E4"
   ansi_yellow: "#927000"
-  bg: "#FFFFFF"
+  background_primary: "#FFFFFF"
   black: "#000000"
   border_inactive: "#BDBDBD"
   critical_bg: "#B12536"
-  # Reuses the base-35 border step: the lightest background callers
-  # (search-fg text) need, kept under the bg_deep role name for parity.
-  bg_deep: "#DADADA"
+  # The base-35 step: one step below background_primary, the deepest
+  # background the light ramp exposes, used as the latte crust.
+  background_deep: "#DADADA"
   diff_add: "#E9F6EE"
   diff_change: "#E6F0F9"
   diff_delete: "#FBF2F3"
@@ -44,8 +43,8 @@ raw:
   error: "#D22C40"
   error_bright: "#B12536"
   error_deep: "#731823"
-  hover_blue: "#7A58C9"
-  bg_subtle: "#FCFCFC"
+  interactive_accent_hover: "#7A58C9"
+  background_secondary_alt: "#FCFCFC"
   ink_amber: "#3F1E00"
   ink_blue: "#08264B"
   ink_red: "#4B1118"
@@ -58,15 +57,21 @@ raw:
   purple_bright: "#5F41BC"
   ring_mid: "#707070"
   secondary_alt: "#FAFAFA"
-  selection: "#8458EB"
-  selection_wash: "#E4DBF9"
+  selection: "#9873F7"
+  selection_wash: "#EAE3FD"
   success: "#068036"
   success_bright: "#04662B"
-  surface_0: "#EFEFEF"
-  surface_1: "#E4E4E4"
-  surface_2: "#F6F6F6"
+  background_modifier_form_field: "#EFEFEF"
+  background_modifier_hover: "#E4E4E4"
+  background_primary_alt: "#F6F6F6"
+  # Obsidian chrome (base-20), interactive hover (base-10), and the
+  # tooltip pair (black at 90% over base-00, fixed #FAFAFA text).
+  background_secondary: "#F6F6F6"
+  interactive_hover: "#FAFAFA"
+  tooltip_bg: "#191919"
+  tooltip_fg: "#FAFAFA"
   track: "#707070"
-  text: "#222222"
+  text_normal: "#222222"
   text_faint: "#ABABAB"
   text_max: "#000000"
   text_muted: "#5C5C5C"
@@ -76,32 +81,25 @@ raw:
   yellow: "#927000"
   yellow_bright: "#826400"
 semantic_overrides:
-  accent_text: accent_blue
-  cherry_picked_fg: accent_border
-  emphasis_bg: accent_border
-  fastfetch_key: accent_blue
-  inc_search_bg: accent_blue
-  interactive_text: accent_blue
-  jump_label_bg: accent_border
+  text_accent: interactive_accent
+  cherry_picked_fg: interactive_accent
+  emphasis_bg: interactive_accent
+  fastfetch_key: interactive_accent
+  inc_search_bg: interactive_accent
+  jump_label_bg: interactive_accent
   meter_bg: border_inactive
-  notice_accent: accent_blue
-  on_accent: bg
-  on_critical: bg
-  on_selection: bg
-  purple_text: purple
-  qt_shadow: overlay_strong
-  search_bg: accent_blue
-  search_fg: bg
-  selection_subtle: surface_1
+  notice_accent: interactive_accent
+  on_accent: background_primary
+  qt_alternate_base: secondary_alt
+  qt_shadow: background_modifier_hover
+  search_bg: interactive_accent
   swaylock_bs_hl: ink_red
   swaylock_caps_key_hl: ink_amber
   swaylock_key_hl: ink_blue
-  swaylock_ring: ring_mid
-  url: accent_blue
-  window_focused_border: text
+  window_focused_border: text_normal
 qt_bevel:
-  - bg
-  - surface_0
-  - surface_1
-  - border_inactive
-  - track
+  - secondary_alt
+  - secondary_alt
+  - background_primary
+  - background_modifier_hover
+  - background_modifier_hover

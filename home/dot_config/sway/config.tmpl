@@ -19,18 +19,18 @@ set $filemanager sh -c 'exec ${FILEMANAGER:-thunar}'
 set $passwordmanager sh -c 'exec ${PASSWORD_MANAGER:-gtk-launch org.keepassxc.KeePassXC}'
 
 # --- Colors ---
-#{{ $bg := .flint.resolved.background.hex }}
+#{{ $bg := .flint.raw.background_primary.hex }}
 #{{ $focus_border := .flint.resolved.window_focused_border.hex }}
-#{{ $inactive_border := .flint.resolved.window_inactive_border.hex }}
-#{{ $focused_bg := .flint.resolved.surface_1.hex }}
-#{{ $focused_fg := .flint.resolved.text.hex }}
-#{{ $focused_inactive_bg := .flint.resolved.window_focused_inactive_bg.hex }}
-#{{ $focused_inactive_fg := .flint.resolved.window_focused_inactive_text.hex }}
-#{{ $unfocused_bg := .flint.resolved.window_unfocused_bg.hex }}
-#{{ $unfocused_fg := .flint.resolved.window_unfocused_text.hex }}
-#{{ $err := .flint.resolved.error.hex }}
-#{{ $crit := .flint.resolved.critical_bg.hex }}
-#{{ $on_crit := .flint.resolved.on_critical.hex }}
+#{{ $inactive_border := .flint.raw.border_inactive.hex }}
+#{{ $focused_bg := .flint.raw.background_modifier_hover.hex }}
+#{{ $focused_fg := .flint.raw.text_normal.hex }}
+#{{ $focused_inactive_bg := .flint.raw.background_modifier_form_field.hex }}
+#{{ $focused_inactive_fg := .flint.raw.text_normal.hex }}
+#{{ $unfocused_bg := .flint.raw.background_secondary_alt.hex }}
+#{{ $unfocused_fg := .flint.raw.text_muted.hex }}
+#{{ $err := .flint.raw.error.hex }}
+#{{ $crit := .flint.raw.critical_bg.hex }}
+#{{ $on_crit := .flint.resolved.on_accent.hex }}
 
 client.focused          {{ $focus_border }} {{ $focused_bg }} {{ $focused_fg }} {{ $focus_border }} {{ $focus_border }}
 client.focused_inactive {{ $inactive_border }} {{ $focused_inactive_bg }} {{ $focused_inactive_fg }} {{ $inactive_border }} {{ $inactive_border }}

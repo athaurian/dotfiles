@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-#{{ $c := .flint.resolved }}
+#{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 #{{ $d := .flint.desktop }}
 #{{ $al := .flint.alpha }}
 # --- Behavior ---
@@ -27,25 +27,25 @@ fade-in=0.5
 effect-vignette=0.4:0.4
 
 # --- Ring colors ---
-ring-color={{ $c.swaylock_ring.bare_ff }}
-ring-clear-color={{ $c.swaylock_ring.bare_ff }}
-ring-ver-color={{ $c.swaylock_ring.bare_ff }}
-ring-wrong-color={{ $c.swaylock_ring.bare_ff }}
-ring-caps-lock-color={{ $c.swaylock_ring.bare_ff }}
+ring-color={{ $r.ring_mid.bare_ff }}
+ring-clear-color={{ $r.ring_mid.bare_ff }}
+ring-ver-color={{ $r.ring_mid.bare_ff }}
+ring-wrong-color={{ $r.ring_mid.bare_ff }}
+ring-caps-lock-color={{ $r.ring_mid.bare_ff }}
 
 # --- Inside colors ---
-inside-color={{ $c.background.bare_ff }}
-inside-clear-color={{ $c.background.bare_ff }}
-inside-ver-color={{ $c.background.bare_ff }}
-inside-wrong-color={{ $c.background.bare_ff }}
-inside-caps-lock-color={{ $c.background.bare_ff }}
+inside-color={{ $r.background_primary.bare_ff }}
+inside-clear-color={{ $r.background_primary.bare_ff }}
+inside-ver-color={{ $r.background_primary.bare_ff }}
+inside-wrong-color={{ $r.background_primary.bare_ff }}
+inside-caps-lock-color={{ $r.background_primary.bare_ff }}
 
 # --- Text colors ---
-text-color={{ $c.text.bare }}
-text-clear-color={{ $c.text.bare }}
-text-ver-color={{ $c.text.bare }}
-text-wrong-color={{ $c.error.bare }}
-text-caps-lock-color={{ $c.caution_bright.bare }}
+text-color={{ $r.text_normal.bare }}
+text-clear-color={{ $r.text_normal.bare }}
+text-ver-color={{ $r.text_normal.bare }}
+text-wrong-color={{ $r.error.bare }}
+text-caps-lock-color={{ $r.yellow_bright.bare }}
 
 # --- Key highlight colors ---
 # Keystroke arc pulses along the perimeter track

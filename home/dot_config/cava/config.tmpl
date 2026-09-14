@@ -1,5 +1,5 @@
 # Managed by chezmoi. Edit the template in the dotfiles repository instead.
-# {{ $c := .flint.resolved }}
+# {{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 
 [general]
 live-config = 1
@@ -32,18 +32,18 @@ waveform = 0
 
 [color]
 
-background = '{{ $c.cava_bg.hex }}'
-foreground = '{{ $c.cava_fg.hex }}'
+background = '{{ $r.background_primary.hex }}'
+foreground = '{{ $r.interactive_accent.hex }}'
 
 gradient = 1
-gradient_color_1 = '{{ $c.cava_gradient_1.hex }}'
-gradient_color_2 = '{{ $c.cava_gradient_2.hex }}'
-gradient_color_3 = '{{ $c.cava_gradient_3.hex }}'
-gradient_color_4 = '{{ $c.cava_gradient_4.hex }}'
-gradient_color_5 = '{{ $c.cava_gradient_5.hex }}'
-gradient_color_6 = '{{ $c.cava_gradient_6.hex }}'
-gradient_color_7 = '{{ $c.cava_gradient_7.hex }}'
-gradient_color_8 = '{{ $c.cava_gradient_8.hex }}'
+gradient_color_1 = '{{ $r.interactive_accent.hex }}'
+gradient_color_2 = '{{ $r.accent_cyan.hex }}'
+gradient_color_3 = '{{ $r.success.hex }}'
+gradient_color_4 = '{{ $r.yellow.hex }}'
+gradient_color_5 = '{{ $r.peach.hex }}'
+gradient_color_6 = '{{ $r.error.hex }}'
+gradient_color_7 = '{{ $r.purple.hex }}'
+gradient_color_8 = '{{ $r.pink.hex }}'
 
 horizontal_gradient = 0
 

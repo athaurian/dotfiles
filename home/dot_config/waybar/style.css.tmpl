@@ -1,30 +1,30 @@
 /* chezmoi:template:left-delimiter="'{{" right-delimiter="}}'" */
 /* Managed by chezmoi. Edit the template in the dotfiles repository instead. */
-/* '{{ $c := .flint.resolved }}' */
+/* '{{ $r := .flint.raw }}' */
 /* '{{ $d := .flint.desktop }}' */
 /* '{{ $al := .flint.alpha }}' */
 
-@define-color flint-base '{{ $c.background.hex }}';
-@define-color flint-text '{{ $c.text.hex }}';
-@define-color flint-text-max '{{ $c.text_max.hex }}';
-@define-color flint-text-muted '{{ $c.text_muted.hex }}';
-@define-color flint-overlay-strong '{{ $c.overlay_strong.hex }}';
-@define-color flint-border-inactive '{{ $c.border_inactive.hex }}';
-@define-color flint-focus-border '{{ $c.focus_border.hex }}';
-@define-color flint-accent-text '{{ $c.accent_text.hex }}';
-@define-color flint-accent-bright '{{ $c.accent_bright.hex }}';
-@define-color flint-surface-1 '{{ $c.surface_1.hex }}';
-@define-color flint-warning '{{ $c.warning.hex }}';
-@define-color flint-warning-deep '{{ $c.warning_deep.hex }}';
-@define-color flint-caution '{{ $c.caution.hex }}';
-@define-color flint-error-text '{{ $c.error_text.hex }}';
-@define-color flint-error-bright '{{ $c.error_bright.hex }}';
-@define-color flint-error-deep '{{ $c.error_deep.hex }}';
-@define-color flint-success '{{ $c.success.hex }}';
+@define-color flint-base '{{ $r.background_primary.hex }}';
+@define-color flint-text '{{ $r.text_normal.hex }}';
+@define-color flint-text-max '{{ $r.text_max.hex }}';
+@define-color flint-text-muted '{{ $r.text_muted.hex }}';
+@define-color flint-overlay-strong '{{ $r.overlay_strong.hex }}';
+@define-color flint-border-inactive '{{ $r.border_inactive.hex }}';
+@define-color flint-focus-border '{{ $r.overlay_strong.hex }}';
+@define-color flint-accent-text '{{ .flint.resolved.text_accent.hex }}';
+@define-color flint-accent-bright '{{ $r.interactive_accent_hover.hex }}';
+@define-color flint-surface-1 '{{ $r.background_modifier_hover.hex }}';
+@define-color flint-warning '{{ .flint.resolved.warning.hex }}';
+@define-color flint-warning-deep '{{ $r.warning_deep.hex }}';
+@define-color flint-caution '{{ $r.yellow.hex }}';
+@define-color flint-error-text '{{ $r.error.hex }}';
+@define-color flint-error-bright '{{ $r.error_bright.hex }}';
+@define-color flint-error-deep '{{ $r.error_deep.hex }}';
+@define-color flint-success '{{ $r.success.hex }}';
 @define-color flint-transparent '{{ $al.transparent.rgba }}';
 @define-color flint-hover-neutral '{{ $al.text_8.rgba }}';
-@define-color flint-hover-warning '{{ $c.hover_warning_bg.hex }}';
-@define-color flint-hover-error '{{ $c.hover_error_bg.hex }}';
+@define-color flint-hover-warning '{{ $r.warning_tint.hex }}';
+@define-color flint-hover-error '{{ $r.diff_delete.hex }}';
 
 * {
   border: none;

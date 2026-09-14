@@ -1,135 +1,135 @@
 // Managed by chezmoi. Edit the template in the dotfiles repository instead.
-//{{ $c := .flint.resolved }}
+//{{ $c := .flint.resolved }}{{ $r := .flint.raw }}
 themes {
   flint {
     text_unselected {
-      base {{ $c.text.triple }}
-      background {{ $c.background.triple }}
-      emphasis_0 {{ $c.peach.triple }}
-      emphasis_1 {{ $c.cyan.triple }}
-      emphasis_2 {{ $c.success.triple }}
-      emphasis_3 {{ $c.purple_text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.peach.triple }}
+      emphasis_1 {{ $r.accent_cyan.triple }}
+      emphasis_2 {{ $r.success.triple }}
+      emphasis_3 {{ $r.purple.triple }}
     }
 
     text_selected {
-      base {{ $c.text.triple }}
-      background {{ $c.selection_wash.triple }}
-      emphasis_0 {{ $c.text.triple }}
-      emphasis_1 {{ $c.text.triple }}
-      emphasis_2 {{ $c.text.triple }}
-      emphasis_3 {{ $c.text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.selection_wash.triple }}
+      emphasis_0 {{ $r.text_normal.triple }}
+      emphasis_1 {{ $r.text_normal.triple }}
+      emphasis_2 {{ $r.text_normal.triple }}
+      emphasis_3 {{ $r.text_normal.triple }}
     }
 
     ribbon_selected {
-      base {{ $c.emphasis_fg.triple }}
+      base {{ $r.background_primary.triple }}
       background {{ $c.emphasis_bg.triple }}
-      emphasis_0 {{ $c.emphasis_fg.triple }}
-      emphasis_1 {{ $c.emphasis_fg.triple }}
-      emphasis_2 {{ $c.emphasis_fg.triple }}
-      emphasis_3 {{ $c.emphasis_fg.triple }}
+      emphasis_0 {{ $r.background_primary.triple }}
+      emphasis_1 {{ $r.background_primary.triple }}
+      emphasis_2 {{ $r.background_primary.triple }}
+      emphasis_3 {{ $r.background_primary.triple }}
     }
 
     ribbon_unselected {
-      base {{ $c.text.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.error_text.triple }}
-      emphasis_1 {{ $c.pink.triple }}
-      emphasis_2 {{ $c.accent_text.triple }}
-      emphasis_3 {{ $c.purple_text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.error.triple }}
+      emphasis_1 {{ $r.pink.triple }}
+      emphasis_2 {{ $c.text_accent.triple }}
+      emphasis_3 {{ $r.purple.triple }}
     }
 
     table_title {
-      base {{ $c.accent_text.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.peach.triple }}
-      emphasis_1 {{ $c.cyan.triple }}
-      emphasis_2 {{ $c.success.triple }}
-      emphasis_3 {{ $c.purple_text.triple }}
+      base {{ $c.text_accent.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.peach.triple }}
+      emphasis_1 {{ $r.accent_cyan.triple }}
+      emphasis_2 {{ $r.success.triple }}
+      emphasis_3 {{ $r.purple.triple }}
     }
 
     table_cell_selected {
-      base {{ $c.text.triple }}
-      background {{ $c.selection_wash.triple }}
-      emphasis_0 {{ $c.text.triple }}
-      emphasis_1 {{ $c.text.triple }}
-      emphasis_2 {{ $c.text.triple }}
-      emphasis_3 {{ $c.text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.selection_wash.triple }}
+      emphasis_0 {{ $r.text_normal.triple }}
+      emphasis_1 {{ $r.text_normal.triple }}
+      emphasis_2 {{ $r.text_normal.triple }}
+      emphasis_3 {{ $r.text_normal.triple }}
     }
 
     table_cell_unselected {
-      base {{ $c.text.triple }}
-      background {{ $c.background.triple }}
-      emphasis_0 {{ $c.peach.triple }}
-      emphasis_1 {{ $c.cyan.triple }}
-      emphasis_2 {{ $c.success.triple }}
-      emphasis_3 {{ $c.purple_text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.peach.triple }}
+      emphasis_1 {{ $r.accent_cyan.triple }}
+      emphasis_2 {{ $r.success.triple }}
+      emphasis_3 {{ $r.purple.triple }}
     }
 
     list_selected {
-      base {{ $c.text.triple }}
-      background {{ $c.selection_wash.triple }}
-      emphasis_0 {{ $c.text.triple }}
-      emphasis_1 {{ $c.text.triple }}
-      emphasis_2 {{ $c.text.triple }}
-      emphasis_3 {{ $c.text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.selection_wash.triple }}
+      emphasis_0 {{ $r.text_normal.triple }}
+      emphasis_1 {{ $r.text_normal.triple }}
+      emphasis_2 {{ $r.text_normal.triple }}
+      emphasis_3 {{ $r.text_normal.triple }}
     }
 
     list_unselected {
-      base {{ $c.text.triple }}
-      background {{ $c.background.triple }}
-      emphasis_0 {{ $c.peach.triple }}
-      emphasis_1 {{ $c.cyan.triple }}
-      emphasis_2 {{ $c.success.triple }}
-      emphasis_3 {{ $c.purple_text.triple }}
+      base {{ $r.text_normal.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.peach.triple }}
+      emphasis_1 {{ $r.accent_cyan.triple }}
+      emphasis_2 {{ $r.success.triple }}
+      emphasis_3 {{ $r.purple.triple }}
     }
 
     frame_selected {
-      base {{ $c.accent_text.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.peach.triple }}
-      emphasis_1 {{ $c.cyan.triple }}
-      emphasis_2 {{ $c.purple_text.triple }}
-      emphasis_3 {{ $c.text_muted.triple }}
+      base {{ $c.text_accent.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.peach.triple }}
+      emphasis_1 {{ $r.accent_cyan.triple }}
+      emphasis_2 {{ $r.purple.triple }}
+      emphasis_3 {{ $r.text_muted.triple }}
     }
 
     frame_highlight {
-      base {{ $c.pink.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.purple_text.triple }}
-      emphasis_1 {{ $c.pink.triple }}
-      emphasis_2 {{ $c.pink.triple }}
-      emphasis_3 {{ $c.pink.triple }}
+      base {{ $r.pink.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.purple.triple }}
+      emphasis_1 {{ $r.pink.triple }}
+      emphasis_2 {{ $r.pink.triple }}
+      emphasis_3 {{ $r.pink.triple }}
     }
 
     exit_code_success {
-      base {{ $c.success.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.cyan.triple }}
-      emphasis_1 {{ $c.text_muted.triple }}
-      emphasis_2 {{ $c.purple_text.triple }}
-      emphasis_3 {{ $c.accent_text.triple }}
+      base {{ $r.success.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.accent_cyan.triple }}
+      emphasis_1 {{ $r.text_muted.triple }}
+      emphasis_2 {{ $r.purple.triple }}
+      emphasis_3 {{ $c.text_accent.triple }}
     }
 
     exit_code_error {
-      base {{ $c.error_text.triple }}
-      background {{ $c.zellij_background_zero.triple }}
-      emphasis_0 {{ $c.caution.triple }}
-      emphasis_1 {{ $c.text_muted.triple }}
-      emphasis_2 {{ $c.text_muted.triple }}
-      emphasis_3 {{ $c.text_muted.triple }}
+      base {{ $r.error.triple }}
+      background {{ $r.background_primary.triple }}
+      emphasis_0 {{ $r.yellow.triple }}
+      emphasis_1 {{ $r.text_muted.triple }}
+      emphasis_2 {{ $r.text_muted.triple }}
+      emphasis_3 {{ $r.text_muted.triple }}
     }
 
     multiplayer_user_colors {
-      player_1 {{ $c.purple_text.triple }}
-      player_2 {{ $c.accent_text.triple }}
-      player_3 {{ $c.cyan.triple }}
-      player_4 {{ $c.caution.triple }}
-      player_5 {{ $c.commit_hash.triple }}
-      player_6 {{ $c.success.triple }}
-      player_7 {{ $c.error_text.triple }}
-      player_8 {{ $c.rose.triple }}
-      player_9 {{ $c.text_secondary.triple }}
-      player_10 {{ $c.text_muted.triple }}
+      player_1 {{ $r.purple.triple }}
+      player_2 {{ $c.text_accent.triple }}
+      player_3 {{ $r.accent_cyan.triple }}
+      player_4 {{ $r.yellow.triple }}
+      player_5 {{ $r.peach.triple }}
+      player_6 {{ $r.success.triple }}
+      player_7 {{ $r.error.triple }}
+      player_8 {{ $r.error.triple }}
+      player_9 {{ $r.text_secondary.triple }}
+      player_10 {{ $r.text_muted.triple }}
     }
   }
 }
