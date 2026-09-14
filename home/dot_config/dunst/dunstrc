@@ -20,6 +20,7 @@
     horizontal_padding = 14
     text_icon_padding = 0
     frame_width = 1
+    frame_color = "#5a5a5a"
     separator_color = frame
     sort = no
     font = GeistMono Nerd Font Propo 10
@@ -52,12 +53,21 @@
     timeout = 5
 
 [urgency_low]
+    background = "#202020"
+    foreground = "#8a8a8a"
+    frame_color = "#3a3a3a"
     timeout = 3
 
 [urgency_normal]
+    background = "#2d2d2d"
+    foreground = "#d4d4d4"
+    frame_color = "#5a5a5a"
     timeout = 5
 
 [urgency_critical]
+    background = "#2d2d2d"
+    foreground = "#f08080"
+    frame_color = "#e06c75"
     timeout = 0
 
 [mpd]
