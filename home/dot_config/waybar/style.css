@@ -1,38 +1,37 @@
 /* Managed by chezmoi. Edit the file in the dotfiles repository instead. */
-/* Temporary neutral dark palette. Replaces the Flint/Sand tokens until a
-real scheme lands. Variables without a UNDO comment are all referenced. */
+/* Locked scheme: One Dark Pro chromatics on neutral grounds
+(see meta/color-scheme-plan.md). All variables are referenced. */
 
-@define-color tmp-base #202020;
-@define-color tmp-text #d4d4d4;
-@define-color tmp-text-max #ffffff;
-@define-color tmp-text-muted #8a8a8a;
-@define-color tmp-border-inactive #3a3a3a;
-@define-color tmp-focus-border #5a5a5a;
-@define-color tmp-accent-text #7aa2f7;
-@define-color tmp-accent-bright #9ab8ff;
-@define-color tmp-surface-1 #2d2d2d;
-@define-color tmp-warning #e5c07b;
-@define-color tmp-warning-deep #d19a66;
-@define-color tmp-error-text #e06c75;
-@define-color tmp-error-bright #f08080;
-@define-color tmp-transparent rgba(0, 0, 0, 0);
-@define-color tmp-hover-neutral rgba(255, 255, 255, 0.08);
-@define-color tmp-hover-warning #33291a;
-@define-color tmp-hover-error #3a2224;
+@define-color neutral-base #202020;
+@define-color neutral-text #d4d4d4;
+@define-color neutral-text-max #ffffff;
+@define-color neutral-text-muted #8a8a8a;
+@define-color neutral-border-inactive #3a3a3a;
+@define-color neutral-focus-border #5a5a5a;
+@define-color neutral-accent-text #61afef;
+@define-color neutral-accent-bright #98c3ff;
+@define-color neutral-surface-1 #2d2d2d;
+@define-color neutral-warning #e5c07b;
+@define-color neutral-warning-deep #d19a66;
+@define-color neutral-error-text #e06c75;
+@define-color neutral-error-bright #f08080;
+@define-color neutral-transparent rgba(0, 0, 0, 0);
+@define-color neutral-hover-neutral rgba(255, 255, 255, 0.08);
+@define-color neutral-hover-warning #33291a;
+@define-color neutral-hover-error #3a2224;
 
 * {
   border: none;
   /* The bar stays square on purpose: flat and wide against the background. */
   border-radius: 0;
-  font-family:
-    "Geist Mono", "GeistMono Nerd Font Mono", monospace;
+  font-family: "Geist Mono", "GeistMono Nerd Font Mono", monospace;
   font-size: 12px;
   min-height: 0;
 }
 
 window#waybar {
-  background-color: @tmp-base;
-  color: @tmp-text;
+  background-color: @neutral-base;
+  color: @neutral-text;
 }
 
 /* --- Workspaces --- */
@@ -41,12 +40,16 @@ window#waybar {
   padding: 0 2px;
 }
 
+#workspaces button label {
+  font-size: 16px;
+}
+
 #workspaces button {
   padding: 0 6px;
   margin: 0;
   border: none;
-  border-bottom: 1px solid @tmp-transparent;
-  color: @tmp-text-muted;
+  border-bottom: 1px solid @neutral-transparent;
+  color: @neutral-text-muted;
   background: transparent;
   background-image: none;
   box-shadow: none;
@@ -60,39 +63,39 @@ window#waybar {
 }
 
 #workspaces button:hover {
-  color: @tmp-text-max;
-  background-color: @tmp-hover-neutral;
-  border-bottom-color: @tmp-border-inactive;
+  color: @neutral-text-max;
+  background-color: @neutral-hover-neutral;
+  border-bottom-color: @neutral-border-inactive;
 }
 
 #workspaces button.focused {
-  color: @tmp-accent-text;
-  border-bottom-color: @tmp-accent-text;
+  color: @neutral-accent-text;
+  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.focused:hover {
-  color: @tmp-accent-bright;
-  background-color: @tmp-hover-neutral;
-  border-bottom-color: @tmp-accent-text;
+  color: @neutral-accent-bright;
+  background-color: @neutral-hover-neutral;
+  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.urgent {
-  color: @tmp-error-text;
-  border-bottom-color: @tmp-error-text;
+  color: @neutral-error-text;
+  border-bottom-color: @neutral-error-text;
 }
 
 #workspaces button.urgent:hover {
-  color: @tmp-error-bright;
-  background-color: @tmp-hover-error;
-  border-bottom-color: @tmp-error-text;
+  color: @neutral-error-bright;
+  background-color: @neutral-hover-error;
+  border-bottom-color: @neutral-error-text;
 }
 
 #mode {
   padding: 0 8px;
   margin: 1px 4px;
-  background-color: @tmp-hover-warning;
-  color: @tmp-warning-deep;
-  border: 1px solid @tmp-warning-deep;
+  background-color: @neutral-hover-warning;
+  color: @neutral-warning-deep;
+  border: 1px solid @neutral-warning-deep;
   font-weight: bold;
 }
 
@@ -105,9 +108,9 @@ window#waybar {
 #tray {
   padding: 0 8px;
   margin: 1px;
-  color: @tmp-text;
-  background-color: @tmp-transparent;
-  border: 1px solid @tmp-transparent;
+  color: @neutral-text;
+  background-color: @neutral-transparent;
+  border: 1px solid @neutral-transparent;
   opacity: 1;
   transition:
     color 120ms ease,
@@ -120,17 +123,17 @@ window#waybar {
 #cpu:hover,
 #memory:hover,
 #pulseaudio:hover {
-  color: @tmp-text-max;
-  background-color: @tmp-hover-neutral;
-  border-color: @tmp-border-inactive;
+  color: @neutral-text-max;
+  background-color: @neutral-hover-neutral;
+  border-color: @neutral-border-inactive;
 }
 
 /* --- Window Title --- */
 #window {
   padding: 0 12px;
   margin: 1px;
-  background-color: @tmp-transparent;
-  border: 1px solid @tmp-transparent;
+  background-color: @neutral-transparent;
+  border: 1px solid @neutral-transparent;
   font-size: 12px;
   transition:
     color 200ms ease,
@@ -143,28 +146,28 @@ window#waybar {
 }
 
 #window:hover {
-  color: @tmp-text-max;
-  background-color: @tmp-hover-neutral;
-  border-color: @tmp-border-inactive;
+  color: @neutral-text-max;
+  background-color: @neutral-hover-neutral;
+  border-color: @neutral-border-inactive;
 }
 
 /* --- Battery States --- */
 #battery.warning {
-  color: @tmp-warning;
+  color: @neutral-warning;
 }
 
 #battery.warning:hover {
-  background-color: @tmp-hover-warning;
-  border-color: @tmp-warning;
+  background-color: @neutral-hover-warning;
+  border-color: @neutral-warning;
 }
 
 #battery.critical {
-  color: @tmp-error-text;
+  color: @neutral-error-text;
 }
 
 #battery.critical:hover {
-  background-color: @tmp-hover-error;
-  border-color: @tmp-error-text;
+  background-color: @neutral-hover-error;
+  border-color: @neutral-error-text;
 }
 
 /* --- Tray & Tooltips --- */
@@ -175,52 +178,52 @@ window#waybar {
 #tray > widget {
   padding: 0 6px;
   transition: border-bottom 120ms ease;
-  border-bottom: 1px solid @tmp-transparent;
+  border-bottom: 1px solid @neutral-transparent;
 }
 
 #tray > widget:hover {
-  border-bottom-color: @tmp-border-inactive;
+  border-bottom-color: @neutral-border-inactive;
 }
 
 #tray menu {
-  background-color: @tmp-base;
-  color: @tmp-text;
-  border: 1px solid @tmp-focus-border;
+  background-color: @neutral-base;
+  color: @neutral-text;
+  border: 1px solid @neutral-focus-border;
   border-radius: 0;
 }
 
 tooltip {
-  background-color: @tmp-base;
-  color: @tmp-text;
-  border: 1px solid @tmp-focus-border;
+  background-color: @neutral-base;
+  color: @neutral-text;
+  border: 1px solid @neutral-focus-border;
 }
 
 #tray menu menuitem {
   padding: 0;
   margin: 0;
-  color: @tmp-text;
+  color: @neutral-text;
 }
 
 #tray menu menuitem:hover {
-  background-color: @tmp-surface-1;
-  color: @tmp-text-max;
-  border-color: @tmp-surface-1;
+  background-color: @neutral-surface-1;
+  color: @neutral-text-max;
+  border-color: @neutral-surface-1;
 }
 
 #tray menu menuitem:disabled {
-  color: @tmp-text-muted;
-  background-color: @tmp-transparent;
-  border-color: @tmp-transparent;
+  color: @neutral-text-muted;
+  background-color: @neutral-transparent;
+  border-color: @neutral-transparent;
 }
 
 #tray menu separator {
-  background-color: @tmp-transparent;
+  background-color: @neutral-transparent;
   min-height: 0;
   margin: 0;
 }
 
 tooltip label {
-  background-color: @tmp-transparent;
-  color: @tmp-text;
+  background-color: @neutral-transparent;
+  color: @neutral-text;
   padding: 4px 8px;
 }
