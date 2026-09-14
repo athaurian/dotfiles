@@ -106,7 +106,7 @@ input type:touchpad {
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 
-# Colors (temporary neutral dark, same tmp-* set as Waybar).
+# Colors (locked scheme, same neutral-* set as Waybar).
 client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
 client.focused_inactive #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
 client.unfocused        #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
@@ -134,6 +134,17 @@ default_dim_inactive 0.05
 layer_effects "launcher" {
     shadows enable;
 }
+
+# Bootstrap the systemd user session (imports Wayland env, starts
+# sway-session.target so Wayland-dependent services can start).
+exec $HOME/.config/sway/scripts/autostart.sh
+
+# Autostart tray applets (icons appear in Waybar's tray module).
+exec_always blueman-applet
+exec_always nm-applet --indicator
+
+# Wallpaper (awww daemon starts at login via default.target).
+exec awww img ~/Pictures/Wallpapers/dark/flower-basket.jpg
 
 # Bar.
 bar {
