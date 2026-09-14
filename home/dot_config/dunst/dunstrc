@@ -1,0 +1,101 @@
+# Managed by chezmoi. Edit the file in the dotfiles repository instead.
+
+[global]
+    monitor = 0
+    follow = none
+    width = 340
+    height = (0, 110)
+    origin = top-right
+    offset = (8, 8)
+    notification_limit = 4
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    indicate_hidden = yes
+    transparency = 0
+    separator_height = 2
+    padding = 10
+    horizontal_padding = 14
+    text_icon_padding = 0
+    frame_width = 1
+    separator_color = frame
+    sort = no
+    font = GeistMono Nerd Font Propo 10
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    min_icon_size = 0
+    max_icon_size = 32
+    icon_theme = Papirus-Dark
+    sticky_history = yes
+    history_length = 50
+    title = Dunst
+    class = Dunst
+    corner_radius = 0
+    ignore_dbusclose = false
+    force_xwayland = false
+    mouse_left_click = close_current
+    mouse_middle_click = do_action
+    mouse_right_click = close_all
+    layer = overlay
+    timeout = 5
+
+[urgency_low]
+    timeout = 3
+
+[urgency_normal]
+    timeout = 5
+
+[urgency_critical]
+    timeout = 0
+
+[mpd]
+    category = mpd
+    timeout = 2
+
+[dnd_bypass_dunst_dnd]
+    appname = dunst-dnd
+    override_pause_level = 90
+
+[dnd_bypass_caffeine]
+    appname = caffeine-toggle
+    override_pause_level = 90
+
+[dnd_bypass_wallpaper]
+    appname = wallpaper-rotate
+    override_pause_level = 90
+
+[dnd_bypass_idle_warning]
+    appname = idle-warning
+    override_pause_level = 90
+
+[dnd_bypass_clipboard]
+    appname = clipboard
+    override_pause_level = 90
+
+[dnd_bypass_dunst]
+    appname = dunst
+    override_pause_level = 90
+
+[dnd_bypass_picker]
+    appname = picker
+    override_pause_level = 90
+
+[dnd_bypass_lock]
+    appname = lock
+    override_pause_level = 90
+
+[dnd_bypass_screenshot]
+    appname = screenshot
+    override_pause_level = 90
