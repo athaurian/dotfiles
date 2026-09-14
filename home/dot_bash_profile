@@ -2,6 +2,9 @@
 # Sources .bashrc for interactive shell settings.
 
 export EDITOR=nvim
+export BROWSER=helium-browser
+export FILE_MANAGER=thunar
+export PASSWORD_MANAGER=keepassxc
 export XDG_CONFIG_HOME="$HOME/.config"
 export QT_QPA_PLATFORMTHEME=qt6ct
 

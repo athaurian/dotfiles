@@ -6,6 +6,9 @@ set $up k
 set $right l
 set $term foot
 set $menu fuzzel
+set $browser sh -c 'exec ${BROWSER:-helium-browser}'
+set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
+set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-keepassxc}'
 
 font pango:Geist Mono 10
 
@@ -46,11 +49,11 @@ bindsym $mod+Shift+9 move container to workspace number 9
 bindsym $mod+Shift+0 move container to workspace number 10
 
 # Layout.
-bindsym $mod+b splith
+bindsym $mod+o splith
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
+bindsym $mod+p layout toggle split
 bindsym $mod+f fullscreen
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
@@ -59,6 +62,9 @@ bindsym $mod+q kill
 # Apps.
 bindsym $mod+Return exec $term
 bindsym $mod+d exec $menu
+bindsym $mod+b exec $browser
+bindsym $mod+e exec $filemanager
+bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
@@ -100,9 +106,34 @@ input type:touchpad {
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 
+# Colors (temporary neutral dark, same tmp-* set as Waybar).
+client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
+client.focused_inactive #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
+client.unfocused        #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
+client.urgent           #e06c75 #e06c75 #ffffff #e06c75 #e06c75
+client.placeholder      #202020 #202020 #8a8a8a #202020 #202020
+client.background       #202020
+
 # Borders.
 default_border pixel 1
 hide_edge_borders smart
+
+# SwayFX effects (static values from the pre-reset config).
+blur enable
+blur_passes 3
+blur_radius 5
+blur_xray disable
+shadows enable
+shadow_blur_radius 14
+shadow_color #00000080
+shadow_offset 0 2
+shadow_inactive_color #00000080
+corner_radius 0
+default_dim_inactive 0.05
+# Drop shadow for fuzzel (layer namespace "launcher", see fuzzel.ini).
+layer_effects "launcher" {
+    shadows enable;
+}
 
 # Bar.
 bar {
