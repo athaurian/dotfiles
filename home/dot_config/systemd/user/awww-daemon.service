@@ -1,0 +1,12 @@
+[Unit]
+Description=awww wallpaper daemon
+Documentation=man:awww-daemon(1)
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+ExecStart=/usr/bin/awww-daemon
+Restart=on-failure
+
+[Install]
+WantedBy=sway-session.target
