@@ -1,9 +1,7 @@
--- Neutral base + One Dark chromatics, via catppuccin overrides.
--- Monochrome: the tmp-* neutrals plus two ramp steps (#101010 deep,
--- #262626 mid-surface) so floats, sidebars, editor, and panels each sit
--- on their own depth. Brightest step reuses tmp-border-inactive.
--- Chromatics: the Flint v3 "warmer One Dark" set, resolved statically from
--- 50c1062:palettes/flint/{dark,shared}.yaml. Dark-only, static.
+-- One Dark on Neutral (locked, per meta/color-scheme.md): One Dark Pro
+-- chromatics through catppuccin overrides on the neutral-* grounds.
+-- Neutrals: the eleven-value ramp (crust/mantle are nvim-only depth).
+-- Chromatics: One Dark Pro classic; accent = blue #61AFEF. Dark-only, static.
 
 return {
   {
@@ -43,23 +41,21 @@ return {
           mocha = {
             rosewater = "#DFAA7B",
             flamingo = "#E06C75",
-            pink = "#F0A0A5",
-            mauve = "#D890EA",
+            pink = "#F08080",
+            mauve = "#C678DD",
             red = "#E06C75",
-            maroon = "#C62828",
             peach = "#D19A66",
             yellow = "#E5C07B",
             green = "#98C379",
             teal = "#56B6C2",
             sky = "#7DD3E0",
-            sapphire = "#5865F2",
-            blue = "#98C3FF",
-            lavender = "#C678DD",
+            blue = "#61AFEF",
+            lavender = "#D890EA",
             text = "#D4D4D4",
-            subtext1 = "#D4D4D4",
-            subtext0 = "#B3B3B3",
+            subtext1 = "#B3B3B3",
+            subtext0 = "#8A8A8A",
             overlay2 = "#8A8A8A",
-            overlay1 = "#5A5A5A",
+            overlay1 = "#3A3A3A",
             overlay0 = "#5A5A5A",
             surface2 = "#3A3A3A",
             surface1 = "#2D2D2D",
@@ -76,10 +72,20 @@ return {
             Cursor = { bg = "#61AFEF", fg = colors.base },
             CursorLine = { bg = colors.surface0 },
             CursorLineNr = { fg = colors.blue, style = { "bold" } },
-            Search = { bg = colors.overlay1, fg = colors.base },
-            IncSearch = { bg = colors.overlay1, fg = colors.base },
+            Search = { bg = "#3A3F4B", fg = colors.text },
+            IncSearch = { bg = colors.blue, fg = colors.base },
 
-            -- Chrome: 1px borders in the fuzzel/waybar tone on dark fills.
+            -- Comments: muted, italic (rule 2).
+            Comment = { fg = "#8A8A8A", style = { "italic" } },
+            ["@comment"] = { fg = "#8A8A8A", style = { "italic" } },
+
+            -- Syntax: One Dark standard where catppuccin's links differ.
+            ["@property"] = { fg = colors.peach },
+            ["@variable.member"] = { fg = colors.peach },
+            ["@field"] = { fg = colors.peach },
+            ["@lsp.type.enumMember"] = { fg = colors.teal },
+
+            -- Chrome: 1px borders in the waybar tone on mantle fills.
             FloatBorder = { fg = colors.overlay0, bg = colors.mantle },
             FloatTitle = { fg = colors.subtext1, bg = colors.mantle },
             WinSeparator = { fg = colors.overlay0 },
@@ -90,26 +96,26 @@ return {
             PmenuSel = { bg = colors.surface2, fg = "#FFFFFF", style = { "bold" } },
             PmenuBorder = { fg = colors.overlay0, bg = colors.mantle },
 
-            -- Telescope panels on the editor base, bordered.
-            TelescopeBorder = { fg = colors.overlay0, bg = colors.base },
-            TelescopePromptBorder = { fg = colors.overlay0, bg = colors.base },
-            TelescopeResultsBorder = { fg = colors.overlay0, bg = colors.base },
-            TelescopePreviewBorder = { fg = colors.overlay0, bg = colors.base },
+            -- Telescope panels on mantle, bordered (uniform with Snacks).
+            TelescopeBorder = { fg = colors.overlay0, bg = colors.mantle },
+            TelescopePromptBorder = { fg = colors.overlay0, bg = colors.mantle },
+            TelescopeResultsBorder = { fg = colors.overlay0, bg = colors.mantle },
+            TelescopePreviewBorder = { fg = colors.overlay0, bg = colors.mantle },
             TelescopeSelection = { bg = colors.surface2, fg = colors.text, style = { "bold" } },
             TelescopeSelectionCaret = { bg = colors.surface2, fg = colors.blue },
             TelescopeMatching = { fg = colors.blue, style = { "bold" } },
             TelescopePreviewLine = { bg = colors.surface0 },
 
-            -- Snacks picker: panels one step up, preview on the base.
+            -- Snacks picker: panels on mantle, preview on the base.
             SnacksNormal = { bg = colors.mantle },
             SnacksNormalNC = { bg = colors.mantle },
-            SnacksPicker = { bg = colors.surface1 },
-            SnacksPickerBox = { bg = colors.surface1 },
-            SnacksPickerBorder = { fg = colors.overlay0, bg = colors.surface1 },
-            SnacksPickerTitle = { fg = colors.subtext1, bg = colors.surface1 },
-            SnacksPickerList = { bg = colors.surface1 },
+            SnacksPicker = { bg = colors.mantle },
+            SnacksPickerBox = { bg = colors.mantle },
+            SnacksPickerBorder = { fg = colors.overlay0, bg = colors.mantle },
+            SnacksPickerTitle = { fg = colors.subtext1, bg = colors.mantle },
+            SnacksPickerList = { bg = colors.mantle },
             SnacksPickerPreview = { bg = colors.base },
-            SnacksPickerInput = { bg = colors.surface1 },
+            SnacksPickerInput = { bg = colors.mantle },
             SnacksPickerSelected = { bg = colors.surface2, fg = "#FFFFFF", style = { "bold" } },
             SnacksPickerListCursorLine = { bg = colors.surface2, fg = colors.text, style = { "bold" } },
             SnacksPickerMatch = { fg = colors.blue, style = { "bold" } },
@@ -128,10 +134,10 @@ return {
             NeoTreeGitDeleted = { fg = colors.red },
             NeoTreeWinSeparator = { link = "WinSeparator" },
 
-            -- Dashboard (pre-reset: peach header).
+            -- Dashboard: peach header.
             SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
 
-            -- Diffs (v3 depths).
+            -- Diffs (locked depths).
             DiffAdd = { bg = "#2B4632" },
             DiffChange = { bg = "#1F3A52" },
             DiffDelete = { bg = "#332024" },
@@ -150,11 +156,11 @@ return {
         [6] = "#56B6C2",
         [7] = "#D4D4D4",
         [8] = "#8A8A8A",
-        [9] = "#F0A0A5",
+        [9] = "#F08080",
         [10] = "#C4E8A0",
         [11] = "#F5D898",
         [12] = "#98C3FF",
-        [13] = "#E3A2F8",
+        [13] = "#D890EA",
         [14] = "#7DD3E0",
         [15] = "#FFFFFF",
       }
