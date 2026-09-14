@@ -1,1 +1,0 @@
--- Default keymaps reference: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua

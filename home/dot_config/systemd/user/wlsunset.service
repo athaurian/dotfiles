@@ -1,8 +1,7 @@
 [Unit]
 Description=Day/night screen color temperature daemon
 Documentation=man:wlsunset(1)
-PartOf=sway-session.target
-After=sway-session.target wlsunset-env.service
+After=default.target wlsunset-env.service
 Wants=wlsunset-env.service
 
 [Service]
@@ -13,4 +12,4 @@ Restart=on-failure
 RestartSec=3
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=default.target

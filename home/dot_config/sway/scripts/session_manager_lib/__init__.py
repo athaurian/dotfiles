@@ -1,1 +1,0 @@
-"""Sway session manager library."""

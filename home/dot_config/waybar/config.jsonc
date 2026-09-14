@@ -1,0 +1,87 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 24,
+  "spacing": 0,
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["sway/window"],
+  "modules-right": ["cpu", "memory", "pulseaudio", "battery", "tray", "clock"],
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+      "1": "󰲠",
+      "2": "󰲢",
+      "3": "󰲤",
+      "4": "󰲦",
+      "5": "󰲨",
+      "6": "󰲪",
+      "7": "󰲬",
+      "8": "󰲮",
+      "9": "󰲰",
+      "10": "󰿬"
+    }
+  },
+  "sway/mode": {
+    "format": "󰘳 {}"
+  },
+  "sway/window": {
+    "format": "{title}",
+    "icon": true,
+    "icon-size": 14,
+    "max-length": 72,
+    "tooltip": true,
+    "tooltip-format": "{title}",
+    "rewrite": {
+      "^$": " ",
+      "(.*) - Helium": "$1",
+      "^• Discord \\| (.*)$": "$1",
+      "^nvim (.*)$": " Editing $1"
+    }
+  },
+  "pulseaudio": {
+    "format": "󰕾 {volume}%",
+    "format-muted": "󰖁 Muted",
+    "on-click": "pavucontrol",
+    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "scroll-step": 5
+  },
+  "cpu": {
+    "format": "󰻠 {usage}%",
+    "tooltip": true,
+    "interval": 5,
+    "on-click": "foot -e btop"
+  },
+  "memory": {
+    "format": "󰍛 {percentage}%",
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
+    "interval": 5,
+    "on-click": "foot -e btop"
+  },
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "full-at": 100,
+    "interval": 30,
+    "format": "{icon} {capacity}% ({power:.1f} W)",
+    "format-charging": "󱐋 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-full": "󱟦 {capacity}%",
+    "format-icons": ["󰁻", "󰁽", "󰁿", "󰂁", "󰁹"]
+  },
+  "tray": { "icon-size": 12, "spacing": 12 },
+  "clock": {
+    "format": "{:%Y-%m-%d %H:%M:%S}",
+    "tooltip": true,
+    "tooltip-format": "{calendar}",
+    "calendar": {
+      "mode": "month",
+      "on-scroll": 1,
+      "format": {
+        "months": "<b>{}</b> ",
+        "today": "<b>{}</b>"
+      }
+    },
+    "interval": 1
+  }
+}
