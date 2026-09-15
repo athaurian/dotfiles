@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import re
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -98,8 +99,117 @@ def table_hexes(doc: str, start: str, end: str) -> list[str]:
     return [h.upper() for line in rows for h in HEX_RE.findall(line)]
 
 
+def parse_rows(doc: str, start: str) -> list[tuple[str, list[str]]]:
+    """Table rows in the section whose header starts with `start`."""
+    rows: list[tuple[str, list[str]]] = []
+    in_section = False
+    for line in doc.splitlines():
+        if line.lstrip().startswith("## "):
+            if in_section:
+                break
+            in_section = line.lstrip().startswith(start)
+            continue
+        if in_section and line.lstrip().startswith("|"):
+            cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+            rows.append((line, cells))
+    return rows
+
+
+def parse_neutrals(doc: str) -> dict[str, str]:
+    return {
+        cells[1]: cells[0].upper()
+        for _, cells in parse_rows(doc, "## Neutrals")
+        if len(cells) >= 2 and cells[0].startswith("#") and len(cells[0]) == 7
+    }
+
+
+def parse_chromatics(doc: str) -> dict[str, str]:
+    return {
+        cells[0]: cells[1].upper()
+        for _, cells in parse_rows(doc, "## Chromatics")
+        if len(cells) >= 3 and cells[1].startswith("#") and len(cells[1]) == 7
+    }
+
+
+def derive_tints(doc: str) -> str:
+    """Rewrites the Hex column of every spec row in the tints table."""
+    neutrals = parse_neutrals(doc)
+    chroma = parse_chromatics(doc)
+    out: list[str] = []
+    changed = 0
+    in_section = False
+    for line in doc.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_section = stripped.startswith("## Supporting tints")
+        elif in_section and stripped.startswith("|"):
+            cells = [c.strip().strip("`") for c in stripped.strip("|").split("|")]
+            if len(cells) == 6 and cells[0] != "Tint":
+                name, anchor, hue, k, _, used = cells
+                khue = _try_float(k)
+                if khue is None:
+                    out.append(line)  # alpha overlay: hand-written, not derived
+                    continue
+                if anchor not in neutrals or hue not in chroma:
+                    raise SystemExit(f"bad tint spec: {name} ({anchor!r}, {hue!r})")
+                La = rgb_to_oklch(hex_to_rgb(neutrals[anchor]))[0]
+                Ch, Hh = rgb_to_oklch(hex_to_rgb(chroma[hue]))[1:]
+                hex_ = oklch_to_hex(La, Ch * khue, Hh)
+                if hex_ not in line:
+                    changed += 1
+                out.append(
+                    f"| {name} | {anchor} | {hue} | {k} | `#{hex_}` | {used} |\n"
+                )
+                continue
+        out.append(line)
+    print(f"tints: {changed} derived hex(es) updated")
+    return "".join(out)
+
+
+def _try_float(s: str) -> float | None:
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def doc_allowed(doc: str) -> set[str]:
+    """Every hex in a doc table (prose mentions are not part of the palette)."""
+    return {
+        f"#{h.upper()}"
+        for line in doc.splitlines()
+        if line.lstrip().startswith("|")
+        for h in HEX_RE.findall(line)
+    }
+
+
+def check() -> int:
+    doc = DOC.read_text()
+    allowed = doc_allowed(doc)
+    violations: dict[str, set[str]] = {}
+    for path in sorted((REPO / "home").rglob("*")):
+        if not path.is_file() or "lutgen" in path.parts:
+            continue  # the LUT palette is the doc's output, not an app
+        try:
+            text = path.read_text()
+        except UnicodeDecodeError:
+            continue
+        for m in re.finditer(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?\b", text):
+            hex6 = m.group(0)[:7].upper()
+            if hex6 not in allowed:
+                violations.setdefault(str(path.relative_to(REPO)), set()).add(hex6)
+    if violations:
+        for f, hexes in sorted(violations.items()):
+            print(f"{f}: {', '.join(sorted(hexes))}")
+        return 1
+    print(f"check: every hex traces to the doc ({len(allowed)} allowed)")
+    return 0
+
+
 def main() -> None:
     doc = DOC.read_text()
+    doc = derive_tints(doc)
+    DOC.write_text(doc)
     neutrals = table_hexes(doc, "## Neutrals", "## Chromatics")
     chromatics = table_hexes(doc, "## Chromatics", "## Supporting tints")
     if len(neutrals) != 11 or len(chromatics) != 14:
@@ -144,4 +254,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if "--check" in sys.argv[1:]:
+        raise SystemExit(check())
     main()

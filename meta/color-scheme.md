@@ -1,12 +1,15 @@
 # Color scheme: One Dark on Neutral — design reference
 
-The single source of truth for every color this desktop uses. Static hex
-only; each app file pastes from this doc by hand. This doc replaces the
+The single source of truth for every color this desktop uses. The locked
+hexes below are seeds: the supporting tints derive from them via the
+specs in the tints table (`meta/lutgen-palette.py` computes each as
+`oklch(anchor L, base C × k, base H)`), and `--check` verifies that
+every hex in every app file traces to this doc. This doc replaces the
 palette tables in `color-scheme-plan.md` and exists because both prior
 approaches failed in opposite ways: the generator enforced coherence but
 made every change expensive; the static rebuild was cheap but collapsed
-the hierarchy the generator used to guarantee. The fix is the rules
-below, applied by hand — the gates are a checklist now, not tooling.
+the hierarchy the generator used to guarantee. The fix is the locked
+ramp plus derivation specs — machine-checked, hand-readable.
 
 ## Rationale
 
@@ -61,15 +64,32 @@ outliers), the mauve/lavender split (purple + purple-bright covers it).
 Seven hues, each with exactly one bright step. No new hues without
 editing this table first.
 
-## Supporting tints
+## Supporting tints (derived, on the lattice)
+
+Specs are seeds: anchor = a ramp role, hue = a chromatic, k = chroma
+fraction of that hue's base. `meta/lutgen-palette.py` derives each hex
+as `oklch(anchor L, base C × k, base H)` — the same scaffolding as the
+LUT palette, snapped to the ramp's lightness steps and the hues' angles.
+Edit a spec, re-run the generator, paste the hex; never hand-edit the
+Hex column. The one alpha overlay below is not derivable and stays
+hand-written.
+
+| Tint | Anchor | Hue | k | Hex | Used for |
+|---|---|---|---|---|---|
+| hover | — | — | — | `rgba(255,255,255,0.08)` | bar hover fill (alpha overlay) |
+| warning-hover | surface-1 | yellow | 0.302 | `#342C1C` | waybar + btop warning hover fill |
+| error-hover | surface-1 | red | 0.256 | `#3E2526` | waybar + btop error hover fill |
+| selection | surface-2 | blue | 0.179 | `#313C45` | btop selection, nvim Visual + Search bg |
+| diff-add | surface-2 | green | 0.432 | `#304025` | nvim DiffAdd |
+| diff-change | surface-2 | blue | 0.444 | `#203D54` | nvim DiffChange |
+| diff-delete | surface-0 | red | 0.208 | `#332021` | nvim DiffDelete |
+| diff-text | line | blue | 0.562 | `#385E7E` | nvim DiffText |
+
+## Utility colors (locked, outside the ramp)
 
 | Hex | Used for |
 |---|---|
-| `rgba(255,255,255,0.08)` | bar hover fill |
-| `#33291A` | bar warning hover fill |
-| `#3A2224` | bar error hover fill |
-| `#3A3F4B` | selection ground (foot selection, nvim Visual) |
-| `#2B4632` `#1F3A52` `#332024` `#2C5372` | nvim diff add/change/delete/text |
+| `#000000` | shadows — always alpha-carried (`#00000080` in sway) |
 
 ## Rules the gates used to enforce
 
@@ -80,13 +100,14 @@ editing this table first.
    muted, italic, never overlay.
 3. **One accent pair.** Focused/selected/link/cursor states use
    `#61AFEF`/`#98C3FF` in every app. Search follows: IncSearch is accent
-   (`#61AFEF` bg, base fg); Search is the selection ground (`#3A3F4B`
-   bg, text fg). Search is never gray.
+   (`#61AFEF` bg, base fg); Search is the selection ground (the derived
+   `selection` tint, text fg). Search is never gray.
 4. **Transient chrome uniformity.** Floats, pickers, and Pmenu sit on
    mantle, all of them, with one border color (`line #5A5A5A`). Preview
    panes may sit on base. No third depth.
-5. **Doc boundary.** Every hex in an app file traces to this doc. When a
-   color must change, change it here first, then paste.
+5. **Doc boundary.** Every hex in an app file traces to this doc —
+   enforced by `meta/lutgen-palette.py --check`, not by eye. When a
+   color must change, change it here first, re-run the generator, paste.
 
 ## Syntax layer (One Dark Pro standard, for the nvim pass)
 
@@ -124,5 +145,6 @@ either is fine as long as `:Inspect` shows the hexes above.
 ## Non-goals
 
 No palette builder, no `palettes/` directory, no contrast-gate tooling,
-no `.tmpl` color variables. The doc is the generator now — a checklist
-instead of a program. No wallpaper recoloring, no GTK theme change.
+no `.tmpl` color variables. The one-shot generator derives tints, the
+LUT palette, and the drift check; the doc stays the seed truth. No GTK
+theme change.
