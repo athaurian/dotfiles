@@ -17,8 +17,8 @@
 @define-color neutral-error-bright #f08080;
 @define-color neutral-transparent rgba(0, 0, 0, 0);
 @define-color neutral-hover-neutral rgba(255, 255, 255, 0.08);
-@define-color neutral-hover-warning #33291a;
-@define-color neutral-hover-error #3a2224;
+@define-color neutral-hover-warning #342C1C;
+@define-color neutral-hover-error #3E2526;
 
 * {
   border: none;

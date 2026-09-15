@@ -68,11 +68,11 @@ return {
         custom_highlights = function(colors)
           return {
             -- Selection and cursor.
-            Visual = { bg = "#3A3F4B" },
+            Visual = { bg = "#313C45" },
             Cursor = { bg = "#61AFEF", fg = colors.base },
             CursorLine = { bg = colors.surface0 },
             CursorLineNr = { fg = colors.blue, style = { "bold" } },
-            Search = { bg = "#3A3F4B", fg = colors.text },
+            Search = { bg = "#313C45", fg = colors.text },
             IncSearch = { bg = colors.blue, fg = colors.base },
 
             -- Comments: muted, italic (rule 2).
@@ -138,10 +138,10 @@ return {
             SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
 
             -- Diffs (locked depths).
-            DiffAdd = { bg = "#2B4632" },
-            DiffChange = { bg = "#1F3A52" },
-            DiffDelete = { bg = "#332024" },
-            DiffText = { bg = "#2C5372" },
+            DiffAdd = { bg = "#304025" },
+            DiffChange = { bg = "#203D54" },
+            DiffDelete = { bg = "#332021" },
+            DiffText = { bg = "#385E7E" },
           }
         end,
       })
