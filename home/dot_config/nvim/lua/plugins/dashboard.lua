@@ -1,10 +1,18 @@
-local header = "    |\\      _,,,---,,_     \n"
-  .. "    /,`.-'`'    -.  ;-;;,_ \n"
-  .. "   |,4-  ) )-,_..;\\ (  `'-'\n"
-  .. "  '---''(_/--'  `-'\\_)     \n"
-  .. "\n"
-  .. "ネ  コ  ヴィ  ム\n"
-  .. "ne  ko  vi    mu"
+-- Dashboard logo: read from logo.txt so spacing edits are file edits.
+local function read_logo()
+  local file = io.open(vim.fn.stdpath("config") .. "/logo.txt", "r")
+  if not file then
+    return "neovim"
+  end
+  local lines = {}
+  for line in file:lines() do
+    lines[#lines + 1] = line
+  end
+  file:close()
+  return #lines > 0 and table.concat(lines, "\n") or "neovim"
+end
+
+local header = read_logo()
 
 return {
   {

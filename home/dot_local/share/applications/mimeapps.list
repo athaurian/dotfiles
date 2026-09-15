@@ -1,0 +1,15 @@
+# Curated defaults (managed by chezmoi — edit the dotfiles repository).
+# Lives at the legacy path ~/.local/share/applications/mimeapps.list:
+# honored for defaults, but tools only ever write the config-path
+# ~/.config/mimeapps.list, so this file cannot be overwritten. Explicit
+# choices made in apps land in the config path and win per-entry —
+# curated defaults here are the fallback, not a lock.
+[Default Applications]
+application/pdf=org.pwmt.zathura.desktop
+text/html=helium.desktop;firefox.desktop;
+x-scheme-handler/terminal=foot.desktop;
+x-scheme-handler/http=helium.desktop;firefox.desktop;
+x-scheme-handler/https=helium.desktop;firefox.desktop;
+x-scheme-handler/about=helium.desktop;firefox.desktop;
+x-scheme-handler/unknown=helium.desktop;firefox.desktop;
+x-scheme-handler/discord=vesktop.desktop;

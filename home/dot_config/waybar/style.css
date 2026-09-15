@@ -70,13 +70,11 @@ window#waybar {
 
 #workspaces button.focused {
   color: @neutral-accent-text;
-  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.focused:hover {
   color: @neutral-accent-bright;
   background-color: @neutral-hover-neutral;
-  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.urgent {

@@ -68,6 +68,11 @@ bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
+# Screenshots (wayfreeze freeze + satty annotate).
+bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
+bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
+bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
+
 # Scratchpad.
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
@@ -102,13 +107,15 @@ input type:touchpad {
     middle_emulation enabled
 }
 
-# Window rules - pavucontrol and blueman as floating dialogs.
+# Window rules - pavucontrol, blueman, and satty as floating dialogs.
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
+for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
 
 # Colors (locked scheme, same neutral-* set as Waybar).
 client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
 client.focused_inactive #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
+client.focused_tab_title #5a5a5a #2d2d2d #d4d4d4
 client.unfocused        #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
 client.urgent           #e06c75 #e06c75 #ffffff #e06c75 #e06c75
 client.placeholder      #202020 #202020 #8a8a8a #202020 #202020
@@ -144,7 +151,7 @@ exec_always blueman-applet
 exec_always nm-applet --indicator
 
 # Wallpaper (awww daemon starts at login via default.target).
-exec awww img ~/Pictures/Wallpapers/dark/flower-basket.jpg
+exec awww img ~/Pictures/Wallpapers/neutral/flower-basket.jpg
 
 # Bar.
 bar {
