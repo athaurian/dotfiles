@@ -1,6 +1,4 @@
-/* Managed by chezmoi. Edit the file in the dotfiles repository instead. */
-/* Locked scheme: One Dark Pro chromatics on neutral grounds
-(see meta/color-scheme-plan.md). All variables are referenced. */
+/* Locked scheme (meta/color-scheme.md); all vars referenced. */
 
 @define-color neutral-base #202020;
 @define-color neutral-text #d4d4d4;
@@ -8,21 +6,20 @@
 @define-color neutral-text-muted #8a8a8a;
 @define-color neutral-border-inactive #3a3a3a;
 @define-color neutral-focus-border #5a5a5a;
-@define-color neutral-accent-text #61afef;
+@define-color neutral-accent-text #48afff;
 @define-color neutral-accent-bright #98c3ff;
 @define-color neutral-surface-1 #2d2d2d;
-@define-color neutral-warning #e5c07b;
-@define-color neutral-warning-deep #d19a66;
-@define-color neutral-error-text #e06c75;
-@define-color neutral-error-bright #f08080;
+@define-color neutral-warning #f4bc45;
+@define-color neutral-error-text #fe4864;
+@define-color neutral-error-bright #ff7376;
 @define-color neutral-transparent rgba(0, 0, 0, 0);
 @define-color neutral-hover-neutral rgba(255, 255, 255, 0.08);
-@define-color neutral-hover-warning #342C1C;
-@define-color neutral-hover-error #3E2526;
+@define-color neutral-hover-warning #382B11;
+@define-color neutral-hover-error #452123;
 
 * {
   border: none;
-  /* The bar stays square on purpose: flat and wide against the background. */
+  /* Square on purpose. */
   border-radius: 0;
   font-family: "Geist Mono", "GeistMono Nerd Font Mono", monospace;
   font-size: 12px;
@@ -92,8 +89,8 @@ window#waybar {
   padding: 0 8px;
   margin: 1px 4px;
   background-color: @neutral-hover-warning;
-  color: @neutral-warning-deep;
-  border: 1px solid @neutral-warning-deep;
+  color: @neutral-warning;
+  border: 1px solid @neutral-warning;
   font-weight: bold;
 }
 
