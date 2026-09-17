@@ -199,37 +199,80 @@ def doc_allowed(doc: str) -> set[str]:
 # ---------------------------------------------------------------- derivation
 
 def derive_tints(doc: str) -> str:
-    """Rewrites the Hex column of every spec row in the tints table."""
+    """Rewrites the Hex column of every spec row in the tints table.
+
+    Rows are padded to prettier's column widths, so a derivation never
+    de-formats the table (`make format` stays a no-op afterwards).
+    """
     neutrals = parse_neutrals(doc)
     chroma = parse_chromatics(doc)
     out: list[str] = []
     changed = 0
     in_section = False
+    pending: list[tuple[str, list[str], str]] = []  # (kind, cells, raw)
+
+    def widths() -> list[int]:
+        w = [0] * 6
+        for kind, cells, _ in pending:
+            if kind == "sep":
+                continue
+            for i, c in enumerate(cells):
+                w[i] = max(w[i], len(c))
+        return w
+
+    def flush() -> None:
+        nonlocal changed
+        if not pending:
+            return
+        w = widths()
+        for kind, cells, raw in pending:
+            if kind == "sep":
+                dashes = " | ".join("-" * max(x, 3) for x in w)
+                out.append(f"| {dashes} |\n")
+                continue
+            if kind == "spec" and cells[4] not in raw:
+                changed += 1
+            padded = " | ".join(c.ljust(x) for c, x in zip(cells, w))
+            out.append(f"| {padded} |\n")
+        pending.clear()
+
+    def derive_row(cells: list[str]) -> tuple[str, list[str]] | None:
+        """New Hex for a spec row; None for the hand-written overlay."""
+        name, anchor, hue, k, _, used = cells
+        try:
+            khue = float(k)
+        except ValueError:
+            return None
+        if anchor not in neutrals or hue not in chroma:
+            raise SystemExit(f"bad tint spec: {name} ({anchor!r}, {hue!r})")
+        La = rgb_to_oklch(hex_to_rgb(neutrals[anchor]))[0]
+        Ch, Hh = rgb_to_oklch(hex_to_rgb(chroma[hue]))[1:]
+        return name, [name, anchor, hue, k, f"`#{oklch_to_hex(La, Ch * khue, Hh)}`", used]
+
     for line in doc.splitlines(keepends=True):
         stripped = line.strip()
         if stripped.startswith("## "):
+            flush()
             in_section = stripped.startswith("## Supporting tints")
         elif in_section and stripped.startswith("|"):
             cells = [c.strip().strip("`") for c in stripped.strip("|").split("|")]
-            if len(cells) == 6 and cells[0] != "Tint":
-                name, anchor, hue, k, _, used = cells
-                try:
-                    khue = float(k)
-                except ValueError:
-                    out.append(line)  # alpha overlay: hand-written, not derived
-                    continue
-                if anchor not in neutrals or hue not in chroma:
-                    raise SystemExit(f"bad tint spec: {name} ({anchor!r}, {hue!r})")
-                La = rgb_to_oklch(hex_to_rgb(neutrals[anchor]))[0]
-                Ch, Hh = rgb_to_oklch(hex_to_rgb(chroma[hue]))[1:]
-                hex_ = oklch_to_hex(La, Ch * khue, Hh)
-                if hex_ not in line:
-                    changed += 1
-                out.append(
-                    f"| {name} | {anchor} | {hue} | {k} | `#{hex_}` | {used} |\n"
-                )
+            if len(cells) == 6 and all(re.fullmatch(r":?-+:?", c) for c in cells):
+                pending.append(("sep", cells, line))
                 continue
+            if len(cells) == 6 and cells[0] != "Tint":
+                derived = derive_row(cells)
+                if derived is None:  # alpha overlay: hand-written, not derived
+                    raw = [c.strip() for c in stripped.strip("|").split("|")]
+                    pending.append(("body", raw, line))
+                else:
+                    pending.append(("spec", derived[1], line))
+                continue
+            pending.append(("head", cells, line))
+            continue
+        else:
+            flush()
         out.append(line)
+    flush()
     print(f"tints: {changed} derived hex(es) updated")
     return "".join(out)
 

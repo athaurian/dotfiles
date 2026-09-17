@@ -75,13 +75,13 @@ overlay below is not derivable and stays hand-written.
 | Tint          | Anchor    | Hue    | k     | Hex                      | Used for                                |
 | ------------- | --------- | ------ | ----- | ------------------------ | --------------------------------------- |
 | hover         | —         | —      | —     | `rgba(255,255,255,0.08)` | bar hover fill (alpha overlay)          |
-| warning-hover | surface-1 | yellow | 0.302 | `#382B11` | waybar + btop warning hover fill |
-| error-hover | surface-1 | red | 0.256 | `#452123` | waybar + btop error hover fill |
-| selection | surface-2 | blue | 0.179 | `#2F3C47` | btop selection, nvim Visual + Search bg |
-| diff-add | surface-2 | green | 0.432 | `#2B4218` | nvim DiffAdd |
-| diff-change | surface-2 | blue | 0.444 | `#183D5A` | nvim DiffChange |
-| diff-delete | surface-0 | red | 0.208 | `#391C1E` | nvim DiffDelete |
-| diff-text | line | blue | 0.562 | `#2D5E86` | nvim DiffText |
+| warning-hover | surface-1 | yellow | 0.302 | `#382B11`                | waybar + btop warning hover fill        |
+| error-hover   | surface-1 | red    | 0.256 | `#452123`                | waybar + btop error hover fill          |
+| selection     | surface-2 | blue   | 0.179 | `#2F3C47`                | btop selection, nvim Visual + Search bg |
+| diff-add      | surface-2 | green  | 0.432 | `#2B4218`                | nvim DiffAdd                            |
+| diff-change   | surface-2 | blue   | 0.444 | `#183D5A`                | nvim DiffChange                         |
+| diff-delete   | surface-0 | red    | 0.208 | `#391C1E`                | nvim DiffDelete                         |
+| diff-text     | line      | blue   | 0.562 | `#2D5E86`                | nvim DiffText                           |
 
 ## Utility colors (locked, outside the ramp)
 
