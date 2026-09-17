@@ -1,68 +1,66 @@
-# Theme: One Dark on Neutral (locked, per meta/color-scheme.md)
-# One Dark Pro chromatics on the neutral-* grounds.
+# One Dark on Neutral, locked (meta/color-scheme.md).
 
-# --- Basic UI ---
 theme[main_bg]="#202020"
 theme[main_fg]="#D4D4D4"
 theme[title]="#D4D4D4"
-theme[hi_fg]="#61AFEF"
-theme[selected_bg]="#313C45"
+theme[hi_fg]="#48AFFF"
+theme[selected_bg]="#2F3C47"
 theme[selected_fg]="#FFFFFF"
 theme[inactive_fg]="#8A8A8A"
 theme[graph_text]="#8A8A8A"
 theme[meter_bg]="#3A3A3A"
-theme[proc_misc]="#61AFEF"
+theme[proc_misc]="#48AFFF"
 
-# --- Box outlines ---
+# Boxes
 theme[cpu_box]="#8A8A8A"
 theme[mem_box]="#8A8A8A"
 theme[net_box]="#8A8A8A"
 theme[proc_box]="#8A8A8A"
 theme[div_line]="#8A8A8A"
 
-# --- Temperature graph (green -> yellow -> red) ---
-theme[temp_start]="#98C379"
-theme[temp_mid]="#E5C07B"
-theme[temp_end]="#E06C75"
+# Temperature
+theme[temp_start]="#89C952"
+theme[temp_mid]="#F4BC45"
+theme[temp_end]="#FE4864"
 
-# --- CPU graph (green -> yellow -> red) ---
-theme[cpu_start]="#98C379"
-theme[cpu_mid]="#E5C07B"
-theme[cpu_end]="#E06C75"
+# CPU
+theme[cpu_start]="#89C952"
+theme[cpu_mid]="#F4BC45"
+theme[cpu_end]="#FE4864"
 
-# --- Process list resource gradient (green -> yellow -> red) ---
-theme[process_start]="#98C379"
-theme[process_mid]="#E5C07B"
-theme[process_end]="#E06C75"
+# Processes
+theme[process_start]="#89C952"
+theme[process_mid]="#F4BC45"
+theme[process_end]="#FE4864"
 
-# --- Mem/disk used & cached meters (purple -> orange -> red) ---
-theme[used_start]="#C678DD"
-theme[used_mid]="#D19A66"
-theme[used_end]="#E06C75"
-theme[cached_start]="#C678DD"
-theme[cached_mid]="#D19A66"
-theme[cached_end]="#E06C75"
+# Used / cached
+theme[used_start]="#D95AFC"
+theme[used_mid]="#E49137"
+theme[used_end]="#FE4864"
+theme[cached_start]="#D95AFC"
+theme[cached_mid]="#E49137"
+theme[cached_end]="#FE4864"
 
-# --- Mem/disk free & available meters (red -> orange -> purple) ---
-theme[free_start]="#E06C75"
-theme[free_mid]="#D19A66"
-theme[free_end]="#C678DD"
-theme[available_start]="#E06C75"
-theme[available_mid]="#D19A66"
-theme[available_end]="#C678DD"
+# Free / available
+theme[free_start]="#FE4864"
+theme[free_mid]="#E49137"
+theme[free_end]="#D95AFC"
+theme[available_start]="#FE4864"
+theme[available_mid]="#E49137"
+theme[available_end]="#D95AFC"
 
-# --- Network download/upload graphs (cyan -> blue -> bright blue) ---
-theme[download_start]="#56B6C2"
-theme[download_mid]="#61AFEF"
+# Network
+theme[download_start]="#00BBCC"
+theme[download_mid]="#48AFFF"
 theme[download_end]="#98C3FF"
-theme[upload_start]="#56B6C2"
-theme[upload_mid]="#61AFEF"
+theme[upload_start]="#00BBCC"
+theme[upload_mid]="#48AFFF"
 theme[upload_end]="#98C3FF"
 
-# --- Process pause & follow states ---
-theme[proc_pause_bg]="#342C1C"
-theme[proc_follow_bg]="#313C45"
-theme[proc_banner_bg]="#3E2526"
+# States
+theme[proc_pause_bg]="#382B11"
+theme[proc_follow_bg]="#2F3C47"
+theme[proc_banner_bg]="#452123"
 theme[proc_banner_fg]="#D4D4D4"
-theme[followed_bg]="#313C45"
+theme[followed_bg]="#2F3C47"
 theme[followed_fg]="#FFFFFF"
