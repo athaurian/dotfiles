@@ -70,18 +70,21 @@ that hue's base. `meta/palette.py` derives each hex as
 `oklch(anchor L, base C × k, base H)` — the same scaffolding as the LUT palette,
 snapped to the ramp's lightness steps and the hues' angles. Edit a spec, run
 `meta/palette.py`, paste the hex; never hand-edit the Hex column. The one alpha
-overlay below is not derivable and stays hand-written.
+overlay below is not derivable and stays hand-written, as does the legacy
+selection wash (`#3A3F4B`, the Flint foot/Visual ground — kept: tested,
+readable; supersedes the derived tint for launcher and Qt selection).
 
-| Tint          | Anchor    | Hue    | k     | Hex                      | Used for                                |
-| ------------- | --------- | ------ | ----- | ------------------------ | --------------------------------------- |
-| hover         | —         | —      | —     | `rgba(255,255,255,0.08)` | bar hover fill (alpha overlay)          |
-| warning-hover | surface-1 | yellow | 0.302 | `#382B11`                | waybar + btop warning hover fill        |
-| error-hover   | surface-1 | red    | 0.256 | `#452123`                | waybar + btop error hover fill          |
-| selection     | surface-2 | blue   | 0.179 | `#2F3C47`                | btop selection, nvim Visual + Search bg |
-| diff-add      | surface-2 | green  | 0.432 | `#2B4218`                | nvim DiffAdd                            |
-| diff-change   | surface-2 | blue   | 0.444 | `#183D5A`                | nvim DiffChange                         |
-| diff-delete   | surface-0 | red    | 0.208 | `#391C1E`                | nvim DiffDelete                         |
-| diff-text     | line      | blue   | 0.562 | `#2D5E86`                | nvim DiffText                           |
+| Tint           | Anchor    | Hue    | k     | Hex                      | Used for                                |
+| -------------- | --------- | ------ | ----- | ------------------------ | --------------------------------------- |
+| selection-deep | —         | —      | —     | `#3A3F4B`                | fuzzel selection row, Qt selection      |
+| hover          | —         | —      | —     | `rgba(255,255,255,0.08)` | bar hover fill (alpha overlay)          |
+| warning-hover  | surface-1 | yellow | 0.302 | `#382B11`                | waybar + btop warning hover fill        |
+| error-hover    | surface-1 | red    | 0.256 | `#452123`                | waybar + btop error hover fill          |
+| selection      | surface-2 | blue   | 0.179 | `#2F3C47`                | btop selection, nvim Visual + Search bg |
+| diff-add       | surface-2 | green  | 0.432 | `#2B4218`                | nvim DiffAdd                            |
+| diff-change    | surface-2 | blue   | 0.444 | `#183D5A`                | nvim DiffChange                         |
+| diff-delete    | surface-0 | red    | 0.208 | `#391C1E`                | nvim DiffDelete                         |
+| diff-text      | line      | blue   | 0.562 | `#2D5E86`                | nvim DiffText                           |
 
 ## Utility colors (locked, outside the ramp)
 
@@ -97,14 +100,16 @@ overlay below is not derivable and stays hand-written.
    on `#202020`. Titles are subtext, never text. Comments are muted, italic,
    never overlay. `meta/palette.py check` reports the contrast ratios
    (informational, never a gate).
-3. **Small accent, big neutrals.** `#48AFFF`/`#98C3FF` mark links, cursors,
-   match highlights, and IncSearch — never grounds, never active states.
-   Selections and active states are neutral grey, one step up the ramp: chrome
-   selection (launcher rows, picker rows, bar pills, Qt/btop selection) sits on
-   surface-1 `#2D2D2D`, one step above its ground (surface-2 where the ground is
-   already surface-1: zathura lists, Qt views); text selection (Visual, Search)
-   keeps the derived `selection` tint; focus reads as a one-step border lift
-   (`line` over surface-2). Search is never gray; chrome is never blue.
+3. **Small accent, named touchpoints.** `#48AFFF`/`#98C3FF` appear in exactly
+   these places: links, cursors, match highlights, IncSearch, the focused
+   workspace pill, the launcher selection row, and Qt selection — as accent
+   text, or deep-blue grounds (`selection-deep`) with light text; never bright
+   grounds, never plain grey where history earned a wash. Everything else is
+   neutral grey, one step up the ramp: chrome selection (picker rows, bar pills,
+   btop selection) sits on surface-1 `#2D2D2D`, one step above its ground
+   (surface-2 where the ground is already surface-1: zathura lists); text
+   selection (Visual, Search) keeps the derived `selection` tint; focus reads as
+   a one-step border lift (`line` over surface-2). Search is never gray.
 4. **Transient chrome uniformity.** Floats, pickers, and Pmenu sit on mantle,
    all of them, with one border color (`line #5A5A5A`). Preview panes may sit on
    base. No third depth.
