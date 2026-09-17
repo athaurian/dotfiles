@@ -1,0 +1,342 @@
+#!/usr/bin/env python3
+"""Mirrors the Calibre library to Google Drive as a flat folder.
+
+Stages every EPUB/PDF via hardlinks and lets rclone mirror them to
+gdrive:Books. Flat names are rebuilt as "Author - Series NN - Title.ext"
+from calibredb metadata (cached against metadata.db's mtime), with a
+hash suffix appended on collisions.
+
+When offline, staging still happens locally but the upload is skipped
+with a clean exit. The 30-minute timer plus the reconnect watcher
+upload on the next online run.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import shutil
+import socket
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+
+LIBRARY_DIR = Path("~/Library").expanduser()
+CACHE_ROOT = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+STAGING_DIR = CACHE_ROOT / "calibre-drive-sync" / "flat"
+METADATA_CACHE = CACHE_ROOT / "calibre-drive-sync" / "library.json"
+REMOTE = "gdrive:Books"
+BOOK_EXTENSIONS = {".epub", ".pdf"}
+METADATA_FIELDS = "title,authors,series,series_index,formats"
+HASH_LENGTH = 8
+CALIBRE_TIMEOUT = 60
+RCLONE_TIMEOUT = 600
+LOCK_HINT = "Another calibre program"
+NETWORK_HOST = "www.googleapis.com"
+NETWORK_PORT = 443
+NETWORK_TIMEOUT = 5
+
+
+def warn(message: str) -> None:
+    print(f"warning: {message}", file=sys.stderr)
+
+
+def die(message: str) -> None:
+    print(f"error: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def find_books(library: Path) -> list[Path]:
+    """Every EPUB/PDF under the library, sorted for stable output."""
+    books = [
+        path
+        for path in library.rglob("*")
+        if path.is_file() and path.suffix.lower() in BOOK_EXTENSIONS
+    ]
+    return sorted(books)
+
+
+def db_fingerprint(library: Path) -> dict:
+    """Fingerprint of metadata.db, used to invalidate the cache."""
+    try:
+        stat = (library / "metadata.db").stat()
+    except OSError:
+        die(f"Calibre database not found at {library / 'metadata.db'}")
+    return {"mtime_ns": stat.st_mtime_ns, "size": stat.st_size}
+
+
+def query_metadata(library: Path) -> dict[str, dict]:
+    """Format file path -> Calibre metadata entry."""
+    try:
+        result = subprocess.run(
+            [
+                "calibredb",
+                "list",
+                "--for-machine",
+                "--library-path",
+                str(library),
+                "--fields",
+                METADATA_FIELDS,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=CALIBRE_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(f"calibredb timed out after {CALIBRE_TIMEOUT}s") from error
+    if result.returncode != 0:
+        raise RuntimeError(
+            result.stderr.strip() or f"calibredb exited with {result.returncode}"
+        )
+    entries = json.loads(result.stdout)
+    return {
+        format_path: entry
+        for entry in entries
+        for format_path in entry.get("formats") or []
+    }
+
+
+def _read_cache() -> dict | None:
+    """Raw cache document, or None when missing/corrupt."""
+    try:
+        return json.loads(METADATA_CACHE.read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def load_metadata(library: Path) -> dict[str, dict] | None:
+    """Cached format-path -> metadata map, refreshed when metadata.db changes.
+
+    Reuses the previous cache when calibredb is unreachable (GUI lock,
+    timeout, corrupt output) so flat names stay stable.
+
+    Args:
+        library: Root of the Calibre library holding metadata.db.
+
+    Returns:
+        The format-path to metadata map, or None when metadata is
+        unavailable and no cache exists.
+    """
+    fingerprint = db_fingerprint(library)
+    cache = _read_cache()
+    if cache is not None:
+        try:
+            if cache["fingerprint"] == fingerprint:
+                return cache["entries"]
+        except KeyError:
+            warn("metadata cache is corrupt; querying calibredb again")
+            cache = None
+
+    try:
+        entries = query_metadata(library)
+    except (OSError, RuntimeError, json.JSONDecodeError) as error:
+        if cache is not None and cache.get("entries") is not None:
+            if LOCK_HINT in str(error):
+                warn(f"Calibre is running ({error}); reusing cached metadata")
+            else:
+                warn(
+                    f"could not read Calibre metadata ({error}); "
+                    "reusing cached metadata"
+                )
+            return cache["entries"]
+        warn(f"could not read Calibre metadata ({error}); using raw filenames")
+        return None
+
+    METADATA_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    temporary = METADATA_CACHE.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps({"fingerprint": fingerprint, "entries": entries}))
+    temporary.replace(METADATA_CACHE)
+    return entries
+
+
+def sanitize(name: str) -> str:
+    return name.replace(os.sep, "_").strip()
+
+
+def have_network() -> bool:
+    """True when the Drive endpoint is reachable.
+
+    A short TCP probe keeps offline runs cheap (stage locally, skip
+    upload). Captive portals may pass the probe and still fail in rclone.
+    """
+    try:
+        with socket.create_connection(
+            (NETWORK_HOST, NETWORK_PORT), timeout=NETWORK_TIMEOUT
+        ):
+            return True
+    except OSError:
+        return False
+
+
+def format_index(index: float) -> str:
+    """Zero-padded series position: 1.0 -> '01', 8.5 -> '08.5'."""
+    text = f"{index:g}"
+    whole, _, fraction = text.partition(".")
+    padded = f"{int(whole):02d}"
+    return f"{padded}.{fraction}" if fraction else padded
+
+
+def clean_title(title: str, series: str) -> str:
+    """Drop a leading "<Series>, Book NN:" echo from the title."""
+    pattern = re.compile(
+        rf"^{re.escape(series)}\s*,\s*Book\s+\d+(?:\.\d+)?\s*[:_]\s*",
+        re.IGNORECASE,
+    )
+    stripped = pattern.sub("", title)
+    return stripped or title
+
+
+def display_name(entry: dict) -> str:
+    """Readable flat name: Author - Series NN - Title."""
+    parts = [entry.get("authors") or "Unknown"]
+    series = entry.get("series")
+    title = entry.get("title") or "Untitled"
+    if series:
+        parts.append(f"{series} {format_index(entry.get('series_index', 0))}")
+        # Series position is in the name; drop a baked-in "<Series>, Book NN:" prefix.
+        title = clean_title(title, series)
+    parts.append(title)
+    return sanitize(" - ".join(parts))
+
+
+def plan_names(books: list[Path], metadata: dict[str, dict] | None) -> list[str]:
+    """Flat filename per book, hash-suffixed on collisions.
+
+    Args:
+        books: Library files in stable sorted order.
+        metadata: Format-path to metadata map, or None for raw
+            filenames.
+
+    Returns:
+        Flat filenames aligned with ``books``.
+    """
+    bases = []
+    for book in books:
+        entry = metadata.get(str(book)) if metadata else None
+        stem = display_name(entry) if entry else book.stem
+        bases.append(f"{stem}{book.suffix}")
+
+    counts = Counter(bases)
+    planned = []
+    for book, base in zip(books, bases):
+        if counts[base] > 1:
+            digest = hashlib.sha256(str(book).encode()).hexdigest()
+            stem, suffix = os.path.splitext(base)
+            base = f"{stem} [{digest[:HASH_LENGTH]}]{suffix}"
+        planned.append(base)
+    return planned
+
+
+def restage(books: list[Path], metadata: dict[str, dict] | None) -> None:
+    """Mirror the library into staging, relinking only changed books.
+
+    Unchanged hardlinks are kept so no-op runs stay cheap and rclone
+    sees no mtime churn.
+
+    Args:
+        books: Library files to stage.
+        metadata: Format-path to metadata map, or None for raw
+            filenames.
+    """
+    planned = plan_names(books, metadata)
+    wanted: dict[str, Path] = dict(zip(planned, books))
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
+
+    for existing in list(STAGING_DIR.iterdir()):
+        if existing.is_dir() and not existing.is_symlink():
+            shutil.rmtree(existing)
+            continue
+        if existing.name not in wanted:
+            existing.unlink()
+
+    linked = 0
+    reused = 0
+    for name, book in wanted.items():
+        target = STAGING_DIR / name
+        if target.is_file() or target.is_symlink():
+            try:
+                if target.stat().st_ino == book.stat().st_ino:
+                    reused += 1
+                    continue
+                source = book.stat()
+                staged = target.stat()
+                if (staged.st_size, staged.st_mtime_ns) == (
+                    source.st_size,
+                    source.st_mtime_ns,
+                ):
+                    reused += 1
+                    continue
+            except OSError:
+                pass
+            target.unlink()
+        try:
+            os.link(book, target)
+        except OSError:
+            # Copy when link crosses filesystems.
+            shutil.copy2(book, target)
+        linked += 1
+    print(f"staged {linked + reused} books in {STAGING_DIR} ({reused} reused)")
+
+
+def sync(dry_run: bool) -> None:
+    command = [
+        "rclone",
+        "sync",
+        str(STAGING_DIR),
+        REMOTE,
+        "--update",
+        "--track-renames",
+        "--contimeout",
+        "30s",
+        "--timeout",
+        "120s",
+        "--retries",
+        "2",
+        "--low-level-retries",
+        "2",
+    ]
+    if dry_run:
+        command.append("--dry-run")
+    try:
+        result = subprocess.run(command, check=False, timeout=RCLONE_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        die(f"rclone timed out after {RCLONE_TIMEOUT}s")
+        return
+    if result.returncode != 0:
+        die(f"rclone exited with status {result.returncode}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="stage locally but pass --dry-run to rclone",
+    )
+    args = parser.parse_args()
+
+    if shutil.which("rclone") is None:
+        die("rclone is not installed")
+    if not LIBRARY_DIR.is_dir():
+        die(f"Calibre library not found at {LIBRARY_DIR}")
+
+    books = find_books(LIBRARY_DIR)
+    if not books:
+        # An empty staging directory would make rclone sync wipe the remote.
+        die(f"no EPUB/PDF files found in {LIBRARY_DIR}; refusing to sync")
+
+    restage(books, load_metadata(LIBRARY_DIR))
+    if not have_network():
+        print("no network; staged locally, skipping upload until online")
+        return
+    sync(args.dry_run)
+    print(f"synced to {REMOTE}")
+
+
+if __name__ == "__main__":
+    main()

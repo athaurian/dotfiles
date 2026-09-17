@@ -1,0 +1,16 @@
+# Reconnect watcher; the 30-minute timer stays the fallback. Debounced in-script.
+
+[Unit]
+Description=Sync Calibre library promptly on reconnect
+After=sway-session.target
+PartOf=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/calibre-sync-netmon
+Restart=on-failure
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=sway-session.target
