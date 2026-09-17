@@ -1,7 +1,4 @@
-# Synchronization point for Sway session services.
-# Started by autostart.sh. Services declare WantedBy=sway-session.target
-# in their [Install] section. This target has no [Install] of its own
-# because it is started imperatively, not enabled.
+# Started imperatively by autostart.sh (no [Install]); units want this target.
 
 [Unit]
 Description=Sway session services

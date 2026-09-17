@@ -1,6 +1,5 @@
 [[ $- != *i* ]] && return
 
-# --- Aliases ---
 if [ -f "$HOME/.bash_aliases" ]; then
 	. "$HOME/.bash_aliases"
 fi
@@ -35,6 +34,9 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# bun
+export PATH="$HOME/.bun/bin:$PATH"
+
 # --- Other tools ---
 if command -v zoxide >/dev/null 2>&1; then
 	eval "$(zoxide init bash)"
@@ -43,10 +45,9 @@ if command -v fnm >/dev/null 2>&1; then
 	eval "$(fnm env --use-on-cd)"
 fi
 
-# fzf keybindings (Ctrl-r history, Ctrl-t files, Alt-c dirs). (Only if installed)
+# fzf bindings: Ctrl-r history, Ctrl-t files, Alt-c dirs (if installed).
 if command -v fzf >/dev/null 2>&1; then
 	eval "$(fzf --bash 2>/dev/null)"
-	# Use fd if available for faster file search
 	if command -v fd >/dev/null 2>&1; then
 		export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 		export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

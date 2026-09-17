@@ -1,4 +1,4 @@
-# Managed by chezmoi. Do not edit directly; do not apply with nwg-look.
+# Do not apply with nwg-look.
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/renowned/.gtkrc-2.0.mine"
