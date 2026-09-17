@@ -1,5 +1,12 @@
 # Color scheme plan: One Dark chromatics on neutral grounds
 
+> Historical rollout record, not reference. The hexes below are the pre-boost
+> set (red `#E06C75`, blue `#61AFEF`, selection `#3A3F4B`); they were superseded
+> by the ×1.5 chromatic boost, the lattice-derived tints, the neutral selection
+> ladder (rule 3), and the LUT pipeline. Live truth is `meta/color-scheme.md` —
+> read that instead. The "No wallpaper recoloring" non-goal below is also dead:
+> wallpapers are recolored through `home/dot_config/lutgen/neutral`.
+
 Goal: retire the provisional `tmp-*` palette with one locked, tasteful scheme —
 Binaryify One Dark Pro chromatics (`refs/onedark-pro/`, `textColors.classic`) on
 neutral, professional backgrounds (our current ramp, which already lands on the

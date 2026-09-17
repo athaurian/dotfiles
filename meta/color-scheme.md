@@ -97,10 +97,13 @@ overlay below is not derivable and stays hand-written.
    on `#202020`. Titles are subtext, never text. Comments are muted, italic,
    never overlay. `meta/palette.py check` reports the contrast ratios
    (informational, never a gate).
-3. **One accent pair.** Focused/selected/link/cursor states use
-   `#48AFFF`/`#98C3FF` in every app. Search follows: IncSearch is accent
-   (`#48AFFF` bg, base fg); Search is the selection ground (the derived
-   `selection` tint, text fg). Search is never gray.
+3. **Small accent, big neutrals.** `#48AFFF`/`#98C3FF` mark links, cursors,
+   match highlights, and IncSearch — never grounds, never active states.
+   Selections and active states are neutral grey, one step up the ramp: chrome
+   selection (launcher rows, picker rows, bar pills, Qt/btop selection) sits on
+   surface-1 `#2D2D2D`; text selection (Visual, Search) keeps the derived
+   `selection` tint; focus reads as a one-step border lift (`line` over
+   surface-2). Search is never gray; chrome is never blue.
 4. **Transient chrome uniformity.** Floats, pickers, and Pmenu sit on mantle,
    all of them, with one border color (`line #5A5A5A`). Preview panes may sit on
    base. No third depth.
