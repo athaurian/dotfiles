@@ -101,9 +101,10 @@ overlay below is not derivable and stays hand-written.
    match highlights, and IncSearch — never grounds, never active states.
    Selections and active states are neutral grey, one step up the ramp: chrome
    selection (launcher rows, picker rows, bar pills, Qt/btop selection) sits on
-   surface-1 `#2D2D2D`; text selection (Visual, Search) keeps the derived
-   `selection` tint; focus reads as a one-step border lift (`line` over
-   surface-2). Search is never gray; chrome is never blue.
+   surface-1 `#2D2D2D`, one step above its ground (surface-2 where the ground is
+   already surface-1: zathura lists, Qt views); text selection (Visual, Search)
+   keeps the derived `selection` tint; focus reads as a one-step border lift
+   (`line` over surface-2). Search is never gray; chrome is never blue.
 4. **Transient chrome uniformity.** Floats, pickers, and Pmenu sit on mantle,
    all of them, with one border color (`line #5A5A5A`). Preview panes may sit on
    base. No third depth.
