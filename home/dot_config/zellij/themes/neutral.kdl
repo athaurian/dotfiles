@@ -1,0 +1,128 @@
+themes {
+    neutral {
+        text_unselected {
+            base "#D4D4D4"
+            background "#202020"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        text_selected {
+            base "#D4D4D4"
+            background "#2D2D2D"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        ribbon_selected {
+            base "#202020"
+            background "#48AFFF"
+            emphasis_0 "#202020"
+            emphasis_1 "#202020"
+            emphasis_2 "#202020"
+            emphasis_3 "#202020"
+        }
+        ribbon_unselected {
+            base "#D4D4D4"
+            background "#2D2D2D"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        table_title {
+            base "#48AFFF"
+            background "#202020"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        table_cell_selected {
+            base "#D4D4D4"
+            background "#2D2D2D"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        table_cell_unselected {
+            base "#D4D4D4"
+            background "#202020"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        list_selected {
+            base "#D4D4D4"
+            background "#2D2D2D"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        list_unselected {
+            base "#D4D4D4"
+            background "#202020"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        frame_unselected {
+            base "#5A5A5A"
+            background "#202020"
+            emphasis_0 "#8A8A8A"
+            emphasis_1 "#8A8A8A"
+            emphasis_2 "#8A8A8A"
+            emphasis_3 "#8A8A8A"
+        }
+        frame_selected {
+            base "#48AFFF"
+            background "#202020"
+            emphasis_0 "#E49137"
+            emphasis_1 "#00BBCC"
+            emphasis_2 "#89C952"
+            emphasis_3 "#D95AFC"
+        }
+        frame_highlight {
+            base "#F4BC45"
+            background "#202020"
+            emphasis_0 "#F4BC45"
+            emphasis_1 "#F4BC45"
+            emphasis_2 "#F4BC45"
+            emphasis_3 "#F4BC45"
+        }
+        exit_code_success {
+            base "#89C952"
+            background "#202020"
+            emphasis_0 "#8A8A8A"
+            emphasis_1 "#8A8A8A"
+            emphasis_2 "#8A8A8A"
+            emphasis_3 "#8A8A8A"
+        }
+        exit_code_error {
+            base "#FE4864"
+            background "#202020"
+            emphasis_0 "#8A8A8A"
+            emphasis_1 "#8A8A8A"
+            emphasis_2 "#8A8A8A"
+            emphasis_3 "#8A8A8A"
+        }
+        multiplayer_user_colors {
+            player_1 "#D95AFC"
+            player_2 "#48AFFF"
+            player_3 "#00BBCC"
+            player_4 "#F4BC45"
+            player_5 "#E49137"
+            player_6 "#89C952"
+            player_7 "#FE4864"
+            player_8 "#3DDAEE"
+            player_9 "#B3B3B3"
+            player_10 "#8A8A8A"
+        }
+    }
+}
