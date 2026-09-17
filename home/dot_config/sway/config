@@ -74,8 +74,11 @@ bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
 bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
 
 # Scratchpad.
-bindsym $mod+Shift+minus move scratchpad
-bindsym $mod+minus scratchpad show
+bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
+bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
+
+# Dropdown terminal.
+bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
 
 # Reload.
 bindsym $mod+Shift+c reload
@@ -118,6 +121,7 @@ input type:touchpad {
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
+for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 
 # Locked scheme (meta/color-scheme.md).
 client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
