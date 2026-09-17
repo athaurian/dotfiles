@@ -3,3 +3,10 @@ AGENTS.md
 
 # Upstream reference clones; research material, never committed.
 refs/
+
+# Scratch playground; experiments, never committed.
+assets/
+
+# Python bytecode; redirected to ~/.cache via PYTHONPYCACHEPREFIX, never committed.
+__pycache__/
+*.pyc
