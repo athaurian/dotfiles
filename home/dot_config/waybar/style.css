@@ -8,6 +8,8 @@
 @define-color neutral-text-muted #8a8a8a;
 @define-color neutral-border-inactive #3a3a3a;
 @define-color neutral-focus-border #5a5a5a;
+@define-color neutral-accent-text #48afff;
+@define-color neutral-accent-bright #98c3ff;
 @define-color neutral-surface-1 #2d2d2d;
 @define-color neutral-warning #f4bc45;
 @define-color neutral-error-text #fe4864;
@@ -66,14 +68,13 @@ window#waybar {
 }
 
 #workspaces button.focused {
-  color: @neutral-text-max;
-  background-color: @neutral-surface-1;
-  border-bottom-color: @neutral-focus-border;
+  color: @neutral-accent-text;
+  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.focused:hover {
-  color: @neutral-text-max;
-  background-color: @neutral-surface-1;
+  color: @neutral-accent-bright;
+  border-bottom-color: @neutral-accent-text;
 }
 
 #workspaces button.urgent {
