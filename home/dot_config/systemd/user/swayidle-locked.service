@@ -1,0 +1,11 @@
+# Imperative only (no [Install]); PartOf= stops it with the session.
+
+[Unit]
+Description=Sway idle manager (locked)
+Documentation=man:swayidle(1)
+PartOf=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/sway/scripts/wrapper_swayidle.sh locked
+KillMode=process

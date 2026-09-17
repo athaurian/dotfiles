@@ -68,7 +68,10 @@ bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
-# Screenshots (wayfreeze freeze + satty annotate).
+# Caffeine toggle.
+bindsym --no-repeat $mod+Shift+i exec $HOME/.config/sway/scripts/toggle_idle.sh
+
+# Screenshots.
 bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
 bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
 bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
@@ -77,9 +80,17 @@ bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
-# Reload and exit.
+# Reload.
 bindsym $mod+Shift+c reload
-bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -b 'Yes' 'swaymsg exit'
+
+# Lock.
+bindsym $mod+Shift+x exec $HOME/.config/sway/scripts/lock.sh
+
+# Power.
+bindsym $mod+Shift+BackSpace exec $HOME/.config/sway/scripts/power_control.sh poweroff
+bindsym $mod+Shift+r exec $HOME/.config/sway/scripts/power_control.sh reboot
+bindsym $mod+Shift+z exec $HOME/.config/sway/scripts/power_control.sh suspend
+bindsym $mod+Shift+e exec $HOME/.config/sway/scripts/power_control.sh logout
 
 # Resize mode.
 mode "resize" {

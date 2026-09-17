@@ -1,0 +1,54 @@
+# Locked scheme (meta/color-scheme.md).
+
+ignore-empty-password
+show-failed-attempts
+
+indicator
+indicator-idle-visible
+indicator-caps-lock
+indicator-radius=120
+indicator-thickness=4
+
+clock
+timestr=%R
+datestr=%a, %e %b
+
+font=Geist Mono
+font-size=24
+
+fade-in=0.5
+effect-vignette=0.4:0.4
+
+ring-color=#5A5A5A
+ring-clear-color=#5A5A5A
+ring-ver-color=#5A5A5A
+ring-wrong-color=#5A5A5A
+ring-caps-lock-color=#5A5A5A
+
+inside-color=#202020
+inside-clear-color=#202020
+inside-ver-color=#202020
+inside-wrong-color=#202020
+inside-caps-lock-color=#202020
+
+text-color=#D4D4D4
+text-clear-color=#D4D4D4
+text-ver-color=#D4D4D4
+text-wrong-color=#FE4864
+text-caps-lock-color=#FFD678
+
+# Keystroke arc pulses along the perimeter track.
+key-hl-color=#D4D4D4
+bs-hl-color=#FF7376
+caps-lock-bs-hl-color=#FF7376
+caps-lock-key-hl-color=#FFD678
+
+line-color=#00000000
+line-clear-color=#00000000
+line-ver-color=#00000000
+line-wrong-color=#00000000
+line-caps-lock-color=#00000000
+
+separator-color=#00000000
+
+# vim: ft=conf
