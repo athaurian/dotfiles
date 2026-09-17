@@ -1,10 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Hand the Wayland session environment to the user manager, then start
-# graphical-session.target and sway-session.target. Wayland-dependent
-# services live in sway-session.target.wants/ and cannot start before
-# the compositor environment exists.
+# Import Wayland env, start session targets. Wayland services need the compositor env first.
 systemctl --user import-environment \
 	WAYLAND_DISPLAY \
 	SWAYSOCK \

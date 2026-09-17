@@ -1,6 +1,3 @@
-# Login shell environment (sourced by bash on login).
-# Sources .bashrc for interactive shell settings.
-
 export EDITOR=nvim
 export BROWSER=helium-browser
 export FILE_MANAGER=thunar

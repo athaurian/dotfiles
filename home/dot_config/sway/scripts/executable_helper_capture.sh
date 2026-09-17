@@ -1,13 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-# This script is invoked by screenshot.sh (or wayfreeze on its behalf).
-# It expects SCREENSHOT_MODE, SCREENSHOT_TMP, SCREENSHOT_GEOMETRY, and
-# SCREENSHOT_FROZEN to be exported in the environment.
+# Invoked by screenshot.sh/wayfreeze. Expects SCREENSHOT_MODE/TMP/GEOMETRY/FROZEN in env.
 
 unfreeze() {
 	if [ "${SCREENSHOT_FROZEN:-0}" = "1" ]; then
-		# Use || true so set -e doesn't abort if wayfreeze is already dead
+		# || true: wayfreeze may already be dead under set -e.
 		pkill -x wayfreeze 2>/dev/null || true
 	fi
 	return 0
@@ -32,7 +30,7 @@ else
 	grim "$SCREENSHOT_TMP"
 fi
 
-# Unfreeze the screen before opening satty so the UI is responsive
+# Unfreeze before satty so the UI stays responsive.
 unfreeze
 
 if [ -s "$SCREENSHOT_TMP" ]; then
@@ -41,8 +39,7 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 		mkdir -p "$save_dir"
 		save_filename="$save_dir/screenshot-$(date '+%Y%m%d-%H%M%S').png"
 
-		# Satty handles its own notifications for saving/copying.
-		# || true ensures cleanup runs regardless of how satty exits.
+		# || true keeps cleanup running however satty exits.
 		satty --filename "$SCREENSHOT_TMP" \
 			--copy-command wl-copy \
 			--output-filename "$save_filename" \

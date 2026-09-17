@@ -1,4 +1,4 @@
--- Dashboard logo: read from logo.txt so spacing edits are file edits.
+-- Logo from logo.txt; spacing edits stay file edits.
 local function read_logo()
   local file = io.open(vim.fn.stdpath("config") .. "/logo.txt", "r")
   if not file then
