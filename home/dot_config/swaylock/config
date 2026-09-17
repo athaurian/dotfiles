@@ -21,9 +21,9 @@ effect-vignette=0.4:0.4
 
 ring-color=#5A5A5A
 ring-clear-color=#5A5A5A
-ring-ver-color=#5A5A5A
-ring-wrong-color=#5A5A5A
-ring-caps-lock-color=#5A5A5A
+ring-ver-color=#F4BC45
+ring-wrong-color=#FE4864
+ring-caps-lock-color=#F4BC45
 
 inside-color=#202020
 inside-clear-color=#202020
