@@ -1,0 +1,13 @@
+# Persistent=true catch-up covers the login sync after downtime.
+
+[Unit]
+Description=Run calibre-sync every 30 minutes
+
+[Timer]
+OnCalendar=*:0/30
+RandomizedDelaySec=5min
+Persistent=true
+Unit=calibre-sync.service
+
+[Install]
+WantedBy=sway-session.target
