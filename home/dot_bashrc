@@ -26,6 +26,9 @@ case ":$PATH:" in
 *) export PATH="$HOME/.local/share/nvim/mason/bin:$PATH" ;;
 esac
 
+# Python bytecode goes to ~/.cache instead of __pycache__/ next to sources.
+export PYTHONPYCACHEPREFIX="$HOME/.cache/python"
+
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
@@ -35,7 +38,10 @@ esac
 # pnpm end
 
 # bun
-export PATH="$HOME/.bun/bin:$PATH"
+case ":$PATH:" in
+*":$HOME/.bun/bin:"*) ;;
+*) export PATH="$HOME/.bun/bin:$PATH" ;;
+esac
 
 # --- Other tools ---
 if command -v zoxide >/dev/null 2>&1; then
