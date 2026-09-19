@@ -13,7 +13,7 @@ clock
 timestr=%R
 datestr=%a, %e %b
 
-font=Geist Mono
+font=GoogleSansCode Nerd Font Mono
 font-size=24
 
 fade-in=0.5

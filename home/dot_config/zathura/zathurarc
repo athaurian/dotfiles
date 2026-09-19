@@ -1,6 +1,6 @@
 # Locked scheme (meta/color-scheme.md).
 
-set font "Geist normal 10"
+set font "Google Sans normal 10"
 
 set default-bg "#202020"
 set default-fg "#D4D4D4"

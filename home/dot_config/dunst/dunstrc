@@ -21,7 +21,7 @@
     frame_color = "#5a5a5a"
     separator_color = frame
     sort = no
-    font = GeistMono Nerd Font Propo 10
+    font = GoogleSansCode Nerd Font Propo 10
     line_height = 0
     markup = full
     format = "<b>%s</b>\n%b"

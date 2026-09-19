@@ -9,7 +9,7 @@ set $browser sh -c 'exec ${BROWSER:-helium-browser}'
 set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
 set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-keepassxc}'
 
-font pango:Geist Mono 10
+font pango:GoogleSansCode Nerd Font Mono 10
 
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
