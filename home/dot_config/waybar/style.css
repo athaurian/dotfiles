@@ -23,7 +23,7 @@
   border: none;
   /* Square on purpose. */
   border-radius: 0;
-  font-family: "Geist Mono", "GeistMono Nerd Font Mono", monospace;
+  font-family: "GoogleSansCode Nerd Font Mono", monospace;
   font-size: 12px;
   min-height: 0;
 }
