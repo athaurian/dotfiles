@@ -66,6 +66,13 @@ check("NoiceCmdlineIcon", "fg", "#48AFFF")
 check("DiffAdd", "bg", "#2B4218")
 check("DiffText", "bg", "#2D5E86")
 
+-- Audit pins: markdown heading grounds neutral, chrome borders on surface-2
+-- (btop's box grey).
+check("RenderMarkdownH1Bg", "bg", "#262626")
+check("BlinkCmpMenuBorder", "fg", "#3A3A3A")
+check("WinSeparator", "fg", "#3A3A3A")
+check("FloatBorder", "fg", "#3A3A3A")
+
 -- Terminal ANSI (red/cursor codes).
 check_gvar("terminal_color_0", "#202020")
 check_gvar("terminal_color_1", "#FE4864")

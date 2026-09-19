@@ -27,23 +27,27 @@ hexes, re-run for the check.
 
 ## Neutrals (locked ramp, dark → light)
 
-| Hex       | Role      | Used for                                                    |
-| --------- | --------- | ----------------------------------------------------------- |
-| `#101010` | crust     | nvim TabLine, fold backgrounds                              |
-| `#171717` | mantle    | nvim floats, pickers, Pmenu — transient chrome              |
-| `#202020` | base      | editor, terminal, bar, notification, window backgrounds     |
-| `#262626` | surface-0 | cursorline, alternate base, tooltip base                    |
-| `#2D2D2D` | surface-1 | hover fills, buttons, menu selection, dunst normal bg       |
-| `#3A3A3A` | surface-2 | borders, selections, indent guides, dunst low frame         |
-| `#5A5A5A` | line      | focus borders, float borders, subtle lines                  |
-| `#8A8A8A` | muted     | comments (italic), placeholders, disabled, low-urgency text |
-| `#B3B3B3` | subtext   | secondary text: titles, tab labels, dimmed emphasis         |
-| `#D4D4D4` | text      | primary text everywhere                                     |
-| `#FFFFFF` | text-max  | hover, selected, max emphasis                               |
+| Hex       | Role      | Used for                                                        |
+| --------- | --------- | --------------------------------------------------------------- |
+| `#101010` | crust     | nvim TabLine, fold backgrounds                                  |
+| `#171717` | mantle    | nvim floats, pickers, Pmenu — transient chrome                  |
+| `#202020` | base      | editor, terminal, bar, notification, window backgrounds         |
+| `#262626` | surface-0 | cursorline, alternate base, tooltip base                        |
+| `#2D2D2D` | surface-1 | hover fills, buttons, menu selection, dunst normal bg           |
+| `#3A3A3A` | surface-2 | borders, btop boxes, selections, indent guides, dunst low frame |
+| `#5A5A5A` | line      | focus borders, subtle lines                                     |
+| `#8A8A8A` | muted     | comments (italic), placeholders, disabled, low-urgency text     |
+| `#B3B3B3` | subtext   | secondary text: titles, tab labels, dimmed emphasis             |
+| `#D4D4D4` | text      | primary text everywhere                                         |
+| `#FFFFFF` | text-max  | hover, selected, max emphasis                                   |
 
 Crust and mantle are nvim-only by design — an editor reads more depth than a bar
 — but they are part of this ramp, not local inventions. The editor may never
-step outside these eleven values.
+step outside these eleven values. The editor reads the ramp through catppuccin's
+slot names: `overlay2` and `subtext0` both land on muted `#8A8A8A`, `overlay1`
+on surface-2 `#3A3A3A` (inverted vs upstream — conceal and dimmed chrome read
+darker than catppuccin intends), `overlay0` on line `#5A5A5A`. The ramp stays
+the truth; slot names are aliases.
 
 ## Chromatics (One Dark Pro hues, chroma boosted ×1.5)
 
@@ -58,10 +62,14 @@ step outside these eleven values.
 | orange | `#E49137` | `#F2A256` | numbers, properties, dashboard header             |
 
 Dropped deliberately: sapphire and maroon as hues (unused outliers), the
-mauve/lavender split (purple + purple-bright covers it). Catppuccin's
-`maroon`/`sapphire` slots are set to the red/blue hexes so no stock pastel
-renders. Seven hues, each with exactly one bright step. No new hues without
-editing this table first.
+mauve/lavender split (purple + purple-bright covers it). Catppuccin's slot
+collapses: `maroon`/`sapphire` to the red/blue hexes, `flamingo` to red, `pink`
+to red-bright, `teal` to cyan, `sky` to cyan-bright, `rosewater` to
+orange-bright — no stock pastel renders. The Base column is the ×1.5 chroma
+boost of One Dark Pro classic; the Bright column is hand-tuned (one lighter
+step, no derivation formula — changing a bright means editing its hex here).
+Seven hues, each with exactly one bright step. No new hues without editing this
+table first.
 
 ## Supporting tints (derived, on the lattice)
 
@@ -101,18 +109,22 @@ readable; supersedes the derived tint for launcher and Qt selection).
    never overlay. `meta/palette.py check` reports the contrast ratios
    (informational, never a gate).
 3. **Small accent, named touchpoints.** `#48AFFF`/`#98C3FF` appear in exactly
-   these places: links, cursors, match highlights, IncSearch, the focused
-   workspace pill, the launcher selection row, and Qt selection — as accent
-   text, or deep-blue grounds (`selection-deep`) with light text; never bright
-   grounds, never plain grey where history earned a wash. Everything else is
-   neutral grey, one step up the ramp: chrome selection (picker rows, bar pills,
-   btop selection) sits on surface-1 `#2D2D2D`, one step above its ground
-   (surface-2 where the ground is already surface-1: zathura lists); text
-   selection (Visual, Search) keeps the derived `selection` tint; focus reads as
-   a one-step border lift (`line` over surface-2). Search is never gray.
+   these places: links, cursors, the cursorline number, match highlights,
+   IncSearch, info diagnostics and the cmdline icon, the focused workspace pill,
+   the launcher selection row, and Qt selection — as accent text, or deep-blue
+   grounds (`selection-deep`) with light text; never bright grounds, never plain
+   grey where history earned a wash. The one ground exception: nvim active
+   buttons (Mason/Lazy pills) render as accent grounds with base text.
+   Everything else is neutral grey, one step up the ramp: chrome selection
+   (picker rows, bar pills, btop selection) sits on surface-1 `#2D2D2D`, one
+   step above its ground (surface-2 where the ground is already surface-1:
+   zathura lists); text selection (Visual, Search) keeps the derived `selection`
+   tint; focus reads as a one-step border lift (`line` over surface-2). Search
+   is never gray.
 4. **Transient chrome uniformity.** Floats, pickers, and Pmenu sit on mantle,
-   all of them, with one border color (`line #5A5A5A`). Preview panes may sit on
-   base. No third depth.
+   all of them, with one border color (surface-2 `#3A3A3A`, btop's box grey —
+   one step above base, as in btop and sway's unfocused borders). Preview panes
+   may sit on base. No third depth.
 5. **Doc boundary.** Every hex in an app file traces to this doc — enforced by
    `meta/palette.py check`, not by eye. The check reads `#hex` (8-digit alpha
    stripped) and foot-style bare `key=value` hexes; quoted bare hexes and
