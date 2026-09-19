@@ -10,3 +10,6 @@ assets/
 # Python bytecode; redirected to ~/.cache via PYTHONPYCACHEPREFIX, never committed.
 __pycache__/
 *.pyc
+
+# Palette tooling and the scheme doc; machine-local, never committed.
+meta/
