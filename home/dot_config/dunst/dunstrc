@@ -63,9 +63,9 @@
     timeout = 5
 
 [urgency_critical]
-    background = "#2d2d2d"
-    foreground = "#ff7376"
-    frame_color = "#fe4864"
+    background = "#4c1a1f"
+    foreground = "#ffffff"
+    frame_color = "#ff7376"
     timeout = 0
 
 [mpd]

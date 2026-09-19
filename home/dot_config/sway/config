@@ -128,8 +128,8 @@ client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
 client.focused_inactive #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
 client.focused_tab_title #5a5a5a #2d2d2d #d4d4d4
 client.unfocused        #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
-# Dunst-critical treatment: grey field, red text, red edges.
-client.urgent           #fe4864 #2d2d2d #ff7376 #fe4864 #fe4864
+# Dunst-critical treatment: urgent tint field, white text, red edges.
+client.urgent           #ff7376 #4c1a1f #ffffff #ff7376 #ff7376
 client.placeholder      #202020 #202020 #8a8a8a #202020 #202020
 client.background       #202020
 
