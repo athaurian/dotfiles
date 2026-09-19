@@ -99,6 +99,7 @@ window#waybar {
 #battery,
 #clock,
 #cpu,
+#custom-mpris,
 #memory,
 #pulseaudio,
 #tray {
@@ -117,11 +118,17 @@ window#waybar {
 #battery:hover,
 #clock:hover,
 #cpu:hover,
+#custom-mpris:hover,
 #memory:hover,
 #pulseaudio:hover {
   color: @neutral-text-max;
   background-color: @neutral-hover-neutral;
   border-color: @neutral-border-inactive;
+}
+
+/* --- MPRIS (custom/mpris.py; muted until playing) --- */
+#custom-mpris {
+  color: @neutral-text-muted;
 }
 
 /* --- Window Title --- */
