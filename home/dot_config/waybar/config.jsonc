@@ -3,7 +3,7 @@
   "position": "top",
   "height": 24,
   "spacing": 0,
-  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-left": ["sway/workspaces", "sway/mode", "custom/mpris"],
   "modules-center": ["sway/window"],
   "modules-right": ["cpu", "memory", "pulseaudio", "battery", "tray", "clock"],
   "sway/workspaces": {
@@ -25,6 +25,17 @@
   },
   "sway/mode": {
     "format": "󰘳 {}"
+  },
+  "custom/mpris": {
+    // chezmoi renames ``executable_mpris.py`` to ``mpris.py`` on apply.
+    "exec": "~/.config/waybar/scripts/mpris.py",
+    "return-type": "json",
+    "hide-empty-text": true,
+    "restart-interval": 5, // relaunch if the script exits unexpectedly
+    "escape": false, // allow our Pango <span>/<i> markup through
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
   },
   "sway/window": {
     "format": "{title}",
