@@ -5,7 +5,7 @@
   "spacing": 0,
   "modules-left": ["sway/workspaces", "sway/mode", "custom/mpris"],
   "modules-center": ["sway/window"],
-  "modules-right": ["cpu", "memory", "pulseaudio", "battery", "tray", "clock"],
+  "modules-right": ["cpu", "memory", "custom/updates", "custom/separator", "pulseaudio", "battery", "tray", "clock", "custom/separator", "custom/dnd"],
   "sway/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,
@@ -69,6 +69,27 @@
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
     "interval": 5,
     "on-click": "foot -e btop"
+  },
+  "custom/updates": {
+    // chezmoi renames ``executable_updates.sh`` to ``updates.sh`` on apply.
+    "exec": "~/.config/waybar/scripts/updates.sh",
+    "return-type": "json",
+    "interval": 3600,
+    "signal": 8,
+    "tooltip": true,
+    "on-click": "~/.config/sway/scripts/toggle_topgrade.sh"
+  },
+  "custom/dnd": {
+    "exec": "~/.config/waybar/scripts/dunst-dnd.sh",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 9,
+    "tooltip": true,
+    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle"
+  },
+  "custom/separator": {
+    "format": "|",
+    "tooltip": false
   },
   "battery": {
     "states": { "warning": 30, "critical": 15 },
