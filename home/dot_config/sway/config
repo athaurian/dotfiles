@@ -9,7 +9,7 @@ set $browser sh -c 'exec ${BROWSER:-helium-browser}'
 set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
 set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-keepassxc}'
 
-font pango:GoogleSansCode Nerd Font Mono 10
+font pango:SauceCodePro Nerd Font Mono 10
 
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
@@ -137,6 +137,9 @@ default_border pixel 1
 hide_edge_borders smart
 
 # SwayFX (static).
+gaps inner 5
+gaps outer 3
+
 blur enable
 blur_passes 3
 blur_radius 5
@@ -146,7 +149,7 @@ shadow_blur_radius 14
 shadow_color #00000080
 shadow_offset 0 2
 shadow_inactive_color #00000080
-corner_radius 0
+corner_radius 4
 default_dim_inactive 0.05
 # Must match fuzzel.ini's launcher namespace.
 layer_effects "launcher" {

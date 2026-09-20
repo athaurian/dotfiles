@@ -21,9 +21,8 @@
 
 * {
   border: none;
-  /* Square on purpose. */
   border-radius: 0;
-  font-family: "GoogleSansCode Nerd Font Mono", monospace;
+  font-family: "Source Code Pro", "SauceCodePro Nerd Font Mono", monospace;
   font-size: 12px;
   min-height: 0;
 }
@@ -193,13 +192,15 @@ window#waybar {
   background-color: @neutral-surface-0;
   color: @neutral-text;
   border: 1px solid @neutral-focus-border;
-  border-radius: 0;
+  border-radius: 4px;
 }
 
 tooltip {
   background-color: @neutral-surface-0;
   color: @neutral-text;
   border: 1px solid @neutral-focus-border;
+  /* Rounding the tooltip produces black corner artifacts. */
+  /* border-radius: 4px; */
 }
 
 #tray menu menuitem {
