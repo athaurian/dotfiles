@@ -1,0 +1,7 @@
+[Unit]
+Description=Check chezmoi drift and notify when out of sync
+Documentation=man:chezmoi(1)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/chezmoi-drift-check

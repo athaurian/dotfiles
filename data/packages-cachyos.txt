@@ -1,0 +1,5 @@
+# The cachyos repos only; the same names exist in the AUR for Arch.
+# '#' starts a comment, blank lines are skipped.
+helium-browser-bin
+swaylock-effects # provides swaylock; conflicts with repo/swaylock
+vesktop

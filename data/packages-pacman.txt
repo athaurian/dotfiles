@@ -1,0 +1,70 @@
+# Official Arch repos (extra/core), identical names everywhere.
+# '#' starts a comment, blank lines are skipped.
+
+# Desktop & Window Management
+awww # wallpaper daemon
+foot
+fuzzel
+grim
+imagemagick # lock.sh screenshot blur (magick/convert)
+jq
+libnotify # notify-send utility for scripts
+cliphist
+fzf
+dunst # notification daemon. Dunstify ships with it.
+polkit-gnome
+satty
+slurp
+swayidle
+waybar
+wl-clipboard
+wlsunset
+xdg-utils
+
+# System & Hardware
+blueman
+brightnessctl
+networkmanager
+network-manager-applet
+pacman-contrib # checkupdates for waybar updates module
+pavucontrol
+pipewire
+pipewire-pulse
+playerctl
+mpv-mpris # MPRIS plugin for mpv; feeds the waybar player module
+
+# TUI & CLI
+bat
+btop
+cava
+eza
+fastfetch
+fd
+git # lazy.nvim bootstrap
+lazygit
+neovim
+python
+rclone # Google Drive sync for the Calibre library
+ripgrep
+uv # Python package and venv runner
+zellij
+
+# Fonts & Icons
+adwaita-cursors
+noto-fonts
+ttf-sourcecodepro-nerd
+adobe-source-code-pro-fonts
+papirus-icon-theme
+
+# Applications & Helpers
+calibre
+fnm
+keepassxc
+pinentry
+qt5ct # Qt5 straggler (keepassxc); drop after 2.8
+qt6-wayland
+qt6ct
+thunar
+zathura
+zathura-pdf-mupdf
+zoxide
