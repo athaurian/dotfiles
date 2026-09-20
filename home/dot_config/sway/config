@@ -5,7 +5,7 @@ set $up k
 set $right l
 set $term foot
 set $menu fuzzel
-set $browser sh -c 'exec ${BROWSER:-helium-browser}'
+set $browser $HOME/.config/sway/scripts/wrapper_browser.sh
 set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
 set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-keepassxc}'
 
@@ -105,6 +105,7 @@ bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.
 # Notifications.
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
+bindsym --no-repeat $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
 
 # Reload.
 bindsym $mod+Shift+c reload
@@ -149,6 +150,7 @@ for_window [app_id="blueman-manager"] floating enable, border normal, resize set
 for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
 for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
 for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 
 # Locked scheme (meta/color-scheme.md).
 client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
