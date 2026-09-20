@@ -1,0 +1,909 @@
+#!/usr/bin/env python3
+"""
+sw: set wallpaper.
+
+Recolors images with the locked neutral lutgen palette (caching both the
+LUT and each rendered output so repeated runs are cheap), rotates through
+a pool with next/previous history, and sets the result via awww.
+
+  sw [--set] ~/Pictures/Wallpapers/pool/flower-basket.jpg
+  sw --next
+  sw --prev
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import math
+import os
+import random
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from pathlib import Path
+from typing import NoReturn
+
+# Locked render values (Automation section in AGENTS.md):
+#   lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05
+PALETTE = "neutral"
+LUM = "1.05"
+RADIUS = "8.0"
+SHAPE = "96.0"
+NEAREST = "16"
+LEVEL = "10"
+PRESERVE = True
+
+HASH_CHUNK_SIZE = 1024 * 1024
+VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_HISTORY = 50
+
+# --- ``awww img`` parameters ---
+TRANSITION_DURATION = 0.6
+TRANSITION_TYPE = "random"
+
+NOTIFY_APP = "sw"
+NOTIFY_ICON = "󰸉"
+NOTIFY_TIMEOUT_MS = 3000
+
+POOL_DIR = Path.home() / "Pictures" / "Wallpapers" / "pool"
+FALLBACK = Path("/usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png")
+
+
+@dataclass(frozen=True)
+class RenderConfig:
+    """Resolved rendering settings (dark-only, static)."""
+
+    palette: str
+    lum: str
+    radius: str
+    shape: str
+    rbf: bool
+    preserve: bool
+
+    @property
+    def algorithm_tag(self) -> str:
+        if self.rbf:
+            return f"rbf-shape-{self.shape}"
+        return f"blur-radius-{self.radius}"
+
+
+@dataclass(frozen=True)
+class PaletteSource:
+    """Information needed to invoke and cache a lutgen palette."""
+
+    argument: str
+    identity: str
+    content_hash: str
+
+
+def warn(message: str) -> None:
+    print(f"warning: {message}", file=sys.stderr)
+
+
+def die(message: str) -> NoReturn:
+    print(f"error: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def expand_user_path(path: Path) -> Path:
+    """Expand a leading tilde without failing for unknown users."""
+
+    return Path(os.path.expanduser(os.fspath(path)))
+
+
+def text_hash(text: str, length: int) -> str:
+    digest = hashlib.sha256(text.encode("utf-8", errors="surrogateescape"))
+    return digest.hexdigest()[:length]
+
+
+def file_content_hash(path: Path, length: int) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        while chunk := file.read(HASH_CHUNK_SIZE):
+            digest.update(chunk)
+    return digest.hexdigest()[:length]
+
+
+def file_sig_hash(path: Path, length: int = 12) -> str:
+    """Hash stable file metadata without reading potentially large content."""
+
+    try:
+        resolved_path = str(path.resolve())
+    except (OSError, RuntimeError):
+        resolved_path = str(path)
+
+    stat = path.stat()
+    signature = "\0".join(
+        (
+            resolved_path,
+            str(stat.st_dev),
+            str(stat.st_ino),
+            str(stat.st_size),
+            str(stat.st_mtime_ns),
+            str(stat.st_ctime_ns),
+        )
+    )
+    return text_hash(signature, length)
+
+
+def is_nonempty_file(path: Path) -> bool:
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except (OSError, RuntimeError):
+        return False
+
+
+def cache_home(env: Mapping[str, str] = os.environ) -> Path:
+    raw = env.get("XDG_CACHE_HOME")
+    return expand_user_path(Path(raw)) if raw else Path.home() / ".cache"
+
+
+def runtime_dir(env: Mapping[str, str] = os.environ) -> Path:
+    return Path(env.get("XDG_RUNTIME_DIR", "/tmp"))
+
+
+def sw_cache(env: Mapping[str, str] = os.environ) -> Path:
+    return cache_home(env) / "sw"
+
+
+def queue_file(env: Mapping[str, str] = os.environ) -> Path:
+    return sw_cache(env) / "queue"
+
+
+def history_file(env: Mapping[str, str] = os.environ) -> Path:
+    return sw_cache(env) / "history"
+
+
+def last_file(env: Mapping[str, str] = os.environ) -> Path:
+    return sw_cache(env) / "last"
+
+
+def env_value(env: Mapping[str, str], setting: str, default: str) -> str:
+    return env.get(f"SW_{setting}", default)
+
+
+def normalize_number(name: str, value: str) -> str:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        die(f"{name} must be a number, got: {value!r}")
+
+    if not math.isfinite(number):
+        die(f"{name} must be a finite number, got: {value!r}")
+
+    return repr(number)
+
+
+def resolve_render_config(
+    args: argparse.Namespace,
+    env: Mapping[str, str],
+) -> RenderConfig:
+    palette = args.palette or env_value(env, "PALETTE", PALETTE)
+    if not palette:
+        die("palette must not be empty")
+
+    lum = normalize_number(
+        "lum", args.lum if args.lum is not None else env_value(env, "LUM", LUM)
+    )
+    if args.rbf:
+        radius = RADIUS
+        shape = normalize_number(
+            "shape",
+            args.shape if args.shape is not None else env_value(env, "SHAPE", SHAPE),
+        )
+    else:
+        radius = normalize_number(
+            "radius",
+            args.radius
+            if args.radius is not None
+            else env_value(env, "RADIUS", RADIUS),
+        )
+        shape = SHAPE
+        if args.shape is not None:
+            warn("--shape is ignored unless RBF is used")
+
+    if args.preserve is not None:
+        preserve = args.preserve
+    else:
+        preserve_raw = env_value(env, "PRESERVE", "1" if PRESERVE else "0")
+        if preserve_raw not in ("0", "1"):
+            die("preserve must resolve to 0 or 1")
+        preserve = preserve_raw == "1"
+
+    return RenderConfig(
+        palette=palette,
+        lum=lum,
+        radius=radius,
+        shape=shape,
+        rbf=args.rbf,
+        preserve=preserve,
+    )
+
+
+def is_explicit_palette_path(palette: str) -> bool:
+    if Path(palette).is_absolute() or palette.startswith("~"):
+        return True
+    if os.sep in palette:
+        return True
+    return bool(os.altsep and os.altsep in palette)
+
+
+def palette_cache_target(lutgen_dir: Path, palette: str) -> Path:
+    if is_explicit_palette_path(palette):
+        return expand_user_path(Path(palette))
+    return lutgen_dir / palette
+
+
+def resolve_palette_source(
+    lutgen_dir: Path,
+    palette: str,
+) -> PaletteSource:
+    explicit_path = is_explicit_palette_path(palette)
+    target = palette_cache_target(lutgen_dir, palette)
+
+    if target.is_file():
+        try:
+            content_hash = file_content_hash(target, 12)
+        except OSError as exc:
+            die(f"could not read palette file {target}: {exc}")
+
+        try:
+            identity = str(target.resolve())
+        except (OSError, RuntimeError):
+            identity = str(target)
+
+        return PaletteSource(
+            argument=str(target) if explicit_path else palette,
+            identity=identity,
+            content_hash=content_hash,
+        )
+
+    if explicit_path:
+        die(f"palette file not found: {target}")
+
+    return PaletteSource(
+        argument=palette,
+        identity=palette,
+        content_hash="builtin",
+    )
+
+
+def ensure_directory(path: Path, description: str) -> None:
+    try:
+        if path.exists() and not path.is_dir():
+            die(f"{description} exists and is not a directory: {path}")
+        path.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        die(f"could not create {description} {path}: {exc}")
+
+
+def build_output_path(
+    output_dir: Path,
+    render_hash: str,
+    image: Path,
+) -> Path:
+    source_hash = file_sig_hash(image)
+    stem = image.stem if image.suffix else image.name
+    filename = f"{stem}.{source_hash}.{render_hash}{image.suffix}"
+    return output_dir / filename
+
+
+def generate_lut(
+    lutgen: str,
+    palette: PaletteSource,
+    config: RenderConfig,
+    lut_file: Path,
+) -> None:
+    print(f"Generating LUT: {lut_file}", file=sys.stderr)
+
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix=".sw-lut-",
+            dir=lut_file.parent,
+        ) as temp_dir:
+            temporary_lut = Path(temp_dir) / lut_file.name
+            # Canonical flag order (algorithm, -P, -L, -o): lutgen 1.1.1
+            # misparses -L before the algorithm selector, and a bare
+            # trailing "--" errors (COLORS expected after it).
+            command = [
+                lutgen,
+                "generate",
+                "-p",
+                palette.argument,
+            ]
+
+            if config.rbf:
+                command.extend(("-R", "-s", config.shape, "-n", NEAREST, "-l", LEVEL))
+            else:
+                command.extend(("-r", config.radius))
+
+            if config.preserve:
+                command.append("-P")
+
+            command.extend(("-L", config.lum, "-o", str(temporary_lut)))
+            subprocess.run(command, check=True)
+
+            if not is_nonempty_file(temporary_lut):
+                die("lutgen generate completed without creating a valid LUT")
+
+            os.replace(temporary_lut, lut_file)
+    except subprocess.CalledProcessError as exc:
+        die(f"lutgen generate failed (exit status {exc.returncode})")
+    except OSError as exc:
+        die(f"could not generate LUT: {exc}")
+
+
+def apply_lut(
+    lutgen: str,
+    lut_file: Path,
+    image: Path,
+    output_file: Path,
+) -> bool:
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix=".sw-render-",
+            dir=output_file.parent,
+        ) as temp_dir:
+            work_dir = Path(temp_dir)
+            subprocess.run(
+                [
+                    lutgen,
+                    "apply",
+                    "-d",
+                    "--hald-clut",
+                    str(lut_file),
+                    "-o",
+                    str(work_dir),
+                    str(image),
+                ],
+                check=True,
+            )
+
+            expected_output = work_dir / image.name
+            if is_nonempty_file(expected_output):
+                generated = expected_output
+            else:
+                generated_files = sorted(
+                    (path for path in work_dir.iterdir() if is_nonempty_file(path)),
+                    key=lambda path: path.name,
+                )
+
+                if not generated_files:
+                    warn(f"could not determine output file for: {image}")
+                    return False
+
+                if len(generated_files) > 1:
+                    warn(f"lutgen produced multiple unexpected files for: {image}")
+                    return False
+
+                generated = generated_files[0]
+
+            os.replace(generated, output_file)
+            return True
+    except subprocess.CalledProcessError as exc:
+        warn(f"lutgen apply failed for {image} (exit status {exc.returncode})")
+        return False
+    except OSError as exc:
+        warn(f"could not render {image}: {exc}")
+        return False
+
+
+def awww_running() -> bool:
+    """Polls until the awww daemon answers or the timeout expires."""
+
+    deadline = time.monotonic() + 2.0
+    while time.monotonic() < deadline:
+        result = subprocess.run(
+            ["pgrep", "-x", "awww-daemon"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if result.returncode == 0:
+            return True
+        time.sleep(0.1)
+    return False
+
+
+def set_wallpaper(path: Path) -> bool:
+    executable = shutil.which("awww")
+    if not executable:
+        warn("no awww binary found; not setting wallpaper")
+        return False
+
+    try:
+        subprocess.run(
+            [
+                executable,
+                "img",
+                str(path),
+                f"--transition-duration={TRANSITION_DURATION}",
+                f"--transition-type={TRANSITION_TYPE}",
+            ],
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        warn(f"awww failed to set wallpaper (exit status {exc.returncode})")
+        return False
+    except OSError as exc:
+        warn(f"could not run awww: {exc}")
+        return False
+
+    return True
+
+
+def notify_id_file(env: Mapping[str, str] = os.environ) -> Path:
+    """Runtime file that persists the last notification ID across runs."""
+
+    return runtime_dir(env) / "sw_notify_id"
+
+
+def send_notification(args: list[str]) -> str:
+    """Runs ``dunstify`` and returns a numeric notification ID, or an empty
+    string."""
+
+    try:
+        result = subprocess.run(args, check=False, capture_output=True, text=True)
+    except FileNotFoundError:
+        return ""
+    except OSError:
+        return ""
+    return "".join(c for c in result.stdout if c.isdigit())
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    """Writes ``text`` to ``path`` atomically via a PID-suffixed temp file."""
+
+    tmp = path.with_name(f"{path.name}.{os.getpid()}")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
+def notify(summary: str, body: str, env: Mapping[str, str] = os.environ) -> None:
+    """Shows a desktop notification, replacing the previous one."""
+
+    id_file = notify_id_file(env)
+
+    old_id = ""
+    if id_file.is_file():
+        try:
+            old_id = "".join(c for c in id_file.read_text() if c.isdigit())
+        except OSError:
+            old_id = ""
+
+    base_args = [
+        "dunstify",
+        "-a",
+        NOTIFY_APP,
+        "-u",
+        "low",
+        "-t",
+        str(NOTIFY_TIMEOUT_MS),
+        "-p",
+    ]
+
+    new_id = ""
+    if old_id:
+        new_id = send_notification([*base_args, "-r", old_id, summary, body])
+
+    if not new_id:
+        new_id = send_notification([*base_args, summary, body])
+
+    if new_id:
+        _atomic_write_text(id_file, new_id)
+
+
+def read_lines(path: Path) -> list[str]:
+    """Reads non-empty stripped lines from ``path``, or returns an empty
+    list when missing."""
+
+    if not path.exists():
+        return []
+    try:
+        return [
+            stripped
+            for raw in path.read_text().splitlines()
+            if (stripped := raw.strip())
+        ]
+    except OSError:
+        return []
+
+
+def write_lines_atomic(path: Path, lines: list[str]) -> None:
+    """Writes ``lines`` to ``path`` atomically, leaving an empty file when
+    blank."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _atomic_write_text(path, "\n".join(lines) + "\n" if lines else "")
+
+
+def current_wallpaper(env: Mapping[str, str] = os.environ) -> str | None:
+    """Returns the currently set wallpaper from the last file, if any."""
+
+    lines = read_lines(last_file(env))
+    return lines[0] if lines else None
+
+
+def record_last_wallpaper(path: str, env: Mapping[str, str] = os.environ) -> None:
+    """Remembers the wallpaper that was just set."""
+
+    _atomic_write_text(last_file(env), path + "\n")
+
+
+def push_history(previous: str, env: Mapping[str, str] = os.environ) -> None:
+    """Appends ``previous`` to the history stack, keeping it bounded."""
+
+    history = read_lines(history_file(env))
+    if history and history[-1] == previous:
+        return
+    history.append(previous)
+    write_lines_atomic(history_file(env), history[-MAX_HISTORY:])
+
+
+def get_wallpapers(directory: Path) -> list[str]:
+    """Collects wallpaper paths from ``directory`` (non-recursive, sorted)."""
+
+    if not directory.is_dir():
+        return []
+    return sorted(
+        str(entry)
+        for entry in directory.iterdir()
+        if entry.is_file() and entry.suffix.lower() in VALID_EXTENSIONS
+    )
+
+
+def pop_next(queue: list[str]) -> tuple[str | None, list[str]]:
+    """Pops the first readable entry; drops unreadable files silently."""
+
+    chosen: str | None = None
+    remaining: list[str] = []
+    for path in queue:
+        if not os.access(path, os.R_OK):
+            continue
+        if chosen is None:
+            chosen = path
+        else:
+            remaining.append(path)
+    return chosen, remaining
+
+
+def render(
+    lutgen: str,
+    lutgen_dir: Path,
+    config: RenderConfig,
+    lut_dir: Path,
+    output_dir: Path,
+    image: Path,
+    refresh: bool,
+) -> Path | None:
+    """Recolors ``image`` with the cached neutral LUT; returns the output."""
+
+    palette = resolve_palette_source(lutgen_dir, config.palette)
+
+    try:
+        lutgen_hash = file_sig_hash(Path(lutgen), 16)
+    except OSError as exc:
+        warn(f"could not inspect lutgen executable: {exc}")
+        lutgen_hash = text_hash(lutgen, 16)
+
+    lut_signature = "\0".join(
+        (
+            f"palette={config.palette}",
+            f"palette_identity={palette.identity}",
+            f"palette_hash={palette.content_hash}",
+            f"algorithm={config.algorithm_tag}",
+            f"lum={config.lum}",
+            f"preserve={int(config.preserve)}",
+            f"lutgen={lutgen_hash}",
+        )
+    )
+    lut_id = text_hash(lut_signature, 16)
+    lut_file = lut_dir / f"{lut_id}.png"
+
+    if refresh or not is_nonempty_file(lut_file):
+        generate_lut(lutgen, palette, config, lut_file)
+
+    try:
+        lut_content_hash = file_content_hash(lut_file, 16)
+    except OSError as exc:
+        die(f"could not read cached LUT {lut_file}: {exc}")
+
+    render_hash = text_hash(
+        f"{lut_content_hash}\0{lutgen_hash}",
+        16,
+    )
+
+    try:
+        output_file = build_output_path(output_dir, render_hash, image)
+    except OSError as exc:
+        warn(f"could not inspect source image {image}: {exc}")
+        return None
+
+    if not refresh and is_nonempty_file(output_file):
+        return output_file
+
+    if apply_lut(lutgen, lut_file, image, output_file):
+        return output_file
+    return None
+
+
+def render_many(
+    args: argparse.Namespace,
+    env: Mapping[str, str],
+    images: Sequence[Path],
+) -> tuple[Path | None, bool]:
+    """Recolors ``images``; returns the last output and an error flag."""
+
+    lutgen = shutil.which("lutgen")
+    if not lutgen:
+        die("lutgen not found in PATH")
+
+    config = resolve_render_config(args, env)
+
+    xdg_cache = cache_home(env)
+    output_dir = (
+        expand_user_path(args.output_dir)
+        if args.output_dir is not None
+        else xdg_cache / "sw" / "wallpapers"
+    )
+
+    lutgen_dir_raw = env.get("LUTGEN_DIR")
+    lutgen_dir = (
+        expand_user_path(Path(lutgen_dir_raw))
+        if lutgen_dir_raw
+        else Path.home() / ".config" / "lutgen"
+    )
+
+    lut_dir = xdg_cache / "sw" / "luts"
+    ensure_directory(lut_dir, "LUT cache directory")
+    ensure_directory(output_dir, "output directory")
+
+    last_output: Path | None = None
+    had_error = False
+
+    for image_arg in images:
+        image = expand_user_path(image_arg)
+
+        if not image.is_file():
+            warn(f"skipping missing file: {image_arg}")
+            had_error = True
+            continue
+
+        output_file = render(
+            lutgen, lutgen_dir, config, lut_dir, output_dir, image, args.refresh
+        )
+        if output_file is None:
+            had_error = True
+            continue
+
+        print(output_file)
+        last_output = output_file
+
+    return last_output, had_error
+
+
+def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
+    pool = expand_user_path(args.pool_dir)
+    queue_path = queue_file(env)
+    previous = current_wallpaper(env)
+
+    if not awww_running():
+        die("awww daemon is not responding")
+
+    sw_cache(env).mkdir(parents=True, exist_ok=True)
+
+    queue = read_lines(queue_path)
+
+    if not queue:
+        wallpapers = get_wallpapers(pool)
+
+        if not wallpapers:
+            if not FALLBACK.is_file():
+                die(f"no wallpapers found in {pool} and fallback missing: {FALLBACK}")
+            last_output, had_error = render_many(args, env, [FALLBACK])
+            if last_output is None:
+                return 1
+            if previous is not None and previous != str(FALLBACK):
+                push_history(previous, env)
+            record_last_wallpaper(str(FALLBACK), env)
+            if not set_wallpaper(last_output):
+                return 1
+            notify(
+                f"{NOTIFY_ICON} wallpaper changed",
+                f"<b>{FALLBACK.name}</b> set as fallback.",
+            )
+            return 1 if had_error else 0
+
+        queue = wallpapers
+        random.shuffle(queue)
+
+    chosen, remaining = pop_next(queue)
+
+    if chosen is None:
+        queue_path.unlink(missing_ok=True)
+        chosen = str(FALLBACK)
+
+    write_lines_atomic(queue_path, remaining)
+
+    last_output, had_error = render_many(args, env, [Path(chosen)])
+    if last_output is None:
+        return 1
+
+    if previous is not None and previous != chosen:
+        push_history(previous, env)
+    record_last_wallpaper(chosen, env)
+    if not set_wallpaper(last_output):
+        return 1
+    notify(f"{NOTIFY_ICON} wallpaper changed", f"<b>{Path(chosen).name}</b>.")
+    return 1 if had_error else 0
+
+
+def go_prev(args: argparse.Namespace, env: Mapping[str, str]) -> int:
+    queue_path = queue_file(env)
+    current = current_wallpaper(env)
+
+    if not awww_running():
+        die("awww daemon is not responding")
+
+    sw_cache(env).mkdir(parents=True, exist_ok=True)
+
+    history = read_lines(history_file(env))
+
+    # Pop the newest readable entry. Drop missing files silently.
+    target: str | None = None
+    while history:
+        candidate = history.pop()
+        if current is not None and candidate == current:
+            continue
+        if not os.access(candidate, os.R_OK):
+            continue
+        target = candidate
+        break
+
+    if target is None:
+        write_lines_atomic(history_file(env), history)
+        notify(
+            f"{NOTIFY_ICON} no previous wallpaper",
+            "You are at the start of the history.",
+        )
+        return 0
+
+    queue = [p for p in read_lines(queue_path) if p != target]
+    if current is not None and os.access(current, os.R_OK):
+        queue.insert(0, current)
+    write_lines_atomic(queue_path, queue)
+    write_lines_atomic(history_file(env), history)
+
+    last_output, had_error = render_many(args, env, [Path(target)])
+    if last_output is None:
+        return 1
+
+    record_last_wallpaper(target, env)
+    if not set_wallpaper(last_output):
+        return 1
+    notify(f"{NOTIFY_ICON} wallpaper changed", f"<b>{Path(target).name}</b>.")
+    return 1 if had_error else 0
+
+
+def parse_args(
+    argv: Sequence[str] | None = None,
+) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="sw",
+        description="Recolor wallpapers with the neutral lutgen palette, "
+        "rotate through the pool, and set via awww.",
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--next",
+        action="store_true",
+        help="show the next wallpaper in the queue (sets it)",
+    )
+    mode.add_argument(
+        "--prev",
+        action="store_true",
+        help="go back to the previously shown wallpaper (sets it)",
+    )
+    parser.add_argument(
+        "-p",
+        "--palette",
+        default=None,
+        help="lutgen palette name or path (default: neutral)",
+    )
+    parser.add_argument(
+        "-l",
+        "--lum",
+        help="luminosity factor (default: 1.05)",
+    )
+    parser.add_argument(
+        "--blur",
+        dest="rbf",
+        action="store_false",
+        default=True,
+        help="use Gaussian blur instead of RBF (with --radius)",
+    )
+    parser.add_argument(
+        "-r",
+        "--radius",
+        help="Gaussian blur radius, blur mode only (default: 8.0)",
+    )
+    parser.add_argument(
+        "-s",
+        "--shape",
+        help="Gaussian RBF shape, RBF mode only (default: 96.0)",
+    )
+    parser.add_argument(
+        "--no-preserve",
+        dest="preserve",
+        action="store_false",
+        default=None,
+        help="do not preserve original luminosity/contrast",
+    )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="regenerate the cached LUT and reapply even if outputs exist",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        help="output directory (default: ~/.cache/sw/wallpapers)",
+    )
+    parser.add_argument(
+        "--pool-dir",
+        type=Path,
+        default=POOL_DIR,
+        help="rotation pool (default: ~/Pictures/Wallpapers/pool)",
+    )
+    parser.add_argument(
+        "--set",
+        dest="set_wallpaper",
+        action="store_true",
+        help="set the final themed image as wallpaper via awww",
+    )
+    parser.add_argument(
+        "images",
+        nargs="*",
+        type=Path,
+        metavar="image",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = parse_args(argv)
+    env = os.environ
+
+    if args.next or args.prev:
+        if args.images:
+            die("--next/--prev take no image arguments")
+        if args.next:
+            return go_next(args, env)
+        return go_prev(args, env)
+
+    if not args.images:
+        die("no images given (pass images, or use --next/--prev)")
+
+    last_output, had_error = render_many(args, env, args.images)
+
+    if args.set_wallpaper:
+        if last_output is None:
+            warn("no themed image is available to set as wallpaper")
+            had_error = True
+        elif not set_wallpaper(last_output):
+            had_error = True
+
+    return 1 if had_error else 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        raise SystemExit(130)
