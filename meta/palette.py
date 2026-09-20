@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Palette machinery for the One Dark on Neutral scheme.
 
-meta/color-scheme.md is the seed truth: the locked neutral ramp, the
+meta/color-scheme.md is the seed and semantic source of truth: the locked
 One Dark Pro chromatics, and the tint specs. This script derives from
 them and verifies the desktop stays in palette:
 
@@ -159,7 +159,7 @@ def parse_chromatics(doc: str) -> dict[str, str]:
 
 
 def parse_tints(doc: str) -> dict[str, str]:
-    """Derived spec rows only: tint name -> hex."""
+    """Derived spec rows only: tint name to hex."""
     out: dict[str, str] = {}
     in_section = False
     for line in doc.splitlines():
@@ -273,15 +273,15 @@ def derive_tints(doc: str) -> str:
             flush()
         out.append(line)
     flush()
-    print(f"tints: {changed} derived hex(es) updated")
+    print(f"tints: {changed} derived hex values updated")
     return "".join(out)
 
 
 def build_lut(doc: str) -> str:
-    """The 115-color lutgen palette: locked hexes, then OKLCH
+    """The lutgen palette: locked hexes, then OKLCH
     intermediates, sorted by lightness."""
-    neutrals = section_hexes(doc, "## Neutrals", "## Chromatics")
-    chromatics = section_hexes(doc, "## Chromatics", "## Supporting tints")
+    neutrals = list(dict.fromkeys(section_hexes(doc, "## Neutrals", "## Chromatics")))
+    chromatics = list(dict.fromkeys(section_hexes(doc, "## Chromatics", "## Supporting tints")))
     if len(neutrals) != 11 or len(chromatics) != 14:
         raise SystemExit(
             f"unexpected palette size: {len(neutrals)} neutrals, "
@@ -356,7 +356,7 @@ def drift_violations(doc: str) -> dict[str, set[str]]:
 
 
 def contrast_report(doc: str) -> list[str]:
-    """Informational WCAG ratios for the doc's documented role pairs."""
+    """Informational contrast ratios for the documented role pairs."""
     roles = parse_neutrals(doc)
     chroma = parse_chromatics(doc)
     tints = parse_tints(doc)
