@@ -191,8 +191,13 @@ return {
             BlinkCmpKindProperty = { fg = colors.peach },
             BlinkCmpKindStruct = { fg = colors.yellow },
 
-            SnacksNormal = { bg = colors.mantle },
-            SnacksNormalNC = { bg = colors.mantle },
+            -- Terminal stays transparent like the editor (rule 4 exception:
+            -- Snacks maps Normal:SnacksNormal on every win, terminal included).
+            -- The fg must be explicit: a bg-only "none" leaves the group empty
+            -- and Snacks' managed default=true link (to opaque NormalFloat)
+            -- overwrites it on first load.
+            SnacksNormal = { bg = "none", fg = colors.text },
+            SnacksNormalNC = { bg = "none", fg = colors.subtext1 },
             SnacksPicker = { bg = colors.mantle },
             SnacksPickerBox = { bg = colors.mantle },
             SnacksPickerBorder = { fg = colors.surface2, bg = colors.mantle },
