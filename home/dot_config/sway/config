@@ -11,6 +11,8 @@ set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-
 
 font pango:SauceCodePro Nerd Font Mono 8
 
+floating_modifier $mod normal
+
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
 bindsym $mod+$up focus up
