@@ -1,100 +1,189 @@
-# LUT palette plan: mathematically colorizing wallpapers to the locked palette
+# LUT palette: wallpaper recoloring
 
-Goal: recolor wallpapers so they match the locked desktop palette
-(`meta/color-scheme.md`) — mathematically, via lutgen, not by hand. The old flow
-(a 400-line Python themer plus chezmoi-templated "balanced" palette subsets,
-`~/.local/bin/flint-wallpaper`) is deliberately not restored; its hand-tuned
-subset is what made recolored wallpapers look off. What replaces it: the locked
-palette plus mathematically derived intermediate colors, fed to lutgen's
-interpolation.
+The LUT palette maps wallpapers into the locked desktop palette defined by
+`meta/color-scheme.md`. The palette is generated, checked in, and consumed by
+`lutgen`; it is not hand-tuned per wallpaper.
 
-## lutgen mechanics (verified locally, v1.1.1)
+## Design
 
-- Custom palettes: `~/.config/lutgen/<name>`, one hex per line, with or without
-  `#`. Resolved by `-p <name>`.
-- Interpolation algorithms: default Gaussian blur (`-r RADIUS`, sigma), Gaussian
-  RBF (`-R -s SHAPE -n NEAREST`), Shepard's method, nearest neighbor (`-N`,
-  posterizes).
-- `-P` preserves the image's original luminance after interpolation; `-L FACTOR`
-  weights matching toward colorful or greyscale; both are how the recolor keeps
-  image detail instead of washing it out.
-- `-l LEVEL` is the Hald CLUT level (default 10); 16 stores the entire sRGB
-  space.
-- `lutgen apply -p <pal> [flags] img.png -o out.png` generates the LUT and
-  applies it in one shot. `lutgen generate` alone writes the Hald CLUT to the
-  CWD by default — always pass `-o` explicitly. There is no built-in LUT cache
-  directory; any cache is ours to manage.
+- **Use the locked palette as the source.** The neutral ramp, seven chromatic
+  base colors, and seven bright colors come only from `meta/color-scheme.md`.
+- **Add mathematical intermediates.** The locked colors alone are too sparse for
+  photographic gradients. Intermediate colors are generated in OKLCH so that
+  lightness and chroma change continuously rather than snapping to a small set
+  of stops.
+- **Keep the artifact reproducible.** The generator defines the formula; the
+  checked-in palette file contains the generated hexadecimal values.
+- **Do not restore the old themer.** The previous hand-tuned palette subsets,
+  chezmoi templates, and Python wallpaper themer are intentionally outside the
+  current design.
 
-## The LUT palette
+## lutgen behavior
 
-Base (source of truth, `meta/color-scheme.md`): the 11-step neutral ramp
-(`#101010` … `#FFFFFF`), the 7 chromatic hues, and their 7 bright steps — 25
-locked colors. Nothing outside that doc.
+The locally verified lutgen version is `1.1.1`.
 
-### The generated colors (the "other colors")
+| Mechanism         | Behavior                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| Custom palette    | One hexadecimal color per line in `~/.config/lutgen/<name>`, with or without `#`                        |
+| Palette selection | `-p <name>` selects the named palette                                                                   |
+| Gaussian blur     | Default interpolation; `-r RADIUS` controls the sigma/radius parameter                                  |
+| Gaussian RBF      | `-R`, with shape controlled by `-s` and neighbor count by `-n`                                          |
+| Shepard           | Alternative interpolation method                                                                        |
+| Nearest neighbor  | `-N`; produces posterized results                                                                       |
+| `-P`              | Preserves the source image's luminance after interpolation                                              |
+| `-L FACTOR`       | Adjusts weighting toward colorful or grayscale matches                                                  |
+| `-l LEVEL`        | Sets Hald CLUT resolution; `10` is the default working level, while `16` stores the complete sRGB space |
+| `lutgen apply`    | Generates and applies the LUT in one command                                                            |
+| `lutgen generate` | Writes a Hald CLUT to the current directory unless an output path is supplied                           |
 
-25 colors alone posterize photographic images — smooth sky gradients would band
-onto the nearest 4–5 stops. So the palette file gains intermediates, derived
-mathematically in OKLCH (perceptual space, so interpolation follows how eyes see
-lightness/chroma):
+Always give `lutgen generate` an explicit output path when it is used directly.
+There is no built-in repository LUT cache directory; cache management is part of
+our own workflow.
 
-1. **Neutral ramp fill.** Linear OKLCH interpolation between adjacent locked
-   ramp steps: for steps `A`, `B`, emit `A + i/(N+1) * (B - A)` in OKLCH for
-   `i = 1..N`. This turns the 11-step ramp into a smooth gradient every
-   greyscale pixel can land on.
-2. **Chromatic tints/shades.** For each of the 7 hues, take the hue's OKLCH
-   chroma `C` and hue angle `H`, then emit colors at each neutral ramp
-   lightness: `oklch(L_ramp, C * (1 - |L_ramp - L_hue| * k), H)` — lightness
-   from the ramp, chroma falling off toward black/white so the tints stay
-   tasteful at the extremes. `N` and `k` are the two knobs; start at `N = 2`,
-   `k = 0.5`.
-3. **Output.** The generator writes `home/dot_config/lutgen/neutral` (locked
-   colors first, then generated, sorted by lightness) as static hex — checked
-   in, re-runnable, never hand-edited. The formula is the documentation; the
-   file is the artifact.
+## Palette contents
 
-The generator is one small script (a Python one-liner class), not a palette
-builder: no chezmoi templates, no contrast gates, no YAML. It reads the locked
-hexes, computes, writes the file.
+The locked input contains 25 colors:
 
-## Parameters (starting point)
+- **Neutrals.** The eleven-step ramp from `#101010` through `#FFFFFF`.
+- **Chromatics.** Seven base hues and their seven bright variants.
 
+The generated palette adds intermediate colors to reduce posterization while
+remaining derived from those locked values.
+
+### Neutral intermediates
+
+For adjacent locked ramp values `A` and `B`, emit `N` evenly spaced OKLCH
+interpolants:
+
+```text
+A + i/(N+1) × (B - A),  i = 1..N
 ```
+
+Interpolation applies independently to OKLCH `L`, `C`, and `H`. The resulting
+colors fill the gaps between the locked neutral lightness steps.
+
+### Chromatic intermediates
+
+For each hue, use its OKLCH base chroma `C` and hue angle `H`. At each neutral
+ramp lightness `L_ramp`, derive:
+
+```text
+oklch(L_ramp, C × (1 - |L_ramp - L_hue| × k), H)
+```
+
+`N` controls how many intermediate colors are generated. `k` controls how fast
+chroma falls toward the black and white extremes. The starting values are:
+
+| Parameter | Value |
+| --------- | ----: |
+| `N`       |   `2` |
+| `k`       | `0.5` |
+
+Adjust these only when the generated palette demonstrates a concrete rendering
+problem.
+
+## Generated artifact
+
+The generated palette is stored at:
+
+```text
+home/dot_config/lutgen/neutral
+```
+
+Generation order is:
+
+1. Locked colors from `meta/color-scheme.md`.
+2. Generated neutral intermediates.
+3. Generated chromatic intermediates.
+4. Lightness-sorted output as static hexadecimal values.
+
+The file is checked in and reproducible. Do not hand-edit it.
+
+The generator is intentionally a small Python script rather than a general
+palette-building system. It reads the locked colors, performs the documented
+calculations, and writes the palette file. Do not introduce chezmoi templates,
+YAML, contrast gates, or another palette abstraction for this workflow.
+
+## Application parameters
+
+The current working command is:
+
+```sh
 lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 img.png -o out.png
 ```
 
-- `-R -s 96` Gaussian RBF, shape 96: the old tested values — smooth blending
-  with limited bleeding between distant hues.
-- `-n 16` nearest 16 (lutgen default): blends against the 16 closest palette
-  colors.
-- `-l 10` Hald level 10: enough resolution for photography.
-- `-P` preserve luminance: image detail survives the recolor.
-- `-L 1.05` slight saturation preference, paired with `-P`.
+| Flag | Value  | Purpose                                                                           |
+| ---- | ------ | --------------------------------------------------------------------------------- |
+| `-R` |        | Gaussian RBF interpolation                                                        |
+| `-s` | `96`   | RBF shape; limits excessive bleeding between distant hues                         |
+| `-n` | `16`   | Use the 16 nearest palette colors                                                 |
+| `-l` | `10`   | Hald CLUT level used for the working pipeline                                     |
+| `-P` |        | Preserve source luminance and retain image detail                                 |
+| `-L` | `1.05` | Slightly favor colorful matches while retaining the luminance-preserving behavior |
 
-These carried over from the old flow because they were tuned on real wallpapers;
-live with them (rule 1) and adjust one flag at a time. Shape/lum are the two
-knobs most likely to need retuning for the neutral palette.
+These values were retained from testing against real wallpapers. Treat them as
+one working parameter set, not as universal lutgen defaults.
+
+When tuning, change one parameter at a time. RBF shape and luminance weighting
+are the first parameters to investigate when the neutral palette produces
+undesired blending or loss of detail.
 
 ## File layout
 
-- `home/dot_config/lutgen/neutral` — the LUT palette (static hex, generated
-  artifact).
-- LUT outputs: always `-o ~/.cache/lutgen/neutral.png` — `generate` defaults to
-  the CWD and litters otherwise.
-- Recolored wallpapers: `~/Pictures/Wallpapers/neutral/`, set via `awww img`
-  (sway's wallpaper exec points at the recolored output once wired).
+| Path                             | Purpose                      |
+| -------------------------------- | ---------------------------- |
+| `home/dot_config/lutgen/neutral` | Checked-in generated palette |
+| `~/.cache/lutgen/`               | Runtime LUT output/cache     |
+| `~/Pictures/Wallpapers/neutral/` | Recolored wallpaper output   |
+
+Always pass `-o` for generated output instead of relying on the current working
+directory. Wallpaper selection is handled by the desktop wallpaper workflow.
 
 ## Workflow
 
-1. Edit a locked color in `meta/color-scheme.md` → re-run the generator → the
-   palette file updates.
-2. `lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 ~/Pictures/Wallpapers/dark/flower-basket.jpg -o ~/.cache/lutgen/x.png`
-3. `awww img` the output. Eyeball, tune flags, repeat.
+1. **Change the source.** Edit a locked color or derivation specification in
+   `meta/color-scheme.md`.
+2. **Regenerate.** Run the palette generator so `home/dot_config/lutgen/neutral`
+   reflects the new source values.
+3. **Apply.** Recolor a wallpaper with the working lutgen parameters.
+4. **Inspect.** Check the resulting image visually for gradients, hue bleeding,
+   and preserved detail.
+5. **Tune deliberately.** When the result is wrong, change one lutgen parameter,
+   regenerate, and compare against the previous result.
+
+Example:
+
+```sh
+lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 \
+  ~/Pictures/Wallpapers/dark/flower-basket.jpg \
+  -o ~/.cache/lutgen/neutral.png
+```
+
+Then display the output with the repository's wallpaper tooling.
+
+## Validation
+
+The palette itself should be reproducible from the documented inputs. Recoloring
+also requires visual inspection because a mathematically valid LUT can still
+produce an undesirable image.
+
+Check at least these properties:
+
+| Property            | What to inspect                                                             |
+| ------------------- | --------------------------------------------------------------------------- |
+| Gradient continuity | Smooth source gradients should not collapse into a handful of visible bands |
+| Hue separation      | Distinct source hues should not bleed into unrelated palette families       |
+| Luminance           | Major light and dark structure should survive recoloring                    |
+| Palette boundary    | Output colors should come from the generated palette                        |
+| Detail              | Fine image structure should remain legible after recoloring                 |
 
 ## Non-goals
 
-- No chezmoi-templated palette rendering (the old `flint.tmpl` mechanism).
-- No Python themer.
-- No contrast gates.
-- No automatic recolor-on-palette-change machinery. The generator is a one-shot
-  command; the palette file is a checked-in artifact; eyeballing is the gate.
+- No chezmoi-templated palette rendering.
+- No restoration of the old Python wallpaper themer.
+- No hand-tuned per-wallpaper palette subsets.
+- No contrast gates for LUT generation.
+- No automatic wallpaper recoloring triggered by palette changes.
+
+The generator is a one-shot derivation step. The checked-in palette is the
+reusable artifact, and visual inspection remains the final rendering check.
