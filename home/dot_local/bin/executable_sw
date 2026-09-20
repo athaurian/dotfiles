@@ -2,13 +2,18 @@
 """
 sw: set wallpaper.
 
-Recolors images with the locked neutral lutgen palette (caching both the
+Recolors stills with the locked neutral lutgen palette (caching both the
 LUT and each rendered output so repeated runs are cheap), rotates through
 a pool with next/previous history, and sets the result via awww.
+
+Pre-themed animations (.gif) bypass lutgen entirely: they are cached by
+content hash and set with no transition. `sw --restore` re-applies
+whatever `last` records (still or animation), so login restores it.
 
   sw [--set] ~/Pictures/Wallpapers/pool/flower-basket.jpg
   sw --next
   sw --prev
+  sw --restore
 """
 
 from __future__ import annotations
@@ -39,7 +44,7 @@ LEVEL = "10"
 PRESERVE = True
 
 HASH_CHUNK_SIZE = 1024 * 1024
-VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MAX_HISTORY = 50
 
 # --- ``awww img`` parameters ---
@@ -410,20 +415,35 @@ def awww_running() -> bool:
     return False
 
 
+def is_animation(path: Path) -> bool:
+    """Pre-themed animations bypass lutgen and transitions."""
+
+    return path.suffix.lower() == ".gif"
+
+
+def transition_for(path: Path) -> tuple[str, str]:
+    """(duration, type) for ``awww img``: animations cut with no transition."""
+
+    if is_animation(path):
+        return ("0", "none")
+    return (str(TRANSITION_DURATION), TRANSITION_TYPE)
+
+
 def set_wallpaper(path: Path) -> bool:
     executable = shutil.which("awww")
     if not executable:
         warn("no awww binary found; not setting wallpaper")
         return False
 
+    duration, transition = transition_for(path)
     try:
         subprocess.run(
             [
                 executable,
                 "img",
                 str(path),
-                f"--transition-duration={TRANSITION_DURATION}",
-                f"--transition-type={TRANSITION_TYPE}",
+                f"--transition-duration={duration}",
+                f"--transition-type={transition}",
             ],
             check=True,
         )
@@ -632,6 +652,39 @@ def render(
     return None
 
 
+def passthrough_animation(output_dir: Path, image: Path) -> Path | None:
+    """Caches a pre-themed animation by content hash; never touches lutgen.
+
+    Content (not metadata) addressing keeps the cache stable and gives
+    every distinct render a fresh name, which the awww daemon needs to
+    pick the new file up instead of serving its stale cache.
+    """
+
+    try:
+        content_hash = file_content_hash(image, 16)
+    except OSError as exc:
+        warn(f"could not hash animation {image}: {exc}")
+        return None
+
+    stem = image.stem if image.suffix else image.name
+    target = output_dir / f"{stem}.{content_hash}{image.suffix}"
+    if is_nonempty_file(target):
+        return target
+
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix=".sw-anim-",
+            dir=output_dir,
+        ) as temp_dir:
+            staged = Path(temp_dir) / target.name
+            shutil.copyfile(image, staged)
+            os.replace(staged, target)
+    except OSError as exc:
+        warn(f"could not cache animation {image}: {exc}")
+        return None
+    return target
+
+
 def render_many(
     args: argparse.Namespace,
     env: Mapping[str, str],
@@ -640,9 +693,6 @@ def render_many(
     """Recolors ``images``; returns the last output and an error flag."""
 
     lutgen = shutil.which("lutgen")
-    if not lutgen:
-        die("lutgen not found in PATH")
-
     config = resolve_render_config(args, env)
 
     xdg_cache = cache_home(env)
@@ -673,6 +723,18 @@ def render_many(
             warn(f"skipping missing file: {image_arg}")
             had_error = True
             continue
+
+        if is_animation(image):
+            output_file = passthrough_animation(output_dir, image)
+            if output_file is None:
+                had_error = True
+                continue
+            print(output_file)
+            last_output = output_file
+            continue
+
+        if not lutgen:
+            die("lutgen not found in PATH")
 
         output_file = render(
             lutgen, lutgen_dir, config, lut_dir, output_dir, image, args.refresh
@@ -790,6 +852,38 @@ def go_prev(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     return 1 if had_error else 0
 
 
+def go_restore(args: argparse.Namespace, env: Mapping[str, str]) -> int:
+    """Re-applies the wallpaper recorded in `last` (still or animation).
+
+    Idempotent: rotation state is untouched and no notification is sent,
+    so Sway can run it at login to restore whatever was live.
+    """
+
+    if not awww_running():
+        die("awww daemon is not responding")
+
+    sw_cache(env).mkdir(parents=True, exist_ok=True)
+
+    previous = current_wallpaper(env)
+    target = previous
+    if target is not None and not os.access(target, os.R_OK):
+        warn(f"last wallpaper unreadable, falling back: {target}")
+        target = None
+    if target is None:
+        if not FALLBACK.is_file():
+            die("no previous wallpaper recorded and fallback missing")
+        target = str(FALLBACK)
+
+    last_output, had_error = render_many(args, env, [Path(target)])
+    if last_output is None:
+        return 1
+    if previous != target:
+        record_last_wallpaper(target, env)
+    if not set_wallpaper(last_output):
+        return 1
+    return 1 if had_error else 0
+
+
 def parse_args(
     argv: Sequence[str] | None = None,
 ) -> argparse.Namespace:
@@ -808,6 +902,11 @@ def parse_args(
         "--prev",
         action="store_true",
         help="go back to the previously shown wallpaper (sets it)",
+    )
+    mode.add_argument(
+        "--restore",
+        action="store_true",
+        help="re-apply the recorded wallpaper without rotating (sets it)",
     )
     parser.add_argument(
         "-p",
@@ -880,12 +979,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     env = os.environ
 
-    if args.next or args.prev:
+    if args.next or args.prev or args.restore:
         if args.images:
-            die("--next/--prev take no image arguments")
+            die("--next/--prev/--restore take no image arguments")
         if args.next:
             return go_next(args, env)
-        return go_prev(args, env)
+        if args.prev:
+            return go_prev(args, env)
+        return go_restore(args, env)
 
     if not args.images:
         die("no images given (pass images, or use --next/--prev)")
