@@ -10,7 +10,7 @@ action="${1:-}"
 case "$action" in
 poweroff) cmd="systemctl poweroff" ;;
 reboot) cmd="systemctl reboot" ;;
-suspend) cmd="systemctl suspend" ;;
+suspend) cmd="$HOME/.config/sway/scripts/lock.sh --now; systemctl suspend" ;;
 logout) cmd="systemctl --user stop sway-session.target; swaymsg exit" ;;
 *)
 	echo "Usage: $0 <poweroff|reboot|suspend|logout>" >&2
