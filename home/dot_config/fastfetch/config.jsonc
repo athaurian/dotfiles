@@ -1,0 +1,69 @@
+// Locked scheme (meta/color-scheme.md).
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "display": {
+    "disableLinewrap": true,
+  },
+  "logo": {
+    "source": "~/.config/fastfetch/ascii.txt",
+    "color": {
+      "1": "#E49137",
+    },
+    "padding": {
+      "top": 2,
+    },
+  },
+  "modules": [
+    {
+      "keyWidth": 10,
+      "type": "title",
+    },
+    "break",
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "os",
+    },
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "kernel",
+    },
+    {
+      "format": "{version}",
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "host",
+    },
+    {
+      "format": "{pacman} (pacman)",
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "packages",
+    },
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "shell",
+    },
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "terminal",
+    },
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "wm",
+    },
+    {
+      "key": " ",
+      "keyColor": "#48AFFF",
+      "type": "uptime",
+    },
+    "break",
+    "colors",
+  ],
+}
+
+// vim: ft=jsonc

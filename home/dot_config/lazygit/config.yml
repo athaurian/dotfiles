@@ -1,0 +1,37 @@
+# Locked scheme (meta/color-scheme.md).
+gui:
+  theme:
+    activeBorderColor:
+      - "#5A5A5A"
+      - bold
+    inactiveBorderColor:
+      - "#3A3A3A"
+    searchingActiveBorderColor:
+      - "#F4BC45"
+      - bold
+    optionsTextColor:
+      - "#89C952"
+    selectedLineBgColor:
+      - "#2D2D2D"
+    cherryPickedCommitBgColor:
+      - "#2D2D2D"
+    cherryPickedCommitFgColor:
+      - "#D4D4D4"
+    unstagedChangesColor:
+      - "#FE4864"
+    defaultFgColor:
+      - "#D4D4D4"
+    branchFgColor:
+      - "#D95AFC"
+    statusFileType:
+      - "#00BBCC"
+    commitHash:
+      - "#E49137"
+    commitAuthor:
+      - "#89C952"
+    secondaryRegionFgColor:
+      - "#D95AFC"
+    markedBaseCommitFgColor:
+      - "#F4BC45"
+
+# vim: ft=yaml
