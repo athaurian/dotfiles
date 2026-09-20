@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Persistent notice before lock. Arg: seconds offset; ID saved for resume dismiss.
+# Shows a persistent notice before locking. The argument is the seconds
+# offset. The resume hook uses the saved ID to dismiss it.
 
 id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/idle_warning_id"
 offset="${1:-10}"

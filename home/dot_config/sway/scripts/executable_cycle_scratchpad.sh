@@ -2,7 +2,8 @@
 set -eu
 
 # Cycle scratchpad windows, ignoring the dropdown and clipboard terminals.
-# Focused-and-visible hides; visible-elsewhere pulls here; else shows first hidden.
+# A focused visible window hides. A visible window elsewhere moves here.
+# Otherwise the first hidden window shows.
 
 focused_id=""
 hidden_ids=""

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Dismiss idle_warning.sh's notice (swayidle resume hook).
+# Dismisses helper_idle_warning.sh's notice (swayidle resume hook).
 
 id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/idle_warning_id"
 

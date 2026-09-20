@@ -52,7 +52,7 @@ if not is_follow:
     sys.stdout.flush()
     sys.exit(0)
 
-# Follow mode: emit remaining events with pacing, then sleep to stay alive.
+# Follow mode emits remaining events with pacing, then sleeps to stay alive.
 for j in range(idx, len(stream)):
     ev = norm(stream[j])
     time.sleep(ev.get("delay", 0.0))

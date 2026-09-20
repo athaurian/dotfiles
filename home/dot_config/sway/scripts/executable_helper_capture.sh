@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-# Invoked by screenshot.sh/wayfreeze. Expects SCREENSHOT_MODE/TMP/GEOMETRY/FROZEN in env.
+# Runs under screenshot.sh/wayfreeze. Callers provide SCREENSHOT_MODE/TMP/GEOMETRY/FROZEN.
 
 unfreeze() {
 	if [ "${SCREENSHOT_FROZEN:-0}" = "1" ]; then
-		# || true: wayfreeze may already be dead under set -e.
+		# wayfreeze may already be dead; || true keeps the script alive under set -e.
 		pkill -x wayfreeze 2>/dev/null || true
 	fi
 	return 0

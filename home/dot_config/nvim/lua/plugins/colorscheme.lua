@@ -1,5 +1,5 @@
 -- One Dark on Neutral, locked (meta/color-scheme.md): One Dark hues ×1.5
--- via catppuccin overrides. Dark-only, static.
+-- via catppuccin overrides. Dark mode only with static colors.
 
 return {
   {
@@ -20,7 +20,7 @@ return {
         -- dim_inactive = { enabled = false, shade = "dark", percentage = 0.15 },
         -- term_colors = false,
         styles = { conditionals = {} },
-        -- Live plugins only; rest auto-detect.
+        -- Only live plugins are listed here; the rest are auto-detected.
         integrations = {
           gitsigns = true,
           which_key = true,
@@ -61,7 +61,7 @@ return {
         },
         custom_highlights = function(colors)
           return {
-            -- Selection and cursor (rule 3).
+            -- Text selection uses the selection tint; cursors use the accent.
             Visual = { bg = "#2F3C47" },
             Cursor = { bg = colors.blue, fg = colors.base },
             lCursor = { bg = colors.blue, fg = colors.base },
@@ -75,11 +75,11 @@ return {
 
             NormalNC = { bg = "none", fg = colors.subtext1 },
 
-            -- rule 2.
+            -- Comments use italic muted.
             Comment = { fg = "#8A8A8A", style = { "italic" } },
             ["@comment"] = { fg = "#8A8A8A", style = { "italic" } },
 
-            -- One Dark standard; catppuccin links differ.
+            -- Follows the One Dark standard; catppuccin links differ.
             ["@variable.parameter"] = { fg = colors.text },
             ["@parameter"] = { fg = colors.text },
             ["@property"] = { fg = colors.peach },
@@ -105,7 +105,7 @@ return {
             Label = { fg = colors.red },
             Operator = { fg = colors.teal },
 
-            -- Emphasis text, accent links (rule 3).
+            -- Emphasis uses text; links use the accent.
             ["@markup.strong"] = { fg = colors.text },
             ["@markup.italic"] = { fg = colors.text },
             ["@markup.link"] = { fg = colors.blue },
@@ -118,7 +118,7 @@ return {
             ["@markup.list.unchecked"] = { fg = colors.overlay2 },
             htmlH1 = { fg = colors.blue, style = { "bold" } },
 
-            -- Single accent, bold (upstream links rainbow1-6, multi-hue).
+            -- Headings use a single accent with bold; upstream links rainbow1-6 across hues.
             ["@markup.heading.1.markdown"] = { fg = colors.blue, style = { "bold" } },
             ["@markup.heading.2.markdown"] = { fg = colors.blue, style = { "bold" } },
             ["@markup.heading.3.markdown"] = { fg = colors.blue, style = { "bold" } },
@@ -138,7 +138,7 @@ return {
             RenderMarkdownH5Bg = { bg = colors.surface0 },
             RenderMarkdownH6Bg = { bg = colors.surface0 },
 
-            -- Chrome.
+            -- Transient chrome.
             FloatBorder = { fg = colors.surface2, bg = colors.mantle },
             FloatTitle = { fg = colors.subtext1, bg = colors.mantle },
             WinSeparator = { fg = colors.surface2 },
@@ -153,7 +153,7 @@ return {
             QuickFixLine = { bg = colors.surface0 },
             Conceal = { fg = colors.overlay2 },
             Dimmed = { fg = colors.overlay2 },
-            -- Backdrop for dim floats below (doc shadow role).
+            -- Backdrop for dim floats below (utility black).
             BackdropDim = { bg = "#000000" },
 
             WhichKeyDesc = { fg = colors.text },
@@ -191,8 +191,8 @@ return {
             BlinkCmpKindProperty = { fg = colors.peach },
             BlinkCmpKindStruct = { fg = colors.yellow },
 
-            -- Terminal stays transparent like the editor (rule 4 exception:
-            -- Snacks maps Normal:SnacksNormal on every win, terminal included).
+            -- Terminal stays transparent like the editor (Snacks maps
+            -- Normal:SnacksNormal on every window, terminal included).
             -- The fg must be explicit: a bg-only "none" leaves the group empty
             -- and Snacks' managed default=true link (to opaque NormalFloat)
             -- overwrites it on first load.
@@ -213,7 +213,7 @@ return {
 
             SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
 
-            -- Diffs (locked).
+            -- Diff colors are locked.
             DiffAdd = { bg = "#2B4218" },
             DiffChange = { bg = "#183D5A" },
             DiffDelete = { bg = "#391C1E" },
@@ -245,7 +245,7 @@ return {
         vim.g["terminal_color_" .. i] = hex
       end
 
-      -- Mason/lazy skip dim floats when Normal has no bg; dim here.
+      -- Mason and lazy skip dim floats when Normal has no background. Dim the backdrop here instead.
       local backdrops = {}
       local backdrop_augroup = vim.api.nvim_create_augroup("backdrop-dim", { clear = true })
       for _, w in ipairs(vim.api.nvim_list_wins()) do

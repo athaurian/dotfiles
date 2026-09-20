@@ -2,7 +2,7 @@
 set -eu
 
 # Sync soon after reconnect; the 30-minute timer stays the fallback.
-# Debounced so flapping Wi-Fi can't hammer Drive. Exit 1 when nmcli is missing.
+# Debounced so flapping Wi-Fi cannot hammer Drive. Exit 1 when nmcli is missing.
 
 COOLDOWN_SEC=120
 SETTLE_SEC=10

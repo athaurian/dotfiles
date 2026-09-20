@@ -49,7 +49,7 @@ def _norm(text):
 
 
 def _sc(events, delay=0.15):
-    """Wrap a list of lines/exit-events into oneshot+follow streams."""
+    """Wrap lines and exit events into oneshot and follow streams."""
     os_ev = [e if isinstance(e, dict) else {"line": e} for e in events]
     fw_ev = [e if isinstance(e, dict) else {"line": e, "delay": delay} for e in events]
     return {"oneshot": os_ev, "follow": fw_ev}

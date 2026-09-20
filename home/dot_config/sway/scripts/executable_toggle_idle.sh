@@ -72,7 +72,7 @@ start_unit() {
 	state=$(unit_state)
 
 	if [ "$state" = "active" ]; then
-		send_notice "󰒲 caffeine mode off" "<b>swayidle restarted.</b> normal idle rules apply"
+		send_notice "󰒲 caffeine mode off" "<b>swayidle restarted.</b> Normal idle rules apply"
 	else
 		send_notice " caffeine toggle failed" "after start, $unit state is: $state"
 		exit 1
@@ -89,7 +89,7 @@ stop_unit() {
 	state=$(unit_state)
 
 	if [ "$state" = "inactive" ]; then
-		send_notice "󰒳 caffeine mode on" "<b>swayidle stopped.</b> we're staying up indefinitely"
+		send_notice "󰒳 caffeine mode on" "<b>swayidle stopped.</b> The system stays awake indefinitely"
 	else
 		send_notice " caffeine toggle failed" "after stop, $unit state is: $state"
 		exit 1

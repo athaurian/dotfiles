@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-# Generate wlsunset.env from machine location. Machine-local mode 600;
-# stays out of chezmoi/version control. Sources: --lat/--lon, geoclue,
-# then IP ($WLSUNSET_GEO_PROVIDERS). See --help for flags/exit codes.
-# Validation/rounding/atomic write keep failures from touching the file.
+# Generate wlsunset.env from the machine location. Machine-local mode 600;
+# stays out of chezmoi and version control. Sources: --lat/--lon, geoclue,
+# then IP ($WLSUNSET_GEO_PROVIDERS). See --help for flags and exit codes.
+# Validation, rounding, and the atomic write keep failures from touching the file.
 # Stdout stays clean; status goes to stderr.
 
 TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/wlsunset.env"
@@ -29,7 +29,7 @@ log() { printf '%s\n' "$1" >&2; }
 
 usage() {
 	cat <<'EOF'
-wlsunset-location — generate wlsunset.env from the machine's location
+wlsunset-location: generate wlsunset.env from the machine's location
 
 Usage:
   wlsunset-location [options]
@@ -193,7 +193,7 @@ source_ip_geo() {
 # Output
 
 guard_target_not_vcs() {
-	# Refuse targets inside a git/chezmoi tree; --force overrides.
+	# Refuse targets inside a git or chezmoi tree; --force overrides.
 	d=$(dirname -- "$TARGET")
 	while :; do
 		for marker in .git .chezmoi .chezmoiroot .chezmoidata .chezmoidata.yaml; do
@@ -214,7 +214,7 @@ guard_target_not_vcs() {
 }
 
 write_env_file() {
-	# $1 lat, $2 lon. Temp file + rename, so readers only see complete files.
+	# $1 lat, $2 lon. Temp file plus rename, so readers only see complete files.
 	dir=$(dirname -- "$TARGET")
 	if [ ! -d "$dir" ]; then
 		mkdir -p -- "$dir" || die "cannot create directory: $dir"
@@ -351,7 +351,7 @@ log "wrote $TARGET (source: $SOURCE_NAME)"
 log "  WLSUNSET_LATITUDE=\"$LAT_OUT\""
 log "  WLSUNSET_LONGITUDE=\"$LON_OUT\""
 
-# Restart a running daemon so new coords apply without relogin.
+# Restart a running daemon so new coordinates apply without relogin.
 if command -v systemctl >/dev/null 2>&1; then
 	if systemctl --user is-active --quiet wlsunset.service 2>/dev/null; then
 		if systemctl --user restart wlsunset.service; then

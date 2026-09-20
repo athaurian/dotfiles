@@ -1,4 +1,4 @@
-# Triggered by timer + netmon. Offline: stages locally, skips upload.
+# Triggered by timer and netmon watcher. When offline, stages locally and skips the upload.
 
 [Unit]
 Description=Mirror Calibre books flat to Google Drive
