@@ -25,6 +25,12 @@ bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+bindsym $mod+a focus parent
+bindsym $mod+Shift+a focus child
 
 bindsym $mod+1 workspace number 1
 bindsym $mod+2 workspace number 2
@@ -56,6 +62,7 @@ bindsym $mod+p layout toggle split
 bindsym $mod+f fullscreen
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
+bindsym $mod+c move position center
 bindsym $mod+q kill
 
 # Apps.
@@ -75,12 +82,29 @@ bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
 bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
 bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
 
+# Media keys. Work while locked; they change output state, not session state.
+bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
+bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+bindsym --locked XF86AudioPlay exec playerctl play-pause
+bindsym --locked XF86AudioPause exec playerctl play-pause
+bindsym --locked XF86AudioPrev exec playerctl previous
+bindsym --locked XF86AudioNext exec playerctl next
+bindsym --locked XF86AudioStop exec playerctl stop
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+
 # Scratchpad.
 bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
 bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
 
 # Dropdown terminal.
 bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
+
+# Notifications.
+bindsym $mod+n exec dunstctl close
+bindsym $mod+Shift+n exec dunstctl close-all
 
 # Reload.
 bindsym $mod+Shift+c reload
@@ -122,6 +146,7 @@ input type:touchpad {
 
 for_window [app_id="pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
+for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
 for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
 for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 
