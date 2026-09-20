@@ -51,15 +51,15 @@
     timeout = 5
 
 [urgency_low]
-    background = "#202020"
-    foreground = "#8a8a8a"
-    frame_color = "#3a3a3a"
-    timeout = 3
-
-[urgency_normal]
     background = "#2d2d2d"
     foreground = "#d4d4d4"
     frame_color = "#5a5a5a"
+    timeout = 3
+
+[urgency_normal]
+    background = "#142f46"
+    foreground = "#ffffff"
+    frame_color = "#98c3ff"
     timeout = 5
 
 [urgency_critical]
