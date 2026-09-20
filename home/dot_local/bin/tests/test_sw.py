@@ -2,7 +2,8 @@
 """Unit tests for the sw wallpaper utility.
 
 Covers pure logic only (no lutgen/awww subprocesses): output naming,
-queue/history helpers, palette resolution, and argument parsing.
+queue/history helpers, palette resolution, animation passthrough,
+transition selection, and argument parsing.
 
 Run from the repository root::
 
@@ -98,10 +99,11 @@ def test_pool_scan(tmpdir):
     (pool / "a.jpg").write_bytes(b"x")
     (pool / "note.txt").write_bytes(b"x")
     (pool / "anim.webp").write_bytes(b"x")
+    (pool / "c.gif").write_bytes(b"x")
     got = sw.get_wallpapers(pool)
     check(
         "pool sorted image-only",
-        [Path(p).name for p in got] == ["a.jpg", "anim.webp", "b.png"],
+        [Path(p).name for p in got] == ["a.jpg", "anim.webp", "b.png", "c.gif"],
     )
     check("pool missing", sw.get_wallpapers(Path(tmpdir) / "nope") == [])
 
@@ -130,11 +132,39 @@ def test_palette(tmpdir):
         check("palette missing dies", True)
 
 
+def test_animation(tmpdir):
+    gif = Path(tmpdir) / "orbit.gif"
+    gif.write_bytes(b"GIF89afake")
+    check("gif is animation", sw.is_animation(gif))
+    check("upper gif is animation", sw.is_animation(Path("X.GIF")))
+    check("jpg is not animation", not sw.is_animation(Path("a.jpg")))
+    check("gif cuts transition", sw.transition_for(gif) == ("0", "none"))
+    check(
+        "still keeps transition",
+        sw.transition_for(Path("a.jpg")) == ("0.6", "random"),
+    )
+    outdir = Path(tmpdir) / "cached"
+    outdir.mkdir()
+    first = sw.passthrough_animation(outdir, gif)
+    check("passthrough caches", first is not None and first.is_file())
+    check("passthrough keeps suffix", first is not None and first.suffix == ".gif")
+    check(
+        "passthrough content identical",
+        first is not None and first.read_bytes() == gif.read_bytes(),
+    )
+    second = sw.passthrough_animation(outdir, gif)
+    check("passthrough stable name", second == first)
+    missing = sw.passthrough_animation(outdir, Path(tmpdir) / "gone.gif")
+    check("passthrough missing dies softly", missing is None)
+
+
 def test_args():
     args = sw.parse_args(["--next"])
     check("parse next", args.next and not args.prev and args.images == [])
     args = sw.parse_args(["--prev"])
     check("parse prev", args.prev and not args.next)
+    args = sw.parse_args(["--restore"])
+    check("parse restore", args.restore and not args.next and not args.prev)
     args = sw.parse_args(["a.jpg", "--set"])
     check(
         "parse images+set", list(args.images) == [Path("a.jpg")] and args.set_wallpaper
@@ -147,6 +177,11 @@ def test_args():
         check("next/prev exclusive", False)
     except SystemExit:
         check("next/prev exclusive", True)
+    try:
+        sw.parse_args(["--restore", "--next"])
+        check("restore exclusive", False)
+    except SystemExit:
+        check("restore exclusive", True)
 
 
 def test_numbers():
@@ -165,6 +200,7 @@ def main():
         test_pop_next(tmpdir)
         test_history(tmpdir)
         test_pool_scan(tmpdir)
+        test_animation(tmpdir)
         test_palette(tmpdir)
     test_args()
     test_numbers()

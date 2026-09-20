@@ -163,7 +163,7 @@ exec $HOME/.config/sway/scripts/autostart.sh
 exec_always blueman-applet
 exec_always nm-applet --indicator
 
-exec awww img ~/Pictures/Wallpapers/neutral/flower-basket.jpg
+exec $HOME/.local/bin/sw --restore
 
 bar {
     swaybar_command waybar
