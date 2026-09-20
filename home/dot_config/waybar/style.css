@@ -156,7 +156,7 @@ window#waybar {
 
 /* --- Separator --- */
 #custom-separator {
-  padding: 0;
+  padding: 0 0 2px;
   margin: 0;
   color: @neutral-text-muted;
 }
