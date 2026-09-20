@@ -1,0 +1,8 @@
+# Generated caches and tooling that must never be managed by chezmoi.
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+
+# Generated per machine by ~/.local/bin/wlsunset-location; machine-local
+# state, never deployed or committed.
+.config/wlsunset.env
