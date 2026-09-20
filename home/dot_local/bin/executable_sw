@@ -115,7 +115,7 @@ def file_content_hash(path: Path, length: int) -> str:
 
 
 def file_sig_hash(path: Path, length: int = 12) -> str:
-    """Hash stable file metadata without reading potentially large content."""
+    """Hash stable file metadata without reading large file content."""
 
     try:
         resolved_path = str(path.resolve())
@@ -422,7 +422,7 @@ def is_animation(path: Path) -> bool:
 
 
 def transition_for(path: Path) -> tuple[str, str]:
-    """(duration, type) for ``awww img``: animations cut with no transition."""
+    """Return the (duration, type) pair for ``awww img``; animations cut with no transition."""
 
     if is_animation(path):
         return ("0", "none")
@@ -535,8 +535,8 @@ def read_lines(path: Path) -> list[str]:
 
 
 def write_lines_atomic(path: Path, lines: list[str]) -> None:
-    """Writes ``lines`` to ``path`` atomically, leaving an empty file when
-    blank."""
+    """Write ``lines`` to ``path`` atomically; leave an empty file when
+    ``lines`` is empty."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write_text(path, "\n".join(lines) + "\n" if lines else "")

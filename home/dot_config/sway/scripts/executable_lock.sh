@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
-# swaylock over a blurred capture; manages swayidle units.
-# --now skips notify/delay (before-sleep).
-# Needs: swaylock, grim, magick/convert, systemd, notify-send, dunstctl.
+# Locks with swaylock over a blurred capture and manages the swayidle units.
+# --now skips notify/delay for before-sleep use.
+# Requires: swaylock, grim, magick/convert, systemd, notify-send, dunstctl.
 
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
@@ -11,12 +11,12 @@ if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
 fi
 
 if [ "$immediate" -eq 0 ]; then
-	# timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
+	# Timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
 	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
 	sleep 2.5
 fi
 
-# Pause at 100 (above the 90 bypasses); save level for restore.
+# Pause at 100 (above the 90 bypasses); save the level for restore.
 # Timeouts keep a hanging daemon from blocking suspend.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
 timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
@@ -25,7 +25,7 @@ timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaylock_bg.png"
 grim "$lockimg" 2>/dev/null || true
 
-# Small file saves CPU/IO.
+# Downscale first to keep CPU and IO use low.
 if command -v magick >/dev/null 2>&1; then
 	timeout 3 magick "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 elif command -v convert >/dev/null 2>&1; then

@@ -125,7 +125,7 @@ window#waybar {
   border-color: @neutral-border-inactive;
 }
 
-/* --- MPRIS (custom/mpris.py; muted until playing) --- */
+/* --- MPRIS (custom/mpris module; muted until playing) --- */
 #custom-mpris {
   color: @neutral-text-muted;
 }

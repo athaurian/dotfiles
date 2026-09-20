@@ -4,12 +4,12 @@ Provides the Waybar MPRIS module script.
 
 The script uses a hybrid of event handling and polling. The `playerctl --follow`
 stream provides instant, event-driven updates. A periodic resync every
-`POLL_INTERVAL` seconds queries authoritative state and corrects whatever the
-follow stream misses or gets wrong.
+`POLL_INTERVAL` seconds queries authoritative state and corrects gaps
+and errors in the follow stream.
 
 The script emits Waybar-compatible JSON to stdout. An empty payload when
-no player is active lets Waybar's `hide-empty-text` collapse the module
-cleanly.
+no player is active keeps the module collapsed through Waybar's
+`hide-empty-text`.
 
 The two approaches cover for each other. Polling alone is reliable but
 slow, adding up to one second of latency to every play, pause, or track

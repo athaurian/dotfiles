@@ -82,7 +82,7 @@ check("BlinkCmpMenuBorder", "fg", "#3A3A3A")
 check("WinSeparator", "fg", "#3A3A3A")
 check("FloatBorder", "fg", "#3A3A3A")
 
--- Snacks terminal matches the transparent editor (rule 4 exception).
+-- Snacks terminal stays transparent like the editor.
 check_nobg("SnacksNormal")
 check_nobg("SnacksNormalNC")
 
