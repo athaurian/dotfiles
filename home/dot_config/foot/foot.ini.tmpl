@@ -1,0 +1,34 @@
+# Locked scheme (meta/color-scheme.md); matches the nvim overrides. Managed by
+# chezmoi; edit the .tmpl source.{{ $p := .palette }}
+
+[main]
+font=SauceCodePro Nerd Font Mono:size=10
+pad=4x4
+resize-by-cells = no
+
+[colors-dark]
+alpha=0.9
+foreground={{ $p.text.bare }}
+background={{ $p.base.bare }}
+
+regular0={{ $p.base.bare }}
+regular1={{ $p.red.bare }}
+regular2={{ $p.green.bare }}
+regular3={{ $p.yellow.bare }}
+regular4={{ $p.blue.bare }}
+regular5={{ $p.purple.bare }}
+regular6={{ $p.cyan.bare }}
+regular7={{ $p.text.bare }}
+
+bright0={{ $p.muted.bare }}
+bright1={{ $p.red_bright.bare }}
+bright2={{ $p.green_bright.bare }}
+bright3={{ $p.yellow_bright.bare }}
+bright4={{ $p.blue_bright.bare }}
+bright5={{ $p.purple_bright.bare }}
+bright6={{ $p.cyan_bright.bare }}
+bright7={{ $p.text_max.bare }}
+
+selection-foreground={{ $p.text.bare }}
+selection-background={{ $p.selection.bare }}
+cursor={{ $p.text_max.bare }} {{ $p.blue.bare }}

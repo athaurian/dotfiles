@@ -1,4 +1,5 @@
 # Locked scheme (meta/color-scheme.md); gradient walks the chromatic ladder.
+# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
 
 [general]
 live-config = 1
@@ -31,18 +32,18 @@ waveform = 0
 
 [color]
 
-background = '#202020'
-foreground = '#48AFFF'
+background = '{{ $p.base.hex }}'
+foreground = '{{ $p.blue.hex }}'
 
 gradient = 1
-gradient_color_1 = '#48AFFF'
-gradient_color_2 = '#00BBCC'
-gradient_color_3 = '#89C952'
-gradient_color_4 = '#F4BC45'
-gradient_color_5 = '#E49137'
-gradient_color_6 = '#FE4864'
-gradient_color_7 = '#D95AFC'
-gradient_color_8 = '#E67FFF'
+gradient_color_1 = '{{ $p.blue.hex }}'
+gradient_color_2 = '{{ $p.cyan.hex }}'
+gradient_color_3 = '{{ $p.green.hex }}'
+gradient_color_4 = '{{ $p.yellow.hex }}'
+gradient_color_5 = '{{ $p.orange.hex }}'
+gradient_color_6 = '{{ $p.red.hex }}'
+gradient_color_7 = '{{ $p.purple.hex }}'
+gradient_color_8 = '{{ $p.purple_bright.hex }}'
 
 horizontal_gradient = 0
 

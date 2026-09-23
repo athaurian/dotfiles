@@ -1,23 +1,24 @@
-/* Locked scheme (meta/color-scheme.md); all vars referenced. */
+/* Locked scheme (meta/color-scheme.md); all vars referenced. Managed by
+   chezmoi; edit the .tmpl source. */{{ $p := .palette }}
 
-@define-color neutral-base #202020;
-@define-color neutral-text #d4d4d4;
-@define-color neutral-text-subtext #b3b3b3;
-@define-color neutral-surface-0 #262626;
-@define-color neutral-text-max #ffffff;
-@define-color neutral-text-muted #8a8a8a;
-@define-color neutral-border-inactive #3a3a3a;
-@define-color neutral-focus-border #5a5a5a;
-@define-color neutral-accent-text #48afff;
-@define-color neutral-accent-bright #98c3ff;
-@define-color neutral-surface-1 #2d2d2d;
-@define-color neutral-warning #f4bc45;
-@define-color neutral-error-text #fe4864;
-@define-color neutral-error-bright #ff7376;
-@define-color neutral-transparent rgba(0, 0, 0, 0);
-@define-color neutral-hover-neutral rgba(255, 255, 255, 0.08);
-@define-color neutral-hover-warning #382B11;
-@define-color neutral-hover-error #452123;
+@define-color neutral-base {{ $p.base.hex }};
+@define-color neutral-text {{ $p.text.hex }};
+@define-color neutral-text-subtext {{ $p.subtext.hex }};
+@define-color neutral-surface-0 {{ $p.surface_0.hex }};
+@define-color neutral-text-max {{ $p.text_max.hex }};
+@define-color neutral-text-muted {{ $p.muted.hex }};
+@define-color neutral-border-inactive {{ $p.surface_2.hex }};
+@define-color neutral-focus-border {{ $p.line.hex }};
+@define-color neutral-accent-text {{ $p.blue.hex }};
+@define-color neutral-accent-bright {{ $p.blue_bright.hex }};
+@define-color neutral-surface-1 {{ $p.surface_1.hex }};
+@define-color neutral-warning {{ $p.yellow.hex }};
+@define-color neutral-error-text {{ $p.red.hex }};
+@define-color neutral-error-bright {{ $p.red_bright.hex }};
+@define-color neutral-transparent {{ $p.transparent.rgba }};
+@define-color neutral-hover-neutral {{ $p.hover.rgba }};
+@define-color neutral-hover-warning {{ $p.warning_hover.hex }};
+@define-color neutral-hover-error {{ $p.error_hover.hex }};
 
 * {
   border: none;

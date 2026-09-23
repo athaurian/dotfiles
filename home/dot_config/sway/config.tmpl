@@ -1,3 +1,4 @@
+# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
 set $mod Mod4
 set $left h
 set $down j
@@ -153,14 +154,14 @@ for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, 
 for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 
 # Locked scheme (meta/color-scheme.md).
-client.focused          #5a5a5a #2d2d2d #d4d4d4 #5a5a5a #5a5a5a
-client.focused_inactive #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
-client.focused_tab_title #5a5a5a #2d2d2d #d4d4d4
-client.unfocused        #3a3a3a #202020 #8a8a8a #3a3a3a #3a3a3a
+client.focused          {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
+client.focused_inactive {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
+client.focused_tab_title {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }}
+client.unfocused        {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
 # Dunst-critical treatment: urgent tint field, white text, red edges.
-client.urgent           #ff7376 #4c1a1f #ffffff #ff7376 #ff7376
-client.placeholder      #202020 #202020 #8a8a8a #202020 #202020
-client.background       #202020
+client.urgent           {{ $p.red_bright.hex }} {{ $p.urgent.hex }} {{ $p.text_max.hex }} {{ $p.red_bright.hex }} {{ $p.red_bright.hex }}
+client.placeholder      {{ $p.base.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.base.hex }} {{ $p.base.hex }}
+client.background       {{ $p.base.hex }}
 
 default_border pixel 1
 hide_edge_borders smart
@@ -175,9 +176,9 @@ blur_radius 5
 blur_xray disable
 shadows enable
 shadow_blur_radius 14
-shadow_color #00000080
+shadow_color {{ $p.black.hex }}80
 shadow_offset 0 2
-shadow_inactive_color #00000080
+shadow_inactive_color {{ $p.black.hex }}80
 corner_radius 4
 default_dim_inactive 0.05
 # The launcher namespace must match fuzzel.ini, or the fuzzel shadow never applies.

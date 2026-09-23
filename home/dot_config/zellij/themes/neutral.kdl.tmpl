@@ -1,0 +1,130 @@
+// Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
+// source.{{ $p := .palette }}
+themes {
+    neutral {
+        text_unselected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        text_selected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.surface_1.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        ribbon_selected {
+            base "{{ $p.base.hex }}"
+            background "{{ $p.blue.hex }}"
+            emphasis_0 "{{ $p.base.hex }}"
+            emphasis_1 "{{ $p.base.hex }}"
+            emphasis_2 "{{ $p.base.hex }}"
+            emphasis_3 "{{ $p.base.hex }}"
+        }
+        ribbon_unselected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.surface_1.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        table_title {
+            base "{{ $p.blue.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        table_cell_selected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.surface_1.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        table_cell_unselected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        list_selected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.surface_1.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        list_unselected {
+            base "{{ $p.text.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        frame_unselected {
+            base "{{ $p.line.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.muted.hex }}"
+            emphasis_1 "{{ $p.muted.hex }}"
+            emphasis_2 "{{ $p.muted.hex }}"
+            emphasis_3 "{{ $p.muted.hex }}"
+        }
+        frame_selected {
+            base "{{ $p.blue.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.orange.hex }}"
+            emphasis_1 "{{ $p.cyan.hex }}"
+            emphasis_2 "{{ $p.green.hex }}"
+            emphasis_3 "{{ $p.purple.hex }}"
+        }
+        frame_highlight {
+            base "{{ $p.yellow.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.yellow.hex }}"
+            emphasis_1 "{{ $p.yellow.hex }}"
+            emphasis_2 "{{ $p.yellow.hex }}"
+            emphasis_3 "{{ $p.yellow.hex }}"
+        }
+        exit_code_success {
+            base "{{ $p.green.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.muted.hex }}"
+            emphasis_1 "{{ $p.muted.hex }}"
+            emphasis_2 "{{ $p.muted.hex }}"
+            emphasis_3 "{{ $p.muted.hex }}"
+        }
+        exit_code_error {
+            base "{{ $p.red.hex }}"
+            background "{{ $p.base.hex }}"
+            emphasis_0 "{{ $p.muted.hex }}"
+            emphasis_1 "{{ $p.muted.hex }}"
+            emphasis_2 "{{ $p.muted.hex }}"
+            emphasis_3 "{{ $p.muted.hex }}"
+        }
+        multiplayer_user_colors {
+            player_1 "{{ $p.purple.hex }}"
+            player_2 "{{ $p.blue.hex }}"
+            player_3 "{{ $p.cyan.hex }}"
+            player_4 "{{ $p.yellow.hex }}"
+            player_5 "{{ $p.orange.hex }}"
+            player_6 "{{ $p.green.hex }}"
+            player_7 "{{ $p.red.hex }}"
+            player_8 "{{ $p.cyan_bright.hex }}"
+            player_9 "{{ $p.subtext.hex }}"
+            player_10 "{{ $p.muted.hex }}"
+        }
+    }
+}

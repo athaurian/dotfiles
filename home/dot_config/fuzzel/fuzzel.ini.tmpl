@@ -1,0 +1,33 @@
+# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
+font=SauceCodePro Nerd Font Mono:size=8
+icon-theme=Papirus-Dark
+width=56
+anchor=center
+minimal-lines=yes
+horizontal-pad=16
+inner-pad=8
+prompt=" "
+placeholder="find something..."
+
+# Locked scheme (Waybar neutral-*); opaque.
+[colors]
+background={{ $p.base.hex }}FF
+text={{ $p.text.hex }}FF
+message={{ $p.muted.hex }}FF
+prompt={{ $p.muted.hex }}FF
+placeholder={{ $p.muted.hex }}FF
+input={{ $p.text.hex }}FF
+match={{ $p.blue_bright.hex }}FF
+selection={{ $p.selection_deep.hex }}FF
+selection-text={{ $p.text_max.hex }}FF
+selection-match={{ $p.blue_bright.hex }}FF
+counter={{ $p.muted.hex }}FF
+border={{ $p.line.hex }}FF
+
+# Square corners match the bar (fuzzel defaults to radius 10).
+[border]
+width=1
+radius=4
+
+[main]
+namespace = launcher
