@@ -1,0 +1,38 @@
+# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
+# source.{{ $p := .palette }}
+gui:
+  theme:
+    activeBorderColor:
+      - "{{ $p.line.hex }}"
+      - bold
+    inactiveBorderColor:
+      - "{{ $p.surface_2.hex }}"
+    searchingActiveBorderColor:
+      - "{{ $p.yellow.hex }}"
+      - bold
+    optionsTextColor:
+      - "{{ $p.green.hex }}"
+    selectedLineBgColor:
+      - "{{ $p.surface_1.hex }}"
+    cherryPickedCommitBgColor:
+      - "{{ $p.surface_1.hex }}"
+    cherryPickedCommitFgColor:
+      - "{{ $p.text.hex }}"
+    unstagedChangesColor:
+      - "{{ $p.red.hex }}"
+    defaultFgColor:
+      - "{{ $p.text.hex }}"
+    branchFgColor:
+      - "{{ $p.purple.hex }}"
+    statusFileType:
+      - "{{ $p.cyan.hex }}"
+    commitHash:
+      - "{{ $p.orange.hex }}"
+    commitAuthor:
+      - "{{ $p.green.hex }}"
+    secondaryRegionFgColor:
+      - "{{ $p.purple.hex }}"
+    markedBaseCommitFgColor:
+      - "{{ $p.yellow.hex }}"
+
+# vim: ft=yaml

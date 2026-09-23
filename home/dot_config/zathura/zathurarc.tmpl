@@ -1,0 +1,62 @@
+# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
+# source.{{ $p := .palette }}
+
+set font "Source Sans 3 normal 10"
+
+set default-bg "{{ $p.base.hex }}"
+set default-fg "{{ $p.text.hex }}"
+
+set completion-bg "{{ $p.surface_1.hex }}"
+set completion-group-fg "{{ $p.muted.hex }}"
+set completion-group-bg "{{ $p.surface_0.hex }}"
+set completion-highlight-bg "{{ $p.surface_2.hex }}"
+set completion-highlight-fg "{{ $p.text.hex }}"
+
+set inputbar-bg "{{ $p.surface_0.hex }}"
+set inputbar-fg "{{ $p.text.hex }}"
+
+set notification-bg "{{ $p.surface_1.hex }}"
+set notification-fg "{{ $p.text.hex }}"
+set notification-error-bg "{{ $p.red.hex }}"
+set notification-error-fg "{{ $p.base.hex }}"
+set notification-warning-bg "{{ $p.yellow.hex }}"
+set notification-warning-fg "{{ $p.text.hex }}"
+
+set statusbar-bg "{{ $p.surface_1.hex }}"
+set statusbar-fg "{{ $p.text.hex }}"
+set statusbar-h-padding 10
+set statusbar-v-padding 4
+
+set index-bg "{{ $p.surface_1.hex }}"
+set index-fg "{{ $p.text.hex }}"
+set index-active-bg "{{ $p.surface_2.hex }}"
+set index-active-fg "{{ $p.text.hex }}"
+
+set page-v-padding 8
+set page-h-padding 8
+set render-loading-bg "{{ $p.base.hex }}"
+set render-loading-fg "{{ $p.muted.hex }}"
+
+# Accent 40% alpha, selection 35%.
+set highlight-color "{{ $p.blue.hex }}66"
+set highlight-active-color "{{ $p.selection.hex }}59"
+
+map <C-r> set recolor
+set recolor true
+set recolor-reverse-video true
+set recolor-lightcolor "{{ $p.base.hex }}"
+set recolor-darkcolor "{{ $p.text.hex }}"
+
+set show-signature-information true
+set signature-success-color "{{ $p.green.hex }}E6"
+set signature-warning-color "{{ $p.yellow.hex }}E6"
+set signature-error-color "{{ $p.red.hex }}E6"
+
+set adjust-open width
+set selection-clipboard clipboard
+set statusbar-basename true
+set statusbar-page-percent true
+set window-title-basename true
+set window-title-page true
+
+# vim: ft=zathurarc

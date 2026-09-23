@@ -18,7 +18,7 @@ help:
 	@echo "Available commands:"
 	@echo "  format            - Format project docs with prettier"
 	@echo "  lint              - Check docs formatting without modifying them"
-	@echo "  palette           - Derive tints, write the LUT, run checks + contrast"
+	@echo "  palette           - Derive tints, write the LUT + chezmoi data, run checks"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar MPRIS module"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 

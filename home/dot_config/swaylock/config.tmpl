@@ -1,0 +1,55 @@
+# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
+# source.{{ $p := .palette }}
+
+ignore-empty-password
+show-failed-attempts
+
+indicator
+indicator-idle-visible
+indicator-caps-lock
+indicator-radius=120
+indicator-thickness=4
+
+clock
+timestr=%R
+datestr=%a, %e %b
+
+font=SauceCodePro Nerd Font Mono
+font-size=24
+
+fade-in=0.5
+effect-vignette=0.4:0.4
+
+ring-color={{ $p.line.hex }}
+ring-clear-color={{ $p.line.hex }}
+ring-ver-color={{ $p.yellow.hex }}
+ring-wrong-color={{ $p.red.hex }}
+ring-caps-lock-color={{ $p.yellow.hex }}
+
+inside-color={{ $p.base.hex }}
+inside-clear-color={{ $p.base.hex }}
+inside-ver-color={{ $p.base.hex }}
+inside-wrong-color={{ $p.base.hex }}
+inside-caps-lock-color={{ $p.base.hex }}
+
+text-color={{ $p.text.hex }}
+text-clear-color={{ $p.text.hex }}
+text-ver-color={{ $p.text.hex }}
+text-wrong-color={{ $p.red.hex }}
+text-caps-lock-color={{ $p.yellow_bright.hex }}
+
+# Keystroke arc pulses along the perimeter track.
+key-hl-color={{ $p.text.hex }}
+bs-hl-color={{ $p.red_bright.hex }}
+caps-lock-bs-hl-color={{ $p.red_bright.hex }}
+caps-lock-key-hl-color={{ $p.yellow_bright.hex }}
+
+line-color={{ $p.black.hex }}00
+line-clear-color={{ $p.black.hex }}00
+line-ver-color={{ $p.black.hex }}00
+line-wrong-color={{ $p.black.hex }}00
+line-caps-lock-color={{ $p.black.hex }}00
+
+separator-color={{ $p.black.hex }}00
+
+# vim: ft=conf

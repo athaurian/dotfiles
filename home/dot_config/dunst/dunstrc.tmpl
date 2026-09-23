@@ -1,3 +1,6 @@
+# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
+# source.{{ $p := .palette }}
+
 [global]
     monitor = 0
     follow = none
@@ -18,7 +21,7 @@
     horizontal_padding = 14
     text_icon_padding = 0
     frame_width = 1
-    frame_color = "#5a5a5a"
+    frame_color = "{{ $p.line.hex }}"
     separator_color = frame
     sort = no
     font = SauceCodePro Nerd Font Mono 10
@@ -51,21 +54,21 @@
     timeout = 5
 
 [urgency_low]
-    background = "#2d2d2d"
-    foreground = "#d4d4d4"
-    frame_color = "#5a5a5a"
+    background = "{{ $p.surface_1.hex }}"
+    foreground = "{{ $p.text.hex }}"
+    frame_color = "{{ $p.line.hex }}"
     timeout = 3
 
 [urgency_normal]
-    background = "#142f46"
-    foreground = "#ffffff"
-    frame_color = "#98c3ff"
+    background = "{{ $p.notice.hex }}"
+    foreground = "{{ $p.text_max.hex }}"
+    frame_color = "{{ $p.blue_bright.hex }}"
     timeout = 5
 
 [urgency_critical]
-    background = "#4c1a1f"
-    foreground = "#ffffff"
-    frame_color = "#ff7376"
+    background = "{{ $p.urgent.hex }}"
+    foreground = "{{ $p.text_max.hex }}"
+    frame_color = "{{ $p.red_bright.hex }}"
     timeout = 0
 
 [mpd]
