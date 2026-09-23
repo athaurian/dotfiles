@@ -1,0 +1,92 @@
+/* Locked scheme (meta/color-scheme.md); fuzzel mirror. Managed by chezmoi;
+   edit the .tmpl source. */{{ $p := .palette }}
+configuration {
+    modes: [ drun ];
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "kitty";
+    drun {
+        display-name: " ";
+    }
+}
+
+* {
+    background:     {{ $p.base.hex }};
+    foreground:     {{ $p.text.hex }};
+    muted:          {{ $p.muted.hex }};
+    accent:         {{ $p.blue_bright.hex }};
+    selection:      {{ $p.selection_deep.hex }};
+    selection-text: {{ $p.text_max.hex }};
+    border:         {{ $p.line.hex }};
+}
+
+window {
+    location:         center;
+    width:            560px;
+    padding:          8px;
+    border:           1px solid;
+    border-color:     @border;
+    border-radius:    4px;
+    background-color: @background;
+    font:             "SauceCodePro Nerd Font Mono 8";
+}
+
+mainbox {
+    padding: 0;
+    border:  0;
+}
+
+inputbar {
+    padding:   0px 0px 8px 0px;
+    spacing:   8px;
+    children:  [ prompt, entry ];
+}
+
+prompt {
+    text-color: @muted;
+}
+
+entry {
+    text-color:        @foreground;
+    placeholder:       "find something...";
+    placeholder-color: @muted;
+    cursor:            text;
+}
+
+listview {
+    lines:        8;
+    fixed-height: false;
+    padding:      0;
+    border:       0;
+    spacing:      2px;
+    scrollbar:    false;
+}
+
+element {
+    padding: 4px 8px;
+    border:  0;
+    cursor:  pointer;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+element selected.normal {
+    background-color: @selection;
+    text-color:       @selection-text;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    highlight:        @accent;
+    cursor:           inherit;
+}
+
+element-icon {
+    background-color: transparent;
+    size:             1em;
+    cursor:           inherit;
+}

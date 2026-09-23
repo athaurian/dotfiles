@@ -1,0 +1,7 @@
+# Synchronization point for i3 session services.
+# Started by autostart.sh. Services declare WantedBy=i3-session.target
+# in their [Install] section. This target has no [Install] of its own
+# because it is started imperatively, not enabled.
+
+[Unit]
+Description=i3 session services

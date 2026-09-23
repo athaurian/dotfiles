@@ -1,0 +1,183 @@
+# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+set $term kitty
+set $menu rofi
+set $browser $HOME/.config/i3/scripts/wrapper_browser.sh
+set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
+set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt5ct exec ${PASSWORD_MANAGER:-keepassxc}'
+
+font pango:SauceCodePro Nerd Font Mono 8
+
+# i3 window behavior: drag with the titlebar, keep popups over fullscreen.
+tiling_drag modifier titlebar
+popup_during_fullscreen smart
+
+floating_modifier $mod normal
+
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+bindsym $mod+a focus parent
+bindsym $mod+Shift+a focus child
+
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# Layout.
+bindsym $mod+o splith
+bindsym $mod+v splitv
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+p layout toggle split
+bindsym $mod+f fullscreen
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+bindsym $mod+c move position center
+bindsym $mod+q kill
+
+# Apps.
+bindsym $mod+Return exec $term
+# rofi must start on key release, or it cannot grab the keyboard.
+bindsym --release $mod+d exec $menu -show drun
+bindsym $mod+b exec $browser
+bindsym $mod+e exec $filemanager
+bindsym $mod+Shift+p exec $passwordmanager
+bindsym $mod+Shift+v exec pavucontrol --tab=3
+bindsym $mod+Shift+b exec blueman-manager
+
+# Caffeine toggle.
+bindsym $mod+Shift+i exec $HOME/.config/i3/scripts/toggle_idle.sh
+
+# Screenshots (flameshot).
+bindsym Print exec flameshot full -p $HOME/Pictures/Screenshots
+bindsym Ctrl+Print exec $HOME/.config/i3/scripts/flameshot_window.sh
+bindsym Shift+Print exec $HOME/.config/i3/scripts/flameshot_gui.sh
+
+# Media keys. i3 cannot pass keys while locked; lock.sh passes them through
+# with i3lock-color instead.
+bindsym XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
+bindsym XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioPause exec playerctl play-pause
+bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioStop exec playerctl stop
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
+
+# Scratchpad.
+bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
+bindsym $mod+minus exec $HOME/.config/i3/scripts/cycle_scratchpad.sh
+
+# Dropdown terminal.
+bindsym $mod+grave exec $HOME/.config/i3/scripts/toggle_drop_term.sh
+
+# Notifications.
+bindsym $mod+n exec dunstctl close
+bindsym $mod+Shift+n exec dunstctl close-all
+bindsym $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
+
+# Reload.
+bindsym $mod+Shift+c reload
+
+# Lock.
+bindsym $mod+Shift+x exec $HOME/.config/i3/scripts/lock.sh
+
+# Power.
+bindsym $mod+Shift+BackSpace exec $HOME/.config/i3/scripts/power_control.sh poweroff
+bindsym $mod+Shift+r exec $HOME/.config/i3/scripts/power_control.sh reboot
+bindsym $mod+Shift+z exec $HOME/.config/i3/scripts/power_control.sh suspend
+bindsym $mod+Shift+e exec $HOME/.config/i3/scripts/power_control.sh logout
+
+# Resize mode.
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Floating windows. X11 GTK file pickers need the floating rule to fit.
+for_window [class="(?i)pavucontrol"] floating enable, border normal, resize set width 40 ppt height 45 ppt, move position center
+for_window [class="Blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
+for_window [class="(?i)polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
+for_window [window_role="GtkFileChooserDialog"] floating enable, resize set width 70 ppt height 70 ppt, move position center
+for_window [instance="scratchpad_term"] floating enable, resize set width 75 ppt height 70 ppt, mark drop_term, move scratchpad, scratchpad show, move position center
+for_window [instance="topgrade_term"] floating enable, resize set width 75 ppt height 70 ppt, mark topgrade_term, move scratchpad, scratchpad show, move position center
+
+# Locked scheme (meta/color-scheme.md).
+client.focused           {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
+client.focused_inactive  {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
+client.focused_tab_title {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }}
+client.unfocused         {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
+# Dunst-critical treatment: urgent tint field, white text, red edges.
+client.urgent            {{ $p.red_bright.hex }} {{ $p.urgent.hex }} {{ $p.text_max.hex }} {{ $p.red_bright.hex }} {{ $p.red_bright.hex }}
+client.placeholder       {{ $p.base.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.base.hex }} {{ $p.base.hex }}
+client.background        {{ $p.base.hex }}
+
+default_border pixel 1
+hide_edge_borders smart
+
+gaps inner 5
+gaps outer 3
+
+exec $HOME/.config/i3/scripts/autostart.sh
+
+# Native X11 idle: the X screensaver drives xss-lock, DPMS blanks later.
+exec --no-startup-id xset s 30
+exec --no-startup-id xset dpms 90 90 90
+exec --no-startup-id xss-lock --transfer-sleep-lock -- $HOME/.config/i3/scripts/lock.sh --now
+
+exec --no-startup-id picom --config $HOME/.config/picom.conf
+exec --no-startup-id $HOME/.fehbg
+
+exec_always blueman-applet
+exec_always nm-applet --indicator
+
+bar {
+    status_command waybar
+}
