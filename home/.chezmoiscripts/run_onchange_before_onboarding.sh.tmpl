@@ -3,26 +3,12 @@ set -eu
 
 # Onboarding: install missing packages.
 #
-# Edit the lists in data/packages-*.txt to change what a fresh machine gets.
-# The hashes below change the rendered script whenever a list changes, so
-# chezmoi re-runs this script (run_onchange_).
-# packages-pacman.txt: {{ include "../data/packages-pacman.txt" | sha256sum }}
-# packages-cachyos.txt: {{ include "../data/packages-cachyos.txt" | sha256sum }}
-# packages-aur.txt: {{ include "../data/packages-aur.txt" | sha256sum }}
-# packages-custom.txt: {{ include "../data/packages-custom.txt" | sha256sum }}
+# Edit data/packages.json to change what a fresh machine gets. The hash
+# below changes the rendered script whenever the file changes, so chezmoi
+# re-runs this script (run_onchange_).
+# packages.json: {{ include "../data/packages.json" | sha256sum }}
 
 DATA_DIR="$HOME/.local/share/chezmoi/data"
-
-# Read a newline-separated package list file. '#' starts a comment,
-# blank lines are skipped, output is space-separated on one line.
-read_list() {
-	grep -v '^[[:space:]]*#' "$1" | sed 's/[[:space:]]*#.*//' | grep -v '^[[:space:]]*$' | tr '\n' ' '
-}
-
-PACMAN_PACKAGES=$(read_list "$DATA_DIR/packages-pacman.txt")
-CACHYOS_PACKAGES=$(read_list "$DATA_DIR/packages-cachyos.txt")
-AUR_PACKAGES=$(read_list "$DATA_DIR/packages-aur.txt")
-CUSTOM_PACKAGES=$(read_list "$DATA_DIR/packages-custom.txt")
 
 # Not Arch-based: skip instead of failing the apply.
 if ! command -v pacman >/dev/null 2>&1; then
@@ -45,6 +31,20 @@ if ! grep -q "^\[forge\]" /etc/pacman.conf; then
 	exit 1
 fi
 
+# jq reads packages.json; the onboarding installs it on a fresh machine.
+if ! command -v jq >/dev/null 2>&1; then
+	echo "install_packages: installing jq (required to read packages.json)"
+	sudo pacman -S --needed jq
+fi
+
+# Package selections from data/packages.json. The pacman entry is grouped by
+# area; machines[$host] holds the packages only this machine needs.
+PACMAN_PACKAGES=$(jq -r '[.pacman[][]] | join(" ")' "$DATA_DIR/packages.json")
+CACHYOS_PACKAGES=$(jq -r '.cachyos | join(" ")' "$DATA_DIR/packages.json")
+AUR_PACKAGES=$(jq -r '.aur | join(" ")' "$DATA_DIR/packages.json")
+CUSTOM_PACKAGES=$(jq -r '.custom | join(" ")' "$DATA_DIR/packages.json")
+MACHINE_PACKAGES=$(jq -r --arg host "$(hostname)" '(.machines[$host] // []) | join(" ")' "$DATA_DIR/packages.json")
+
 # Print the subset of $1 that is not already installed.
 missing() {
 	if [ -n "$1" ]; then
@@ -55,17 +55,17 @@ missing() {
 }
 
 # Everything below installs through pacman: the official repos, the cachyos
-# repos, and the forge repo. On vanilla Arch the cachyos packages keep their
-# names in the AUR, so paru still resolves them when the cachyos repos are
-# absent.
-ALL_PACMAN_PACKAGES="$PACMAN_PACKAGES $CACHYOS_PACKAGES $CUSTOM_PACKAGES"
+# repos, the forge repo, and the machine-specific list. On vanilla Arch the
+# cachyos packages keep their names in the AUR, so paru still resolves them
+# when the cachyos repos are absent.
+ALL_PACMAN_PACKAGES="$PACMAN_PACKAGES $CACHYOS_PACKAGES $CUSTOM_PACKAGES $MACHINE_PACKAGES"
 
 missing_pacman=$(missing "$ALL_PACMAN_PACKAGES")
 missing_aur=$(missing "$AUR_PACKAGES")
 
 if [ -n "$missing_pacman" ] || [ -n "$missing_aur" ]; then
 	if [ -n "$missing_pacman" ]; then
-		echo "install_packages: missing pacman packages (pacman + cachyos + forge):"
+		echo "install_packages: missing pacman packages (pacman + cachyos + forge + machine):"
 		printf '  %s\n' $missing_pacman
 	fi
 	if [ -n "$missing_aur" ]; then
