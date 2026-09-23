@@ -1,0 +1,66 @@
+# Locked scheme (meta/color-scheme.md). The X11 counterpart of thinkpad's
+# SwayFX stack: dual_kawase blur, black shadows, corner radius 4, and the same
+# inactive dim (sway default_dim_inactive 0.05 -> inactive opacity 0.95).
+# xrender-sync-fence is required for NVIDIA's explicit-sync drivers.
+# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
+
+backend = "glx";
+vsync = true;
+use-damage = true;
+xrender-sync-fence = true;
+
+blur-method = "dual_kawase";
+blur-strength = 5;
+blur-background = true;
+blur-background-exclude = [
+  "window_type = 'dock'",
+  "window_type = 'desktop'",
+  "_GTK_FRAME_EXTENTS@"
+];
+
+shadow = true;
+shadow-radius = 14;
+shadow-offset-x = 0;
+shadow-offset-y = 2;
+shadow-color = "{{ $p.black.hex }}";
+shadow-opacity = 0.5;
+shadow-exclude = [
+  "window_type = 'dock'",
+  "window_type = 'desktop'",
+  "_GTK_FRAME_EXTENTS@"
+];
+
+corner-radius = 4;
+
+detect-client-opacity = true;
+detect-transient = true;
+detect-client-leader = true;
+
+rules: ({
+  /* Typed tooltips keep their own corners. */
+  match = "window_type = 'tooltip'";
+  fade = false;
+  corner-radius = 8;
+}, {
+  /* GTK client-side decorations: no blur or shadow bleed. */
+  match = "_GTK_FRAME_EXTENTS@";
+  blur-background = false;
+  shadow = false;
+}, {
+  /* Docks and desktop windows stay flat. */
+  match = "window_type = 'dock' || window_type = 'desktop'";
+  blur-background = false;
+  shadow = false;
+  corner-radius = 0;
+}, {
+  /* The focused window is fully opaque; others dim one step (sway mirror). */
+  match = "focused";
+  opacity = 1.0;
+}, {
+  match = "!focused";
+  opacity = 0.95;
+}, {
+  /* UI overlays never dim regardless of focus state. Must follow !focused. */
+  match = "window_type = 'tooltip' || window_type = 'menu' || window_type = 'popup_menu' || window_type = 'dropdown_menu' || window_type = 'dialog' || window_type = 'notification' || window_type = 'utility' || window_type = 'dock' || class_g = 'Dunst' || override_redirect = true";
+  opacity = 1.0;
+})

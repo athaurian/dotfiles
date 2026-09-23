@@ -1,0 +1,18 @@
+[Unit]
+Description=Day/night screen color temperature daemon
+Documentation=man:redshift(1)
+PartOf=i3-session.target
+After=i3-session.target wlsunset-env.service
+Wants=wlsunset-env.service
+
+[Service]
+Type=simple
+# Reuses the machine-local location env that wlsunset-location generates; the
+# script and the env file are platform-agnostic.
+EnvironmentFile=%h/.config/wlsunset.env
+ExecStart=/usr/bin/redshift -l ${WLSUNSET_LATITUDE}:${WLSUNSET_LONGITUDE} -t 6500:4000
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=i3-session.target

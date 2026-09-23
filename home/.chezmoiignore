@@ -6,3 +6,28 @@ __pycache__/
 # Generated per machine by ~/.local/bin/wlsunset-location; machine-local
 # state, never deployed or committed.
 .config/wlsunset.env
+
+# Per-machine file sets. thinkpad runs Sway on Wayland; optiplex runs i3 on
+# X11. Each machine ignores the other machine's window manager, its apps,
+# and the session units that start them.
+{{ if eq .chezmoi.hostname "optiplex" }}
+.config/sway
+.config/foot
+.config/fuzzel
+.config/swaylock
+.config/systemd/user/awww-daemon.service
+.config/systemd/user/sway-session.target
+.config/systemd/user/sway-session.target.wants
+.config/systemd/user/swayidle-unlocked.service
+.config/systemd/user/swayidle-locked.service
+.config/systemd/user/wlsunset.service
+{{ else if eq .chezmoi.hostname "thinkpad" }}
+.config/i3
+.config/kitty
+.config/rofi
+.config/picom.conf
+.fehbg
+.config/systemd/user/i3-session.target
+.config/systemd/user/i3-session.target.wants
+.config/systemd/user/redshift.service
+{{ end }}

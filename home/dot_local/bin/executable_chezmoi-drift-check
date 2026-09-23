@@ -47,7 +47,7 @@ fi
 # catch legitimate application state. Caches are excluded; test runs
 # create them normally.
 unmanaged=""
-for dir in "$HOME/.config/sway/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
+for dir in "$HOME/.config/sway/scripts" "$HOME/.config/i3/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
 	if [ -d "$dir" ]; then
 		exclude_patterns=$(printf '%s' "$exclude_personal_bins" | sed 's/^/-e /')
 
