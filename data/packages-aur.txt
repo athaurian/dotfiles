@@ -1,3 +1,0 @@
-# The AUR on every distro (needs paru, or manual install).
-# '#' starts a comment, blank lines are skipped.
-topgrade-bin # 'topgrade' exists in no repo; this is the binary build
