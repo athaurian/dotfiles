@@ -34,7 +34,9 @@ confirm_menu() {
 	fi
 	# The theme never renders the -mesg widget, so the hint rides in the
 	# entry placeholder instead (fuzzel passes it as --placeholder).
-	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
+	# The choices carry no icons; without the override the theme's fixed
+	# 1em icon slot renders as leading whitespace on the list items.
+	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	if [ -z "$confirm_choice" ]; then
 		return 1
 	fi
