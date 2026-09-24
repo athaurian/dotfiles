@@ -134,22 +134,48 @@ full wording and the source proofs behind each item):
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
     geometry, picom cmdline, and the thinkpad waybar muted check).
 
-## `refs/` layout (now COMMITTED — `.gitignore` no longer lists it)
+## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
 
 - **Committed:** `polybar-migration-findings.md` (authoritative verified
-  ledger + round-2 findings), this handoff, `fetch-refs.sh`, `zellij-themes/`
-  (5 `.kdl` files whose upstream source could not be located, so they are
-  kept rather than scripted).
-- **Deleted this session as reproducible**, restorable with
-  `sh refs/fetch-refs.sh [target-dir]` (idempotent; verified byte-identical
-  against the originals before deletion): clones `catppuccin-nvim`,
-  `lazy-nvim`, `mason-nvim`, `onedark-pro`, `snacks-nvim`, `polybar-wiki`
-  (each pinned to the commit last read); doc fetches `picom/`, `rofi/`,
-  `i3/`, `i3lock-color/`, `redshift/`, `polybar/` (polybar rst subset from
-  pinned commit `b3af5a33166604c689705d7dc67b69c01482d707`, same commit the
-  findings doc's `/tmp` re-fetch line uses); and `dotfiles-pre-reset.bundle`
-  (67M — regenerated locally from the identical
-  `backup/pre-reset-2567b2d` ref, so the bytes do not belong in git).
+  ledger + round-2 findings), this handoff, `fetch-refs.sh`, `.gitignore`,
+  `zellij-themes/` (5 `.kdl` files whose upstream source could not be
+  located, so they are kept rather than scripted).
+- **Everything else is restored** with `sh refs/fetch-refs.sh [target-dir]`
+  (idempotent, default target = `refs/` itself; every clone, source tree,
+  and doc fetch is pinned to a specific commit, and `refs/.gitignore` keeps
+  the restored files out of `git status`). The script covers:
+  - clones: the 5 nvim-theme/plugin repos, `polybar-wiki`, `waybar-wiki`
+    (the bar-migration source of truth), and `chezmoi` (reference docs under
+    `assets/chezmoi.io/docs/`);
+  - full source trees: `refs/src/i3/` and `refs/src/polybar/` — the exact
+    commits whose files the findings doc cites as proof (`refs/i3/*.man`
+    and `refs/polybar/*.rst` are copied from them by the script);
+  - man/doc fetches, one directory per tool: `sway/` (7 scds incl. swaymsg),
+    `swayfx/`, `swaylock/`, `swaylock-effects/` (jirutka — the fork Arch
+    ships), `swayidle/`, `fuzzel/`, `foot/`, `grim/`, `slurp/`, `satty/`,
+    `awww/` (9 scds), `wlsunset/`, `rofi/` (5 files incl. rofi-script),
+    `picom/` (sample conf + man adoc), `dunst/` (dunstrc.5 + dunstctl pods),
+    `i3/`, `i3lock-color/`, `redshift/`, `xss-lock/` (fd-contract man +
+    transfer script; freedesktop GitLab is auth-walled, so a GitHub mirror
+    is used), `feh/`, `flameshot/`, `kitty/`, `zathura/`, `btop/`, `cava/`,
+    `fastfetch/` (man + json_schema), `lazygit/`, `topgrade/`,
+    `playerctl/`, `systemd/` (unit/service/exec/timer/special XML for the
+    user units);
+  - `dotfiles-pre-reset.bundle` (67M — regenerated locally from the
+    identical `backup/pre-reset-2567b2d` ref, so the bytes do not belong
+    in git).
+- **Deliberately not fetched** (nothing in the repo needs them): `zellij`
+  (`config.kdl` is 16 bytes + committed themes; `zellij setup --dump-config`
+  regenerates the reference), `lutgen` (fully documented in
+  `meta/lut-palette.md`), `cliphist` (installed but referenced nowhere in
+  the repo), `qt5ct` (upstream GitLab not fetchable anonymously; the config
+  is self-evident and GUI-configurable), GTK `settings.ini`/`.gtkrc-2.0`
+  (keys self-evident, no pinned raw source), `git`/`bash` config (man pages
+  on both machines; git.git upstream docs are a fragmented tree), `calibre`
+  (calibredb man ships with the package; repo scripts have their own
+  tests), and apps with no repo-managed config (mpv, blueman, nm-applet,
+  pavucontrol, thunar, keepassxc, syncthing, networkmanager) or unmanaged
+  paths (ly's `/etc/ly` per AGENTS).
 
 ## Deferred by user decision ("only what I reported" this round)
 
