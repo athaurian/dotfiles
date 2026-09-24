@@ -37,7 +37,9 @@ checks **before** starting new edit work.
 
 ## Git state
 
-`main` = `ee7892a`, pushed (confirm with `git status -sb`). Recent history:
+`main` is pushed; confirm the tip with `git status -sb`. No HEAD SHA is
+pinned here — a SHA written into a committed document is stale as soon as
+this file changes. Recent history:
 
 - `e505702` — polybar spacing/clicks match waybar; waybar made thinkpad-only.
 - `598b40d` — port audit: `$mod+Shift+c` reload chain restarts polybar,
@@ -48,6 +50,8 @@ checks **before** starting new edit work.
   pruned behind `fetch-refs.sh`.
 - `ee7892a` — `fetch-refs.sh` extended to every repo-owned doc surface;
   `refs/.gitignore` added.
+- `9d2bf4f` — this file's stale claims corrected (Git state, script
+  pointers, pin exception, dunst-dnd framing, dunst filenames).
 
 `backup/pre-reset-2567b2d` is a **local-only** branch (not pushed); it is
 historical reference material, per AGENTS.md not an architecture to restore.
