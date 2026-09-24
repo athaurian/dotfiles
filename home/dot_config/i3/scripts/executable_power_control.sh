@@ -32,7 +32,9 @@ confirm_menu() {
 	if ! command -v rofi >/dev/null 2>&1; then
 		return 1
 	fi
-	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -mesg "$confirm_placeholder")" || return 1
+	# The theme never renders the -mesg widget, so the hint rides in the
+	# entry placeholder instead (fuzzel passes it as --placeholder).
+	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	if [ -z "$confirm_choice" ]; then
 		return 1
 	fi

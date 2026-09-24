@@ -135,6 +135,12 @@ window#waybar {
   border-color: @neutral-border-inactive;
 }
 
+/* Muted volume dims like polybar's label-muted-foreground. Placed after
+   :hover so hovering does not un-dim it; polybar has no hover state. */
+#pulseaudio.muted {
+  color: @neutral-text-muted;
+}
+
 /* --- MPRIS (custom/mpris module; muted until playing) --- */
 #custom-mpris {
   color: @neutral-text-muted;
