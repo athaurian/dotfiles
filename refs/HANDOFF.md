@@ -16,9 +16,12 @@ ledger — this file is the map, that file is the proof).
   thinkpad block line 27) and `data/packages.json` (`machines` → onboarding
   picks the list by hostname). Consequence: on thinkpad, `chezmoi diff` never
   shows rofi/i3/picom/polybar files (ignored), and on optiplex it never shows
-  waybar/sway/fuzzel files. Templates that deploy on both (dunst, dunst-dnd,
-  systemd units) may branch with `{{ if eq .chezmoi.hostname "optiplex" }}` —
-  precedent: `polkit-agent.service.tmpl`, now also `dunstrc.tmpl`.
+  waybar/sway/fuzzel files. Files landing on both machines (dunst,
+  dunst-dnd, systemd units) either branch with
+  `{{ if eq .chezmoi.hostname "optiplex" }}` — the only two branching
+  templates are `polkit-agent.service.tmpl` and `dunstrc.tmpl` — or ship
+  per-machine copies (`dunst-dnd` differs between `waybar/scripts/` and
+  `polybar/scripts/`).
 - Working rules: **`AGENTS.md`** — verify before changing, smallest necessary
   change, palette changes go `meta/color-scheme.md` → `make palette` →
   consumers, verification table at the bottom (`make lint`, `chezmoi diff`,
@@ -34,14 +37,17 @@ checks **before** starting new edit work.
 
 ## Git state
 
-`main` = this commit, pushed. Recent history:
+`main` = `ee7892a`, pushed (confirm with `git status -sb`). Recent history:
 
 - `e505702` — polybar spacing/clicks match waybar; waybar made thinkpad-only.
 - `598b40d` — port audit: `$mod+Shift+c` reload chain restarts polybar,
   `--release` on three toggle bindings, `[module/i3mode]` resize chip,
   `lock.sh --now` xss-lock fd contract, `xss-lock`+`xorg-xset` packages.
-- this commit — (a) visual-parity fixes from user feedback, (b) `refs/`
-  un-ignored and committed with reproducible material pruned.
+- `891066c` — this round's five visual-parity fixes (below).
+- `963bf36` — `refs/` un-ignored and committed with reproducible material
+  pruned behind `fetch-refs.sh`.
+- `ee7892a` — `fetch-refs.sh` extended to every repo-owned doc surface;
+  `refs/.gitignore` added.
 
 `backup/pre-reset-2567b2d` is a **local-only** branch (not pushed); it is
 historical reference material, per AGENTS.md not an architecture to restore.
@@ -61,7 +67,8 @@ only the reported items.
    `horizontal-pad=16` / `vertical-pad=8`; `inputbar spacing` `8px` → `2px`
    (the prompt already carries a trailing space, so 8px read as double).
    `inputbar padding-bottom` stays 8px = fuzzel `inner-pad=8`. Multi-value
-   padding is CSS-style, verified in `refs/rofi/rofi-theme.5.markdown`.
+   padding is CSS-style, verified in `refs/rofi/rofi-theme.5.markdown`
+   (restorable via fetch script).
    **Verify (optiplex):** `$mod+d` — search glyph hugs the input text, box
    inset 16px left/right, 8px top/bottom; compare against fuzzel memory or a
    thinkpad screenshot.
@@ -141,9 +148,13 @@ full wording and the source proofs behind each item):
   `zellij-themes/` (5 `.kdl` files whose upstream source could not be
   located, so they are kept rather than scripted).
 - **Everything else is restored** with `sh refs/fetch-refs.sh [target-dir]`
-  (idempotent, default target = `refs/` itself; every clone, source tree,
-  and doc fetch is pinned to a specific commit, and `refs/.gitignore` keeps
-  the restored files out of `git status`). The script covers:
+  (default target = `refs/` itself; `refs/.gitignore` keeps restored files
+  out of `git status`; verified end-to-end on thinkpad — full run into a
+  temp dir, pins match, idempotent re-run). Every clone, source tree, and
+  doc fetch is pinned to a specific commit — the sole exception is the
+  rendered `i3/userguide.html`, which tracks the latest i3 release (its
+  asciidoc source is pinned under `refs/src/i3/docs/userguide`). The
+  script covers:
   - clones: the 5 nvim-theme/plugin repos, `polybar-wiki`, `waybar-wiki`
     (the bar-migration source of truth), and `chezmoi` (reference docs under
     `assets/chezmoi.io/docs/`);
@@ -154,7 +165,8 @@ full wording and the source proofs behind each item):
     `swayfx/`, `swaylock/`, `swaylock-effects/` (jirutka — the fork Arch
     ships), `swayidle/`, `fuzzel/`, `foot/`, `grim/`, `slurp/`, `satty/`,
     `awww/` (9 scds), `wlsunset/`, `rofi/` (5 files incl. rofi-script),
-    `picom/` (sample conf + man adoc), `dunst/` (dunstrc.5 + dunstctl pods),
+    `picom/` (sample conf + man adoc), `dunst/` (`dunst.1.pod.in`,
+    `dunst.5.pod` = the config reference, `dunstctl.pod`, `dunstify.pod`),
     `i3/`, `i3lock-color/`, `redshift/`, `xss-lock/` (fd-contract man +
     transfer script; freedesktop GitLab is auth-walled, so a GitHub mirror
     is used), `feh/`, `flameshot/`, `kitty/`, `zathura/`, `btop/`, `cava/`,
