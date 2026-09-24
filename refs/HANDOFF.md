@@ -143,10 +143,15 @@ full wording and the source proofs behind each item):
 
 Status (2026-09-25): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window); **6 and 8 still need real
-suspend/logout cycles**. Fixes: 1–3 verified (dunst additionally reports
-a 1.0625× DPI offset deviation — reported, not compensated), 4 deferred
-to thinkpad, 5 diagnosed with config kept at `(0, 2)`. Full evidence in
-the findings doc's "Verification results".
+suspend/logout cycles** — 6 was blocked by a broken lock chain (wrong
+i3lock binary name, DND stranded at pause 100, unscaled background,
+rofi confirm icon gap, missing notice glyphs, oversized indicator),
+now fixed and verified (findings doc, "Post-reboot lock round"), so
+retest 6 against the fixed locker before marking it. Fixes: 1–3
+verified (dunst additionally reports a 1.0625× DPI offset deviation —
+reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
+config kept at `(0, 2)`. Full evidence in the findings doc's
+"Verification results".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
 

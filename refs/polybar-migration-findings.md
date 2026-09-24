@@ -530,9 +530,10 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 ### Verification results — 2026-09-25 (optiplex)
 
 Checklist: 1–5, 7, 9, 10 verified; **6 and 8 still pending** (both need
-real suspend/logout cycles; before 6(c) note `xset s` reads `0` and DPMS
-is disabled — caffeine is on, so re-enable the screensaver timeout
-first).
+real suspend/logout cycles; 6 was additionally blocked by the broken
+lock chain fixed in "Post-reboot lock round" below — retest it against
+the fixed locker. Before 6(c) note `xset s` reads `0` and DPMS is
+disabled — caffeine is on, so re-enable the screensaver timeout first).
 
 1. ✓ `i3 -C` exit 0 — reload chain, `border normal`, `--release`
    bindings.
@@ -600,3 +601,48 @@ requirements are contradictory, so **no single offset can produce a
 four-sided (centered) shadow on this build** — only the diagonal pair
 changes. Decision: keep `(0, 2)` (the documented thinkpad-mirror intent)
 and report the renderer limitation; no config change.
+
+### Post-reboot lock round — 2026-09-25 (optiplex)
+
+The first real exercise of the lock chain (item 6 prep) exposed the
+following; each is fixed, applied, and verified:
+
+1. **Wrong locker binary.** `lock.sh` called `i3lock-color`, but that
+   package installs its binary as `i3lock`, so every lock path —
+   manual `$mod+Shift+x`, power-menu suspend, `systemctl suspend`, and
+   idle via xss-lock — died with command-not-found. Invocation, `pkill`
+   trap, and comments now use `i3lock`; a `getopt` probe confirms every
+   other flag is accepted by the installed build.
+2. **DND stranded at pause 100.** The failing locker aborted the script
+   under `set -e` before `cleanup()`, leaving dunst paused at 100 —
+   above the 90-level bypass rules — so all later notices (e.g. the
+   caffeine toggle) were swallowed. `run_lock || true` guarantees
+   cleanup; pause was reset to 0 and observed back at 0 with
+   `pause_file` removed after both a scripted and a real lock/unlock
+   cycle.
+3. **Idle "timer does not exist".** Boot arms `xset s 30`, but the
+   stateless caffeine toggle had silently flipped it off while its
+   notice was suppressed by (2), and idle could not lock anyway because
+   of (1). No code change beyond the above; `xset s` reads `0` and DPMS
+   disabled whenever caffeine is on.
+4. **Confirm list leading gap.** The rofi theme's fixed
+   `element-icon { size: 1em; }` reserves an icon column that dmenu
+   choices never fill: row text rendered at x=451 instead of x=434
+   (17px, measured). `confirm_menu` now passes
+   `-theme-str "element-icon { size: 0px; }"`; the drun launcher keeps
+   its icons, and a real-script capture confirms flush rows.
+5. **Notice glyph parity.** The lock notice now carries `U+F023` and
+   all five caffeine failure notices `U+F530`, byte-identical to the
+   thinkpad sources; dnd notices already matched and power-confirm has
+   no icon on either machine. dunst renders them with
+   `SauceCodePro Nerd Font Mono 10`.
+6. **Background and indicator.** i3lock scales the image only when a
+   placement flag is given; its default draws at native size top-left,
+   putting the 451×253 downscaled capture in a corner over white —
+   `--fill` fixes it (zero white pixels in the render). Per request the
+   indicator is compacted: radius `120→72`, ring `4→3`, time `24→16`,
+   date `24→12`, and `--verif-font`/`--wrong-font` plus sizes set to
+   the Nerd Font, since those status texts defaulted to sans-serif.
+   The ring measures 155px vs 259px before; the verif/wrong state is
+   too transient for the screenshot path (both capture attempts landed
+   outside it), so that font rests on the `i3lock(1)` mapping.

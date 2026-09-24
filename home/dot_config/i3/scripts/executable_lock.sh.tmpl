@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-# Locks with i3lock-color over a blurred capture. --now skips notify/delay
+# Locks with i3lock over a blurred capture. --now skips notify/delay
 # for screensaver and before-sleep use.
-# Requires: i3lock-color, imagemagick (import/magick), notify-send, dunstctl.{{ $p := .palette }}
+# Requires: i3lock-color (provides the i3lock binary), imagemagick
+# (import/magick), notify-send, dunstctl.{{ $p := .palette }}
 
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
@@ -12,7 +13,7 @@ fi
 
 if [ "$immediate" -eq 0 ]; then
 	# Timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
-	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
+	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
 	sleep 2.5
 fi
 
@@ -48,18 +49,25 @@ cleanup() {
 run_lock() {
 	# Colors are rrggbbaa without a leading hash; the palette exports the bare form.
 	# Media and brightness keys pass through while locked, mirroring sway --locked.
-	i3lock-color --nofork \
+	# --fill stretches the downscaled capture over the screen; without a
+	# placement flag i3lock draws it at native size in the top-left corner.
+	i3lock --nofork \
 		--image "$lockimg" \
+		--fill \
 		--indicator \
-		--radius 120 \
-		--ring-width 4 \
+		--radius 72 \
+		--ring-width 3 \
 		--clock \
 		--time-str "%R" \
 		--date-str "%a, %e %b" \
 		--time-font "SauceCodePro Nerd Font Mono" \
 		--date-font "SauceCodePro Nerd Font Mono" \
-		--time-size 24 \
-		--date-size 24 \
+		--verif-font "SauceCodePro Nerd Font Mono" \
+		--wrong-font "SauceCodePro Nerd Font Mono" \
+		--time-size 16 \
+		--date-size 12 \
+		--verif-size 13 \
+		--wrong-size 13 \
 		--ignore-empty-password \
 		--show-failed-attempts \
 		--pass-media-keys \
@@ -100,12 +108,14 @@ if [ "$immediate" -eq 1 ]; then
 	fi
 	# Stay alive until the locker exits, as xss-lock requires of its
 	# locker: it re-runs us on the next screensaver cycle, and a forced
-	# unlock kills us, which the trap turns into killing i3lock-color.
+	# unlock kills us, which the trap turns into killing i3lock.
 	# power_control backgrounds this script because of the same wait.
-	trap 'pkill -x -u "$(id -u)" i3lock-color 2>/dev/null || true' TERM INT
+	trap 'pkill -x -u "$(id -u)" i3lock 2>/dev/null || true' TERM INT
 	wait "$lock_pid" || true
 	cleanup
 else
-	run_lock
+	# A failed locker must not skip cleanup: set -e would abort first and
+	# strand dunst at pause level 100, swallowing every later notice.
+	run_lock || true
 	cleanup
 fi
