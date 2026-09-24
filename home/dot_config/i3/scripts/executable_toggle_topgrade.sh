@@ -4,7 +4,7 @@ set -eu
 
 # Toggle the topgrade terminal (kitty, instance topgrade_term) into and out of
 # the scratchpad. Uses shared lib_sway_lock.sh mkdir-based locking.
-# The Waybar custom/updates module runs this script on click.
+# The polybar custom/updates module runs this script on click.
 
 app_id=topgrade_term
 
@@ -23,5 +23,5 @@ if i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
 	exit 0
 fi
 
-i3-msg exec "kitty --name $app_id -e sh -c 'topgrade; pkill -RTMIN+8 waybar 2>/dev/null || true'"
+i3-msg exec "kitty --name $app_id -e topgrade"
 release_sway_lock "toggle_topgrade"

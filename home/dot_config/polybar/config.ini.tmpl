@@ -9,7 +9,6 @@ subtext = {{ $p.subtext.hex }}
 muted = {{ $p.muted.hex }}
 blue = {{ $p.blue.hex }}
 red = {{ $p.red.hex }}
-yellow = {{ $p.yellow.hex }}
 
 [bar/main]
 width = 100%
@@ -18,9 +17,6 @@ radius = 0
 background = ${colors.base}
 foreground = ${colors.text}
 border-size = 0
-padding-left = 0
-padding-right = 8
-module-margin = 1
 font-0 = SauceCodePro Nerd Font Mono:size=10;2
 modules-left = xworkspaces custom/mpris
 modules-center = xwindow
@@ -28,13 +24,22 @@ modules-right = cpu memory custom/updates separator pulseaudio systray date sepa
 cursor-click = pointer
 enable-ipc = true
 
+; Fallback spacing for every module format: waybar's shared rule is
+; `margin: 1px; padding: 0 8px`. Modules with different metrics override
+; these below (xworkspaces, xwindow, systray, separator).
 [settings]
 screenchange-reload = true
 pseudo-transparency = true
+format-margin = 1px
+format-padding = 8px
 
 [module/xworkspaces]
 type = internal/xworkspaces
-label = %icon%
+; Waybar #workspaces: margin 0, padding 0 2px, buttons padded 6px per side;
+; waybar has no scroll-to-switch, so wheel over icons must not change focus.
+format-margin = 0
+format-padding = 2px
+enable-scroll = false
 icon-0 = 1;󰲠
 icon-1 = 2;󰲢
 icon-2 = 3;󰲤
@@ -46,18 +51,22 @@ icon-7 = 8;󰲮
 icon-8 = 9;󰲰
 icon-9 = 10;󰿬
 label-active = %icon%
-label-separator = " "
-label-separator-padding = 8
 label-active-foreground = ${colors.blue}
+label-active-padding = 6px
 label-occupied = %icon%
 label-occupied-foreground = ${colors.muted}
+label-occupied-padding = 6px
 label-urgent = %icon%
 label-urgent-foreground = ${colors.red}
+label-urgent-padding = 6px
 label-empty = %icon%
 label-empty-foreground = ${colors.muted}
+label-empty-padding = 6px
 
 [module/xwindow]
 type = internal/xwindow
+; Waybar #window: padding 0 12px (margin comes from the settings fallback).
+format-padding = 12px
 label = %title:0:72:...%
 label-foreground = ${colors.subtext}
 
@@ -65,23 +74,29 @@ label-foreground = ${colors.subtext}
 type = custom/script
 exec = ~/.config/polybar/scripts/mpris.py
 interval = 5
+click-left = playerctl play-pause
+scroll-up = playerctl next
+scroll-down = playerctl previous
 
 [module/cpu]
 type = internal/cpu
 interval = 5
-format = 󰻠 <label>
+; Format action tag: click opens btop in kitty (waybar on-click parity;
+; foot is thinkpad-only).
+format = %{A1:kitty -e btop:}󰻠 <label>%{A}
 label = %percentage%%
 
 [module/memory]
 type = internal/memory
 interval = 5
-format = 󰍛 <label>
+format = %{A1:kitty -e btop:}󰍛 <label>%{A}
 label = %percentage_used%%
 
 [module/custom/updates]
 type = custom/script
 exec = ~/.config/polybar/scripts/updates.sh
 interval = 600
+click-left = ~/.config/i3/scripts/toggle_topgrade.sh
 
 [module/pulseaudio]
 type = internal/pulseaudio
@@ -89,11 +104,16 @@ format-volume = %{A1:pavucontrol:}󰕾 <label-volume>%{A}
 label-volume = %percentage%%
 label-muted = 󰖁 Muted
 label-muted-foreground = ${colors.muted}
+click-right = pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 [module/systray]
 type = internal/tray
-format-margin = 8px
+; Waybar #tray: padding 0 4px, #tray > widget padding 0 6px, icon-size 12
+; (50% of the 24px bar), tray spacing 12.
+format-padding = 4px
+tray-padding = 6px
 tray-spacing = 12px
+tray-size = 50%
 
 [module/date]
 type = internal/date
@@ -105,10 +125,14 @@ label = %date%
 type = custom/script
 exec = ~/.config/polybar/scripts/dunst-dnd.sh
 interval = 5
+click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle
 
 ; Group separator mirroring waybar's custom/separator: placed only between
-; module groups, so there is no bar-level separator.
+; module groups, so there is no bar-level separator. Zero padding/margin
+; override the settings fallback (waybar gives it no horizontal spacing).
 [module/separator]
 type = custom/text
 format = |
+format-padding = 0
+format-margin = 0
 format-foreground = ${colors.muted}
