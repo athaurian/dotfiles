@@ -28,12 +28,24 @@ def query(args: list[str]) -> str:
 
 def main() -> None:
     status = query(["status"])
-    if not status:
+    if status not in ("Playing", "Paused"):
+        # No player, or a stopped player: nothing to show, the way waybar
+        # hides the module once its grace window lapses.
         print()
         return
     artist = query(["metadata", "artist"])
-    title = query(["metadata", "title"]) or "Unknown"
-    text = f"{artist} - {title}" if artist else title
+    title = query(["metadata", "title"])
+    if not artist and not title:
+        # Metadata is briefly empty while a player starts up; waybar hides
+        # the module then instead of flashing a placeholder.
+        print()
+        return
+    if artist and title:
+        text = f"{artist} - {title}"
+    elif title:
+        text = title
+    else:
+        text = artist
     if len(text) > MAX_TEXT_LEN:
         text = text[: MAX_TEXT_LEN - 1] + "…"
     icon = ICON_PLAYING if status == "Playing" else ICON_PAUSED

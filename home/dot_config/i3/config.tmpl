@@ -80,8 +80,9 @@ bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
-# Caffeine toggle.
-bindsym $mod+Shift+i exec $HOME/.config/i3/scripts/toggle_idle.sh
+# Caffeine toggle. i3 has no --no-repeat (sway does), so bind on release to
+# keep X auto-repeat from re-running the toggle while the key is held.
+bindsym --release $mod+Shift+i exec $HOME/.config/i3/scripts/toggle_idle.sh
 
 # Screenshots (flameshot).
 bindsym Print exec flameshot full -p $HOME/Pictures/Screenshots
@@ -106,16 +107,19 @@ bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
 bindsym $mod+minus exec $HOME/.config/i3/scripts/cycle_scratchpad.sh
 
-# Dropdown terminal.
-bindsym $mod+grave exec $HOME/.config/i3/scripts/toggle_drop_term.sh
+# Dropdown terminal. --release so auto-repeat cannot hide the terminal again
+# right after showing it (i3 has no --no-repeat).
+bindsym --release $mod+grave exec $HOME/.config/i3/scripts/toggle_drop_term.sh
 
 # Notifications.
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
-bindsym $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
+# --release so auto-repeat cannot flip dnd straight back (no --no-repeat).
+bindsym --release $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
 
-# Reload.
-bindsym $mod+Shift+c reload
+# Reload. reload re-reads this file only, so restart polybar as well; on
+# thinkpad, reloading sway restarts waybar the same way.
+bindsym $mod+Shift+c reload, exec --no-startup-id polybar-msg cmd restart
 
 # Lock.
 bindsym $mod+Shift+x exec $HOME/.config/i3/scripts/lock.sh
@@ -146,8 +150,8 @@ for_window [class="(?i)pavucontrol"] floating enable, border normal, resize set 
 for_window [class="Blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 for_window [class="(?i)polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
 for_window [window_role="GtkFileChooserDialog"] floating enable, resize set width 70 ppt height 70 ppt, move position center
-for_window [instance="scratchpad_term"] floating enable, resize set width 75 ppt height 70 ppt, mark drop_term, move scratchpad, scratchpad show, move position center
-for_window [instance="topgrade_term"] floating enable, resize set width 75 ppt height 70 ppt, mark topgrade_term, move scratchpad, scratchpad show, move position center
+for_window [instance="scratchpad_term"] floating enable, border normal, resize set width 75 ppt height 70 ppt, mark drop_term, move scratchpad, scratchpad show, move position center
+for_window [instance="topgrade_term"] floating enable, border normal, resize set width 75 ppt height 70 ppt, mark topgrade_term, move scratchpad, scratchpad show, move position center
 
 # Locked scheme (meta/color-scheme.md).
 client.focused           {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
@@ -174,6 +178,9 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- $HOME/.config/i3/scripts/
 
 exec --no-startup-id picom --config $HOME/.config/picom.conf
 exec --no-startup-id $HOME/.fehbg
+
+# Flameshot's Print binding saves here; create the directory up front.
+exec --no-startup-id mkdir -p $HOME/Pictures/Screenshots
 
 exec_always blueman-applet
 exec_always nm-applet --indicator

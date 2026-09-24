@@ -9,6 +9,8 @@ subtext = {{ $p.subtext.hex }}
 muted = {{ $p.muted.hex }}
 blue = {{ $p.blue.hex }}
 red = {{ $p.red.hex }}
+yellow = {{ $p.yellow.hex }}
+warning-hover = {{ $p.warning_hover.hex }}
 
 [bar/main]
 width = 100%
@@ -18,7 +20,8 @@ background = ${colors.base}
 foreground = ${colors.text}
 border-size = 0
 font-0 = SauceCodePro Nerd Font Mono:size=10;2
-modules-left = xworkspaces custom/mpris
+font-1 = SauceCodePro Nerd Font Mono:size=10:weight=bold;2
+modules-left = xworkspaces i3mode custom/mpris
 modules-center = xwindow
 modules-right = cpu memory custom/updates separator pulseaudio systray date separator custom/dnd
 cursor-click = pointer
@@ -26,7 +29,7 @@ enable-ipc = true
 
 ; Fallback spacing for every module format: waybar's shared rule is
 ; `margin: 1px; padding: 0 8px`. Modules with different metrics override
-; these below (xworkspaces, xwindow, systray, separator).
+; these below (xworkspaces, i3mode, xwindow, systray, separator).
 [settings]
 screenchange-reload = true
 pseudo-transparency = true
@@ -62,6 +65,22 @@ label-urgent-padding = 6px
 label-empty = %icon%
 label-empty-foreground = ${colors.muted}
 label-empty-padding = 6px
+
+; Waybar sway/mode (#mode): visible only while a non-default i3 mode is
+; active. With format = <label-mode> the format output is empty at rest, and
+; an empty output drops its margin/padding too, so the bar is unchanged until
+; a mode engages. format-margin is #mode's 4px horizontal margin (the 1px
+; vertical margin and the 1px border have no polybar equivalent). The
+; background covers the 8px settings-padding like the CSS box. format-font is
+; 1-based: 2 selects font-1, the bold face (#mode font-weight: bold).
+[module/i3mode]
+type = internal/i3
+format = <label-mode>
+label-mode = 󰘳 %mode%
+format-foreground = ${colors.yellow}
+format-background = ${colors.warning-hover}
+format-margin = 4px
+format-font = 2
 
 [module/xwindow]
 type = internal/xwindow

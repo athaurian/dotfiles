@@ -6,10 +6,13 @@ set -eu
 
 WINDOW_ID=$(xdotool getactivewindow)
 
+save_dir="$HOME/Pictures/Screenshots"
+mkdir -p "$save_dir"
+
 unset X Y WIDTH HEIGHT
 eval "$(xdotool getwindowgeometry --shell "$WINDOW_ID")"
 
-flameshot gui --region "${WIDTH}x${HEIGHT}+${X},${Y}"
+flameshot gui -p "$save_dir" --region "${WIDTH}x${HEIGHT}+${X}+${Y}"
 
 xdotool search --sync --class "[Ff]lameshot" >/dev/null 2>&1
 while xdotool search --onlyvisible --class "[Ff]lameshot" >/dev/null 2>&1; do
