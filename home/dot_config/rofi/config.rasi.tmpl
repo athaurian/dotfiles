@@ -28,7 +28,7 @@ window {
     border-color:     @border;
     border-radius:    4px;
     background-color: @background;
-    font:             "SauceCodePro Nerd Font Mono 8";
+    font:             "SauceCodePro Nerd Font Mono 10";
 }
 
 mainbox {
@@ -69,6 +69,13 @@ element {
 }
 
 element normal.normal {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+// Uneven rows carry the alternate modifier; without this the default theme's
+// lightbg background leaks through.
+element alternate.normal {
     background-color: transparent;
     text-color:       @foreground;
 }

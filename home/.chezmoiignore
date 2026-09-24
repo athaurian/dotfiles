@@ -25,6 +25,7 @@ __pycache__/
 .config/i3
 .config/kitty
 .config/rofi
+.config/polybar
 .config/picom.conf
 .fehbg
 .config/systemd/user/i3-session.target

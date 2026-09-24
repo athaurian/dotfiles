@@ -122,6 +122,11 @@ window#waybar {
 #cpu:hover,
 #custom-dnd:hover,
 #custom-mpris:hover,
+/* Zero-updates state is dimmed, mirroring polybar's topgrade module. */
+#custom-updates.ok {
+  color: @neutral-text-muted;
+}
+
 #custom-updates:hover,
 #memory:hover,
 #pulseaudio:hover {

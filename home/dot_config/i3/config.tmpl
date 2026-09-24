@@ -16,7 +16,7 @@ font pango:SauceCodePro Nerd Font Mono 8
 tiling_drag modifier titlebar
 popup_during_fullscreen smart
 
-floating_modifier $mod normal
+floating_modifier $mod
 
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
@@ -112,7 +112,7 @@ bindsym $mod+grave exec $HOME/.config/i3/scripts/toggle_drop_term.sh
 # Notifications.
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
-bindsym $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
+bindsym $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
 
 # Reload.
 bindsym $mod+Shift+c reload
@@ -177,7 +177,3 @@ exec --no-startup-id $HOME/.fehbg
 
 exec_always blueman-applet
 exec_always nm-applet --indicator
-
-bar {
-    status_command waybar
-}
