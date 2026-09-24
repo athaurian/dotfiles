@@ -105,21 +105,17 @@ only the reported items.
    `#pulseaudio.muted`). **Verify (thinkpad, when back):** reload waybar,
    `pactl set-sink-mute @DEFAULT_SINK@ toggle` → `󰖁 Muted` renders grey,
    stays grey on hover; toggle back.
-5. **Picom shadows — no config change, diagnose at runtime.**
-   `home/dot_config/picom.conf.tmpl` already has `shadow-offset-x = 0;
-   shadow-offset-y = 2`, the exact mirror of thinkpad's SwayFX
-   `shadow_offset 0 2` (both near-centered, 2px down). Bottom-right shadows
-   therefore mean the **running picom is not loading this config** (i3 exec
-   line: `picom --config $HOME/.config/picom.conf`). Likely mechanism: a
-   picom instance predating the config/exec line — i3's `restart` re-runs
-   `exec` lines but a second picom exits, leaving the stale one in charge.
-   **Verify/diagnose (optiplex):**
-   `tr '\0' ' ' < /proc/$(pgrep -x picom)/cmdline` → must contain
-   `--config …/.config/picom.conf`; `ls ~/.config/picom/` for legacy configs;
-   fix with `pkill picom; i3-msg restart` (fresh exec with `--config`);
-   shadows should then be horizontally centered. If they are still
-   bottom-right with the config confirmed loaded, re-examine sign semantics
-   against `refs/picom/picom.sample.conf` (restorable via fetch script).
+5. **Picom shadows — diagnosed; config stays `(0, 2)` (report only).**
+   The stale-instance hypothesis is rejected: the running process is
+   `picom --config ~/.config/picom.conf` (single instance; config mtime
+   predates it), applies `shadow-opacity 0.5`, and honors the offset keys
+   (`60,60` extends the right reach to +83px). The bottom-right look is a
+   renderer limitation of the installed build (`picom v13 git rev
+   d87a5ba`): shadow tails render only where the shadow core reaches the
+   window edge, so right/bottom need offset ≥ 0 while left/top need ≥ ~14px
+   protrusion — no offset yields a four-sided shadow. **Outcome:** keep
+   `(0, 2)` (the thinkpad-mirror intent) and report the limitation; full
+   measurement matrix in the findings doc's "Verification results".
 
 ## Carried verification checklist (from `refs/polybar-migration-findings.md`)
 
@@ -144,6 +140,13 @@ full wording and the source proofs behind each item):
 10. `polybar -vvv` includes the i3 module build flag.
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
     geometry, picom cmdline, and the thinkpad waybar muted check).
+
+Status (2026-09-25): items 1–5, 7, 9, 10 verified on optiplex (5's
+topgrade half via a stand-in window); **6 and 8 still need real
+suspend/logout cycles**. Fixes: 1–3 verified (dunst additionally reports
+a 1.0625× DPI offset deviation — reported, not compensated), 4 deferred
+to thinkpad, 5 diagnosed with config kept at `(0, 2)`. Full evidence in
+the findings doc's "Verification results".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
 
@@ -195,7 +198,6 @@ full wording and the source proofs behind each item):
 
 ## Deferred by user decision ("only what I reported" this round)
 
-- picom tooltip `corner-radius = 8` vs waybar's 4px chip corners.
 - dunst shadow strength vs thinkpad.
 - Optional `cliphist` removal (referenced nowhere; parity already holds).
 - Polybar mpris has no test twin (accepted); no `--locked` media keys on

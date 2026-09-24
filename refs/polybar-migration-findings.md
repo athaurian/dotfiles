@@ -487,12 +487,17 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 
 ### Open questions reported for optiplex (no edits made)
 
-- picom `blur-background-exclude` lacks GTK CSD frames
-  (`_GTK_FRAME_EXTENTS`) — possible double-blur with client-side shadows;
-  picom `corner-radius = 8` vs waybar's 4px chip corners; dunst shadow
-  strength — all need a visual look, report only.
-- polybar must be built `+i3` for `custom/i3mode` — `polybar -vvv` on
-  optiplex shows build flags (Arch enables all modules; expect yes).
+- GTK CSD blur/shadow exclusion — resolved by the current `rules:` block:
+  `_GTK_FRAME_EXTENTS` windows get `blur-background = false` and
+  `shadow = false` (the standalone `blur-background-exclude` /
+  `shadow-exclude` arrays were removed in `28f262b`).
+- picom `corner-radius` vs waybar's 4px chip corners — resolved by the
+  current values: the global radius is `4` (matching the chips); only the
+  tooltip rule sets `8` ("typed tooltips keep their own corners").
+- dunst shadow strength vs thinkpad — still open, needs a visual look,
+  report only.
+- polybar must be built `+i3` for `custom/i3mode` — verified on optiplex:
+  `polybar -vvv` includes `+i3`.
 
 ### New optiplex verification checklist (after `git pull`)
 
@@ -521,3 +526,77 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 9. Next apply re-runs onboarding (packages.json hash) and reports
    `xss-lock`, `xorg-xset` as new installs — by design.
 10. `polybar -vvv` includes the i3 module build flag.
+
+### Verification results — 2026-09-25 (optiplex)
+
+Checklist: 1–5, 7, 9, 10 verified; **6 and 8 still pending** (both need
+real suspend/logout cycles; before 6(c) note `xset s` reads `0` and DPMS
+is disabled — caffeine is on, so re-enable the screensaver timeout
+first).
+
+1. ✓ `i3 -C` exit 0 — reload chain, `border normal`, `--release`
+   bindings.
+2. ✓ `$mod+Shift+c` runs `reload, exec polybar-msg cmd restart`; exactly
+   one bar before and after, polybar PID stable across the restart.
+3. ✓ `$mod+r` → resize chip renders bold amber on `warning-hover`, in
+   place between `xworkspaces` and `custom/mpris`; Return/Esc hides it
+   and the bar is pixel-identical at rest.
+4. ✓ Hold-key: DND `0→50→0`, caffeine `0→30→0`, drop term toggles
+   exactly once (still a single `scratchpad_term`).
+5. ✓ Both scratchpads float with a titlebar. Drop term: frame
+   `171,128 1024×537` vs client `173,148 1020×515` (`window_rect.y = 20`).
+   Topgrade term exercised with a `kitty --name topgrade_term -e sleep`
+   stand-in: the `for_window [instance="topgrade_term"]` rule applies
+   mark + float + `75×70 ppt` + center with the same geometry. Related
+   observation: i3 `kill` on a kitty that has a foreground command
+   running surfaces kitty's default `confirm_os_window_close = -1`
+   prompt (window titled "Close OS window") instead of closing at once;
+   at a shell prompt it closes directly — default kept (it protects runs
+   like topgrade).
+7. ✓ Print / Shift+Print / Ctrl+Print flows write into
+   `~/Pictures/Screenshots`; region capture works.
+9. ✓ Apply re-ran onboarding and reported `xss-lock`, `xorg-xset` as new
+   installs (by design).
+10. ✓ `polybar -vvv` includes `+i3`.
+
+Fix verification (HANDOFF round fixes):
+
+1. ✓ Rofi — glyph hugs the input text; box inset 16px left/right, 8px
+   top/bottom; 2px prompt spacing (fuzzel geometry).
+2. ✓ Power confirm — `Enter=yes, Esc=no` renders inside the input box
+   after `confirm suspend? `; Esc/arrow cancel works (Enter deliberately
+   not pressed — it would suspend).
+3. ✓ Dunst — deploys `offset = (8, 32)` and renders below the 24px bar.
+   **DPI deviation (reported, not compensated):** X11 dunst scales
+   offsets by 1.0625 (102 vs 96 DPI), so `offset_y 32` renders its top
+   edge at y=34 (2px low), the 8px right margin renders 9px (1px), and
+   `offset_x = 8` can never render as 8 (7→7, 8→9). Wayland/thinkpad is
+   unaffected; the deployed offset stays `(8, 32)` per user decision.
+4. Deferred — the waybar muted dim is thinkpad-only; verify when back on
+   thinkpad.
+5. ✓ Diagnosed below; config stays `(0, 2)`.
+
+#### Picom shadow geometry (fix 5 diagnosis)
+
+The stale-instance hypothesis is rejected: the running process is
+`picom --config ~/.config/picom.conf` (single instance; config mtime
+predates the start), `shadow-opacity 0.5` measured applied, and the
+offset keys are honored (`60,60` extends the right reach to +83px).
+Build: `picom v13 git rev d87a5ba`. Each row is a shadow-on vs
+shadow-off pixel diff; the control region (x20–60, y130–664) reads
+bit-exact 0.000 every run, and `blur-background` on/off changes nothing:
+
+| offset | left | top | right | bottom |
+|---|---|---|---|---|
+| `0,0` | 0 | 0 | — | 0 (renders no shadow) |
+| `0,2` (deployed) | 0.000 | 0.083 | strong ≈22px | strong ≈24px |
+| `-8,-8` (two runs) | 0.00 | 0.07 | 0.57 ≈ 0 | 0.000 (no shadow at all) |
+| `-20,-20` | strong ~17px ramp | strong ~17px ramp | 0.25 ≈ 0 | ≈0 (fades out by y671) |
+| `60,60` | — | — | core + tail to +83px | — |
+
+Shadow tails render only where the shadow core reaches the window edge:
+right/bottom need offset ≥ 0, left/top need ≥ ~14px protrusion. Those
+requirements are contradictory, so **no single offset can produce a
+four-sided (centered) shadow on this build** — only the diagonal pair
+changes. Decision: keep `(0, 2)` (the documented thinkpad-mirror intent)
+and report the renderer limitation; no config change.
