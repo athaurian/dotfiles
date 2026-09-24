@@ -21,6 +21,8 @@ __pycache__/
 .config/systemd/user/sway-session.target.wants
 .config/systemd/user/swayidle-unlocked.service
 .config/systemd/user/swayidle-locked.service
+# wlsunset-env.service stays deployed here too: redshift.service Wants it
+# to generate the machine-local location env file on optiplex.
 .config/systemd/user/wlsunset.service
 {{ else if eq .chezmoi.hostname "thinkpad" }}
 .config/i3

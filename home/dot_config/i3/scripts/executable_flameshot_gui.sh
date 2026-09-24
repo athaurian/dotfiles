@@ -6,7 +6,10 @@ set -eu
 
 WINDOW_ID=$(xdotool getactivewindow)
 
-flameshot gui
+save_dir="$HOME/Pictures/Screenshots"
+mkdir -p "$save_dir"
+
+flameshot gui -p "$save_dir"
 
 xdotool search --sync --class "[Ff]lameshot" >/dev/null 2>&1
 while xdotool search --onlyvisible --class "[Ff]lameshot" >/dev/null 2>&1; do
