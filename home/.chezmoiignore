@@ -15,6 +15,7 @@ __pycache__/
 .config/foot
 .config/fuzzel
 .config/swaylock
+.config/waybar
 .config/systemd/user/awww-daemon.service
 .config/systemd/user/sway-session.target
 .config/systemd/user/sway-session.target.wants
