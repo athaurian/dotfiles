@@ -45,37 +45,67 @@ cleanup() {
 	rm -f "$lockimg"
 }
 
-# Colors are rrggbbaa without a leading hash; the palette exports the bare form.
-# Media and brightness keys pass through while locked, mirroring sway --locked.
-i3lock-color --nofork \
-	--image "$lockimg" \
-	--indicator \
-	--radius 120 \
-	--ring-width 4 \
-	--clock \
-	--time-str "%R" \
-	--date-str "%a, %e %b" \
-	--time-font "SauceCodePro Nerd Font Mono" \
-	--date-font "SauceCodePro Nerd Font Mono" \
-	--time-size 24 \
-	--date-size 24 \
-	--ignore-empty-password \
-	--show-failed-attempts \
-	--pass-media-keys \
-	--pass-screen-keys \
-	--inside-color={{ $p.base.bare }}FF \
-	--insidever-color={{ $p.base.bare }}FF \
-	--insidewrong-color={{ $p.base.bare }}FF \
-	--ring-color={{ $p.line.bare }}FF \
-	--ringver-color={{ $p.yellow.bare }}FF \
-	--ringwrong-color={{ $p.red.bare }}FF \
-	--line-color={{ $p.black.bare }}00 \
-	--separator-color={{ $p.black.bare }}00 \
-	--keyhl-color={{ $p.text.bare }}FF \
-	--bshl-color={{ $p.red_bright.bare }}FF \
-	--verif-color={{ $p.text.bare }}FF \
-	--wrong-color={{ $p.red.bare }}FF \
-	--time-color={{ $p.text.bare }}FF \
-	--date-color={{ $p.text.bare }}FF
+run_lock() {
+	# Colors are rrggbbaa without a leading hash; the palette exports the bare form.
+	# Media and brightness keys pass through while locked, mirroring sway --locked.
+	i3lock-color --nofork \
+		--image "$lockimg" \
+		--indicator \
+		--radius 120 \
+		--ring-width 4 \
+		--clock \
+		--time-str "%R" \
+		--date-str "%a, %e %b" \
+		--time-font "SauceCodePro Nerd Font Mono" \
+		--date-font "SauceCodePro Nerd Font Mono" \
+		--time-size 24 \
+		--date-size 24 \
+		--ignore-empty-password \
+		--show-failed-attempts \
+		--pass-media-keys \
+		--pass-screen-keys \
+		--inside-color={{ $p.base.bare }}FF \
+		--insidever-color={{ $p.base.bare }}FF \
+		--insidewrong-color={{ $p.base.bare }}FF \
+		--ring-color={{ $p.line.bare }}FF \
+		--ringver-color={{ $p.yellow.bare }}FF \
+		--ringwrong-color={{ $p.red.bare }}FF \
+		--line-color={{ $p.black.bare }}00 \
+		--separator-color={{ $p.black.bare }}00 \
+		--keyhl-color={{ $p.text.bare }}FF \
+		--bshl-color={{ $p.red_bright.bare }}FF \
+		--verif-color={{ $p.text.bare }}FF \
+		--wrong-color={{ $p.red.bare }}FF \
+		--time-color={{ $p.text.bare }}FF \
+		--date-color={{ $p.text.bare }}FF
+}
 
-cleanup
+if [ "$immediate" -eq 1 ]; then
+	# xss-lock --transfer-sleep-lock hands this script the logind sleep
+	# lock; i3lock would inherit it and never close it, so every suspend
+	# would wait out InhibitDelayMaxSec. Spawn the locker without a copy
+	# of the fd, then close ours: that is what releases logind -- the fd,
+	# not this process, gates sleep.
+	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+		(
+			eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
+			run_lock
+		) &
+	else
+		run_lock &
+	fi
+	lock_pid=$!
+	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+		eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
+	fi
+	# Stay alive until the locker exits, as xss-lock requires of its
+	# locker: it re-runs us on the next screensaver cycle, and a forced
+	# unlock kills us, which the trap turns into killing i3lock-color.
+	# power_control backgrounds this script because of the same wait.
+	trap 'pkill -x -u "$(id -u)" i3lock-color 2>/dev/null || true' TERM INT
+	wait "$lock_pid" || true
+	cleanup
+else
+	run_lock
+	cleanup
+fi

@@ -10,7 +10,9 @@ action="${1:-}"
 case "$action" in
 poweroff) cmd="systemctl poweroff" ;;
 reboot) cmd="systemctl reboot" ;;
-suspend) cmd="$HOME/.config/i3/scripts/lock.sh --now; systemctl suspend" ;;
+# lock.sh --now blocks until the screen unlocks; suspend instead waits
+# on the sleep-lock fd that xss-lock hands to its own lock.sh instance.
+suspend) cmd="$HOME/.config/i3/scripts/lock.sh --now & systemctl suspend" ;;
 logout) cmd="systemctl --user stop i3-session.target; i3-msg exit" ;;
 *)
 	echo "Usage: $0 <poweroff|reboot|suspend|logout>" >&2
