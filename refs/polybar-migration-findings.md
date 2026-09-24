@@ -1,0 +1,513 @@
+# Polybar migration findings (waybar → polybar), 2026-09-24
+
+Self-contained record of every verified fact, decision, and edit for the
+thinkpad→optiplex bar migration. Committed to the repo; `refs/fetch-refs.sh`
+restores the pruned upstream material. Read this after a
+context compaction instead of re-deriving anything — and read
+`refs/HANDOFF.md` first for session state and the current checklist.
+
+Context: `thinkpad` runs Sway/Waybar; `optiplex` runs i3/polybar. The waybar
+config (`home/dot_config/waybar/config.jsonc` + `style.css.tmpl`) is the
+porting source of truth. Polybar cannot run on thinkpad (Wayland, not
+installed) — everything here is source/doc-verified; visual verification
+happens on optiplex later.
+
+## Documentation / source locations
+
+- `refs/polybar-wiki/` — clone of `github.com/polybar/polybar.wiki`, HEAD
+  `b4f3c9e`.
+- `refs/polybar/` — readthedocs rst subset (`polybar.1.rst`, `polybar.5.rst`,
+  `tray.rst`) at polybar commit `b3af5a33166604c689705d7dc67b69c01482d707`.
+- Full source of truth = polybar @ `b3af5a33166604c689705d7dc67b69c01482d707`.
+  `/tmp` gets cleaned between sessions; re-fetch with:
+  `curl -sL https://github.com/polybar/polybar/archive/b3af5a33166604c689705d7dc67b69c01482d707.tar.gz | tar xz -C /tmp`
+  → `/tmp/polybar-b3af5a33166604c689705d7dc67b69c01482d707/`.
+
+## Why the old spacing was broken (root cause)
+
+- Bar `padding`/`module-margin` parse as `spacing_val`; a BARE NUMBER IS A
+  COUNT OF SPACES, not pixels (units.cpp: no unit → `spacing_type::SPACE`).
+  Old config: `padding-right = 8` → 8 spaces ≈ 48px right gutter;
+  `module-margin = 1` → 1 space ≈ 6px between modules.
+- No `[settings] format-padding` existed and no module set `format-*` except
+  systray `format-margin = 8px` → every module had zero internal padding and
+  text ran together (only the ~6px module-margin space between modules).
+- `label-separator = " "` + `label-separator-padding = 8` on xworkspaces were
+  DEAD KEYS (see below) → workspace icons had no gaps at all.
+- All spacing values in the new config carry explicit `px` units on purpose.
+
+## Source-verified mechanics (polybar b3af5a3)
+
+### Format fallbacks (`src/modules/meta/base.cpp`, `module_formatter::add_value`)
+
+- `formatdef(param, fallback)` = `m_conf.get("settings", "format-" + param,
+  fallback)`; per-format keys under the module section
+  (`<modname>.<format>-<param>`, e.g. `format-padding`) win over it.
+- Covered params: foreground, background, underline, overline, underline-size,
+  overline-size, spacing, padding, margin, offset, font.
+- ⇒ `[settings] format-padding = 8px` and `format-margin = 1px` are GLOBAL
+  fallbacks for every module format; per-module `format-padding`/`format-margin`
+  override.
+
+### Bar-level spacing
+
+- `bar.cpp:214`: `module-margin` default is `ZERO_SPACE`; `module-margin-left`
+  /`-right` override each side.
+- `controller.cpp:510-560`: module-margin is applied only between modules
+  (never before the first left-block module), and only renders if set.
+- Decision: bar gets NO `padding-*` and NO `module-margin` (defaults = 0).
+  The waybar `margin: 1px` per-module rule maps to the settings
+  `format-margin = 1px` fallback: inter-module gap = A-right 1px + B-left 1px
+  = 2px = two waybar module margins; first module flush like waybar
+  `#workspaces { margin: 0 }` handled by xworkspaces override below; right
+  edge = dnd's own 1px margin (inside its output, controller adds none).
+
+### Waybar metric mapping (style.css.tmpl line refs)
+
+| Waybar element                              | waybar CSS                     | polybar config                                        |
+| ------------------------------------------- | ------------------------------ | ----------------------------------------------------- |
+| shared rule (cpu memory clock dnd mpris updates pulseaudio tray) | `padding: 0 8px; margin: 1px` (99-118) | `[settings] format-padding = 8px` + `format-margin = 1px` |
+| `#workspaces`                               | `margin: 0; padding: 0 2px` (37-40) | `format-margin = 0`, `format-padding = 2px`             |
+| `#workspaces button`                        | `padding: 0 6px` (46-49)       | `label-{active,occupied,urgent,empty}-padding = 6px`   |
+| `#window`                                   | `padding: 0 12px; margin: 1px` (171-174) | `format-padding = 12px` (margin from fallback)   |
+| `#custom-separator`                         | `padding: 0 0 2px; margin: 0` (164-168) | `format-padding = 0`, `format-margin = 0`         |
+| `#tray`                                     | `padding: 0 4px` (214-216)     | `format-padding = 4px`                                 |
+| `#tray > widget`                            | `padding: 0 6px` (218-222)     | `tray-padding = 6px`                                   |
+| tray icon                                   | `icon-size: 12`, `spacing: 12` | `tray-size = 50%` (of 24px bar = 12px), `tray-spacing = 12px` |
+
+Gap arithmetic verified equal on both sides: inter-icon tray = 6+12+6 = 24px
+both ways; tray module edge = 4+6 = 10px both ways; workspace edge = 2+6 =
+8px both ways; between shared modules = 8+1+1+8 = 18px both ways.
+
+### xworkspaces (`src/modules/xworkspaces.cpp`)
+
+- Label keys read: only `label-monitor`, `label-active`, `label-occupied`,
+  `label-urgent`, `label-empty` (lines 49-64). No module-level `label` → old
+  `label = %icon%` was dead. `label-separator*` exists only in menu/i3/bspwm
+  → dead here; removed. Icon gaps now come from
+  `label-*-padding` (`load_optional_label` → `load_label` parses
+  `<name>-padding`/`-left`/`-right`; label padding renders as builder spacing).
+- `enable-scroll` default TRUE (`xworkspaces.hpp:106`; scroll actions emit
+  SCROLL_UP/DOWN switching workspaces, cpp:350-352). Waybar's
+  `sway/workspaces` has no scroll-to-switch → set `enable-scroll = false`.
+- Duplicate module names are allowed (controller `setup_modules` builds a
+  fresh instance per occurrence) → the two `separator` entries in
+  modules-right are valid.
+
+### Tray (`tray.rst`, `src/x11/tray_manager.cpp:63`)
+
+- `tray-size` = `percentage_with_offset{66., ZERO_PX_EXTENT}` relative to bar
+  height, default 66% (≈15.8px at 24px) → `50%` = 12px = waybar icon-size 12.
+- `tray-padding` = extent added before AND after each icon (default 0px);
+  `tray-spacing` = gap between icons.
+
+### Actions / clicks
+
+- `builder::action` (builder.cpp:321) escapes `:` in commands.
+- `tags/action_context.cpp get_actions(x)`: per button, the HIGHEST action ID
+  whose range contains x wins. IDs are assigned in parse order
+  (`action_open`: `id = m_action_blocks.size()`). Unit test `stacking`
+  (`tests/unit_tests/tags/action_context.cpp`) documents nested semantics:
+  inner (opened later in the string) wins inside its range.
+- `pulseaudio.cpp:110-145 get_output()`: builds the format first, THEN opens
+  right/middle/left(EVENT_TOGGLE mute)/scroll wrappers, then `node(output)`.
+  In the final string the outer opens precede the format's inner
+  `%{A1:pavucontrol:}` ⇒ inner has the higher ID ⇒ **left-click = pavucontrol**
+  (matches waybar `on-click: pavucontrol`); the built-in left mute-toggle is
+  shadowed — intentional, waybar has no left-mute either. Right-click and
+  scroll live on other buttons (per-button map) so they still reach the outer
+  wrappers ⇒ adding `click-right = pactl …` works. i3 floats pavucontrol
+  (`i3/config.tmpl:145`), same UX as waybar.
+- pulseaudio reads `click-middle`/`click-right` only (pulseaudio.cpp:117-126);
+  scroll step = `interval` default 5 (m_interval) = waybar `scroll-step: 5` →
+  no key needed. Built-in left = mute toggle (overridden by the inner A1 tag).
+- Raw action commands execute via `controller.cpp:481`
+  `fork_detached(… exec_sh(cmd))` → shell → `~` expands, so
+  `click-left = ~/.config/…` works.
+- `%{A1:cmd:}` inside `format` is the DOCUMENTED click pattern
+  (wiki Formatting.md:375; Known-Issues.md:39 explicitly recommends
+  format-level action tags) ⇒ cpu/memory `on-click` ports as
+  `format = %{A1:kitty -e btop:}…%{A}`. internal cpu/memory/xwindow read NO
+  `click-*` keys, but the format tag needs none. `foot` is thinkpad-only;
+  optiplex terminal is `kitty` (and `btop` is in shared pacman.tui).
+  This CORRECTS the earlier recorded claim that cpu/memory clicks "cannot
+  port".
+- script module reads click-left/middle/right, double-click-*, scroll-up/down
+  (script.cpp:19-26) → updates/dnd/mpris click parity works.
+- `exec`/click commands run via `/bin/sh -c` (process.cpp:129).
+
+### Script modules (repo copies under `home/dot_config/polybar/scripts/`)
+
+- `updates.sh`: always emits text — `󰏓 0` in muted `#8A8A8A` at zero updates,
+  `󰚰 N` in `#F4BC45` at >0 → module ALWAYS VISIBLE = waybar `.ok` /
+  `.has-updates` visible states; colors match the palette
+  (`meta/color-scheme.md`). Uses `checkupdates` (pacman-contrib) + `paru -Qum`.
+- `dunst-dnd.sh`: `--toggle` at line 97; always prints its icon; colors
+  hardcoded to palette (`#FE4864`).
+- `mpris.py`: prints a blank line when no player → module collapses
+  (the script's own docstring asserts this = waybar `hide-empty-text`); NOT a
+  chezmoi template (`.py`, no `.tmpl`) so f-string `{{…}}` is safe; paused
+  state muted via `%{F#8A8A8A}`.
+- waybar's scripts live under `.config/waybar/scripts/` and deploy only on
+  thinkpad (`.chezmoiignore`); polybar's under `.config/polybar/scripts/`,
+  only on optiplex.
+
+### Text module
+
+- `format = |` on custom/text renders the literal `|` (formatter only
+  substitutes `<tag>` placeholders; no `<label>` in the format value) = waybar
+  text module `format: "|"`.
+
+### Waybar handler parity reference (config.jsonc)
+
+- mpris: on-click `playerctl play-pause`, on-scroll-up `playerctl next`,
+  on-scroll-down `playerctl previous`, restart-interval 5, hide-empty-text.
+- pulseaudio: on-click `pavucontrol`, on-click-right
+  `pactl set-sink-mute @DEFAULT_SINK@ toggle`, scroll-step 5.
+- cpu/memory: on-click `foot -e btop`, interval 5.
+- updates: interval 3600, signal 8 (RTMIN+8 sent by toggle_topgrade.sh),
+  on-click `~/.config/sway/scripts/toggle_topgrade.sh`.
+- dnd: interval 5, signal 9, on-click `dunst-dnd.sh --toggle`.
+- clock: no on-click (tooltip only). battery: thinkpad-only.
+
+## Picom — earlier revert plan CANCELLED (correction)
+
+The earlier plan to restore `blur-background-exclude`/`shadow-exclude` lists
+removed by `28f262b` was WRONG and was not carried out. `picom.conf.tmpl`
+`rules:` blocks (present since before 28f262b) already set
+`blur-background = false; shadow = false` for `_GTK_FRAME_EXTENTS@` and for
+`window_type = 'dock' || 'desktop'`; 28f262b only deleted the redundant
+legacy exclude lists. polybar is a dock → no shadow/blur either way.
+No picom change was made. Flag for veto if the user disagrees.
+
+## Waybar CSS hover bug from `28f262b` (fixed in this pass)
+
+- 28f262b inserted `#custom-updates.ok { color: muted }` into the MIDDLE of
+  the 8-selector hover group, splitting it into two rules:
+  - rule 1: `[battery, clock, cpu, custom-dnd, custom-mpris]:hover` +
+    `#custom-updates.ok` → only `color: muted` ⇒ hovering those five modules
+    dimmed the text instead of the hover treatment (text-max + hover bg +
+    border), and they lost bg/border entirely;
+  - rule 2: `[custom-updates, memory, pulseaudio]:hover` → full treatment
+    (accidentally correct for these three).
+- Fix: `#custom-updates.ok` moved BEFORE the complete 8-selector hover rule.
+  Specificity tie (`#custom-updates.ok` = `#custom-updates:hover`, both
+  id+class) → later rule wins → at rest `.ok` is muted, on hover the full
+  hover treatment applies. `#custom-updates.has-updates` / `.has-updates:hover`
+  (later in the file, higher specificity) unchanged and still win for the
+  warning state.
+
+## Edits applied in this pass
+
+1. `home/dot_config/polybar/config.ini.tmpl`:
+   - `[bar/main]`: removed `padding-left = 0`, `padding-right = 8`,
+     `module-margin = 1` (space-unit bugs; defaults are 0).
+   - `[settings]`: added `format-margin = 1px` + `format-padding = 8px`
+     (waybar shared rule) with an intent comment.
+   - `[module/xworkspaces]`: removed dead `label = %icon%`,
+     `label-separator`, `label-separator-padding`; added
+     `format-margin = 0`, `format-padding = 2px`, `enable-scroll = false`,
+     `label-{active,occupied,urgent,empty}-padding = 6px`.
+   - `[module/xwindow]`: added `format-padding = 12px`.
+   - `[module/custom/mpris]`: added `click-left = playerctl play-pause`,
+     `scroll-up = playerctl next`, `scroll-down = playerctl previous`.
+   - `[module/cpu]` / `[module/memory]`: `format` now wraps content in
+     `%{A1:kitty -e btop:}…%{A}` (waybar on-click parity, kitty adaptation;
+     comment on cpu explains).
+   - `[module/custom/updates]`: added
+     `click-left = ~/.config/i3/scripts/toggle_topgrade.sh`.
+   - `[module/pulseaudio]`: added
+     `click-right = pactl set-sink-mute @DEFAULT_SINK@ toggle` (format-volume
+     A1 pavucontrol tag kept — verified it wins for left-click).
+   - `[module/systray]`: removed `format-margin = 8px`; added
+     `format-padding = 4px`, `tray-padding = 6px`, `tray-size = 50%`
+     (kept `tray-spacing = 12px`) + intent comment.
+   - `[module/custom/dnd]`: added
+     `click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle`.
+   - `[module/separator]`: added `format-padding = 0`, `format-margin = 0`
+     (override the settings fallback to match waybar) + comment.
+   - `[colors]`: removed unused `yellow` (no `${colors.yellow}` anywhere;
+     scripts hardcode their own palette hexes).
+2. `home/dot_config/waybar/style.css.tmpl`: `.ok` rule moved before the
+   restored single hover group (see bug section).
+3. `data/packages.json`: removed `waybar` from `pacman.desktop` (still in
+   `machines.thinkpad`); made two notes machine-neutral — `pacman-contrib`
+   now serves the bar updates module on both machines, `mpv-mpris` feeds the
+   bar mpris module on both. `cliphist` left in place (Wayland-only; optional
+   drop for optiplex, flagged not changed).
+4. `home/.chezmoiignore`: added `.config/waybar` to the optiplex block
+   (symmetric with `.config/polybar` in the thinkpad block).
+5. `home/dot_config/i3/scripts/executable_toggle_topgrade.sh`: comment now
+   names polybar as the caller (the Waybar claim was already stale — waybar
+   uses the sway copy); removed dead `sh -c 'topgrade; pkill -RTMIN+8 waybar'`
+   → `kitty --name $app_id -e topgrade` (waybar never runs on optiplex; i3
+   `for_window [instance="topgrade_term"]` at config.tmpl:150 unaffected).
+
+## Known gaps (deliberately not fixed; report to user)
+
+- **Resize-mode indicator**: waybar has `sway/mode`/`#mode`; polybar config
+  uses xworkspaces (no mode label). Port would mean the i3 module with
+  `<label-mode>` instead of xworkspaces.
+- **updates refresh latency**: waybar = interval 3600 + RTMIN+8 instant signal
+  after topgrade; polybar = interval 600 poll, NO signal mechanism exists for
+  polybar script modules → bar can show stale update state ≤600s after
+  topgrade.
+- **Separator vertical nudge**: waybar `padding: 0 0 2px` bottom 2px;
+  polybar format padding is horizontal only — `|` baseline can't be nudged.
+- **cpu/memory click opens a tiled window** unless i3 gets a for_window rule;
+  waybar's `foot -e btop` is likewise unmanaged on thinkpad (sway has no btop
+  rule) — verify desired float behavior on optiplex.
+- **Battery module absent** in polybar — intentional, optiplex is a desktop
+  (waybar battery is thinkpad hardware).
+- **xwindow rewrite rules**: waybar strips ` - Helium`, `^• Discord \| …`,
+  `^nvim …` prefixes and shows a window icon (`icon: true`, 14px) — no polybar
+  equivalent; only `max-length 72` ≡ label truncation `%title:0:72:...%`
+  ported.
+- **Workspace icon font-size 16px** (waybar `#workspaces button label`) vs
+  polybar single `font-0 … size=10` — per-label font size unverifiable from
+  thinkpad → left as is; check visually on optiplex.
+- **Hover styling**: waybar `:hover` bg/border/transition effects have no
+  polybar equivalent (only `cursor-click = pointer`).
+- **Tooltips**: waybar clock/mpris/cpu/memory tooltips don't exist for polybar
+  script/text modules (tray context menus are native and work).
+- **cliphist** still installed on optiplex via shared `pacman.desktop`
+  (Wayland-only tool) — optional cleanup, not changed.
+- **mpris mechanism differs**: waybar keeps the script alive
+  (restart-interval 5); polybar re-runs it every `interval = 5` — equivalent
+  output cadence, different process behavior.
+
+## Visual verification checklist (run on optiplex)
+
+1. `make lint` and `chezmoi diff` clean (thinkpad side).
+2. On optiplex: restart polybar (or re-login); check:
+   - ~8px bar-right gutter (was ~48px), modules separated by 2px with 8px
+     internal padding (shared), workspace icons with 12px gaps and 8px left
+     edge, window title 12px padding, tray icons 12px tall with 24px gaps and
+     10px module edge, separator `|` flush (no 8px padding).
+   - Clicks: workspace icon click focuses; cpu/memory open `kitty -e btop`;
+     updates click opens topgrade scratchpad; pulseaudio left opens pavucontrol
+     (floating), right mutes, scroll changes volume by 5%; tray icon menus;
+     dnd click toggles + recolors to red; mpris click play-pause, scroll
+     next/prev (only while a player shows).
+   - Scroll over workspaces must NOT change workspace (`enable-scroll=false`).
+   - Hover/waybar checks: `#custom-updates.ok` muted at rest, full hover on
+     hover; battery/clock/cpu/dnd/mpris hover restored (thinkpad, waybar).
+3. Font `SauceCodePro Nerd Font Mono` = `ttf-sourcecodepro-nerd` in
+   pacman.fonts ✓ installed both machines.
+
+## Verification results (this pass)
+
+All checks run on thinkpad after the edits; everything passed:
+
+- `chezmoi execute-template` renders of `config.ini.tmpl`, `style.css.tmpl`,
+  `.chezmoiignore`: clean, no unrendered `{{`.
+- Rendered polybar config parsed with `configparser.RawConfigParser(strict=True)`:
+  14 sections, and assertions confirmed — bar has no `padding-left/right`/
+  `module-margin`; `[settings]` has `format-margin = 1px` +
+  `format-padding = 8px`; xworkspaces has `format-margin = 0`,
+  `format-padding = 2px`, `enable-scroll = false`, four `label-*-padding = 6px`,
+  and no `label`/`label-separator*` keys; xwindow `format-padding = 12px`;
+  systray `4px`/`6px`/`12px`/`50%` and no `format-margin`; separator `0`/`0`;
+  cpu and memory formats contain `%{A1:kitty -e btop:}`; updates `click-left`
+  = i3 toggle path; pulseaudio keeps the pavucontrol A1 tag and has the pactl
+  `click-right`; mpris has the three playerctl bindings; dnd `click-left` has
+  `--toggle`; `[colors]` = the 6 used keys (no `yellow`), and every
+  `${colors.*}` reference in the file resolves to a defined key.
+- Rendered waybar CSS: `{`/`}` balanced (37 each); `#custom-updates.ok` rule
+  precedes the hover group; the hover group is the single 8-selector list
+  (battery/clock/cpu/dnd/mpris/updates/memory/pulseaudio) with `.ok` absent
+  from it; `.has-updates:hover` still comes after.
+- `data/packages.json`: valid JSON; `waybar` gone from `pacman.desktop`,
+  still in `machines.thinkpad`; both touched notes mention waybar + polybar.
+- `.chezmoiignore`: `.config/waybar` is inside the optiplex block,
+  `.config/polybar` inside the thinkpad block; template renders on thinkpad.
+- `sh -n` on `executable_toggle_topgrade.sh`: clean; no `waybar` string left
+  in the script.
+- `make lint`: passed (prettier).
+- `chezmoi diff`: `.config/waybar/style.css` shows exactly the hover-group
+  fix. Two other entries are NOT from this pass: (1) the onboarding
+  `run_onchange` script is pending re-run because it embeds
+  `sha256(packages.json)` — hash moved `fba21fcb…` → `2db06156…` with the
+  waybar package removal, which is that script's designed trigger; (2)
+  `.local/bin/chezmoi-drift-check` differs from the machine copy —
+  pre-existing user/machine drift (static file, last touched by commits
+  `d5bccdc`/`3738184`), flagged to the user, not modified here. The polybar
+  config and i3 script are machine-ignored on thinkpad, so they are verified
+  via direct `execute-template` + parser assertions instead of `chezmoi diff`.
+- Script-runner collapse semantics re-verified in source:
+  `command<REDIRECTED>::readline()` uses `std::getline` (strips the newline),
+  and `script_module::get_output()` (script.cpp:96) returns `""` when
+  `output.empty() && exit_status == 0` → mpris's blank line and any empty
+  output hide the module (waybar `hide-empty-text` parity). Runner reads only
+  the first line for non-tailed scripts — all three repo scripts emit a
+  single line, so this is fine.
+
+Not verifiable on thinkpad (polybar cannot run under Sway/X-less): actual
+pixel spacing, tray icon rendering, fonts, and click behavior — use the
+optiplex checklist above.
+
+## Round 2 — full thinkpad → optiplex port audit (bindings/scripts/units/packages)
+
+Four parallel editing passes over disjoint scopes, then a source-level review
+of every load-bearing claim. Validated by template render + `sh -n` + strict
+INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
+
+### Changes
+
+**i3 config** (`home/dot_config/i3/config.tmpl`)
+
+- `$mod+Shift+c` now runs `reload, exec --no-startup-id polybar-msg cmd
+  restart` — sway's reload restarts waybar via `bar {}`; i3's reload did
+  nothing for polybar. Verified from i3 source: `commands.spec`
+  `'reload' -> call cmd_reload()` returns to INITIAL, `commands_parser.c`
+  treats `,`/`;` as command separators, `bindings.c run_binding` copies the
+  command buffer before executing so a reload mid-chain cannot free the rest
+  of the command.
+- `--release` added to the three toggle bindings: caffeine (`$mod+Shift+i`),
+  drop term (`$mod+grave`), dnd (`$mod+Shift+d`) — sway has `--no-repeat`, i3
+  has no such flag (`config.spec` state BINDING offers only
+  `--release/--border/--whole-window/--exclude-titlebar`). i3 enables XKB
+  detectable autorepeat (`main.c`), so held keys emit only repeated
+  KeyPress; a `--release` binding fires exactly once per physical press.
+  Matches the pre-existing `--release $mod+d` rofi convention.
+- `border normal` added to the scratchpad drop-term/topgrade `for_window`
+  rules — sway gives those rules a titled border; i3's default here is
+  `default_border pixel 1` (frameless), so the drop term had no titlebar.
+- New startup line `exec --no-startup-id mkdir -p
+  $HOME/Pictures/Screenshots` — sway's `helper_capture.sh` mkdirs the save
+  dir before use; the Print binding calls `flameshot full -p` directly and
+  flameshot does not create the directory.
+
+**polybar config** (`home/dot_config/polybar/config.ini.tmpl`)
+
+- New `[module/i3mode]` (`internal/i3`) between xworkspaces and custom/mpris
+  — ports waybar's `sway/mode` chip. `format = <label-mode>` only; polybar
+  source proves at-rest invisibility: `i3.cpp build()` emits the label only
+  when `m_modeactive`, and `base.cpp decorate()` flushes an empty output
+  before any margin/padding, so the bar at rest is pixel-identical to before.
+  `label-mode = 󰘳 %mode%`, yellow on warning-hover, `format-font = 2` →
+  font-1 bold — all mapped 1:1 from waybar `#mode` CSS (padding comes from
+  the `[settings]` `format-padding` fallback; the 1px vertical margin and
+  1px border have no polybar equivalent). `format-font`/`format-margin`/
+  `format-padding` are real keys (`base.cpp` parses `name + "-font"` with
+  `name="format"`; `[settings] format-*` are global defaults via
+  `formatdef` at `base.cpp:91`).
+- `enable-ipc = true` confirmed in `[bar/main]` (required by the reload
+  chain). New `[colors]` keys `yellow`, `warning-hover` (palette-templated).
+
+**i3 scripts**
+
+- `lock.sh.tmpl` `--now` branch rewritten to honor the xss-lock contract
+  ("the command should not fork"): previously the script backgrounded the
+  locker and exited, which on the idle path meant xss-lock re-ran it every
+  screensaver cycle, made forced unlock a no-op, and drifted LockedHint.
+  Now, when `XSS_SLEEP_LOCK_FD` is set: spawn i3lock from a subshell that
+  closes its copy of the fd first, then close our own copy — matching the
+  upstream `transfer-sleep-lock-i3lock.sh` example verbatim ("close our fd
+  (only remaining copy) to indicate we're ready to sleep"). The fd, not
+  process exit, gates logind (delay locks cap at `InhibitDelayMaxSec`; an
+  i3lock that inherits the fd and never closes it would cost that cap on
+  every suspend). Then `wait` for the locker; a TERM/INT trap pkills
+  i3lock-color so xss-lock's forced unlock still works; cleanup runs only
+  after the screen is really unlocked. The no-fd case (xss-lock idle path)
+  uses the same wait logic.
+- `power_control.sh`: suspend action is now `lock.sh --now & systemctl
+  suspend` — the `&` is required because `lock.sh --now` blocks until
+  unlock; sleep itself is held by xss-lock's own lock.sh instance via the
+  sleep-lock fd. sway's copy keeps the sequential string because sway's
+  `lock.sh --now` returns at once (backgrounds swaylock internally).
+- `flameshot_gui.sh`: `mkdir -p` the save dir before `flameshot gui -p`.
+  `flameshot_window.sh`: `--region` now takes the documented `WxH+X+Y` form —
+  `+X,Y` was rejected, so the window-capture region flag never applied.
+- `mpris.py`: status/state handling aligned with waybar's; polybar still
+  hides non-Playing/Paused immediately (a one-shot script cannot do waybar's
+  hide-after-grace window — accepted platform limit).
+
+**systemd / packaging / ignore**
+
+- `calibre-sync-netmon.service`: `After`/`PartOf`/`WantedBy` now name both
+  session targets — the unit is symlinked into *both* `*.wants` dirs but
+  previously only stopped itself on thinkpad (optiplex logout left it
+  running with stale session env). Entries for the absent target are inert
+  on each machine.
+- `data/packages.json` `machines.optiplex`: added `xss-lock` and
+  `xorg-xset` — the i3 idle path (`xset s`, `xset dpms`, xss-lock at
+  `config.tmpl` startup) and `toggle_idle.sh` call both, but neither was in
+  any list; a fresh optiplex would boot with a broken idle/caffeine path
+  (`pactree -r` confirms nothing pulls xset in). Expect the onboarding
+  `run_onchange` script to re-run on next apply (hash moved to
+  `2d9fa50b…`) and report the two new installs — by design.
+- `.chezmoiignore`: comment at `wlsunset.service` documenting that
+  `wlsunset-env.service` intentionally stays deployed on optiplex —
+  `redshift.service` has `Wants=wlsunset-env.service` and reads the env file
+  it generates. (The audit instruction to "fix" its absence from the
+  optiplex block was correctly rejected after verifying the consumer; the
+  unit is shared.)
+
+### Verified-claim ledger
+
+- i3 has no `--no-repeat`: `parser-specs/config.spec` state BINDING.
+- `--release` fires once per press: `main.c` enables
+  `XCB_XKB_PER_CLIENT_FLAG_DETECTABLE_AUTO_REPEAT`; with detectable
+  autorepeat there are no synthetic KeyRelease events during a hold.
+- `reload, exec …` chains: `commands.spec` + `commands_parser.c` (`,`, `;`
+  separators) + `bindings.c run_binding` copy-before-execute.
+- `polybar-msg cmd restart` works: `enable-ipc = true`, only bar is `main`.
+- i3mode at-rest invisibility + bold: `i3.cpp build()`, `base.cpp decorate()`
+  empty flush, `format-font = 2` → `%{T2}` → `fns[t.font - 1]` font-1.
+- xss-lock fd contract: xss-lock(1) ("The locker should close this file
+  descriptor to indicate it is ready") + upstream
+  `transfer-sleep-lock-i3lock.sh` (spawn with `{FD}<&-`, then close ours).
+- `wlsunset-env.service` shared: `redshift.service` `Wants=` +
+  `EnvironmentFile=%h/.config/wlsunset.env`.
+
+### Platform-justified, deliberately not ported (no edits)
+
+- Media keys without `--locked` (lock.sh correctly documents i3lock-color
+  `--pass-media-keys`), flameshot vs grim/slurp/satty pipeline,
+  xss-lock/xset vs swayidle, feh/.fehbg vs awww, redshift vs wlsunset units,
+  `tiling_drag`/`popup_during_fullscreen`/Gtk file-chooser rules, no X11
+  twin of the 10s pre-lock idle warning (`helper_idle_*` stay sway-only per
+  AGENTS: optiplex has no idle suspend), touchpad `input` block, waybar
+  tooltips/hover styling (polybar cannot), polybar mpris grace window.
+- `cliphist` referenced nowhere on either machine — parity holds; optional
+  drop from the shared package list reported, not done (user's call).
+- polybar mpris has no test twin for waybar's `test_mpris.py` — accepted:
+  the script is tiny one-shot output.
+
+### Open questions reported for optiplex (no edits made)
+
+- picom `blur-background-exclude` lacks GTK CSD frames
+  (`_GTK_FRAME_EXTENTS`) — possible double-blur with client-side shadows;
+  picom `corner-radius = 8` vs waybar's 4px chip corners; dunst shadow
+  strength — all need a visual look, report only.
+- polybar must be built `+i3` for `custom/i3mode` — `polybar -vvv` on
+  optiplex shows build flags (Arch enables all modules; expect yes).
+
+### New optiplex verification checklist (after `git pull`)
+
+1. `i3 -C -c ~/.config/i3/config` — parses the new `reload, exec …` chain
+   and the `border normal` rules.
+2. `$mod+Shift+c` after a polybar config edit — polybar restarts and picks
+   up the change; no duplicate bars.
+3. `$mod+r` then `h/j/k/l` — the `󰘳 resize` chip appears left of mpris,
+   bold yellow-on-dark; Return/Esc hides it and the bar returns
+   pixel-identical (no stray gap between workspaces and mpris).
+4. Hold `$mod+Shift+d` (~1s): DND toggles exactly once; same for
+   `$mod+Shift+i` and `$mod+grave` (drop term shows once, no flicker).
+5. Drop term and topgrade term float with a titlebar and still match
+   `instance="scratchpad_term"` / `topgrade_term`.
+6. Suspend three ways, locked before sleep every time: (a) the power menu
+   (power_control `&` path), (b) `systemctl suspend` from a terminal
+   (xss-lock fd path), (c) idle `xset s 30` timeout (xss-lock idle path —
+   the script now blocks until unlock). On wake, DND restores to its
+   pre-lock level unless the double-instance case ran (power_control +
+   xss-lock) — that quirk exists on sway too, accepted.
+7. Print / Shift+Print / Ctrl+Print all save into `~/Pictures/Screenshots`
+   (dir now created at startup); window capture no longer errors on
+   `--region`.
+8. Log out/in on optiplex: `calibre-sync-netmon` stops with
+   `i3-session.target` on logout.
+9. Next apply re-runs onboarding (packages.json hash) and reports
+   `xss-lock`, `xorg-xset` as new installs — by design.
+10. `polybar -vvv` includes the i3 module build flag.
