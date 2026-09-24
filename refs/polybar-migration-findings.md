@@ -14,14 +14,24 @@ happens on optiplex later.
 
 ## Documentation / source locations
 
+Everything here is restored by `sh refs/fetch-refs.sh [target-dir]`; each
+entry is pinned, so a restore yields exactly the bytes cited below.
+
 - `refs/polybar-wiki/` — clone of `github.com/polybar/polybar.wiki`, HEAD
   `b4f3c9e`.
-- `refs/polybar/` — readthedocs rst subset (`polybar.1.rst`, `polybar.5.rst`,
-  `tray.rst`) at polybar commit `b3af5a33166604c689705d7dc67b69c01482d707`.
-- Full source of truth = polybar @ `b3af5a33166604c689705d7dc67b69c01482d707`.
-  `/tmp` gets cleaned between sessions; re-fetch with:
-  `curl -sL https://github.com/polybar/polybar/archive/b3af5a33166604c689705d7dc67b69c01482d707.tar.gz | tar xz -C /tmp`
-  → `/tmp/polybar-b3af5a33166604c689705d7dc67b69c01482d707/`.
+- `refs/src/polybar/` — full polybar source @
+  `b3af5a33166604c689705d7dc67b69c01482d707` (units.cpp, controller.cpp,
+  pulseaudio.cpp, …). The `refs/polybar/` rst subset (`polybar.1.rst`,
+  `polybar.5.rst`, `tray.rst`) is copied from this tree by the script.
+- `refs/src/i3/` — full i3 source @
+  `903bcd518df32b0e055b17f5da3f988a0187fd3d` (parser-specs/, bindings.c,
+  main.c, …); `refs/i3/*.man` are copied from its `man/` directory.
+  `refs/i3/userguide.html` is the rendered page from i3wm.org (tracks the
+  latest release, not the pin).
+- The rest of the inventory (waybar wiki, sway/SwayFX/rofi/picom/dunst/fuzzel
+  man pages, chezmoi reference docs, systemd unit XML, …) is enumerated in
+  `refs/fetch-refs.sh`; the reasons for what is deliberately absent are in
+  `refs/HANDOFF.md`.
 
 ## Why the old spacing was broken (root cause)
 
