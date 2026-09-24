@@ -16,3 +16,6 @@ systemctl --user set-environment XDG_CURRENT_DESKTOP=i3 2>/dev/null || true
 
 systemctl --user start --no-block graphical-session.target 2>/dev/null || true
 systemctl --user start --no-block i3-session.target 2>/dev/null || true
+
+# Polybar draws its own window; i3 has no bar section.
+polybar main

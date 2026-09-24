@@ -21,7 +21,6 @@ notify() {
 }
 
 exclude_personal_bins="
-export-opencode-session
 termdown
 yt-dlp
 "
@@ -47,9 +46,9 @@ fi
 # catch legitimate application state. Caches are excluded; test runs
 # create them normally.
 unmanaged=""
-for dir in "$HOME/.config/sway/scripts" "$HOME/.config/i3/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
+for dir in "$HOME/.config/sway/scripts" "$HOME/.config/i3/scripts" "$HOME/.config/polybar/scripts" "$HOME/.config/waybar/scripts" "$HOME/.local/bin"; do
 	if [ -d "$dir" ]; then
-		exclude_patterns=$(printf '%s' "$exclude_personal_bins" | sed 's/^/-e /')
+		exclude_patterns=$(printf '%s' "$exclude_personal_bins" | sed '/^$/d; s/^/-e /')
 
 		found=$(chezmoi unmanaged "$dir" 2>/dev/null | grep -v -e "__pycache__" -e "\.ruff_cache" -e "\.mypy_cache" $exclude_patterns || true)
 		if [ -n "$found" ]; then
