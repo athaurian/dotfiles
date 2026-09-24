@@ -1,9 +1,8 @@
 {
   "pacman": {
     "desktop": [
-      "awww", "foot", "fuzzel", "grim", "imagemagick", "jq", "libnotify",
-      "cliphist", "fzf", "dunst", "polkit-gnome", "satty", "slurp",
-      "swayidle", "waybar", "wl-clipboard", "wlsunset", "xdg-utils"
+      "imagemagick", "jq", "libnotify", "cliphist", "fzf", "dunst",
+      "polkit-gnome", "waybar", "xdg-utils"
     ],
     "system": [
       "blueman", "brightnessctl", "networkmanager", "network-manager-applet",
@@ -19,21 +18,22 @@
       "adobe-source-code-pro-fonts", "papirus-icon-theme"
     ],
     "apps": [
-      "calibre", "fnm", "keepassxc", "pinentry", "qt5ct", "qt6-wayland",
-      "qt6ct", "thunar", "zathura", "zathura-pdf-mupdf", "zoxide"
+      "calibre", "fnm", "keepassxc", "pinentry", "qt5ct", "qt6ct",
+      "thunar", "zathura", "zathura-pdf-mupdf", "zoxide"
     ]
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
   "aur": ["topgrade-bin"],
-  "custom": [
-    "lutgen-cli-git", "orchis-theme-4px", "swayfx-git", "wayfreeze-git",
-    "xdg-terminal-exec-git"
-  ],
+  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [
       "i3-wm", "kitty", "rofi", "picom", "feh", "flameshot", "redshift",
-      "xclip", "xdotool", "i3lock-color"
+      "xclip", "xdotool", "i3lock-color", "polybar"
     ],
-    "thinkpad": ["swaylock-effects"]
+    "thinkpad": [
+      "awww", "foot", "fuzzel", "grim", "slurp", "satty", "swayidle",
+      "wl-clipboard", "wlsunset", "swaylock-effects", "swayfx-git",
+      "wayfreeze-git", "lutgen-cli-git", "qt6-wayland", "waybar"
+    ]
   }
 }
