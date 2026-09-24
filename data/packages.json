@@ -2,7 +2,7 @@
   "pacman": {
     "desktop": [
       "imagemagick", "jq", "libnotify", "cliphist", "fzf", "dunst",
-      "polkit-gnome", "waybar", "xdg-utils"
+      "polkit-gnome", "xdg-utils"
     ],
     "system": [
       "blueman", "brightnessctl", "networkmanager", "network-manager-applet",
