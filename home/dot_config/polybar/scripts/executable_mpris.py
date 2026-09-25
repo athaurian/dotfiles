@@ -2,8 +2,8 @@
 """
 Polls playerctl for the active player's metadata and emits polybar format
 tags. polybar has no Waybar-style hide-empty-text, so an empty line keeps
-the module collapsed when no player is active; color tags mute the label
-while paused.
+the module collapsed when no player is active; color and font tags mute
+and italicize the label while paused.
 """
 
 import subprocess
@@ -25,7 +25,10 @@ def query(args: list[str]) -> str:
 
 
 def main() -> None:
-    status = query(["status"])
+    # Status must come from the metadata query: bare playerctl resolves a
+    # different player per command, so an idle Chromium's Stopped `status`
+    # would otherwise hide a Playing mpv. Same selection as artist/title.
+    status = query(["metadata", "--format", "{{status}}"])
     if status not in ("Playing", "Paused"):
         # No player or stopped: nothing to show.
         print()
@@ -48,7 +51,7 @@ def main() -> None:
     if status == "Playing":
         print(f"{icon} {text}")
     else:
-        print(f"%{{F#{MUTED}}}{icon} {text}%{{F-}}")
+        print(f"%{{T3}}%{{F{MUTED}}}{icon} {text}%{{F-}}%{{T-}}")
 
 
 if __name__ == "__main__":
