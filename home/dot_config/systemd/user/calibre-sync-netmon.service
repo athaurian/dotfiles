@@ -2,8 +2,7 @@
 
 [Unit]
 Description=Sync Calibre library promptly on reconnect
-# Deploys into both session targets' wants dirs; the target absent on the
-# running machine never loads, so its entries here are inert there.
+# Both targets listed; the one absent on a machine never loads there.
 After=sway-session.target i3-session.target
 PartOf=sway-session.target i3-session.target
 

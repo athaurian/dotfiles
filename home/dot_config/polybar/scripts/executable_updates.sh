@@ -1,9 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Polybar custom/updates module.
-# Counts available pacman + AUR updates and emits plain text with polybar
-# format tags for the color. The module refreshes on its interval.
+# Polybar custom/updates module: counts pacman + AUR updates with color
+# tags; the module refreshes on its interval.
 
 count=0
 has_checkupdates=0

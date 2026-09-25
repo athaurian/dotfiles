@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
-# Locks with i3lock over a blurred capture. --now skips notify/delay
-# for screensaver and before-sleep use.
-# Requires: i3lock-color (provides the i3lock binary), imagemagick
-# (import/magick), notify-send, dunstctl.{{ $p := .palette }}
+# --now skips the notify/delay for the xss-lock screensaver and
+# before-sleep paths. Requires i3lock-color (its binary is `i3lock`),
+# imagemagick, notify-send, dunstctl.{{ $p := .palette }}
 
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
@@ -20,11 +19,19 @@ fi
 # Pause at 100 (above the 90 bypasses); save the level for restore.
 # Timeouts keep a hanging daemon from blocking suspend.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
-timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
+# First instance records the pre-lock level; an overlapping locker would
+# record the already-paused 100 and strand DND after unlock.
+pause_owner=0
+if [ ! -f "$pause_file" ]; then
+	timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
+	pause_owner=1
+fi
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 
-lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/i3lock_bg.png"
-import -window root "$lockimg" 2>/dev/null || true
+# Per-instance name so an overlapping locker cannot truncate a capture
+# i3lock is already reading.
+lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/i3lock_bg_$$.png"
+timeout 3 import -window root "$lockimg" 2>/dev/null || true
 
 # Downscale first to keep CPU and IO use low.
 if command -v magick >/dev/null 2>&1; then
@@ -34,28 +41,29 @@ elif command -v convert >/dev/null 2>&1; then
 fi
 
 cleanup() {
-	# Restore pre-lock level instead of unpausing, so DND stays on.
-	restore_level=0
-	if [ -f "$pause_file" ]; then
-		restore_level=$(tr -cd '0-9' <"$pause_file" 2>/dev/null || true)
-		[ -n "$restore_level" ] || restore_level=0
-		rm -f "$pause_file"
+	# Restore the pre-lock level instead of unpausing, so DND stays on.
+	if [ "$pause_owner" -eq 1 ]; then
+		restore_level=0
+		if [ -f "$pause_file" ]; then
+			restore_level=$(tr -cd '0-9' <"$pause_file" 2>/dev/null || true)
+			[ -n "$restore_level" ] || restore_level=0
+			rm -f "$pause_file"
+		fi
+		timeout 2 dunstctl set-pause-level "$restore_level" 2>/dev/null || true
+		timeout 2 dunstctl close-all 2>/dev/null || true
 	fi
-	timeout 2 dunstctl set-pause-level "$restore_level" 2>/dev/null || true
-	timeout 2 dunstctl close-all 2>/dev/null || true
 	rm -f "$lockimg"
 }
 
 run_lock() {
 	# Colors are rrggbbaa without a leading hash; the palette exports the bare form.
 	# Media and brightness keys pass through while locked, mirroring sway --locked.
-	# --fill stretches the downscaled capture over the screen; without a
-	# placement flag i3lock draws it at native size in the top-left corner.
+	# Without --fill i3lock draws the capture at native size, top-left.
 	i3lock --nofork \
 		--image "$lockimg" \
 		--fill \
 		--indicator \
-		--radius 72 \
+		--radius 84 \
 		--ring-width 3 \
 		--clock \
 		--time-str "%R" \
@@ -64,10 +72,10 @@ run_lock() {
 		--date-font "SauceCodePro Nerd Font Mono" \
 		--verif-font "SauceCodePro Nerd Font Mono" \
 		--wrong-font "SauceCodePro Nerd Font Mono" \
-		--time-size 16 \
-		--date-size 12 \
-		--verif-size 13 \
-		--wrong-size 13 \
+		--time-size 18 \
+		--date-size 14 \
+		--verif-size 14 \
+		--wrong-size 14 \
 		--ignore-empty-password \
 		--show-failed-attempts \
 		--pass-media-keys \
@@ -89,11 +97,9 @@ run_lock() {
 }
 
 if [ "$immediate" -eq 1 ]; then
-	# xss-lock --transfer-sleep-lock hands this script the logind sleep
-	# lock; i3lock would inherit it and never close it, so every suspend
-	# would wait out InhibitDelayMaxSec. Spawn the locker without a copy
-	# of the fd, then close ours: that is what releases logind -- the fd,
-	# not this process, gates sleep.
+	# xss-lock gates sleep on the fd, not this process: i3lock must not
+	# inherit a copy (it never closes one), and closing ours releases
+	# logind instead of waiting out InhibitDelayMaxSec.
 	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 		(
 			eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
@@ -106,16 +112,14 @@ if [ "$immediate" -eq 1 ]; then
 	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 		eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
 	fi
-	# Stay alive until the locker exits, as xss-lock requires of its
-	# locker: it re-runs us on the next screensaver cycle, and a forced
-	# unlock kills us, which the trap turns into killing i3lock.
-	# power_control backgrounds this script because of the same wait.
+	# xss-lock re-runs the locker only after the previous one exits; a
+	# forced unlock TERMs us, which the trap turns into killing i3lock.
 	trap 'pkill -x -u "$(id -u)" i3lock 2>/dev/null || true' TERM INT
 	wait "$lock_pid" || true
 	cleanup
 else
-	# A failed locker must not skip cleanup: set -e would abort first and
-	# strand dunst at pause level 100, swallowing every later notice.
+	# set -e would abort on a failed locker and skip cleanup, stranding
+	# dunst at pause level 100.
 	run_lock || true
 	cleanup
 fi
