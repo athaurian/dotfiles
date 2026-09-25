@@ -74,8 +74,10 @@ disable_timers() {
 }
 
 enable_timers() {
-	if ! xset s 30; then
-		send_notice " caffeine toggle failed" "<b>xset s 30 failed.</b>"
+	# Both numbers: timeout arms xss-lock, cycle is idle_notifier.sh's
+	# countdown to the lock (20s warning, lock at 30s).
+	if ! xset s 20 10; then
+		send_notice " caffeine toggle failed" "<b>xset s 20 10 failed.</b>"
 		exit 1
 	fi
 	if ! xset +dpms || ! xset dpms 90 90 90; then
