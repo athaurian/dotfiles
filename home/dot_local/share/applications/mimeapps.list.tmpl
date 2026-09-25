@@ -3,7 +3,7 @@
 [Default Applications]
 application/pdf=org.pwmt.zathura.desktop
 text/html=helium.desktop;firefox.desktop;
-x-scheme-handler/terminal=foot.desktop;
+x-scheme-handler/terminal={{ if eq .chezmoi.hostname "optiplex" }}kitty{{ else }}foot{{ end }}.desktop;
 x-scheme-handler/http=helium.desktop;firefox.desktop;
 x-scheme-handler/https=helium.desktop;firefox.desktop;
 x-scheme-handler/about=helium.desktop;firefox.desktop;
