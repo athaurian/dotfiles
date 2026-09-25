@@ -7,10 +7,8 @@
     width = 340
     height = (0, 110)
     origin = top-right
-    {{/* Wayland dunst lands below waybar's 24px exclusive zone before the
-         offset applies; X11 dunst measures from the screen edge with no strut
-         awareness, so optiplex needs bar height + the same 8px gap to sit in
-         the identical spot. */}}
+    {{/* Wayland: waybar's 24px strut shifts the popups first; X11 has no
+         strut awareness, so optiplex needs bar height + the same 8px. */}}
     offset = (8, {{ if eq .chezmoi.hostname "optiplex" }}32{{ else }}8{{ end }})
     notification_limit = 4
     progress_bar = true

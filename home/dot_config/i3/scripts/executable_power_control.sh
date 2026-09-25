@@ -10,9 +10,9 @@ action="${1:-}"
 case "$action" in
 poweroff) cmd="systemctl poweroff" ;;
 reboot) cmd="systemctl reboot" ;;
-# lock.sh --now blocks until the screen unlocks; suspend instead waits
-# on the sleep-lock fd that xss-lock hands to its own lock.sh instance.
-suspend) cmd="$HOME/.config/i3/scripts/lock.sh --now & systemctl suspend" ;;
+# No locker needed: xss-lock locks on PrepareForSleep and its
+# sleep-lock fd gates sleep.
+suspend) cmd="systemctl suspend" ;;
 logout) cmd="systemctl --user stop i3-session.target; i3-msg exit" ;;
 *)
 	echo "Usage: $0 <poweroff|reboot|suspend|logout>" >&2
@@ -32,10 +32,8 @@ confirm_menu() {
 	if ! command -v rofi >/dev/null 2>&1; then
 		return 1
 	fi
-	# The theme never renders the -mesg widget, so the hint rides in the
-	# entry placeholder instead (fuzzel passes it as --placeholder).
-	# The choices carry no icons; without the override the theme's fixed
-	# 1em icon slot renders as leading whitespace on the list items.
+	# The theme never renders -mesg, so the hint rides in the placeholder.
+	# Choices carry no icons; the 1em slot would show as leading whitespace.
 	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	if [ -z "$confirm_choice" ]; then
 		return 1

@@ -17,20 +17,22 @@ def not_drop_term: ((.marks // []) | index("drop_term")) | not;
 def not_clipboard_term: ((.marks // []) | index("clipboard_term")) | not;
 def cyclable: not_drop_term and not_clipboard_term;
 
-([.. | select(.focused? == true)] | first | .id) as $focused
-| ([.nodes[].nodes[]
-    | select(.name == "__i3_scratch")
-    | .floating_nodes[]
-    | select(cyclable)
-    | .id]) as $hidden
-| ([..
-    | select(.scratchpad_state? != null and .scratchpad_state? != "none")
-    | select(cyclable)
-    | .id]) as $all
-| ($all - $hidden) as $visible
-| (if $focused != null then "focused:\($focused)" else empty end),
-  ($hidden[] | "hidden:\(.)"),
-  ($visible[] | "visible:\(.)")
+# Emit window-leaf ids: criteria match windows, not floating wrappers
+# (a wrapper id makes scratchpad show fail). Carries the inherited
+# scratchpad state and detects __i3_scratch by name.
+def scan($state; $hidden):
+  (if (.scratchpad_state? != null and .scratchpad_state? != "none")
+   then .scratchpad_state else $state end) as $s |
+  (if (.type? == "workspace" and .name? == "__i3_scratch") then true
+   elif ($s != null and $s != "none") then $hidden
+   else $hidden end) as $h |
+  (if (.window? != null and .focused? == true) then "focused:\(.id)" else empty end),
+  (if (.window? != null and $s != null and $s != "none" and cyclable)
+   then (if $h then "hidden:" else "visible:" end) + "\(.id)"
+   else empty end),
+  ((.nodes // [])[] | scan($s; $h)),
+  ((.floating_nodes // [])[] | scan($s; $h));
+scan(null; false)
 ' >"$tmp_tree"
 
 while IFS=: read -r key val; do

@@ -80,8 +80,8 @@ bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
-# Caffeine toggle. i3 has no --no-repeat (sway does), so bind on release to
-# keep X auto-repeat from re-running the toggle while the key is held.
+# Caffeine toggle; --release because i3 has no --no-repeat and X
+# auto-repeat would re-fire the toggle while held.
 bindsym --release $mod+Shift+i exec $HOME/.config/i3/scripts/toggle_idle.sh
 
 # Screenshots (flameshot).
@@ -107,18 +107,17 @@ bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
 bindsym $mod+minus exec $HOME/.config/i3/scripts/cycle_scratchpad.sh
 
-# Dropdown terminal. --release so auto-repeat cannot hide the terminal again
-# right after showing it (i3 has no --no-repeat).
+# Dropdown terminal; --release so auto-repeat cannot hide it again
+# right after showing it.
 bindsym --release $mod+grave exec $HOME/.config/i3/scripts/toggle_drop_term.sh
 
 # Notifications.
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
-# --release so auto-repeat cannot flip dnd straight back (no --no-repeat).
+# --release so auto-repeat cannot flip dnd straight back.
 bindsym --release $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
 
-# Reload. reload re-reads this file only, so restart polybar as well; on
-# thinkpad, reloading sway restarts waybar the same way.
+# Reload; restart polybar too, since reload only re-reads this file.
 bindsym $mod+Shift+c reload, exec --no-startup-id polybar-msg cmd restart
 
 # Lock.

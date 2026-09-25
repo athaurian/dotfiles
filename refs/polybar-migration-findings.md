@@ -421,11 +421,13 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
   i3lock-color so xss-lock's forced unlock still works; cleanup runs only
   after the screen is really unlocked. The no-fd case (xss-lock idle path)
   uses the same wait logic.
-- `power_control.sh`: suspend action is now `lock.sh --now & systemctl
-  suspend` — the `&` is required because `lock.sh --now` blocks until
-  unlock; sleep itself is held by xss-lock's own lock.sh instance via the
-  sleep-lock fd. sway's copy keeps the sequential string because sway's
-  `lock.sh --now` returns at once (backgrounds swaylock internally).
+- `power_control.sh`: suspend action is `systemctl suspend` alone —
+  xss-lock's own `lock.sh --now` instance locks on PrepareForSleep and
+  the sleep-lock fd gates sleep. (Launching a second locker here raced
+  that instance on the shared capture file, which could paint the lock
+  background white.) sway's copy keeps the sequential string because
+  sway's `lock.sh --now` returns at once (backgrounds swaylock
+  internally).
 - `flameshot_gui.sh`: `mkdir -p` the save dir before `flameshot gui -p`.
   `flameshot_window.sh`: `--region` now takes the documented `WxH+X+Y` form —
   `+X,Y` was rejected, so the window-capture region flag never applied.
@@ -646,3 +648,32 @@ following; each is fixed, applied, and verified:
    The ring measures 155px vs 259px before; the verif/wrong state is
    too transient for the screenshot path (both capture attempts landed
    outside it), so that font rests on the `i3lock(1)` mapping.
+
+### Scratchpad and suspend round — 2026-09-25 (optiplex)
+
+Two reported issues plus a requested indicator tweak; each fixed,
+applied, and verified:
+
+1. **`$mod+minus` did nothing.** `cycle_scratchpad.sh` located
+   `__i3_scratch` at `.nodes[].nodes[]`, but it hangs under the `__i3`
+   pseudo-output one level deeper, so hidden windows classified as
+   visible and the script issued `[con_id=<wrapper>] scratchpad show` —
+   i3 matches criteria against window leaves and rejects a
+   `floating_con` id with `ERROR: (null)` (reproduced on live ids). The
+   script now walks the tree carrying inherited scratchpad state,
+   detects the workspace by name, and emits leaf ids (marks live on
+   leaves too — the drop_term exclusion previously checked markless
+   wrappers). Verified with the deployed script: a test window showed
+   on run 1 and hid again on run 2.
+2. **White lock background: two lockers, one capture.** power_control's
+   suspend ran `lock.sh --now &` alongside xss-lock's PrepareForSleep
+   instance, and both imported to the same `i3lock_bg.png`. Suspend is
+   now `systemctl suspend` alone (xss-lock's instance locks, its fd
+   gates sleep); lock.sh captures to a per-instance `i3lock_bg_$$.png`,
+   writes the pause file first-wins via `pause_owner` (only the writer
+   restores), and `timeout`s the `import`. Verified with two
+   overlapping lock.sh runs: both captures coexisted, pause held at 100
+   until the owning instance cleaned up, and pause/file/image all
+   cleared after unlock.
+3. **Indicator retuned per request:** radius `72→84`, time `16→18`,
+   date `12→14`, verif/wrong `13→14`; ring stays `3`.

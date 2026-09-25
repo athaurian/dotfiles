@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """
-Provides the polybar MPRIS module script.
-
-Polls playerctl for the active player's metadata and emits plain text with
-polybar format tags. polybar has no Waybar-style hide-empty-text, so an
-empty line keeps the module collapsed when no player is active. Color tags
-mute the label while paused and restore the bar foreground while playing.
+Polls playerctl for the active player's metadata and emits polybar format
+tags. polybar has no Waybar-style hide-empty-text, so an empty line keeps
+the module collapsed when no player is active; color tags mute the label
+while paused.
 """
 
 import subprocess
@@ -29,15 +27,13 @@ def query(args: list[str]) -> str:
 def main() -> None:
     status = query(["status"])
     if status not in ("Playing", "Paused"):
-        # No player, or a stopped player: nothing to show, the way waybar
-        # hides the module once its grace window lapses.
+        # No player or stopped: nothing to show.
         print()
         return
     artist = query(["metadata", "artist"])
     title = query(["metadata", "title"])
     if not artist and not title:
-        # Metadata is briefly empty while a player starts up; waybar hides
-        # the module then instead of flashing a placeholder.
+        # Metadata briefly empty while starting: hide, not a placeholder.
         print()
         return
     if artist and title:

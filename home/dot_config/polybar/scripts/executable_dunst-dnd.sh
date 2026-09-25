@@ -1,19 +1,14 @@
 #!/usr/bin/env sh
 set -eu
 
-# Polybar custom/dnd module and toggle.
-# DND pauses dunst at DND_PAUSE_LEVEL (partial pause). Script notices for
-# direct user feedback carry override_pause_level=90 via dunstrc rules and
-# stay visible during DND. The screen lock pauses at 100 and hides even
-# those. Do not use `set-paused true` here; it sets level 100, which
-# nothing bypasses, so the "dnd enabled" notice and all other script
-# notices queue silently in history.
+# Polybar custom/dnd module and toggle. DND is a partial pause, not
+# `set-paused true`: that is level 100 and nothing bypasses it, so the
+# script's own notices would queue silently.
 
 APP_NAME="dunst-dnd"
 ID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd_id"
 LOCK_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd.lock"
-# Must stay below the dunstrc dnd_bypass override (90) and below the lock
-# pause level (100); keep in sync with lock.sh.
+# Below dunstrc's bypass (90) and the lock (100); keep in sync with lock.sh.
 DND_PAUSE_LEVEL=50
 
 ICON_ENABLED=""
@@ -67,8 +62,6 @@ send_notice() {
 
 is_dnd() {
 	if command -v dunstctl >/dev/null 2>&1; then
-		# Any nonzero pause level counts as DND. The lock screen pauses at
-		# 100 and restores the previous level on unlock.
 		[ "$(dunstctl get-pause-level 2>/dev/null)" != "0" ] 2>/dev/null
 	else
 		return 1
