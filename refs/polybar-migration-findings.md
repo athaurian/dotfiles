@@ -431,7 +431,9 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 - `flameshot_gui.sh`: `mkdir -p` the save dir before `flameshot gui -p`.
   `flameshot_window.sh`: `--region` now takes the documented `WxH+X+Y` form —
   `+X,Y` was rejected, so the window-capture region flag never applied.
-- `mpris.py`: status/state handling aligned with waybar's; polybar still
+- `mpris.py`: state handling ported; status selection was **not** aligned
+  with waybar's — bare `playerctl status` resolves a different player than
+  the metadata query (fixed in the "Acceptance round" below). polybar still
   hides non-Playing/Paused immediately (a one-shot script cannot do waybar's
   hide-after-grace window — accepted platform limit).
 
@@ -677,3 +679,47 @@ applied, and verified:
    cleared after unlock.
 3. **Indicator retuned per request:** radius `72→84`, time `16→18`,
    date `12→14`, verif/wrong `13→14`; ring stays `3`.
+
+### Acceptance round — 2026-09-26 (optiplex)
+
+Full feature acceptance pass over the i3/polybar migration; each item
+applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
+
+1. **Systray sizing finalized:** `tray-size = 66%` + `tray-spacing = 6px`.
+   nm-applet shears a fixed 16px icon per `tray-size`; 66% renders it at
+   its 16px natural size on this 24px bar (the waybar reference look).
+   No upstream fix exists (polybar #2933, #1603/#525/#794/#854/#1143/
+   #1813/#2741); spacing 6px came from the size sweep. Icon order
+   reshuffles on bar restart (XEMBED arrival order) — cosmetic.
+2. **flameshot scripts rewritten and retested:** xdotool's
+   `--onlyvisible --class flameshot` always matches the always-visible
+   9×9 tray window, so the old wait loop never saw the GUI close; the
+   `windowactivate` step is gone and `flameshot gui` stays interactive by
+   design (SIGTERM on the gui client wedges the daemon — restart it, and
+   confirm/cancel through the overlay instead). Retested both bindings:
+   Ctrl+Print saves the focused-window region (45→46 files, client
+   exits, daemon alone remains), Shift+Print overlay cancels on Escape
+   with no file written.
+3. **MPRIS status gate:** bare `playerctl status` resolves chromium
+   (first in `-l`) while the metadata query resolves mpv, so idle
+   chromium's `Stopped` collapsed the module during playback. Status now
+   comes from `playerctl metadata --format {{status}}` — same player
+   selection as artist/title. Verified across playing, paused,
+   chromium-only, and killed states (module renders, then collapses to
+   an empty line).
+4. **MPRIS paused color tag:** the port emitted `%{F##8A8A8A}` (MUTED
+   already carries `#`); polybar leaked a literal `}` before the icon and
+   ignored the color. Fixed to `%{F#8A8A8A}` — muted gray now applies
+   (text-zone mean 0.147 vs 0.162 for white) and the `}` is gone.
+5. **MPRIS italic parity:** waybar wraps the whole paused label in `<i>`;
+   polybar needs a font slot, so `font-2 = …:style=Italic` was added and
+   the script wraps paused output in `%{T3}…%{T-}` (T-index is 1-based,
+   `%{T-}` resets; font-2 loads `SauceCodeProNerdFontMono-Italic.ttf`).
+   Confirmed on the bar.
+6. **Idle lock leg verified (checklist 6, xset side):** DND on
+   (pause 50) → `xset s 10` → xss-lock ran `lock.sh --now` → i3lock up
+   with pause 100 → kill i3lock → pause restored 50 → DND off (0), and
+   xset returned to `timeout 0` / DPMS Disabled. The power-menu and
+   `systemctl suspend` legs still need real suspend cycles (user,
+   power-button wake); item 8's logout cycle likewise remains the user's
+   call (the i3-session.target stop/start substitute passed).
