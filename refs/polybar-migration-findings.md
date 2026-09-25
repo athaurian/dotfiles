@@ -720,6 +720,53 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    (pause 50) → `xset s 10` → xss-lock ran `lock.sh --now` → i3lock up
    with pause 100 → kill i3lock → pause restored 50 → DND off (0), and
    xset returned to `timeout 0` / DPMS Disabled. The power-menu and
-   `systemctl suspend` legs still need real suspend cycles (user,
-   power-button wake); item 8's logout cycle likewise remains the user's
-   call (the i3-session.target stop/start substitute passed).
+   `systemctl suspend` legs were later user-tested with real suspend
+   cycles (journal, 00:08; both reported working); item 8's logout cycle
+   remains the user's call (the i3-session.target stop/start substitute
+   passed).
+7. **Reported gap — scratchpad restore hotkey:** `$mod+Shift+space` was
+   plain `floating toggle`; on a shown scratchpad window it tiled the
+   window but kept the scratchpad's `border normal` titlebar. The binding
+   now execs `toggle_floating.sh`: a focused window whose inherited
+   `scratchpad_state` is set (the cycle script's detection) is restored
+   with `move container to workspace current, floating disable, border
+   pixel 1` — it leaves `__i3_scratch`, lands tiled on the current
+   workspace with the `default_border pixel 1`; every other window still
+   gets a plain floating toggle (round-trip verified: restore →
+   `user_off`/`pixel`/workspace, toggle → `user_on`, toggle →
+   `user_off`). i3-only for now: sway has the same gap and is not
+   installed on this machine, so its port waits for the thinkpad session.
+8. **Reported gap — no warning before the idle lock:** sway warns at
+   20s and locks at 30s (`helper_idle_warning.sh` + resume dismiss); the
+   i3 path locked instantly because `lock.sh --now` skips the
+   notify/delay on purpose (suspend must not be delayed). Ported through
+   xss-lock's native `--notifier`: boot arm and `toggle_idle.sh` now use
+   `xset s 20 10` (was `xset s 30`, leaving the default cycle 600), so
+   the notifier runs at the 20s activation and the locker after the 10s
+   cycle — the same 20s-warning/30s-lock window as sway. The new
+   `idle_notifier.sh` reads the cycle from `xset q` (it *is* the
+   countdown), shows the sway-identical dunstify payload (`-a
+   idle-warning -u low -p`, `screen locking in Ns`), and closes it on
+   xss-lock's SIGHUP (user activity) or SIGTERM (locker starting); a
+   zero cycle never runs it (xss-lock behavior). Live-verified:
+   notifier process alive inside the grace window, `dunstctl count
+   displayed` 0→1 on the exact payload, in-window activity cancelled the
+   lock, a fresh idle cycle locked at the designed time, pause returned
+   to 0 with the pause file removed. Operational caveat: xss-lock must
+   start inside the session — relaunched from a bare shell it aborts on
+   `NoSessionForPID`/`logind_session` assertion, so use
+   `i3-msg 'exec --no-startup-id xss-lock --notifier=… -- …'`.
+9. **Sweep follow-up — desktop entries fixed:** `btop`/`nvim`/`zellij`
+   `.desktop` files and the `x-scheme-handler/terminal` default
+   hardcoded `foot`, which exists only on thinkpad; all four now branch
+   on hostname (`kitty` on optiplex). Remaining sweep items reported,
+   not fixed: (a) `sw` wallpaper features are awww-only yet deploy on
+   optiplex (static `~/.fehbg` there); (b) topgrade completion does not
+   signal the bar's updates module (stale up to 600s); (c) the DND
+   toggle does not signal the bar (up to 5s indicator lag); (d) the
+   flameshot path lost satty annotation and the wl-copy fallback;
+   (e) waybar window-title rewrite rules and tooltips have no polybar
+   equivalent; (f) MPRIS lacks waybar's hide-after-grace and a
+   `check-mpris` twin; (g) the touchpad input block is thinkpad-only
+   (N/A on this desktop); (h) the brightness bindings are dead on
+   optiplex (no `/sys/class/backlight` device).

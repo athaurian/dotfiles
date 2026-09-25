@@ -131,7 +131,7 @@ full wording and the source proofs behind each item):
    (`--release` behavior).
 5. Drop-term and topgrade scratchpads float **with a titlebar**.
 6. Three suspend paths lock before sleep (power menu, `systemctl suspend`,
-   `xset s 30` idle); DND restores on wake.
+   `xset s 20 10` idle — warns at 20s, locks at 30s); DND restores on wake.
 7. Print / Shift+Print / Ctrl+Print save into `~/Pictures/Screenshots`
    (auto-created at startup); region capture works.
 8. Logout stops `calibre-sync-netmon` (bound to `i3-session.target`).
@@ -140,19 +140,26 @@ full wording and the source proofs behind each item):
 10. `polybar -vvv` includes the i3 module build flag.
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
     geometry, picom cmdline, and the thinkpad waybar muted check).
+12. **New:** `$mod+Shift+space` restores a shown scratchpad window to the
+    current workspace (tiled, default border) and plain-float-toggles
+    other windows; an idle session gets the `screen locking in 10s`
+    warning at 20s that cancels the 30s lock if you move.
 
 Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window; 7 re-verified after the flameshot
 scripts were rewritten — Ctrl+Print saves the focused-window region,
-Shift+Print cancels on Escape, both exit cleanly). **6's idle-lock leg
-now verified** (xset idle → xss-lock → lock.sh: pause 100 on lock,
-restored on unlock; xset returned to `timeout 0`/DPMS off) — the
-power-menu and `systemctl suspend` legs still need real suspend cycles
-(power-button wake; user). **8 still needs a real logout** (the
+Shift+Print cancels on Escape, both exit cleanly). **6 verified in
+full:** the three lock-before-sleep legs were user-tested with real
+suspend cycles (journal shows cycles at 00:08), and the idle path was
+re-verified after the warn-then-lock change (xset idle → xss-lock
+notifier → lock.sh: pause 100 on lock, restored on unlock; xset returned
+to `timeout 0`/DPMS off). **8 still needs a real logout** (the
 i3-session.target stop/start substitute passed). Fixes: 1–3 verified
 (dunst additionally reports a 1.0625× DPI offset deviation —
 reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
-config kept at `(0, 2)`. Full evidence in the findings doc's
+config kept at `(0, 2)`. Item 12 passed scripted tests (restore
+round-trip; warning shown, activity cancels, fresh idle locks) — try
+the key by hand. Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
