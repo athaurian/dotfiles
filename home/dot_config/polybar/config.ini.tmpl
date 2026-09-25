@@ -27,9 +27,8 @@ modules-right = cpu memory custom/updates separator pulseaudio systray date sepa
 cursor-click = pointer
 enable-ipc = true
 
-; Fallback spacing for every module format: waybar's shared rule is
-; `margin: 1px; padding: 0 8px`. Modules with different metrics override
-; these below (xworkspaces, i3mode, xwindow, systray, separator).
+; Mirrors waybar's shared rule (margin 1px, padding 0 8px); modules
+; with different metrics override it below.
 [settings]
 screenchange-reload = true
 pseudo-transparency = true
@@ -66,13 +65,9 @@ label-empty = %icon%
 label-empty-foreground = ${colors.muted}
 label-empty-padding = 6px
 
-; Waybar sway/mode (#mode): visible only while a non-default i3 mode is
-; active. With format = <label-mode> the format output is empty at rest, and
-; an empty output drops its margin/padding too, so the bar is unchanged until
-; a mode engages. format-margin is #mode's 4px horizontal margin (the 1px
-; vertical margin and the 1px border have no polybar equivalent). The
-; background covers the 8px settings-padding like the CSS box. format-font is
-; 1-based: 2 selects font-1, the bold face (#mode font-weight: bold).
+; Waybar #mode: format output is empty at rest (with its margins), so
+; the bar changes only while a mode is active. 4px margin and the bold
+; face mirror the CSS; format-font is 1-based (2 = font-1).
 [module/i3mode]
 type = internal/i3
 format = <label-mode>
@@ -100,8 +95,7 @@ scroll-down = playerctl previous
 [module/cpu]
 type = internal/cpu
 interval = 5
-; Format action tag: click opens btop in kitty (waybar on-click parity;
-; foot is thinkpad-only).
+; Waybar on-click parity: click opens btop in kitty (foot is thinkpad-only).
 format = %{A1:kitty -e btop:}󰻠 <label>%{A}
 label = %percentage%%
 
@@ -146,9 +140,8 @@ exec = ~/.config/polybar/scripts/dunst-dnd.sh
 interval = 5
 click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle
 
-; Group separator mirroring waybar's custom/separator: placed only between
-; module groups, so there is no bar-level separator. Zero padding/margin
-; override the settings fallback (waybar gives it no horizontal spacing).
+; Mirrors waybar's custom/separator: only between module groups; zero
+; padding/margin override the settings fallback.
 [module/separator]
 type = custom/text
 format = |
