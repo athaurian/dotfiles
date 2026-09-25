@@ -21,6 +21,9 @@ foreground = ${colors.text}
 border-size = 0
 font-0 = SauceCodePro Nerd Font Mono:size=10;2
 font-1 = SauceCodePro Nerd Font Mono:size=10:weight=bold;2
+; Waybar renders the paused MPRIS label with <i>; custom/mpris switches to
+; this slot with %{T3} (1-based tag index) while paused.
+font-2 = SauceCodePro Nerd Font Mono:style=Italic:size=10;2
 modules-left = xworkspaces i3mode custom/mpris
 modules-center = xwindow
 modules-right = cpu memory custom/updates separator pulseaudio systray date separator custom/dnd
@@ -122,11 +125,15 @@ click-right = pactl set-sink-mute @DEFAULT_SINK@ toggle
 [module/systray]
 type = internal/tray
 ; Waybar #tray: padding 0 4px, #tray > widget padding 0 6px, icon-size 12
-; (50% of the 24px bar), tray spacing 12.
+; (50% of the 24px bar), tray spacing 12. Polybar deviates: tray-size 66%
+; (16px) because nm-applet draws its icon at a fixed 16px into the tray
+; client window, so anything smaller shears it (polybar/polybar#2933 class
+; of tray rendering bugs, no upstream fix); tray-spacing 6px tightens the
+; gaps without shrinking the icons.
 format-padding = 4px
 tray-padding = 6px
-tray-spacing = 12px
-tray-size = 50%
+tray-spacing = 6px
+tray-size = 66%
 
 [module/date]
 type = internal/date

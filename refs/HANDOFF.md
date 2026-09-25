@@ -141,17 +141,19 @@ full wording and the source proofs behind each item):
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
     geometry, picom cmdline, and the thinkpad waybar muted check).
 
-Status (2026-09-25): items 1–5, 7, 9, 10 verified on optiplex (5's
-topgrade half via a stand-in window); **6 and 8 still need real
-suspend/logout cycles** — 6 was blocked by a broken lock chain (wrong
-i3lock binary name, DND stranded at pause 100, unscaled background,
-rofi confirm icon gap, missing notice glyphs, oversized indicator),
-now fixed and verified (findings doc, "Post-reboot lock round"), so
-retest 6 against the fixed locker before marking it. Fixes: 1–3
-verified (dunst additionally reports a 1.0625× DPI offset deviation —
+Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
+topgrade half via a stand-in window; 7 re-verified after the flameshot
+scripts were rewritten — Ctrl+Print saves the focused-window region,
+Shift+Print cancels on Escape, both exit cleanly). **6's idle-lock leg
+now verified** (xset idle → xss-lock → lock.sh: pause 100 on lock,
+restored on unlock; xset returned to `timeout 0`/DPMS off) — the
+power-menu and `systemctl suspend` legs still need real suspend cycles
+(power-button wake; user). **8 still needs a real logout** (the
+i3-session.target stop/start substitute passed). Fixes: 1–3 verified
+(dunst additionally reports a 1.0625× DPI offset deviation —
 reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
 config kept at `(0, 2)`. Full evidence in the findings doc's
-"Verification results".
+"Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
 
