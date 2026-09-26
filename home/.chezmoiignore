@@ -30,7 +30,6 @@ __pycache__/
 .config/rofi
 .config/polybar
 .config/picom.conf
-.fehbg
 .config/systemd/user/i3-session.target
 .config/systemd/user/i3-session.target.wants
 .config/systemd/user/redshift.service

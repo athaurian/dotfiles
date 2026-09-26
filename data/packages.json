@@ -27,8 +27,9 @@
   "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [
-      "i3-wm", "kitty", "rofi", "picom", "feh", "flameshot", "redshift",
-      "xclip", "xdotool", "xss-lock", "xorg-xset", "i3lock-color", "polybar"
+      "i3-wm", "kitty", "rofi", "picom", "feh", "lutgen-cli-git",
+      "flameshot", "redshift", "xclip", "xdotool", "xss-lock", "xorg-xset",
+      "i3lock-color", "polybar"
     ],
     "thinkpad": [
       "awww", "foot", "fuzzel", "grim", "slurp", "satty", "swayidle",
