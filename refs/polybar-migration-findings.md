@@ -738,8 +738,8 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    installed on this machine, so its port waits for the thinkpad session.
 8. **Reported gap — no warning before the idle lock:** sway warns at
    20s and locks at 30s (`helper_idle_warning.sh` + resume dismiss); the
-   i3 path locked instantly because `lock.sh --now` skips the
-   notify/delay on purpose (suspend must not be delayed). Ported through
+   i3 path locked instantly (its locker skipped the notify/delay on
+   purpose — suspend must not be delayed). Ported through
    xss-lock's native `--notifier`: boot arm and `toggle_idle.sh` now use
    `xset s 20 10` (was `xset s 30`, leaving the default cycle 600), so
    the notifier runs at the 20s activation and the locker after the 10s
@@ -770,3 +770,21 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    `check-mpris` twin; (g) the touchpad input block is thinkpad-only
    (N/A on this desktop); (h) the brightness bindings are dead on
    optiplex (no `/sys/class/backlight` device).
+10. **Reported gap — no final `locking screen...` beat:** the countdown
+    showed but the sequence ended silently at lock time. Sway's idle
+    timeout runs `lock.sh` (notify + 2.5s + lock) and reserves `--now`
+    for before-sleep; i3's xss-lock uses one locker for both idle and
+    sleep, so it had to stay delay-free. The discriminator is xss-lock's
+    own contract: `XSS_SLEEP_LOCK_FD` is set *only* when the reason is
+    system sleep. `lock.sh.tmpl` now keys the notify/delay skip off that
+    fd instead of a `--now` flag (whose only caller was the xss-lock
+    line, now dropped from `config.tmpl`), and every path shares the
+    backgrounded run with the TERM→kill-i3lock trap (the old foreground
+    branch had none). Live-verified all three paths: idle = countdown
+    painted → SIGTERM closes it → beat painted at cycle end → i3lock at
+    cycle-end+2.5s; manual = `displayed@1s=1`, i3lock at t3s; sleep sim
+    (`XSS_SLEEP_LOCK_FD` plus an open fd) = `displayed@1s=0`, i3lock at
+    t1s (suspend never delayed); every path restored pause 0 and removed
+    the pause file. Method note: `flameshot full -p` silently refuses to
+    overwrite an existing file — `rm -f` the target first, or pixel
+    diffs compare stale images.
