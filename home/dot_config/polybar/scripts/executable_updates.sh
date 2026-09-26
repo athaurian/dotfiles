@@ -3,7 +3,7 @@ set -eu
 
 # Polybar custom/updates module (tail = true): counts pacman + AUR
 # updates with color tags. The loop refreshes every 600s and, when
-# SIGUSR1 arrives (toggle_topgrade.sh pokes it once topgrade exits),
+# SIGUSR1 arrives (wrapper_topgrade.sh pokes it once topgrade exits),
 # immediately instead of waiting out the interval.
 
 poked=0
