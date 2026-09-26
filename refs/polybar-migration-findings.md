@@ -822,3 +822,55 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     `tail = true`, the twin suite reuses waybar's `fake_playerctl.py`
     instead of duplicating it (7 scenarios PASS), and
     `make check-mpris` now type-checks and runs both scripts' suites.
+
+### Updates-click and edge-borders round — 2026-09-27 (optiplex)
+
+Two reported issues; both fixed, applied, and verified:
+
+1. **Reported — clicking the updates module spawned no terminal and
+   the cursor hung in the loading state.** The spawn line was
+   `i3-msg exec "kitty … -e sh -c 'topgrade; pkill …'"`, and i3's
+   grammar only quotes with `"` — a bare `;` inside `'…'` still ends
+   the command (live repro: i3 executed only the truncated
+   `exec kitty … -e sh -c 'topgrade` and rejected the rest, so
+   i3-msg exited 2). The shell i3 starts therefore dies on the
+   unmatched quote before kitty runs (no window), and the toggle's
+   `set -e` dies before `release_sway_lock`, leaving a dead-PID lock
+   per click (21:20 and 21:34; the stale takeover kept later clicks
+   going). The truncated exec had already opened a
+   startup-notification, so `refs/src/i3/src/startup.c` armed
+   `XCURSOR_CURSOR_WATCH` — gated only by `!no_startup_id` (line
+   211) — for a window that never appears: the stuck loading cursor,
+   re-armed by every click. The earlier "shadowed i3-msg/kitty pass"
+   (item 11) proved only the script's argument; the stub never ran
+   i3's parser. Fix: `topgrade; pkill …` moved to
+   `i3/scripts/wrapper_topgrade.sh` (topgrade guarded by `|| true`
+   so a failing run still pokes, as the old non-`set -e` inner sh
+   did), spawned as
+   `i3-msg "exec --no-startup-id kitty --name $app_id -e …/wrapper_topgrade.sh"`:
+   nothing left for i3 to split, and the flag must ride inside the
+   single i3-msg argument — passed standalone, i3-msg's own option
+   parser rejects it with `unrecognized option` (reproduced). With
+   `--no-startup-id` no startup-notification exists to wedge. The
+   sway twin needs no change: sway(5) COMMAND CONVENTIONS quotes
+   with `'…'` as well as `"…"` (its `;` is protected) and sway's
+   `exec` has no startup-id mechanism. Verified: `sh -n`,
+   `i3 -C -c ~/.config/i3/config`, `i3-msg reload`; the spawn branch
+   run against a stand-in wrapper (only the `-e` path swapped) —
+   parse success, `topgrade_term` mark applied, show/hide
+   round-trip, no lock left; poke chain live (wrapper → SIGUSR1 →
+   updates.sh re-reported within the same second). The real click
+   starts a real topgrade — item 13's hand-test.
+2. **Reported — keep borders with a single window in the workspace.**
+   `hide_edge_borders smart` → `none` in `i3/config.tmpl` and
+   `sway/config.tmpl`: `smart` "hides borders on workspaces with
+   only one window visible" (`refs/i3/userguide.html`), and in
+   sway(5) `smart` equals `smart_borders smart` — while `none` is
+   both WMs' documented default of never hiding edge borders.
+   Optiplex verified: `i3 -C` + reload, `i3-msg -t get_config` reads
+   `hide_edge_borders none`, and a pixel probe of a
+   `flameshot full` capture shows the `#5A5A5A` focused 1px border
+   on all four edges of the lone kitty window (rect x=8, y=32,
+   1350×728 → border pixels at x=8, y=32, x=1357, y=759). The sway
+   half lands with the next thinkpad apply (no sway binary here;
+   `none` confirmed in `refs/sway/sway.5.scd`).

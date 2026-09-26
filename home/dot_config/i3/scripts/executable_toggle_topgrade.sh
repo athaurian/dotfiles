@@ -23,8 +23,10 @@ if i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
 	exit 0
 fi
 
-# When topgrade exits, SIGUSR1 the updates module's tail script so the
-# count refreshes at once instead of after its 600s loop (the pattern
-# anchors on the script's exact cmdline, not on stray editors).
-i3-msg exec "kitty --name $app_id -e sh -c 'topgrade; pkill -USR1 -f \"^sh $HOME/.config/polybar/scripts/updates.sh\$\" || true'"
+# The wrapper runs topgrade in this terminal and pokes the updates
+# module on exit. As one quoted argument: i3-msg otherwise treats
+# --no-startup-id as its own option, and i3 splits bare `;` into a
+# second command (single quotes don't protect it). --no-startup-id
+# stops i3 arming the startup-notification watch cursor for the spawn.
+i3-msg "exec --no-startup-id kitty --name $app_id -e $HOME/.config/i3/scripts/wrapper_topgrade.sh"
 release_sway_lock "toggle_topgrade"
