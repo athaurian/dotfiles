@@ -62,7 +62,10 @@ send_notice() {
 
 is_dnd() {
 	if command -v dunstctl >/dev/null 2>&1; then
-		[ "$(dunstctl get-pause-level 2>/dev/null)" != "0" ] 2>/dev/null
+		level=$(dunstctl get-pause-level 2>/dev/null || true)
+		# Empty (dunst not up yet) reads as off: a fresh daemon is
+		# level 0, and custom/ipc has no interval to heal a stale read.
+		[ -n "$level" ] && [ "$level" != "0" ]
 	else
 		return 1
 	fi
@@ -84,7 +87,8 @@ toggle_dnd() {
 		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>notifications silenced.</b> Click the indicator or press Super+Shift+d to disable"
 		dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
 	fi
-	# The bar picks up the state change on its interval.
+	# custom/ipc: re-run hook-0 so the indicator flips at once.
+	polybar-msg action custom/dnd hook 0 >/dev/null 2>&1 || true
 }
 
 if [ "${1:-}" = "--toggle" ]; then

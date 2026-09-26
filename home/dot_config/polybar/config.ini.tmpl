@@ -110,8 +110,12 @@ label = %percentage_used%%
 
 [module/custom/updates]
 type = custom/script
+; Polling and signalling are split across module types: custom/ipc has
+; no interval and custom/script has no action, so the script carries
+; both — a 600s loop plus SIGUSR1 from toggle_topgrade.sh when
+; topgrade exits.
 exec = ~/.config/polybar/scripts/updates.sh
-interval = 600
+tail = true
 click-left = ~/.config/i3/scripts/toggle_topgrade.sh
 
 [module/pulseaudio]
@@ -142,9 +146,12 @@ date = %Y-%m-%d %H:%M:%S
 label = %date%
 
 [module/custom/dnd]
-type = custom/script
-exec = ~/.config/polybar/scripts/dunst-dnd.sh
-interval = 5
+; Only --toggle (and lock.sh's net-zero save/restore) changes the pause
+; level, so this is event-driven: --toggle re-runs hook-0 instead of
+; the old 5s poll.
+type = custom/ipc
+hook-0 = ~/.config/polybar/scripts/dunst-dnd.sh
+initial = 1
 click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle
 
 ; Mirrors waybar's custom/separator: only between module groups; zero

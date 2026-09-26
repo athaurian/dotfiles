@@ -145,6 +145,10 @@ full wording and the source proofs behind each item):
     other windows; an idle session gets the `screen locking in 10s`
     warning at 20s that cancels the 30s lock if you move, then the
     `locking screen...` beat for 2.5s as the lock begins.
+13. **New:** DND flips the indicator the instant `$mod+Shift+d` (or a
+    click) toggles it — no 5s lag — and after a topgrade run the
+    updates count refreshes as soon as topgrade exits instead of up to
+    600s later.
 
 Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window; 7 re-verified after the flameshot
@@ -161,7 +165,11 @@ reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
 config kept at `(0, 2)`. Item 12 passed scripted tests (restore
 round-trip; warning shown, `locking screen...` beat painted before the
 lock, activity cancels, fresh idle locks at cycle-end+2.5s; manual and
-simulated-sleep paths also verified) — try the key by hand. Full evidence in the findings doc's
+simulated-sleep paths also verified) — try the key by hand. **13**
+passed live checks (icon flip round-trips pixel-identical with pause
+restored, the anchored poke re-reports within seconds, two polybar
+restarts leave one tail instance) — a real topgrade run is yours to
+watch. Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
