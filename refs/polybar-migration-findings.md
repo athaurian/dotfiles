@@ -255,13 +255,6 @@ No picom change was made. Flag for veto if the user disagrees.
 
 ## Known gaps (deliberately not fixed; report to user)
 
-- **Resize-mode indicator**: waybar has `sway/mode`/`#mode`; polybar config
-  uses xworkspaces (no mode label). Port would mean the i3 module with
-  `<label-mode>` instead of xworkspaces.
-- **updates refresh latency**: waybar = interval 3600 + RTMIN+8 instant signal
-  after topgrade; polybar = interval 600 poll, NO signal mechanism exists for
-  polybar script modules → bar can show stale update state ≤600s after
-  topgrade.
 - **Separator vertical nudge**: waybar `padding: 0 0 2px` bottom 2px;
   polybar format padding is horizontal only — `|` baseline can't be nudged.
 - **cpu/memory click opens a tiled window** unless i3 gets a for_window rule;
@@ -269,10 +262,9 @@ No picom change was made. Flag for veto if the user disagrees.
   rule) — verify desired float behavior on optiplex.
 - **Battery module absent** in polybar — intentional, optiplex is a desktop
   (waybar battery is thinkpad hardware).
-- **xwindow rewrite rules**: waybar strips ` - Helium`, `^• Discord \| …`,
-  `^nvim …` prefixes and shows a window icon (`icon: true`, 14px) — no polybar
-  equivalent; only `max-length 72` ≡ label truncation `%title:0:72:...%`
-  ported.
+- **Window title icon**: waybar's `sway/window` shows a window icon
+  (`icon: true`, 14px); polybar's `custom/window` is text-only (its
+  rewrite rules and 72-column cap are ported — item 12).
 - **Workspace icon font-size 16px** (waybar `#workspaces button label`) vs
   polybar single `font-0 … size=10` — per-label font size unverifiable from
   thinkpad → left as is; check visually on optiplex.
@@ -282,9 +274,6 @@ No picom change was made. Flag for veto if the user disagrees.
   script/text modules (tray context menus are native and work).
 - **cliphist** still installed on optiplex via shared `pacman.desktop`
   (Wayland-only tool) — optional cleanup, not changed.
-- **mpris mechanism differs**: waybar keeps the script alive
-  (restart-interval 5); polybar re-runs it every `interval = 5` — equivalent
-  output cadence, different process behavior.
 
 ## Visual verification checklist (run on optiplex)
 
@@ -483,11 +472,9 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
   `tiling_drag`/`popup_during_fullscreen`/Gtk file-chooser rules, no X11
   twin of the 10s pre-lock idle warning (`helper_idle_*` stay sway-only per
   AGENTS: optiplex has no idle suspend), touchpad `input` block, waybar
-  tooltips/hover styling (polybar cannot), polybar mpris grace window.
+  tooltips/hover styling (polybar cannot).
 - `cliphist` referenced nowhere on either machine — parity holds; optional
   drop from the shared package list reported, not done (user's call).
-- polybar mpris has no test twin for waybar's `test_mpris.py` — accepted:
-  the script is tiny one-shot output.
 
 ### Open questions reported for optiplex (no edits made)
 
@@ -760,14 +747,11 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    `.desktop` files and the `x-scheme-handler/terminal` default
    hardcoded `foot`, which exists only on thinkpad; all four now branch
    on hostname (`kitty` on optiplex). Remaining sweep items reported,
-   not fixed (platform limits or N/A on this machine): (a) `sw`
-   wallpaper features are awww-only yet deploy on optiplex (static
-   `~/.fehbg` there); (d) the flameshot path lost satty annotation and
-   the wl-copy fallback; (e) waybar window-title rewrite rules and
-   tooltips have no polybar equivalent; (f) MPRIS lacks waybar's
-   hide-after-grace and a `check-mpris` twin; (g) the touchpad input
-   block is thinkpad-only (N/A on this desktop). The actionable three,
-   (b), (c), and (h), are item 11 below.
+   not fixed (impossible or N/A on this machine): (g) the touchpad
+   input block is thinkpad-only (no touchpad on this desktop), and
+   polybar renders no waybar-style tooltips. The actionable three,
+   (b), (c), and (h), are item 11 below; (a), (d), (e), and (f) are
+   fixed in item 12.
 10. **Reported gap — no final `locking screen...` beat:** the countdown
     showed but the sequence ended silently at lock time. Sway's idle
     timeout runs `lock.sh` (notify + 2.5s + lock) and reserves `--now`
@@ -807,3 +791,34 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     `polybar-msg cmd restart`s leave exactly one tail instance, and a
     shadowed `i3-msg`/`kitty` pass delivers the poke command intact
     without running topgrade.
+12. **Sweep items (a), (d), (e), (f) — `sw` on feh, clipboard parity,
+    title rewrites, MPRIS grace:** (a) `sw` selects a wallpaper backend
+    with `wallpaper_backend()` — awww first (Wayland/thinkpad), feh on
+    X11/optiplex — and `ensure_backend()` replaces the three
+    `awww_running()` gates: rotation dies only when awww is chosen with
+    a dead daemon (feh is stateless). feh runs `--no-fehbg`; `sw` alone
+    writes `~/.fehbg` (its comment, a `$HOME`-relative path, mode 755)
+    for i3's `exec ~/.fehbg`, and chezmoi dropped that file (source +
+    ignore line) once a sw-written file turned apply into a TTY
+    prompt. `lutgen-cli-git` joined the optiplex package list (stills
+    need it; the gif path does not). Live: `--set`/`--next`/
+    `--restore` exit 0 on the pool gif, `~/.fehbg` keeps sw's form and
+    `sh ~/.fehbg` runs, `chezmoi apply` stays silent with sw's file,
+    and where pre-fix `sw --restore` died with "awww daemon is not
+    responding" it now reaches the real "no previous wallpaper
+    recorded" error. (d) `-c` landed on all three bindings —
+    `flameshot full -p … -c` wrote both the file and an identical
+    260348-byte PNG through `xclip -t image/png`, and both scripts
+    pass `-c` to `flameshot gui` (their confirm/cancel legs rest on
+    the documented flag — paste-test pending). (e) `custom/window`
+    replaced `xwindow` with a 1s `xdotool` poll (`xprop` is absent)
+    carrying waybar's `rewrite` table and 72-column cap; verified
+    against a shadow xdotool table (` - Helium` stripped,
+    `• Discord | general` → `general`, `nvim …` → ` Editing …`, empty
+    → one space) and live in the bar center ("OC | Continue work from
+    HANDOFF.md"). (f) `executable_mpris.py` ports waybar's engine
+    whole — follow + resync, hide-after-grace, cache, stall — with
+    polybar tags; `custom/mpris` switched `interval = 5` →
+    `tail = true`, the twin suite reuses waybar's `fake_playerctl.py`
+    instead of duplicating it (7 scenarios PASS), and
+    `make check-mpris` now type-checks and runs both scripts' suites.

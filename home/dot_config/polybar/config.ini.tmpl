@@ -25,7 +25,7 @@ font-1 = SauceCodePro Nerd Font Mono:size=10:weight=bold;2
 ; this slot with %{T3} (1-based tag index) while paused.
 font-2 = SauceCodePro Nerd Font Mono:style=Italic:size=10;2
 modules-left = xworkspaces i3mode custom/mpris
-modules-center = xwindow
+modules-center = custom/window
 modules-right = cpu memory custom/updates separator pulseaudio systray date separator custom/dnd
 cursor-click = pointer
 enable-ipc = true
@@ -80,17 +80,23 @@ format-background = ${colors.warning-hover}
 format-margin = 4px
 format-font = 2
 
-[module/xwindow]
-type = internal/xwindow
+[module/custom/window]
 ; Waybar #window: padding 0 12px (margin comes from the settings fallback).
+; internal/xwindow cannot express Waybar's title rewrite rules, so the
+; script applies the same table (and the 72-column cap) from config.jsonc.
+type = custom/script
+exec = ~/.config/polybar/scripts/window_title.py
+interval = 1
 format-padding = 12px
-label = %title:0:72:...%
 label-foreground = ${colors.subtext}
 
 [module/custom/mpris]
 type = custom/script
+; Runs Waybar's daemon pattern (follow stream + resync poll, Stopped
+; grace window): tail keeps the one script alive and polybar restart
+; reaps it, as with custom/updates.
 exec = ~/.config/polybar/scripts/mpris.py
-interval = 5
+tail = true
 click-left = playerctl play-pause
 scroll-up = playerctl next
 scroll-down = playerctl previous

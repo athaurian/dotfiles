@@ -1,3 +1,0 @@
-#!/bin/sh
-# Set the X11 wallpaper. --no-fehbg stops feh from rewriting this file.
-feh --no-fehbg --bg-fill "$HOME/Pictures/Wallpapers/pool/flower-basket.jpg"
