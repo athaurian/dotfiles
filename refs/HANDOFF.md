@@ -143,7 +143,8 @@ full wording and the source proofs behind each item):
 12. **New:** `$mod+Shift+space` restores a shown scratchpad window to the
     current workspace (tiled, default border) and plain-float-toggles
     other windows; an idle session gets the `screen locking in 10s`
-    warning at 20s that cancels the 30s lock if you move.
+    warning at 20s that cancels the 30s lock if you move, then the
+    `locking screen...` beat for 2.5s as the lock begins.
 
 Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window; 7 re-verified after the flameshot
@@ -158,8 +159,9 @@ i3-session.target stop/start substitute passed). Fixes: 1–3 verified
 (dunst additionally reports a 1.0625× DPI offset deviation —
 reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
 config kept at `(0, 2)`. Item 12 passed scripted tests (restore
-round-trip; warning shown, activity cancels, fresh idle locks) — try
-the key by hand. Full evidence in the findings doc's
+round-trip; warning shown, `locking screen...` beat painted before the
+lock, activity cancels, fresh idle locks at cycle-end+2.5s; manual and
+simulated-sleep paths also verified) — try the key by hand. Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
