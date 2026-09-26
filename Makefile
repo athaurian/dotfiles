@@ -1,12 +1,16 @@
-# Docs formatting (prettier), palette checks, and waybar MPRIS gates (ruff, mypy).
+# Docs formatting (prettier), palette checks, and MPRIS gates for both bars (ruff, mypy).
+# Python commands run through uv so the gates never assume pip-installed
+# tooling: --with provisions ruff and mypy on demand.
 PRETTIER := prettier
-RUFF := ruff
-MYPY := mypy
+RUFF := uv run --with ruff ruff
+MYPY := uv run --with mypy mypy
 
 MD_FILES := $(wildcard meta/*.md) AGENTS.md
 MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/waybar/scripts/tests/fake_playerctl.py \
-	home/dot_config/waybar/scripts/tests/test_mpris.py
+	home/dot_config/waybar/scripts/tests/test_mpris.py \
+	home/dot_config/polybar/scripts/executable_mpris.py \
+	home/dot_config/polybar/scripts/tests/test_mpris.py
 SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
 
@@ -19,7 +23,7 @@ help:
 	@echo "  format            - Format project docs with prettier"
 	@echo "  lint              - Check docs formatting without modifying them"
 	@echo "  palette           - Derive tints, write the LUT + chezmoi data, run checks"
-	@echo "  check-mpris       - Ruff + mypy + tests for the waybar MPRIS module"
+	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 
 format: format-md
@@ -34,16 +38,18 @@ lint-md:
 	$(PRETTIER) --check $(MD_FILES)
 
 palette:
-	python3 meta/palette.py
+	uv run python3 meta/palette.py
 
 check-mpris:
 	$(RUFF) check $(MPRIS_FILES)
 	$(RUFF) format --check $(MPRIS_FILES)
 	$(MYPY) home/dot_config/waybar/scripts/executable_mpris.py
-	python3 -u home/dot_config/waybar/scripts/tests/test_mpris.py
+	$(MYPY) home/dot_config/polybar/scripts/executable_mpris.py
+	uv run python3 -u home/dot_config/waybar/scripts/tests/test_mpris.py
+	uv run python3 -u home/dot_config/polybar/scripts/tests/test_mpris.py
 
 check-sw:
 	$(RUFF) check $(SW_FILES)
 	$(RUFF) format --check $(SW_FILES)
 	$(MYPY) home/dot_local/bin/executable_sw
-	python3 -u home/dot_local/bin/tests/test_sw.py
+	uv run python3 -u home/dot_local/bin/tests/test_sw.py
