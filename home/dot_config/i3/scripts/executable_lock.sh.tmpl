@@ -1,16 +1,20 @@
 #!/usr/bin/env sh
 set -eu
 
-# --now skips the notify/delay for the xss-lock screensaver and
-# before-sleep paths. Requires i3lock-color (its binary is `i3lock`),
-# imagemagick, notify-send, dunstctl.{{ $p := .palette }}
+# Requires i3lock-color (its binary is `i3lock`), imagemagick,
+# notify-send, dunstctl.{{ $p := .palette }}
 
-immediate=0
-if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
-	immediate=1
+# xss-lock sets XSS_SLEEP_LOCK_FD only when it locks because the system
+# is about to sleep; that path skips the notify/delay because suspend
+# waits on the fd. The manual and idle paths keep the "locking
+# screen..." beat before locking — the idle countdown's finale, at
+# sway's timing (notify+delay on the idle timeout path there too).
+before_sleep=0
+if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+	before_sleep=1
 fi
 
-if [ "$immediate" -eq 0 ]; then
+if [ "$before_sleep" -eq 0 ]; then
 	# Timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
 	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
 	sleep 2.5
@@ -96,30 +100,25 @@ run_lock() {
 		--date-color={{ $p.text.bare }}FF
 }
 
-if [ "$immediate" -eq 1 ]; then
-	# xss-lock gates sleep on the fd, not this process: i3lock must not
-	# inherit a copy (it never closes one), and closing ours releases
-	# logind instead of waiting out InhibitDelayMaxSec.
-	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
-		(
-			eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
-			run_lock
-		) &
-	else
-		run_lock &
-	fi
-	lock_pid=$!
-	if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+# xss-lock gates sleep on the fd, not this process: i3lock must not
+# inherit a copy (it never closes one), and closing ours releases
+# logind instead of waiting out InhibitDelayMaxSec.
+if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+	(
 		eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
-	fi
-	# xss-lock re-runs the locker only after the previous one exits; a
-	# forced unlock TERMs us, which the trap turns into killing i3lock.
-	trap 'pkill -x -u "$(id -u)" i3lock 2>/dev/null || true' TERM INT
-	wait "$lock_pid" || true
-	cleanup
+		run_lock
+	) &
 else
-	# set -e would abort on a failed locker and skip cleanup, stranding
-	# dunst at pause level 100.
-	run_lock || true
-	cleanup
+	run_lock &
 fi
+lock_pid=$!
+if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
+	eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
+fi
+# xss-lock re-runs the locker only after the previous one exits; a
+# forced unlock TERMs us, which the trap turns into killing i3lock.
+# `wait || true` keeps set -e from skipping cleanup on a failed locker,
+# which would strand dunst at pause level 100.
+trap 'pkill -x -u "$(id -u)" i3lock 2>/dev/null || true' TERM INT
+wait "$lock_pid" || true
+cleanup
