@@ -23,5 +23,8 @@ if i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
 	exit 0
 fi
 
-i3-msg exec "kitty --name $app_id -e topgrade"
+# When topgrade exits, SIGUSR1 the updates module's tail script so the
+# count refreshes at once instead of after its 600s loop (the pattern
+# anchors on the script's exact cmdline, not on stray editors).
+i3-msg exec "kitty --name $app_id -e sh -c 'topgrade; pkill -USR1 -f \"^sh $HOME/.config/polybar/scripts/updates.sh\$\" || true'"
 release_sway_lock "toggle_topgrade"

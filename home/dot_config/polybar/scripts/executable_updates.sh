@@ -1,36 +1,56 @@
 #!/usr/bin/env sh
 set -eu
 
-# Polybar custom/updates module: counts pacman + AUR updates with color
-# tags; the module refreshes on its interval.
+# Polybar custom/updates module (tail = true): counts pacman + AUR
+# updates with color tags. The loop refreshes every 600s and, when
+# SIGUSR1 arrives (toggle_topgrade.sh pokes it once topgrade exits),
+# immediately instead of waiting out the interval.
 
-count=0
-has_checkupdates=0
-has_paru=0
+poked=0
+trap 'poked=1' USR1
 
-if command -v checkupdates >/dev/null 2>&1; then
-	has_checkupdates=1
-	# Empty output means zero updates regardless of exit status.
-	pacman_out=$(checkupdates 2>/dev/null || true)
-	pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
-	count=$((count + ${pacman_count:-0}))
-fi
+report() {
+	count=0
+	has_checkupdates=0
+	has_paru=0
 
-if command -v paru >/dev/null 2>&1; then
-	has_paru=1
-	# paru -Qum lists AUR updates.
-	paru_out=$(paru -Qum 2>/dev/null || true)
-	paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
-	count=$((count + ${paru_count:-0}))
-fi
+	if command -v checkupdates >/dev/null 2>&1; then
+		has_checkupdates=1
+		# Empty output means zero updates regardless of exit status.
+		pacman_out=$(checkupdates 2>/dev/null || true)
+		pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
+		count=$((count + ${pacman_count:-0}))
+	fi
 
-if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
-	printf '%%{F#8A8A8A}%%{F-}\n'
-	exit 0
-fi
+	if command -v paru >/dev/null 2>&1; then
+		has_paru=1
+		# paru -Qum lists AUR updates.
+		paru_out=$(paru -Qum 2>/dev/null || true)
+		paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
+		count=$((count + ${paru_count:-0}))
+	fi
 
-if [ "$count" -gt 0 ]; then
-	printf '%%{F#F4BC45}󰚰 %s%%{F-}\n' "$count"
-else
-	printf '%%{F#8A8A8A}󰏓 0%%{F-}\n'
-fi
+	if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
+		printf '%%{F#8A8A8A}%%{F-}\n'
+		return 0
+	fi
+
+	if [ "$count" -gt 0 ]; then
+		printf '%%{F#F4BC45}󰚰 %s%%{F-}\n' "$count"
+	else
+		printf '%%{F#8A8A8A}󰏓 0%%{F-}\n'
+	fi
+}
+
+while :; do
+	poked=0
+	report
+	sleep 600 &
+	sleeper=$!
+	# A poke before the wait skips it; a poke during it returns early
+	# from wait and the sleeper is killed below.
+	if [ "$poked" -eq 0 ]; then
+		wait "$sleeper" || true
+	fi
+	kill "$sleeper" 2>/dev/null || true
+done

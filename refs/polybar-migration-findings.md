@@ -760,16 +760,14 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    `.desktop` files and the `x-scheme-handler/terminal` default
    hardcoded `foot`, which exists only on thinkpad; all four now branch
    on hostname (`kitty` on optiplex). Remaining sweep items reported,
-   not fixed: (a) `sw` wallpaper features are awww-only yet deploy on
-   optiplex (static `~/.fehbg` there); (b) topgrade completion does not
-   signal the bar's updates module (stale up to 600s); (c) the DND
-   toggle does not signal the bar (up to 5s indicator lag); (d) the
-   flameshot path lost satty annotation and the wl-copy fallback;
-   (e) waybar window-title rewrite rules and tooltips have no polybar
-   equivalent; (f) MPRIS lacks waybar's hide-after-grace and a
-   `check-mpris` twin; (g) the touchpad input block is thinkpad-only
-   (N/A on this desktop); (h) the brightness bindings are dead on
-   optiplex (no `/sys/class/backlight` device).
+   not fixed (platform limits or N/A on this machine): (a) `sw`
+   wallpaper features are awww-only yet deploy on optiplex (static
+   `~/.fehbg` there); (d) the flameshot path lost satty annotation and
+   the wl-copy fallback; (e) waybar window-title rewrite rules and
+   tooltips have no polybar equivalent; (f) MPRIS lacks waybar's
+   hide-after-grace and a `check-mpris` twin; (g) the touchpad input
+   block is thinkpad-only (N/A on this desktop). The actionable three,
+   (b), (c), and (h), are item 11 below.
 10. **Reported gap — no final `locking screen...` beat:** the countdown
     showed but the sequence ended silently at lock time. Sway's idle
     timeout runs `lock.sh` (notify + 2.5s + lock) and reserves `--now`
@@ -788,3 +786,24 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     the pause file. Method note: `flameshot full -p` silently refuses to
     overwrite an existing file — `rm -f` the target first, or pixel
     diffs compare stale images.
+11. **Sweep items (b), (c), (h) — bar signals, dead bindings:**
+    `custom/updates` and `custom/dnd` polled on blind timers, so
+    topgrade completion left the count stale up to 600s and the DND
+    toggle up to 5s. polybar splits the remedy across module types —
+    `custom/ipc` has actions but no interval, `custom/script` has
+    `interval` but no action — so `custom/dnd` became `custom/ipc`
+    (`initial = 1`; `--toggle` ends with `polybar-msg action custom/dnd
+    hook 0`) while `custom/updates` became a `tail = true` loop
+    carrying both the 600s refresh and a `SIGUSR1` trap that
+    `toggle_topgrade.sh` fires from the kitty wrapper once topgrade
+    exits (`pkill -USR1 -f` anchored on the script's exact cmdline).
+    `dunst-dnd.sh` reads an empty `dunstctl` level as off, since
+    `custom/ipc` has no interval to heal a stale first read. (h)
+    removed the `XF86MonBrightness*` bindings — optiplex has no
+    `/sys/class/backlight` device; `brightnessctl` stays in the shared
+    package list for thinkpad's sway bindings. Live-verified: the icon
+    flips on toggle and round-trips pixel-identical (pause 50 → 0),
+    the anchored poke re-reports within seconds, two
+    `polybar-msg cmd restart`s leave exactly one tail instance, and a
+    shadowed `i3-msg`/`kitty` pass delivers the poke command intact
+    without running topgrade.
