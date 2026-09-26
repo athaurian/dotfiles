@@ -136,7 +136,8 @@ full wording and the source proofs behind each item):
    (auto-created at startup); region capture works.
 8. Logout stops `calibre-sync-netmon` (bound to `i3-session.target`).
 9. Next apply re-runs onboarding (packages.json hash) and reports
-   `xss-lock`, `xorg-xset` as new installs — by design.
+   `lutgen-cli-git` as new — what the `sw` feh backend needs for
+   stills on optiplex; by design.
 10. `polybar -vvv` includes the i3 module build flag.
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
     geometry, picom cmdline, and the thinkpad waybar muted check).
@@ -149,6 +150,13 @@ full wording and the source proofs behind each item):
     click) toggles it — no 5s lag — and after a topgrade run the
     updates count refreshes as soon as topgrade exits instead of up to
     600s later.
+14. **New:** the four sweep fixes — Shift+Print/Ctrl+Print captures
+    reach the clipboard (`-c` on both; the interactive confirm/cancel
+    legs are docs-based), `sw --next`/`--set`/`--restore` rotate the
+    pool through feh and keep `~/.fehbg` in step for the next login,
+    the bar center shows the active window title with waybar's
+    rewrite rules, and a playing player's module hides after the
+    grace pause and returns on resume.
 
 Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window; 7 re-verified after the flameshot
@@ -169,7 +177,11 @@ simulated-sleep paths also verified) — try the key by hand. **13**
 passed live checks (icon flip round-trips pixel-identical with pause
 restored, the anchored poke re-reports within seconds, two polybar
 restarts leave one tail instance) — a real topgrade run is yours to
-watch. Full evidence in the findings doc's
+watch. **14** passed live checks (sw backend gates and rotation on the
+pool gif, sw-owned `~/.fehbg` surviving a silent apply, the bar-center
+title, one mpris tail instance) — paste the Shift+Print/Ctrl+Print
+captures to confirm `-c`; item 9 now points at `lutgen-cli-git`, which
+the next apply installs. Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
@@ -224,10 +236,10 @@ watch. Full evidence in the findings doc's
 
 - dunst shadow strength vs thinkpad.
 - Optional `cliphist` removal (referenced nowhere; parity already holds).
-- Polybar mpris has no test twin (accepted); no `--locked` media keys on
-  optiplex, flameshot vs grim/satty, xss-lock/xset vs swayidle, feh vs awww,
-  redshift vs wlsunset, touchpad block, waybar tooltips, polybar mpris grace
-  window — all platform-justified, accepted earlier.
+- no `--locked` media keys on optiplex, flameshot vs grim/satty,
+  xss-lock/xset vs swayidle, feh vs awww, redshift vs wlsunset,
+  touchpad block, waybar tooltips — all platform-justified, accepted
+  earlier.
 
 ## Operating notes for this session
 

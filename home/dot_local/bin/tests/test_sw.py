@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Unit tests for the sw wallpaper utility.
 
-Covers pure logic only (no lutgen/awww subprocesses): output naming,
+Covers pure logic only (no lutgen/awww/feh subprocesses): output naming,
 queue/history helpers, palette resolution, animation passthrough,
-transition selection, and argument parsing.
+transition selection, wallpaper backend selection, and argument
+parsing.
 
 Run from the repository root::
 
@@ -193,6 +194,48 @@ def test_numbers():
         check("normalize dies", True)
 
 
+def test_backend():
+    def which_awww(name):
+        return "/usr/bin/awww" if name == "awww" else None
+
+    def which_feh(name):
+        return "/usr/sbin/feh" if name == "feh" else None
+
+    def which_both(name):
+        return f"/usr/bin/{name}"
+
+    def which_none(name):
+        return None
+
+    check(
+        "backend prefers awww",
+        sw.wallpaper_backend(which_awww) == ("awww", "/usr/bin/awww"),
+    )
+    check(
+        "backend falls back to feh",
+        sw.wallpaper_backend(which_feh) == ("feh", "/usr/sbin/feh"),
+    )
+    check(
+        "backend awww wins when both exist",
+        sw.wallpaper_backend(which_both) == ("awww", "/usr/bin/awww"),
+    )
+    check("backend missing", sw.wallpaper_backend(which_none) is None)
+
+
+def test_fehbg():
+    home = "/home/tester"
+    out = sw.fehbg_content(Path("/home/tester/.cache/sw/wallpapers/x.png"), home)
+    check("fehbg home-relative", '"$HOME/.cache/sw/wallpapers/x.png"' in out)
+    check(
+        "fehbg script form",
+        out.startswith("#!/bin/sh\n")
+        and "--no-fehbg" in out
+        and "feh --no-fehbg --bg-fill" in out,
+    )
+    out = sw.fehbg_content(Path("/elsewhere/x.png"), home)
+    check("fehbg absolute passthrough", '"/elsewhere/x.png"' in out)
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="sw_test_") as tmpdir:
         test_output_path(tmpdir)
@@ -204,6 +247,8 @@ def main():
         test_palette(tmpdir)
     test_args()
     test_numbers()
+    test_backend()
+    test_fehbg()
     print("ALL PASS" if _failures == 0 else "SOME FAILED")
     sys.exit(0 if _failures == 0 else 1)
 

@@ -4,7 +4,8 @@ sw: set wallpaper.
 
 Recolors stills with the locked neutral lutgen palette (caching both the
 LUT and each rendered output so repeated runs are cheap), rotates through
-a pool with next/previous history, and sets the result via awww.
+a pool with next/previous history, and sets the result via awww (Wayland)
+or feh (X11).
 
 Pre-themed animations (.gif) bypass lutgen entirely: they are cached by
 content hash and set with no transition. `sw --restore` re-applies
@@ -28,7 +29,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn
@@ -398,6 +399,21 @@ def apply_lut(
         return False
 
 
+def wallpaper_backend(
+    which: Callable[[str], str | None] = shutil.which,
+) -> tuple[str, str] | None:
+    """Return ``(name, executable)`` for the first wallpaper backend found —
+    awww (Wayland) before feh (X11) — or None when neither is installed."""
+
+    awww = which("awww")
+    if awww:
+        return "awww", awww
+    feh = which("feh")
+    if feh:
+        return "feh", feh
+    return None
+
+
 def awww_running() -> bool:
     """Polls until the awww daemon answers or the timeout expires."""
 
@@ -415,6 +431,17 @@ def awww_running() -> bool:
     return False
 
 
+def ensure_backend() -> None:
+    """Die unless a wallpaper backend can set images right now."""
+
+    backend = wallpaper_backend()
+    if backend is None:
+        die("no wallpaper backend found (awww or feh)")
+    name, _executable = backend
+    if name == "awww" and not awww_running():
+        die("awww daemon is not responding")
+
+
 def is_animation(path: Path) -> bool:
     """Pre-themed animations bypass lutgen and transitions."""
 
@@ -429,11 +456,57 @@ def transition_for(path: Path) -> tuple[str, str]:
     return (str(TRANSITION_DURATION), TRANSITION_TYPE)
 
 
-def set_wallpaper(path: Path) -> bool:
-    executable = shutil.which("awww")
-    if not executable:
-        warn("no awww binary found; not setting wallpaper")
+def fehbg_content(path: Path, home: str | None = None) -> str:
+    """Build the ~/.fehbg script that restores ``path`` at login.
+
+    Paths under the home directory are written in ``$HOME`` form. sw is
+    the file's only writer: feh always runs with ``--no-fehbg``.
+    """
+    root = str(Path.home()) if home is None else home
+    raw = str(path)
+    if raw.startswith(root + os.sep):
+        raw = "$HOME" + raw[len(root) :]
+    return (
+        "#!/bin/sh\n"
+        "# Set the X11 wallpaper. --no-fehbg stops feh from rewriting this file.\n"
+        f'feh --no-fehbg --bg-fill "{raw}"\n'
+    )
+
+
+def write_fehbg(path: Path) -> bool:
+    """Rewrite ~/.fehbg so the next i3 login restores ``path``."""
+
+    target = Path.home() / ".fehbg"
+    try:
+        _atomic_write_text(target, fehbg_content(path))
+        os.chmod(target, 0o755)
+    except OSError as exc:
+        warn(f"could not update {target}: {exc}")
         return False
+    return True
+
+
+def set_wallpaper(path: Path) -> bool:
+    backend = wallpaper_backend()
+    if backend is None:
+        warn("no wallpaper backend found (awww or feh); not setting wallpaper")
+        return False
+    name, executable = backend
+
+    if name == "feh":
+        try:
+            subprocess.run(
+                [executable, "--no-fehbg", "--bg-fill", str(path)], check=True
+            )
+        except subprocess.CalledProcessError as exc:
+            warn(f"feh failed to set wallpaper (exit status {exc.returncode})")
+            return False
+        except OSError as exc:
+            warn(f"could not run feh: {exc}")
+            return False
+        # i3 restores ~/.fehbg at login instead of running sw --restore.
+        write_fehbg(path)
+        return True
 
     duration, transition = transition_for(path)
     try:
@@ -754,8 +827,7 @@ def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     queue_path = queue_file(env)
     previous = current_wallpaper(env)
 
-    if not awww_running():
-        die("awww daemon is not responding")
+    ensure_backend()
 
     sw_cache(env).mkdir(parents=True, exist_ok=True)
 
@@ -809,8 +881,7 @@ def go_prev(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     queue_path = queue_file(env)
     current = current_wallpaper(env)
 
-    if not awww_running():
-        die("awww daemon is not responding")
+    ensure_backend()
 
     sw_cache(env).mkdir(parents=True, exist_ok=True)
 
@@ -859,8 +930,7 @@ def go_restore(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     so Sway can run it at login to restore whatever was live.
     """
 
-    if not awww_running():
-        die("awww daemon is not responding")
+    ensure_backend()
 
     sw_cache(env).mkdir(parents=True, exist_ok=True)
 
@@ -890,7 +960,7 @@ def parse_args(
     parser = argparse.ArgumentParser(
         prog="sw",
         description="Recolor wallpapers with the neutral lutgen palette, "
-        "rotate through the pool, and set via awww.",
+        "rotate through the pool, and set via awww or feh.",
     )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument(
@@ -964,7 +1034,7 @@ def parse_args(
         "--set",
         dest="set_wallpaper",
         action="store_true",
-        help="set the final themed image as wallpaper via awww",
+        help="set the final themed image as wallpaper (awww or feh)",
     )
     parser.add_argument(
         "images",
