@@ -30,8 +30,10 @@ Three safety nets compensate for those browser quirks:
   empty or Stopped state during track transitions.
 
 The state machine mirrors `~/.config/waybar/scripts/mpris.py` (Waybar's
-twin, which outputs JSON instead). Keep the two in step. Both test suites
-drive their script through the same fake playerctl harness.
+twin, which outputs JSON instead); keep the two in step. The text cap is
+stricter here so long titles cannot push the right-hand modules off the
+bar. Both test suites drive their script through the same fake playerctl
+harness.
 """
 
 import os
@@ -46,7 +48,7 @@ from functools import lru_cache
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
 
-MAX_TEXT_LEN = 56
+MAX_TEXT_LEN = 44
 MUTED = "#8A8A8A"
 
 # Interval between authoritative resync queries. Override it with the
