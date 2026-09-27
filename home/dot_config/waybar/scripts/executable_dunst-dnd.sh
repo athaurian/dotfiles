@@ -3,10 +3,10 @@ set -eu
 
 # Waybar custom/dnd module and toggle.
 # DND pauses dunst at DND_PAUSE_LEVEL (partial pause). Script notices for
-# direct user feedback (this toggle, caffeine, wallpaper, idle warning,
-# clipboard, ...) carry override_pause_level=90 via dunstrc rules and stay
-# visible during DND. The screen lock pauses at 100 and hides even those.
-# Do not use `set-paused true` here; it sets level 100, which nothing
+# direct user feedback (this toggle, caffeine, wallpaper, idle warning, ...)
+# carry override_pause_level=90 via dunstrc rules and stay visible during
+# DND. The screen lock pauses at 100 and hides even those.
+# Do not use `set-paused true` here. It sets level 100, which nothing
 # bypasses, so the "dnd enabled" notice and all other script notices queue
 # silently in history.
 
@@ -14,7 +14,7 @@ APP_NAME="dunst-dnd"
 ID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd_id"
 LOCK_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd.lock"
 # Must stay below the dunstrc dnd_bypass override (90) and below the lock
-# pause level (100); keep in sync with lock.sh.
+# pause level (100). Keep in sync with lock.sh.
 DND_PAUSE_LEVEL=50
 
 ICON_ENABLED=""
@@ -69,7 +69,7 @@ send_notice() {
 is_dnd() {
 	if command -v dunstctl >/dev/null 2>&1; then
 		# Any nonzero pause level counts as DND. The lock screen pauses at
-		# 100 and restores the previous level on unlock; a transient 100
+		# 100 and restores the previous level on unlock. A transient 100
 		# while locked still reports DND (Waybar is hidden then).
 		[ "$(dunstctl get-pause-level 2>/dev/null)" != "0" ] 2>/dev/null
 	else

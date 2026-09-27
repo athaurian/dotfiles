@@ -73,10 +73,6 @@
     frame_color = "{{ $p.red_bright.hex }}"
     timeout = 0
 
-[mpd]
-    category = mpd
-    timeout = 2
-
 [dnd_bypass_dunst_dnd]
     appname = dunst-dnd
     override_pause_level = 90
@@ -85,24 +81,13 @@
     appname = caffeine-toggle
     override_pause_level = 90
 
+# sw is the wallpaper tool. Its notices carry appname "sw".
 [dnd_bypass_wallpaper]
-    appname = wallpaper-rotate
+    appname = sw
     override_pause_level = 90
 
 [dnd_bypass_idle_warning]
     appname = idle-warning
-    override_pause_level = 90
-
-[dnd_bypass_clipboard]
-    appname = clipboard
-    override_pause_level = 90
-
-[dnd_bypass_dunst]
-    appname = dunst
-    override_pause_level = 90
-
-[dnd_bypass_picker]
-    appname = picker
     override_pause_level = 90
 
 [dnd_bypass_lock]
