@@ -6,16 +6,13 @@ set -eu
 # On click, the Waybar config runs `toggle_topgrade.sh`.
 
 count=0
-tooltip="System up to date"
 has_checkupdates=0
 has_paru=0
 pacman_out=""
 paru_out=""
-paru_count=""
 
 if command -v checkupdates >/dev/null 2>&1; then
 	has_checkupdates=1
-	# sh has no pipefail; testing ``$?`` after a pipe tests ``wc``.
 	# Empty output means zero updates regardless of exit status.
 	pacman_out=$(checkupdates 2>/dev/null || true)
 	pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
@@ -24,7 +21,7 @@ fi
 
 if command -v paru >/dev/null 2>&1; then
 	has_paru=1
-	# paru -Qum lists AUR updates. Cache the result; the tooltip reuses it.
+	# paru -Qum lists AUR updates. Cache the result. The tooltip reuses it.
 	paru_out=$(paru -Qum 2>/dev/null || true)
 	paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
 	count=$((count + ${paru_count:-0}))
