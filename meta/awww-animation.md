@@ -211,19 +211,18 @@ if __name__ == "__main__":
     main(sys.argv[1], int(sys.argv[2]))
 ```
 
-The motion uses a complete period over the loop, which makes the cycle
-continuous at the seam. Extend the skeleton rather than treating it as a
-production animation framework.
+The skeleton sweeps a full period per loop, keeping the cycle continuous at the
+seam.
+
+Extend the skeleton rather than treating it as a production animation framework.
 
 ## Repository colors
 
 Generated artwork follows the same palette boundary as application
 configuration: every color comes from `meta/color-scheme.md`.
 
-For generated images, the safest implementation is to construct `PALETTE`
-exclusively from locked repository colors and quantize every frame against it. A
-new hue must be added to the normal palette workflow before it is used, even for
-experimental animation.
+A new hue must be added to the normal palette workflow before it is used, even
+for experimental animation.
 
 ## Common failure modes
 

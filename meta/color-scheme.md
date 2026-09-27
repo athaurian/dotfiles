@@ -20,8 +20,6 @@ tokens; application files may use only colors that trace back to this document.
 | New hues         | A new hue requires an explicit change to this document before it appears in an application.                          |
 
 The palette deliberately avoids per-application accents and secondary blues.
-Sapphire and maroon are not independent hues. Mauve and lavender are represented
-by purple and purple-bright.
 
 ## Neutrals
 
@@ -115,9 +113,8 @@ hand.
 | diff-delete      | surface-0 | red    | 0.208 | `#391C1E`                | Neovim deletions                               |
 | diff-text        | line      | blue   | 0.562 | `#2D5E86`                | Neovim changed text                            |
 
-`selection-deep` is a retained legacy wash. It is intentionally used instead of
-the derived selection tint for fuzzel and Qt because the existing rendering is
-tested and readable.
+`selection-deep` is intentionally used instead of the derived selection tint for
+fuzzel and Qt because the existing rendering is tested and readable.
 
 `hover` is the tints table's only alpha overlay and remains hand-written.
 
@@ -253,6 +250,3 @@ Chrome-only `custom_highlights` may remain outside this semantic table.
 - No per-app alias namespaces or semantic role indirection in the data.
 - No contrast-gate tooling.
 - No GTK theme redesign as part of the palette system.
-
-The generator derives supporting tints, LUT data, and the chezmoi palette data.
-This document remains the seed and semantic source of truth.
