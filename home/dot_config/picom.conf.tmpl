@@ -1,6 +1,5 @@
 # Locked scheme (meta/color-scheme.md). The X11 counterpart of thinkpad's
-# SwayFX stack: dual_kawase blur, black shadows, corner radius 4, and the same
-# inactive dim (sway default_dim_inactive 0.05 -> inactive opacity 0.95).
+# SwayFX stack: dual_kawase blur, black shadows, and corner radius 4.
 # xrender-sync-fence is required for NVIDIA's explicit-sync drivers.
 # Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
 
@@ -26,6 +25,8 @@ detect-client-opacity = true;
 detect-transient = true;
 detect-client-leader = true;
 
+# No opacity rules: inactive windows stay opaque. Sway dims inactive
+# content (default_dim_inactive), which picom cannot replicate.
 rules: ({
   /* Typed tooltips keep their own corners. */
   match = "window_type = 'tooltip'";
@@ -42,15 +43,4 @@ rules: ({
   blur-background = false;
   shadow = false;
   corner-radius = 0;
-}, {
-  /* The focused window is fully opaque; others dim one step (sway mirror). */
-  match = "focused";
-  opacity = 1.0;
-}, {
-  match = "!focused";
-  opacity = 0.95;
-}, {
-  /* UI overlays never dim regardless of focus state. Must follow !focused. */
-  match = "window_type = 'tooltip' || window_type = 'menu' || window_type = 'popup_menu' || window_type = 'dropdown_menu' || window_type = 'dialog' || window_type = 'notification' || window_type = 'utility' || window_type = 'dock' || class_g = 'Dunst' || override_redirect = true";
-  opacity = 1.0;
 })
