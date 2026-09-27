@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Cycle scratchpad windows, ignoring the dropdown and clipboard terminals.
+# Cycle scratchpad windows, ignoring the dropdown terminal.
 # A focused visible window hides. A visible window elsewhere moves here.
 # Otherwise the first hidden window shows.
 
@@ -14,8 +14,7 @@ trap 'rm -f "$tmp_tree"' EXIT
 
 swaymsg -t get_tree | jq -r '
 def not_drop_term: ((.marks // []) | index("drop_term")) | not;
-def not_clipboard_term: ((.marks // []) | index("clipboard_term")) | not;
-def cyclable: not_drop_term and not_clipboard_term;
+def cyclable: not_drop_term;
 
 ([.. | select(.focused? == true)] | first | .id) as $focused
 | ([.nodes[].nodes[]
