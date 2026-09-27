@@ -83,7 +83,8 @@ format-font = 2
 [module/custom/window]
 ; Waybar #window: padding 0 12px (margin comes from the settings fallback).
 ; internal/xwindow cannot express Waybar's title rewrite rules, so the
-; script applies the same table (and the 72-column cap) from config.jsonc.
+; script applies the same table from config.jsonc, capped tighter than
+; waybar's 72 so long titles cannot push the right-hand modules off-screen.
 type = custom/script
 exec = ~/.config/polybar/scripts/window_title.py
 interval = 1
