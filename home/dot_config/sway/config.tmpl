@@ -68,7 +68,8 @@ bindsym $mod+q kill
 
 # Apps.
 bindsym $mod+Return exec $term
-bindsym $mod+d exec $menu
+# --no-repeat: a held key would re-exec fuzzel on every auto-repeat.
+bindsym --no-repeat $mod+d exec $menu
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
 bindsym $mod+Shift+p exec $passwordmanager
