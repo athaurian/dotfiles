@@ -10,8 +10,8 @@
       "pipewire-pulse", "playerctl", "mpv-mpris"
     ],
     "tui": [
-      "bat", "btop", "cava", "eza", "fastfetch", "fd", "git", "lazygit",
-      "neovim", "python", "rclone", "ripgrep", "uv", "zellij"
+      "bat", "btop", "cava", "eza", "fastfetch", "fd", "git", "github-cli",
+      "lazygit", "neovim", "python", "rclone", "ripgrep", "uv", "zellij"
     ],
     "fonts": [
       "adwaita-cursors", "noto-fonts", "ttf-sourcecodepro-nerd",
