@@ -39,11 +39,19 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 		mkdir -p "$save_dir"
 		save_filename="$save_dir/screenshot-$(date '+%Y%m%d-%H%M%S').png"
 
+		# The raw capture rides the clipboard up front, as i3's -c does;
+		# satty's copy or save then replaces it with the annotated version.
+		wl-copy <"$SCREENSHOT_TMP" 2>/dev/null || true
+
 		# || true keeps cleanup running however satty exits.
 		satty --filename "$SCREENSHOT_TMP" \
 			--copy-command wl-copy \
 			--output-filename "$save_filename" \
 			--early-exit || true
+
+		# satty only copies on its copy action; a save leaves the annotated
+		# file, so put that on the clipboard in place of the raw capture.
+		[ -f "$save_filename" ] && wl-copy <"$save_filename" 2>/dev/null || true
 
 	elif command -v wl-copy >/dev/null 2>&1; then
 		wl-copy <"$SCREENSHOT_TMP" && notify-send -a screenshot -u low -t 1500 "󰄄 screenshot" "copied to clipboard" 2>/dev/null || true
