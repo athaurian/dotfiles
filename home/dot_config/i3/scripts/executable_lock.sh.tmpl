@@ -5,10 +5,10 @@ set -eu
 # notify-send, dunstctl.{{ $p := .palette }}
 
 # xss-lock sets XSS_SLEEP_LOCK_FD only when it locks because the system
-# is about to sleep; that path skips the notify/delay because suspend
+# is about to sleep. That path skips the notify/delay because suspend
 # waits on the fd. The manual and idle paths keep the "locking
-# screen..." beat before locking — the idle countdown's finale, at
-# sway's timing (notify+delay on the idle timeout path there too).
+# screen..." beat before locking. It is the idle countdown's finale,
+# at sway's timing (notify+delay on the idle timeout path there too).
 before_sleep=0
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	before_sleep=1
@@ -115,7 +115,7 @@ lock_pid=$!
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
 fi
-# xss-lock re-runs the locker only after the previous one exits; a
+# xss-lock re-runs the locker only after the previous one exits. A
 # forced unlock TERMs us, which the trap turns into killing i3lock.
 # `wait || true` keeps set -e from skipping cleanup on a failed locker,
 # which would strand dunst at pause level 100.

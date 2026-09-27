@@ -6,7 +6,7 @@ set -eu
 # screensaver activates on inactivity, starts the locker after the xset
 # cycle, and signals us in between: SIGHUP when the user is active again,
 # SIGTERM when the locker starts. The cycle is therefore the remaining
-# time until the lock; a zero cycle never runs this script.
+# time until the lock. A zero cycle never runs this script.
 
 cycle=$(xset q 2>/dev/null | sed -n 's/.*cycle: *\([0-9][0-9]*\).*/\1/p' | head -n 1)
 case "$cycle" in

@@ -31,7 +31,7 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 _SCRIPT = _HERE.parent / "executable_mpris.py"
-# dot_config/waybar/scripts/tests/fake_playerctl.py — shared protocol fake.
+# dot_config/waybar/scripts/tests/fake_playerctl.py: shared protocol fake.
 _FAKE_PLAYERCTL = (
     _HERE.parent.parent.parent / "waybar" / "scripts" / "tests" / "fake_playerctl.py"
 )

@@ -70,7 +70,7 @@ label-empty-padding = 6px
 
 ; Waybar #mode: format output is empty at rest (with its margins), so
 ; the bar changes only while a mode is active. 4px margin and the bold
-; face mirror the CSS; format-font is 1-based (2 = font-1).
+; face mirror the CSS. format-font is 1-based (2 = font-1).
 [module/i3mode]
 type = internal/i3
 format = <label-mode>
@@ -118,7 +118,7 @@ label = %percentage_used%%
 type = custom/script
 ; Polling and signalling are split across module types: custom/ipc has
 ; no interval and custom/script has no action, so the script carries
-; both — a 600s loop plus SIGUSR1 from wrapper_topgrade.sh when
+; both: a 600s loop plus SIGUSR1 from wrapper_topgrade.sh when
 ; topgrade exits.
 exec = ~/.config/polybar/scripts/updates.sh
 tail = true
@@ -138,7 +138,7 @@ type = internal/tray
 ; (50% of the 24px bar), tray spacing 12. Polybar deviates: tray-size 66%
 ; (16px) because nm-applet draws its icon at a fixed 16px into the tray
 ; client window, so anything smaller shears it (polybar/polybar#2933 class
-; of tray rendering bugs, no upstream fix); tray-spacing 6px tightens the
+; of tray rendering bugs, no upstream fix). tray-spacing 6px tightens the
 ; gaps without shrinking the icons.
 format-padding = 4px
 tray-padding = 6px
@@ -153,8 +153,7 @@ label = %date%
 
 [module/custom/dnd]
 ; Only --toggle (and lock.sh's net-zero save/restore) changes the pause
-; level, so this is event-driven: --toggle re-runs hook-0 instead of
-; the old 5s poll.
+; level, so this is event-driven: --toggle re-runs hook-0.
 type = custom/ipc
 hook-0 = ~/.config/polybar/scripts/dunst-dnd.sh
 initial = 1

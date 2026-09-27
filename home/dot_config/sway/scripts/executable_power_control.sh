@@ -3,7 +3,7 @@ set -eu
 
 # Fuzzel-confirmed power and session actions.
 # Usage: power_control.sh <poweroff|reboot|suspend|logout>
-# Same action re-invoked dismisses; different action replaces (state in $XDG_RUNTIME_DIR/confirm_action).
+# Same action re-invoked dismisses. A different action replaces (state in $XDG_RUNTIME_DIR/confirm_action).
 
 action="${1:-}"
 
@@ -18,7 +18,7 @@ logout) cmd="systemctl --user stop sway-session.target; swaymsg exit" ;;
 	;;
 esac
 
-# confirm_menu PROMPT PLACEHOLDER OPTION...: prints the choice; returns 1
+# confirm_menu PROMPT PLACEHOLDER OPTION...: prints the choice. Returns 1
 # on cancel, timeout, or missing fuzzel.
 confirm_menu() {
 	confirm_prompt="${1:-}"
@@ -39,7 +39,7 @@ confirm_menu() {
 
 state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
 
-# Only power confirmations use a "confirm " prompt; launcher and history pickers never match.
+# Only power confirmations use a "confirm " prompt. Launcher and history pickers never match.
 if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "confirm "; then
 	current_action=""
 	if [ -f "$state_file" ]; then
