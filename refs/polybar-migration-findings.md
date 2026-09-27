@@ -882,3 +882,44 @@ Two reported issues; both fixed, applied, and verified:
    1350×728 → border pixels at x=8, y=32, x=1357, y=759). The sway
    half lands with the next thinkpad apply (no sway binary here;
    `none` confirmed in `refs/sway/sway.5.scd`).
+
+### Two-way port audit round: 2026-09-27 (optiplex)
+
+Side-by-side comparison of `sway/config.tmpl` and `i3/config.tmpl`, both
+script sets, the session units, the `.chezmoiignore` machine blocks, and the
+waybar/polybar module sets, checked against the Round 2 audit so recorded
+decisions were not re-derived.
+
+**Ported (source edit, unvalidated here):** `home/dot_config/sway/config.tmpl`
+now carries `--no-repeat` on `$mod+d`. i3 fires its launcher once per press
+via `--release`, but sway re-runs a binding on every auto-repeat while the key
+is held, so a held `$mod+d` could stack fuzzel instances. The flag matches
+sway's three existing `--no-repeat` toggles and is documented in `sway(5)`.
+Verified by `chezmoi execute-template` render only, since optiplex has no sway
+binary. A hold test belongs to the next thinkpad session.
+
+**Platform-justified, not ported:** `--locked` media keys vs i3lock
+`--pass-media-keys`, brightness bindings (thinkpad backlight only), the
+flameshot pipeline vs grim/slurp/satty/wl-copy, xss-lock with xset timers vs
+the swayidle units, feh/`~/.fehbg` vs awww, redshift vs wlsunset, the
+touchpad `input` block, SwayFX effects vs picom, fuzzel/foot vs rofi/kitty,
+the polybar restart chain in `$mod+Shift+c`, the X11
+`GtkFileChooserDialog` rule, and waybar tooltips/hover/battery with no polybar
+equivalent.
+
+**Behavior-equivalent by default, no config lines needed:** sway already does
+`popup_during_fullscreen smart` and modifier or titlebar tiling drag by
+default, which is what the i3-only lines configure. Sway also supports
+`move container to workspace current` and `border pixel 1`, so the deferred
+`toggle_floating.sh` port has no syntax blocker.
+
+**Recorded deferrals left alone:** the sway twin of `$mod+Shift+space`
+scratchpad restore (`toggle_floating.sh`) waits for a thinkpad session per the
+acceptance round. sway `lock.sh` keeps the shared capture file and the
+accepted double-instance DND restore quirk. sway's topgrade poke stays inline
+per the updates-click round.
+
+**Noticed, not changed:** sway's screenshot path reaches the clipboard only
+through satty's copy action while i3's three bindings pass `-c`
+automatically. `clipboard_term` is excluded by both cycle scripts but nothing
+creates that mark.
