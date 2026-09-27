@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Bootstrap the systemd user session. Import the X session environment first,
-# then start the session targets.
+# Bootstrap the systemd user session.
 if ! command -v systemctl >/dev/null 2>&1; then
 	exit 0
 fi

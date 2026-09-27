@@ -51,7 +51,7 @@ local function check_gvar(name, want)
   end
 end
 
--- Grounds and semantics (rules 2-3).
+-- Grounds and semantics (meta/color-scheme.md).
 check("Normal", "fg", "#D4D4D4")
 check("Comment", "fg", "#8A8A8A")
 check_flag("Comment", "italic")

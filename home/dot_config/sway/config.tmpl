@@ -1,4 +1,4 @@
-# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
+# Managed by chezmoi. Edit the .tmpl source.{{ $p := .palette }}
 set $mod Mod4
 set $left h
 set $down j
@@ -83,7 +83,7 @@ bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
 bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
 bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
 
-# Media keys. Work while locked; they change output state, not session state.
+# Media keys. Work while locked. They change output state, not session state.
 bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
 bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
 bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%

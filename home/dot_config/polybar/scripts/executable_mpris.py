@@ -30,7 +30,7 @@ Three safety nets compensate for those browser quirks:
   empty or Stopped state during track transitions.
 
 The state machine mirrors `~/.config/waybar/scripts/mpris.py` (Waybar's
-twin, which outputs JSON instead); keep the two in step. Both test suites
+twin, which outputs JSON instead). Keep the two in step. Both test suites
 drive their script through the same fake playerctl harness.
 """
 

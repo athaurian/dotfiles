@@ -27,7 +27,7 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 _SCRIPT = _HERE.parent / "executable_mpris.py"
-_FAKE_BIN = _HERE  # fake_playerctl.py lives here; the harness copies it to PATH
+_FAKE_BIN = _HERE  # fake_playerctl.py lives here. The harness copies it to PATH
 _F = "\x1f"
 
 

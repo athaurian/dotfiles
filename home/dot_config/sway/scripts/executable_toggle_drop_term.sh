@@ -34,7 +34,7 @@ while [ "$i" -lt 40 ]; do
 	sleep 0.05
 	i=$((i + 1))
 done
-# Fresh spawns map already centered via their for_window rule; re-apply
+# Fresh spawns map already centered via their for_window rule. Re-apply
 # geometry as fallback for output changes or missed placement.
 if swaymsg -t get_marks 2>/dev/null | grep -qF '"drop_term"'; then
 	swaymsg "[con_mark=drop_term] resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
