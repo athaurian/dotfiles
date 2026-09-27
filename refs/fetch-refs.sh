@@ -50,7 +50,8 @@ clone https://github.com/folke/lazy.nvim lazy-nvim 306a05526ada86a7b30af95c5cc81
 clone https://github.com/williamboman/mason.nvim mason-nvim 2a6940af80375532e5e9e7c1f2fc6319a1b7a69d
 clone https://github.com/Binaryify/OneDark-Pro onedark-pro 54c3280b29f2c2ed9751e5ca4e071380b7b42205
 clone https://github.com/folke/snacks.nvim snacks-nvim 882c996cf28183f4d63640de0b4c02ec886d01f2
-clone https://github.com/polybar/polybar.wiki.git polybar-wiki b4f3c9e9108741bd34e4d02b2e8fa40046cb0c65
+wiki_sha=b4f3c9e9108741bd34e4d02b2e8fa40046cb0c65
+clone https://github.com/polybar/polybar.wiki.git polybar-wiki "$wiki_sha"
 clone https://github.com/twpayne/chezmoi chezmoi 593166436bf621259efb33d12ebeecd7bae17329
 clone https://github.com/Alexays/Waybar.wiki.git waybar-wiki c9b404b7297254c1948fc65517a87d7110881b2c
 
@@ -74,6 +75,19 @@ if [ ! -f "$target/polybar/polybar.1.rst" ]; then
 		"$target/src/polybar/doc/user/modules/tray.rst" \
 		"$target/polybar/"
 fi
+if [ ! -f "$target/polybar/default-config.ini" ]; then
+	mkdir -p "$target/polybar"
+	cp "$target/src/polybar/doc/config.ini" "$target/polybar/default-config.ini"
+fi
+
+# Flat copies of the wiki pages the bar config uses, at the same pin as
+# the polybar-wiki clone; names match the curated refs/polybar/ layout.
+for page in i3 script text ipc cpu memory date pulseaudio xworkspaces; do
+	fetch "https://raw.githubusercontent.com/polybar/polybar.wiki/$wiki_sha/Module:-$page.md" "polybar/module-$page.md"
+done
+for page in Configuration Formatting; do
+	fetch "https://raw.githubusercontent.com/polybar/polybar.wiki/$wiki_sha/$page.md" "polybar/$page.md"
+done
 
 # Wayland side (thinkpad): compositor, locker, bar, launchers, capture,
 # wallpaper, colour temperature.
