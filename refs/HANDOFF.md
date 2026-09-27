@@ -159,30 +159,24 @@ full wording and the source proofs behind each item):
     rewrite rules, and a playing player's module hides after the
     grace pause and returns on resume.
 
-Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
-topgrade half via a stand-in window; 7 re-verified after the flameshot
-scripts were rewritten: Ctrl+Print saves the focused-window region,
-Shift+Print cancels on Escape, both exit cleanly). **6 verified in
-full:** the three lock-before-sleep legs were user-tested with real
-suspend cycles (journal shows cycles at 00:08), and the idle path was
-re-verified after the warn-then-lock change (xset idle → xss-lock
-notifier → lock.sh: pause 100 on lock, restored on unlock; xset returned
-to `timeout 0`/DPMS off). **8 still needs a real logout** (the
-i3-session.target stop/start substitute passed). Fixes: 1–3 verified
-(dunst additionally reports a 1.0625× DPI offset deviation:
-reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
-config kept at `(0, 2)`. Item 12 passed scripted tests (restore
-round-trip; warning shown, `locking screen...` beat painted before the
-lock, activity cancels, fresh idle locks at cycle-end+2.5s; manual and
-simulated-sleep paths also verified). Try the key by hand. **13**
-passed live checks (icon flip round-trips pixel-identical with pause
-restored, the anchored poke re-reports within seconds, two polybar
-restarts leave one tail instance). A real topgrade run is yours to
-watch. **14** passed live checks (sw backend gates and rotation on the
-pool gif, sw-owned `~/.fehbg` surviving a silent apply, the bar-center
-title, one mpris tail instance). Paste the Shift+Print/Ctrl+Print
-captures to confirm `-c`; item 9 now points at `lutgen-cli-git`, which
-the next apply installs. Full evidence in the findings doc's
+Status (2026-09-27): **all checklist items verified.** 8 confirmed by
+real logouts: the journal shows calibre-sync-netmon and
+i3-session.target stopping in the same second on two logouts
+(13:10:59, 13:11:53), the unit restarting on each login. 12, 13, and
+14 hand-tested by the user. Thinkpad verified the deferred sweep: the
+`$mod+d` hold test, the toggle_floating port, screenshot clipboard
+parity, and the dunst shadow look. The sweep itself: toggle_floating
+ported to sway (leaf check accepts app_id; Wayland windows carry no
+X11 id), screenshot `-c` parity via wl-copy, cliphist and the dead
+`clipboard_term` exclusion dropped, the topgrade poke kept inline,
+lock.sh quirks accepted. The calibre sync units are now
+optiplex-ignored: optiplex's library differs from thinkpad's and has
+no rclone config, so the gdrive mirror never ran there (every run
+failed since the unit was created); thinkpad keeps the units.
+Records still standing from earlier rounds: 6 by real suspend cycles,
+7 re-verified after the flameshot rewrite, dunst's 1.0625× DPI offset
+deviation reported not compensated, picom shadows kept at `(0, 2)`
+(renderer limitation, reported). Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
 
 ## `refs/` layout (COMMITTED; restored material ignored by `refs/.gitignore`)
@@ -235,8 +229,10 @@ the next apply installs. Full evidence in the findings doc's
 
 ## Deferred by user decision ("only what I reported" this round)
 
-- dunst shadow strength vs thinkpad.
-- Optional `cliphist` removal (referenced nowhere; parity already holds).
+- dunst shadow strength vs thinkpad: looked at on thinkpad, accepted
+  (2026-09-27).
+- `cliphist`: dropped with the dead `clipboard_term` exclusion
+  (2026-09-27).
 - no `--locked` media keys on optiplex, flameshot vs grim/satty,
   xss-lock/xset vs swayidle, feh vs awww, redshift vs wlsunset,
   touchpad block, waybar tooltips: all platform-justified, accepted
