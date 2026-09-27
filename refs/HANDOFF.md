@@ -1,9 +1,9 @@
-# Session handoff — read this first
+# Session handoff: read this first
 
 Written 2026-09-24 from a `thinkpad` session. **The next session runs on
 `optiplex`.** You inherit no conversation context; everything you need is
 here and in `refs/polybar-migration-findings.md` (the deep, source-verified
-ledger — this file is the map, that file is the proof).
+ledger: this file is the map, that file is the proof).
 
 ## The setup
 
@@ -18,11 +18,11 @@ ledger — this file is the map, that file is the proof).
   shows rofi/i3/picom/polybar files (ignored), and on optiplex it never shows
   waybar/sway/fuzzel files. Files landing on both machines (dunst,
   dunst-dnd, systemd units) either branch with
-  `{{ if eq .chezmoi.hostname "optiplex" }}` — the only two branching
-  templates are `polkit-agent.service.tmpl` and `dunstrc.tmpl` — or ship
+  `{{ if eq .chezmoi.hostname "optiplex" }}` (of those, only
+  `polkit-agent.service.tmpl` and `dunstrc.tmpl` branch) or ship
   per-machine copies (`dunst-dnd` differs between `waybar/scripts/` and
   `polybar/scripts/`).
-- Working rules: **`AGENTS.md`** — verify before changing, smallest necessary
+- Working rules: **`AGENTS.md`**: verify before changing, smallest necessary
   change, palette changes go `meta/color-scheme.md` → `make palette` →
   consumers, verification table at the bottom (`make lint`, `chezmoi diff`,
   `i3 -C -c ~/.config/i3/config`, `sway … --validate`).
@@ -38,23 +38,24 @@ checks **before** starting new edit work.
 ## Git state
 
 `main` is pushed; confirm the tip with `git status -sb`. No HEAD SHA is
-pinned here — a SHA written into a committed document is stale as soon as
+pinned here: a SHA written into a committed document is stale as soon as
 this file changes. Recent history:
 
-- `e505702` — polybar spacing/clicks match waybar; waybar made thinkpad-only.
-- `598b40d` — port audit: `$mod+Shift+c` reload chain restarts polybar,
+- `e505702`: polybar spacing/clicks match waybar; waybar made thinkpad-only.
+- `598b40d`: port audit: `$mod+Shift+c` reload chain restarts polybar,
   `--release` on three toggle bindings, `[module/i3mode]` resize chip,
   `lock.sh --now` xss-lock fd contract, `xss-lock`+`xorg-xset` packages.
-- `891066c` — this round's five visual-parity fixes (below).
-- `963bf36` — `refs/` un-ignored and committed with reproducible material
+- `891066c`: this round's five visual-parity fixes (below).
+- `963bf36`: `refs/` un-ignored and committed with reproducible material
   pruned behind `fetch-refs.sh`.
-- `ee7892a` — `fetch-refs.sh` extended to every repo-owned doc surface;
+- `ee7892a`: `fetch-refs.sh` extended to every repo-owned doc surface;
   `refs/.gitignore` added.
-- `9d2bf4f` — this file's stale claims corrected (Git state, script
+- `9d2bf4f`: this file's stale claims corrected (Git state, script
   pointers, pin exception, dunst-dnd framing, dunst filenames).
 
-`backup/pre-reset-2567b2d` is a **local-only** branch (not pushed); it is
-historical reference material, per AGENTS.md not an architecture to restore.
+`backup/pre-reset-2567b2d` is a **local-only** branch (not pushed; absent on
+`optiplex`, whose `main` already contains `2567b2d`); it is historical
+reference material, per AGENTS.md not an architecture to restore.
 
 ## This round's fixes (all applied and thinkpad-validated)
 
@@ -66,38 +67,38 @@ belongs, dunst overlaps the bar on optiplex (thinkpad sits below it), and the
 dimmed Muted** (polybar already dims via `label-muted-foreground`); scope =
 only the reported items.
 
-1. **Rofi padding/spacing** — `home/dot_config/rofi/config.rasi.tmpl`
+1. **Rofi padding/spacing**: `home/dot_config/rofi/config.rasi.tmpl`
    (optiplex-only). `window padding` `8px` → `8px 16px` to mirror fuzzel's
    `horizontal-pad=16` / `vertical-pad=8`; `inputbar spacing` `8px` → `2px`
    (the prompt already carries a trailing space, so 8px read as double).
    `inputbar padding-bottom` stays 8px = fuzzel `inner-pad=8`. Multi-value
    padding is CSS-style, verified in `refs/rofi/rofi-theme.5.markdown`
    (restorable via fetch script).
-   **Verify (optiplex):** `$mod+d` — search glyph hugs the input text, box
+   **Verify (optiplex):** `$mod+d`: search glyph hugs the input text, box
    inset 16px left/right, 8px top/bottom; compare against fuzzel memory or a
    thinkpad screenshot.
-2. **Power-confirm hint** — `home/dot_config/i3/scripts/executable_power_control.sh`,
+2. **Power-confirm hint**: `home/dot_config/i3/scripts/executable_power_control.sh`,
    `confirm_menu()`: the theme never renders a `message` widget, so `-mesg`
    showed nothing and only the input placeholder ("find something...") was
    visible. The hint now rides in the entry placeholder via
    `-theme-str "entry { placeholder: \"$confirm_placeholder\"; }"` (fuzzel
    passes the same string as `--placeholder`). Launcher placeholder is
    untouched. **Verify (optiplex):** `$mod+Shift+z` → prompt
-   `confirm suspend? `, grey `Enter=yes, Esc=no` **inside the input box**;
-   Esc/arrow-cancel works; do **not** press Enter unless you want to suspend.
-3. **Dunst below the bar** — `home/dot_config/dunst/dunstrc.tmpl`
+   `confirm suspend? `, grey `Enter=yes, Esc=no` **inside the input box**.
+   Esc/arrow-cancel works. Do **not** press Enter unless you want to suspend.
+3. **Dunst below the bar**: `home/dot_config/dunst/dunstrc.tmpl`
    (deploys on both machines). Wayland dunst is pushed below waybar's 24px
    exclusive zone before its `(8, 8)` offset applies (→ top at y=32); X11
    dunst measures from the screen edge with no strut awareness, so it
    overlapped the 24px polybar. Offset is now
-   `(8, {{…optiplex}}32{{…else}}8{{end}})` — optiplex renders `(8, 32)`,
+   `(8, {{…optiplex}}32{{…else}}8{{end}})`: optiplex renders `(8, 32)`,
    identical geometry to thinkpad; thinkpad stays `(8, 8)`. **Verify
    (optiplex):** `systemctl --user restart dunst` (or `pkill dunst`;
    dbus-activation relaunches it), then
    `notify-send "geometry" "below the bar"` → 8px from right edge, top edge
    8px below the 24px bar. Also `grep offset ~/.config/dunst/dunstrc` after
    apply → must read `(8, 32)`.
-4. **Waybar muted dim** (thinkpad-side) — `home/dot_config/waybar/style.css.tmpl`:
+4. **Waybar muted dim** (thinkpad-side) in `home/dot_config/waybar/style.css.tmpl`:
    new `#pulseaudio.muted { color: @neutral-text-muted; }`, deliberately
    placed **after** `#pulseaudio:hover` so hovering does not un-dim it
    (polybar has no hover state; equal specificity → later rule wins).
@@ -105,7 +106,7 @@ only the reported items.
    `#pulseaudio.muted`). **Verify (thinkpad, when back):** reload waybar,
    `pactl set-sink-mute @DEFAULT_SINK@ toggle` → `󰖁 Muted` renders grey,
    stays grey on hover; toggle back.
-5. **Picom shadows — diagnosed; config stays `(0, 2)` (report only).**
+5. **Picom shadows: diagnosed; config stays `(0, 2)` (report only).**
    The stale-instance hypothesis is rejected: the running process is
    `picom --config ~/.config/picom.conf` (single instance; config mtime
    predates it), applies `shadow-opacity 0.5`, and honors the offset keys
@@ -113,7 +114,7 @@ only the reported items.
    renderer limitation of the installed build (`picom v13 git rev
    d87a5ba`): shadow tails render only where the shadow core reaches the
    window edge, so right/bottom need offset ≥ 0 while left/top need ≥ ~14px
-   protrusion — no offset yields a four-sided shadow. **Outcome:** keep
+   protrusion, so no offset yields a four-sided shadow. **Outcome:** keep
    `(0, 2)` (the thinkpad-mirror intent) and report the limitation; full
    measurement matrix in the findings doc's "Verification results".
 
@@ -131,12 +132,12 @@ full wording and the source proofs behind each item):
    (`--release` behavior).
 5. Drop-term and topgrade scratchpads float **with a titlebar**.
 6. Three suspend paths lock before sleep (power menu, `systemctl suspend`,
-   `xset s 20 10` idle — warns at 20s, locks at 30s); DND restores on wake.
+   `xset s 20 10` idle: warns at 20s, locks at 30s); DND restores on wake.
 7. Print / Shift+Print / Ctrl+Print save into `~/Pictures/Screenshots`
    (auto-created at startup); region capture works.
 8. Logout stops `calibre-sync-netmon` (bound to `i3-session.target`).
 9. Next apply re-runs onboarding (packages.json hash) and reports
-   `lutgen-cli-git` as new — what the `sw` feh backend needs for
+   `lutgen-cli-git` as new: what the `sw` feh backend needs for
    stills on optiplex; by design.
 10. `polybar -vvv` includes the i3 module build flag.
 11. **New:** the five fixes above (rofi layout, confirm placeholder, dunst
@@ -147,10 +148,10 @@ full wording and the source proofs behind each item):
     warning at 20s that cancels the 30s lock if you move, then the
     `locking screen...` beat for 2.5s as the lock begins.
 13. **New:** DND flips the indicator the instant `$mod+Shift+d` (or a
-    click) toggles it — no 5s lag — and after a topgrade run the
+    click) toggles it (no 5s lag), and after a topgrade run the
     updates count refreshes as soon as topgrade exits instead of up to
     600s later.
-14. **New:** the four sweep fixes — Shift+Print/Ctrl+Print captures
+14. **New:** the four sweep fixes: Shift+Print/Ctrl+Print captures
     reach the clipboard (`-c` on both; the interactive confirm/cancel
     legs are docs-based), `sw --next`/`--set`/`--restore` rotate the
     pool through feh and keep `~/.fehbg` in step for the next login,
@@ -160,7 +161,7 @@ full wording and the source proofs behind each item):
 
 Status (2026-09-26): items 1–5, 7, 9, 10 verified on optiplex (5's
 topgrade half via a stand-in window; 7 re-verified after the flameshot
-scripts were rewritten — Ctrl+Print saves the focused-window region,
+scripts were rewritten: Ctrl+Print saves the focused-window region,
 Shift+Print cancels on Escape, both exit cleanly). **6 verified in
 full:** the three lock-before-sleep legs were user-tested with real
 suspend cycles (journal shows cycles at 00:08), and the idle path was
@@ -168,18 +169,18 @@ re-verified after the warn-then-lock change (xset idle → xss-lock
 notifier → lock.sh: pause 100 on lock, restored on unlock; xset returned
 to `timeout 0`/DPMS off). **8 still needs a real logout** (the
 i3-session.target stop/start substitute passed). Fixes: 1–3 verified
-(dunst additionally reports a 1.0625× DPI offset deviation —
+(dunst additionally reports a 1.0625× DPI offset deviation:
 reported, not compensated), 4 deferred to thinkpad, 5 diagnosed with
 config kept at `(0, 2)`. Item 12 passed scripted tests (restore
 round-trip; warning shown, `locking screen...` beat painted before the
 lock, activity cancels, fresh idle locks at cycle-end+2.5s; manual and
-simulated-sleep paths also verified) — try the key by hand. **13**
+simulated-sleep paths also verified). Try the key by hand. **13**
 passed live checks (icon flip round-trips pixel-identical with pause
 restored, the anchored poke re-reports within seconds, two polybar
-restarts leave one tail instance) — a real topgrade run is yours to
+restarts leave one tail instance). A real topgrade run is yours to
 watch. **14** passed live checks (sw backend gates and rotation on the
 pool gif, sw-owned `~/.fehbg` surviving a silent apply, the bar-center
-title, one mpris tail instance) — paste the Shift+Print/Ctrl+Print
+title, one mpris tail instance). Paste the Shift+Print/Ctrl+Print
 captures to confirm `-c`; item 9 now points at `lutgen-cli-git`, which
 the next apply installs. Full evidence in the findings doc's
 "Verification results" and "Acceptance round".
@@ -192,20 +193,20 @@ the next apply installs. Full evidence in the findings doc's
   located, so they are kept rather than scripted).
 - **Everything else is restored** with `sh refs/fetch-refs.sh [target-dir]`
   (default target = `refs/` itself; `refs/.gitignore` keeps restored files
-  out of `git status`; verified end-to-end on thinkpad — full run into a
+  out of `git status`; verified end-to-end on thinkpad: full run into a
   temp dir, pins match, idempotent re-run). Every clone, source tree, and
-  doc fetch is pinned to a specific commit — the sole exception is the
+  doc fetch is pinned to a specific commit: the sole exception is the
   rendered `i3/userguide.html`, which tracks the latest i3 release (its
   asciidoc source is pinned under `refs/src/i3/docs/userguide`). The
   script covers:
   - clones: the 5 nvim-theme/plugin repos, `polybar-wiki`, `waybar-wiki`
     (the bar-migration source of truth), and `chezmoi` (reference docs under
     `assets/chezmoi.io/docs/`);
-  - full source trees: `refs/src/i3/` and `refs/src/polybar/` — the exact
+  - full source trees: `refs/src/i3/` and `refs/src/polybar/`, the exact
     commits whose files the findings doc cites as proof (`refs/i3/*.man`
     and `refs/polybar/*.rst` are copied from them by the script);
   - man/doc fetches, one directory per tool: `sway/` (7 scds incl. swaymsg),
-    `swayfx/`, `swaylock/`, `swaylock-effects/` (jirutka — the fork Arch
+    `swayfx/`, `swaylock/`, `swaylock-effects/` (jirutka, the fork Arch
     ships), `swayidle/`, `fuzzel/`, `foot/`, `grim/`, `slurp/`, `satty/`,
     `awww/` (9 scds), `wlsunset/`, `rofi/` (5 files incl. rofi-script),
     `picom/` (sample conf + man adoc), `dunst/` (`dunst.1.pod.in`,
@@ -216,7 +217,7 @@ the next apply installs. Full evidence in the findings doc's
     `fastfetch/` (man + json_schema), `lazygit/`, `topgrade/`,
     `playerctl/`, `systemd/` (unit/service/exec/timer/special XML for the
     user units);
-  - `dotfiles-pre-reset.bundle` (67M — regenerated locally from the
+  - `dotfiles-pre-reset.bundle` (67M, regenerated locally from the
     identical `backup/pre-reset-2567b2d` ref, so the bytes do not belong
     in git).
 - **Deliberately not fetched** (nothing in the repo needs them): `zellij`
@@ -238,17 +239,18 @@ the next apply installs. Full evidence in the findings doc's
 - Optional `cliphist` removal (referenced nowhere; parity already holds).
 - no `--locked` media keys on optiplex, flameshot vs grim/satty,
   xss-lock/xset vs swayidle, feh vs awww, redshift vs wlsunset,
-  touchpad block, waybar tooltips — all platform-justified, accepted
+  touchpad block, waybar tooltips: all platform-justified, accepted
   earlier.
 
 ## Operating notes for this session
 
 - Order: `git pull` → read findings doc tail (checklist) → run checklist +
   this round's verifications → only then edit further.
-- Config read timing: rofi reads config per launch (no restart); dunst and
-  picom need a restart; polybar via `$mod+Shift+c`; waybar only on thinkpad.
+- Config read timing: rofi reads config per launch (no restart). Dunst and
+  picom need a restart. Polybar restarts via `$mod+Shift+c`. Waybar reloads
+  only on thinkpad.
 - `chezmoi diff` before `chezmoi apply` on optiplex; expect onboarding
   re-run if the packages hash is newer than its recorded state.
 - Validation available on optiplex that thinkpad lacked: `i3 -C`,
-  `polybar -vvv`, `rofi -dump-config`, picom cmdline inspection — use them,
+  `polybar -vvv`, `rofi -dump-config`, picom cmdline inspection: use them,
   they are exactly the checks that were impossible before.

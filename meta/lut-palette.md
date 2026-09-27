@@ -14,9 +14,6 @@ The LUT palette maps wallpapers into the locked desktop palette defined by
   of stops.
 - **Keep the artifact reproducible.** The generator defines the formula; the
   checked-in palette file contains the generated hexadecimal values.
-- **Do not restore the old themer.** The previous hand-tuned palette subsets,
-  chezmoi templates, and Python wallpaper themer are intentionally outside the
-  current design.
 
 ## lutgen behavior
 
@@ -100,9 +97,8 @@ Generation order is:
 The file is checked in and reproducible. Do not hand-edit it.
 
 The generator is intentionally a small Python script rather than a general
-palette-building system. It reads the locked colors, performs the documented
-calculations, and writes the palette file. Do not introduce chezmoi templates,
-YAML, contrast gates, or another palette abstraction for this workflow.
+palette-building system. Do not introduce chezmoi templates, YAML, contrast
+gates, or another palette abstraction for this workflow.
 
 ## Application parameters
 
@@ -121,8 +117,8 @@ lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 img.png -o out.png
 | `-P` |        | Preserve source luminance and retain image detail                                 |
 | `-L` | `1.05` | Slightly favor colorful matches while retaining the luminance-preserving behavior |
 
-These values were retained from testing against real wallpapers. Treat them as
-one working parameter set, not as universal lutgen defaults.
+Treat these values, tested against real wallpapers, as one working parameter
+set, not as universal lutgen defaults.
 
 When tuning, change one parameter at a time. RBF shape and luminance weighting
 are the first parameters to investigate when the neutral palette produces
