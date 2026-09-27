@@ -154,7 +154,13 @@ for page in systemd.unit systemd.service systemd.exec systemd.timer systemd.spec
 done
 
 # Pre-reset history snapshot; regenerable because the local
-# backup/pre-reset-2567b2d branch still holds the identical objects.
+# backup/pre-reset-2567b2d branch still holds the identical objects. The
+# branch can be absent on a given machine, so machines without it skip the
+# bundle instead of failing the run.
 if [ ! -f "$target/dotfiles-pre-reset.bundle" ]; then
-	git -C "$repo" bundle create "$target/dotfiles-pre-reset.bundle" backup/pre-reset-2567b2d
+	if git -C "$repo" rev-parse --verify --quiet backup/pre-reset-2567b2d >/dev/null; then
+		git -C "$repo" bundle create "$target/dotfiles-pre-reset.bundle" backup/pre-reset-2567b2d
+	else
+		echo "fetch-refs: backup/pre-reset-2567b2d absent here, skipping dotfiles-pre-reset.bundle" >&2
+	fi
 fi
