@@ -1,7 +1,7 @@
 {
   "pacman": {
     "desktop": [
-      "imagemagick", "jq", "libnotify", "cliphist", "fzf", "dunst",
+      "imagemagick", "jq", "libnotify", "fzf", "dunst",
       "polkit-gnome", "xdg-utils"
     ],
     "system": [
