@@ -80,13 +80,21 @@ if [ ! -f "$target/polybar/default-config.ini" ]; then
 	cp "$target/src/polybar/doc/config.ini" "$target/polybar/default-config.ini"
 fi
 
-# Flat copies of the wiki pages the bar config uses, at the same pin as
-# the polybar-wiki clone; names match the curated refs/polybar/ layout.
+# Flat copies of the wiki pages the bar config uses, extracted from the
+# pinned polybar-wiki clone; raw.githubusercontent.com cannot serve wiki
+# repos at any ref, so the clone is the only source. Names match the
+# curated refs/polybar/ layout.
 for page in i3 script text ipc cpu memory date pulseaudio xworkspaces; do
-	fetch "https://raw.githubusercontent.com/polybar/polybar.wiki/$wiki_sha/Module:-$page.md" "polybar/module-$page.md"
+	if [ ! -f "$target/polybar/module-$page.md" ]; then
+		mkdir -p "$target/polybar"
+		git -C "$target/polybar-wiki" show "$wiki_sha:Module:-$page.md" >"$target/polybar/module-$page.md"
+	fi
 done
 for page in Configuration Formatting; do
-	fetch "https://raw.githubusercontent.com/polybar/polybar.wiki/$wiki_sha/$page.md" "polybar/$page.md"
+	if [ ! -f "$target/polybar/$page.md" ]; then
+		mkdir -p "$target/polybar"
+		git -C "$target/polybar-wiki" show "$wiki_sha:$page.md" >"$target/polybar/$page.md"
+	fi
 done
 
 # Wayland side (thinkpad): compositor, locker, bar, launchers, capture,
