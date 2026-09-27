@@ -39,34 +39,34 @@ format-margin = 1px
 format-padding = 8px
 
 [module/xworkspaces]
-type = internal/xworkspaces
+type = internal/i3
+; i3's IPC carries both WM_HINTS and _NET_WM_STATE_DEMANDS_ATTENTION
+; urgency, like Waybar; internal/xworkspaces sees only WM_HINTS.
 ; Waybar #workspaces: margin 0, padding 0 2px, buttons padded 6px per side;
 ; waybar has no scroll-to-switch, so wheel over icons must not change focus.
+format = <label-state>
 format-margin = 0
 format-padding = 2px
 enable-scroll = false
-icon-0 = 1;󰲠
-icon-1 = 2;󰲢
-icon-2 = 3;󰲤
-icon-3 = 4;󰲦
-icon-4 = 5;󰲨
-icon-5 = 6;󰲪
-icon-6 = 7;󰲬
-icon-7 = 8;󰲮
-icon-8 = 9;󰲰
-icon-9 = 10;󰿬
-label-active = %icon%
-label-active-foreground = ${colors.blue}
-label-active-padding = 6px
-label-occupied = %icon%
-label-occupied-foreground = ${colors.muted}
-label-occupied-padding = 6px
+ws-icon-0 = 1;󰲠
+ws-icon-1 = 2;󰲢
+ws-icon-2 = 3;󰲤
+ws-icon-3 = 4;󰲦
+ws-icon-4 = 5;󰲨
+ws-icon-5 = 6;󰲪
+ws-icon-6 = 7;󰲬
+ws-icon-7 = 8;󰲮
+ws-icon-8 = 9;󰲰
+ws-icon-9 = 10;󰿬
+label-focused = %icon%
+label-focused-foreground = ${colors.blue}
+label-focused-padding = 6px
+label-unfocused = %icon%
+label-unfocused-foreground = ${colors.muted}
+label-unfocused-padding = 6px
 label-urgent = %icon%
 label-urgent-foreground = ${colors.red}
 label-urgent-padding = 6px
-label-empty = %icon%
-label-empty-foreground = ${colors.muted}
-label-empty-padding = 6px
 
 ; Waybar #mode: format output is empty at rest (with its margins), so
 ; the bar changes only while a mode is active. 4px margin and the bold
