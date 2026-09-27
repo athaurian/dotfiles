@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn
 
-# Locked render values (Automation section in AGENTS.md):
+# Locked render values (meta/lut-palette.md):
 #   lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05
 PALETTE = "neutral"
 LUM = "1.05"
@@ -402,8 +402,8 @@ def apply_lut(
 def wallpaper_backend(
     which: Callable[[str], str | None] = shutil.which,
 ) -> tuple[str, str] | None:
-    """Return ``(name, executable)`` for the first wallpaper backend found —
-    awww (Wayland) before feh (X11) — or None when neither is installed."""
+    """Return ``(name, executable)`` for the first wallpaper backend found,
+    awww (Wayland) before feh (X11), or None when neither is installed."""
 
     awww = which("awww")
     if awww:

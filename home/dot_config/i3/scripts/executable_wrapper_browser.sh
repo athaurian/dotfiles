@@ -3,7 +3,6 @@ set -eu
 
 # Launch the preferred browser.
 
-# Honour $BROWSER if set (may contain arguments)
 if [ -n "${BROWSER:-}" ]; then
 	# shellcheck disable=SC2086 # $BROWSER may contain args
 	exec $BROWSER "$@"

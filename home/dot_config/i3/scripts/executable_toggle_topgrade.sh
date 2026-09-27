@@ -13,7 +13,7 @@ acquire_sway_lock "toggle_topgrade" || exit 0
 
 if i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
 	# Test existence via get_marks (no state change, no render).
-	# Show and geometry run as one transaction; i3 renders once. Do not
+	# Show and geometry run as one transaction. i3 renders once. Do not
 	# fold the test into the transaction (`if i3-msg "... scratchpad show,
 	# resize ..., move ..."`): when hiding, the trailing `move position center`
 	# fails on the hidden scratchpad window and poisons the exit status, so

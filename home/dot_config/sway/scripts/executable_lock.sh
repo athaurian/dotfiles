@@ -11,12 +11,12 @@ if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
 fi
 
 if [ "$immediate" -eq 0 ]; then
-	# Timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
+	# Timeout avoids hangs on backlogged dunst. -a lock matches dnd_bypass_lock.
 	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
 	sleep 2.5
 fi
 
-# Pause at 100 (above the 90 bypasses); save the level for restore.
+# Pause at 100 (above the 90 bypasses). Save the level for restore.
 # Timeouts keep a hanging daemon from blocking suspend.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
 timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"

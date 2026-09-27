@@ -5,7 +5,7 @@ set -eu
 
 unfreeze() {
 	if [ "${SCREENSHOT_FROZEN:-0}" = "1" ]; then
-		# wayfreeze may already be dead; || true keeps the script alive under set -e.
+		# wayfreeze may already be dead. || true keeps the script alive under set -e.
 		pkill -x wayfreeze 2>/dev/null || true
 	fi
 	return 0

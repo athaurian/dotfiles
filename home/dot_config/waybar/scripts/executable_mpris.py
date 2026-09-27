@@ -333,7 +333,7 @@ def _follow_reader(proc: subprocess.Popen, events: queue.Queue) -> None:
     where bursty follow lines linger in the Python-side buffer while
     `select` receives nothing at the OS level. That delays or drops events.
     """
-    assert proc.stdout is not None  # always piped; narrows mypy's IO | None
+    assert proc.stdout is not None  # always piped, and it narrows mypy's IO | None
     for line in proc.stdout:
         events.put(("line", line))
     events.put(("eof", None))

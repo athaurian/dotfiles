@@ -3,7 +3,7 @@
 
 Run from the repository root::
 
-    make check-calibre
+    python3 home/dot_local/bin/tests/test_calibre_drive_sync.py
 """
 
 from __future__ import annotations

@@ -3,9 +3,9 @@
 Prints the active window title with Waybar's sway/window rewrite rules.
 
 polybar's internal/xwindow label only supports truncation tokens, so the
-rewrite table lives in this script instead; the rules and the 72-column cap
-mirror waybar/config.jsonc (sway/window). Empty titles print as a single
-space so the module slot stays put, as in Waybar.
+rewrite table lives in this script instead. The rules and the 72-column
+cap mirror waybar/config.jsonc (sway/window). Empty titles print as a
+single space so the module slot stays put, as in Waybar.
 """
 
 import re
