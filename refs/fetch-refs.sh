@@ -235,6 +235,8 @@ fetch "https://raw.githubusercontent.com/astrand/xclip/f8ae40fb9fc899807573867a7
 # carrying the INI format this machine runs) is the only reference copy.
 fetch "https://codeberg.org/fairyglade/ly/raw/commit/1117ef5a3bde630cecd6821d42400bbce8f48f3c/res/config.ini" ly/config.ini
 fetch "https://raw.githubusercontent.com/kovidgoyal/kitty/f03c45419681e3027ecb871defcf06dd1c08234b/docs/conf.rst" kitty/conf.rst
+# cli.py carries every CLI option, so it proves kitty has no config check mode.
+fetch "https://raw.githubusercontent.com/kovidgoyal/kitty/f03c45419681e3027ecb871defcf06dd1c08234b/kitty/cli.py" kitty/cli.py
 zathura_sha=4fad4e4d82ac3275632fcbc55386915ff361e404
 fetch "https://raw.githubusercontent.com/pwmt/zathura/$zathura_sha/doc/man/zathura.1.rst" zathura/zathura.1.rst
 fetch "https://raw.githubusercontent.com/pwmt/zathura/$zathura_sha/doc/man/zathurarc.5.rst" zathura/zathurarc.5.rst
