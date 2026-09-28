@@ -44,42 +44,39 @@ fi
 # and sessions without a consumer skip silently — and every command that
 # can outlive the apply is backgrounded or silent so the apply never hangs.
 
-# Tray applets resolve the icon theme only when they start; kill them
-# before the reload so the exec_always lines respawn them against the
-# new theme.
-if [ -n "${SWAYSOCK:-}${I3SOCK:-}" ]; then
+# Tray applets resolve the icon theme only when they start, so a palette
+# switch restarts them. On sway one reload re-runs everything: exec_always
+# respawns the applets, and the waybar killed here is re-created with the
+# fresh CSS (sway re-execs a live bar only when its bar block changed, which
+# a palette switch never does).
+if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
 	pkill -x nm-applet >/dev/null 2>&1 || true
 	pkill -x blueman-applet >/dev/null 2>&1 || true
-fi
-
-# Compositor config reload; sway respawns its bar (swaybar_command waybar)
-# on reload, so waybar needs no separate handling there.
-if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
+	if pgrep -x waybar >/dev/null 2>&1; then
+		pkill -x waybar || true
+		sleep 0.3
+	fi
 	swaymsg reload >/dev/null 2>&1 || true
 fi
+
+# i3 runs exec_always only at startup/restart, never on reload, and does not
+# manage polybar: reload the config, restart the bar the way $mod+Shift+c
+# does, then run the applet script — also the exec_always target — so the
+# applets embed into the new tray against the new theme.
 if command -v i3-msg >/dev/null 2>&1 && [ -n "${I3SOCK:-}" ]; then
 	i3-msg reload >/dev/null 2>&1 || true
-fi
-
-# i3 does not manage polybar, so its reload chain restarts the bar the same
-# way $mod+Shift+c does.
-if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
-	polybar-msg cmd restart >/dev/null 2>&1 || true
-fi
-
-# Waybar reads style.css only at startup, and sway re-execs its bar on
-# reload only when the sway bar block changed — which a palette switch
-# never does. On sway: kill the bar, then reload so sway re-creates it
-# sway-managed with the fresh CSS. Elsewhere: kill and respawn standalone.
-if pgrep -x waybar >/dev/null 2>&1; then
-	pkill -x waybar || true
-	if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
+	if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
+		polybar-msg cmd restart >/dev/null 2>&1 || true
 		sleep 0.3
-		swaymsg reload >/dev/null 2>&1 || true
-	else
-		sleep 0.3
-		(setsid waybar >/dev/null 2>&1 < /dev/null &) || true
 	fi
+	"$HOME/.config/i3/scripts/applets.sh" || true
+fi
+
+# Standalone waybar (no sway to re-create it): kill and respawn fresh.
+if [ -z "${SWAYSOCK:-}" ] && pgrep -x waybar >/dev/null 2>&1; then
+	pkill -x waybar || true
+	sleep 0.3
+	(setsid waybar >/dev/null 2>&1 < /dev/null &) || true
 fi
 
 # kitty re-reads its config on SIGUSR1 (its documented reload signal).

@@ -11,16 +11,16 @@ holds the per-machine package lists. See `AGENTS.md` for operating rules.
 
 ## Sessions and desktop
 
-| Feature                                                                           | Machine  | Source                                                                             |
-| --------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------- |
-| Display manager `ly` starts the graphical session                                 | both     | `/etc/ly/config.ini` (unmanaged); session log `~/.local/state/ly-session.log`      |
-| Sway configuration                                                                | thinkpad | `home/dot_config/sway/config.tmpl`                                                 |
-| i3 configuration                                                                  | optiplex | `home/dot_config/i3/config.tmpl`                                                   |
-| Session bootstrap: imports compositor env into systemd, starts the session target | both     | `home/dot_config/{sway,i3}/scripts/executable_autostart.sh`                        |
-| Bar                                                                               | thinkpad | Waybar, started by `bar { swaybar_command waybar }`; `home/dot_config/waybar/`     |
-| Bar                                                                               | optiplex | Polybar, started by i3 `autostart.sh` (`polybar main`); `home/dot_config/polybar/` |
-| Tray applets (blueman, network manager)                                           | both     | `exec_always` in both configs                                                      |
-| picom compositor, feh wallpaper at login                                          | optiplex | `home/dot_config/i3/config.tmpl`                                                   |
+| Feature                                                                           | Machine  | Source                                                                                                                  |
+| --------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Display manager `ly` starts the graphical session                                 | both     | `/etc/ly/config.ini` (unmanaged); session log `~/.local/state/ly-session.log`                                           |
+| Sway configuration                                                                | thinkpad | `home/dot_config/sway/config.tmpl`                                                                                      |
+| i3 configuration                                                                  | optiplex | `home/dot_config/i3/config.tmpl`                                                                                        |
+| Session bootstrap: imports compositor env into systemd, starts the session target | both     | `home/dot_config/{sway,i3}/scripts/executable_autostart.sh`                                                             |
+| Bar                                                                               | thinkpad | Waybar, started by `bar { swaybar_command waybar }`; `home/dot_config/waybar/`                                          |
+| Bar                                                                               | optiplex | Polybar, started by i3 `autostart.sh` (`polybar main`); `home/dot_config/polybar/`                                      |
+| Tray applets (blueman, network manager)                                           | both     | `exec_always` in both configs (i3 runs `i3/scripts/applets.sh`); the gtk-mode hook restarts them for the new icon theme |
+| picom compositor, feh wallpaper at login                                          | optiplex | `home/dot_config/i3/config.tmpl`                                                                                        |
 
 ## Keybinds
 
