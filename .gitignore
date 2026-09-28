@@ -1,3 +1,8 @@
+# Generated per machine by meta/palette.py from the machine's active palette
+# mode; the active mode differs between machines, so this is state, not
+# repository content. Run make palette before chezmoi apply on a fresh clone.
+home/.chezmoidata.yaml
+
 # Scratch playground; experiments, never committed.
 assets/
 

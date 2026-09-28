@@ -2,16 +2,17 @@
 """
 sw: set wallpaper.
 
-Recolors stills with the locked neutral lutgen palette (caching both the
-LUT and each rendered output so repeated runs are cheap), rotates through
-a pool with next/previous history, and sets the result via awww (Wayland)
-or feh (X11).
+Recolors stills with the active mode's lutgen palette (neutral for dark,
+neutral-light for light; caching both the LUT and each rendered output so
+repeated runs are cheap), rotates through a mode-scoped pool with
+next/previous history, and sets the result via awww (Wayland) or feh (X11).
 
 Pre-themed animations (.gif) bypass lutgen entirely: they are cached by
-content hash and set with no transition. `sw --restore` re-applies
-whatever `last` records (still or animation), so login restores it.
+content hash and set with no transition. `sw --restore` re-applies the
+mode's last-changed wallpaper (still or animation), so login restores it
+and a palette switch lands on that mode's own variant.
 
-  sw [--set] ~/Pictures/Wallpapers/pool/flower-basket.jpg
+  sw [--set] ~/Pictures/Wallpapers/pool_light/flower-basket.jpg
   sw --next
   sw --prev
   sw --restore
@@ -35,8 +36,9 @@ from pathlib import Path
 from typing import NoReturn
 
 # Locked render values (meta/lut-palette.md):
-#   lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05
-PALETTE = "neutral"
+#   lutgen generate -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05
+PALETTE_DARK = "neutral"
+PALETTE_LIGHT = "neutral-light"
 LUM = "1.05"
 RADIUS = "8.0"
 SHAPE = "96.0"
@@ -56,7 +58,9 @@ NOTIFY_APP = "sw"
 NOTIFY_ICON = "󰸉"
 NOTIFY_TIMEOUT_MS = 3000
 
-POOL_DIR = Path.home() / "Pictures" / "Wallpapers" / "pool"
+WALLPAPER_ROOT = Path.home() / "Pictures" / "Wallpapers"
+POOL_DIR_DARK = WALLPAPER_ROOT / "pool_dark"
+POOL_DIR_LIGHT = WALLPAPER_ROOT / "pool_light"
 FALLBACK = Path("/usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png")
 
 
@@ -157,16 +161,42 @@ def sw_cache(env: Mapping[str, str] = os.environ) -> Path:
     return cache_home(env) / "sw"
 
 
+def palette_mode(env: Mapping[str, str] = os.environ) -> str:
+    """The active palette mode: SW_MODE, else the mode state file the
+    palette system records, else dark."""
+    value = env.get("SW_MODE", "").strip().lower()
+    if value in ("dark", "light"):
+        return value
+    home = env.get("HOME") or str(Path.home())
+    state = Path(home) / ".local" / "state" / "palette-mode"
+    try:
+        value = state.read_text().split()[0].lower()
+    except (OSError, IndexError):
+        return "dark"
+    return value if value in ("dark", "light") else "dark"
+
+
+def palette_for_mode(mode: str) -> str:
+    return PALETTE_LIGHT if mode == "light" else PALETTE_DARK
+
+
+def pool_dir_for_mode(mode: str) -> Path:
+    return POOL_DIR_LIGHT if mode == "light" else POOL_DIR_DARK
+
+
 def queue_file(env: Mapping[str, str] = os.environ) -> Path:
-    return sw_cache(env) / "queue"
+    # Rotation state is mode-scoped: a mode switch starts a fresh queue,
+    # history, and last record rather than mixing pool_light and pool_dark
+    # positions.
+    return sw_cache(env) / f"queue-{palette_mode(env)}"
 
 
 def history_file(env: Mapping[str, str] = os.environ) -> Path:
-    return sw_cache(env) / "history"
+    return sw_cache(env) / f"history-{palette_mode(env)}"
 
 
 def last_file(env: Mapping[str, str] = os.environ) -> Path:
-    return sw_cache(env) / "last"
+    return sw_cache(env) / f"last-{palette_mode(env)}"
 
 
 def env_value(env: Mapping[str, str], setting: str, default: str) -> str:
@@ -189,7 +219,9 @@ def resolve_render_config(
     args: argparse.Namespace,
     env: Mapping[str, str],
 ) -> RenderConfig:
-    palette = args.palette or env_value(env, "PALETTE", PALETTE)
+    palette = args.palette or env_value(
+        env, "PALETTE", palette_for_mode(palette_mode(env))
+    )
     if not palette:
         die("palette must not be empty")
 
@@ -762,8 +794,9 @@ def render_many(
     args: argparse.Namespace,
     env: Mapping[str, str],
     images: Sequence[Path],
-) -> tuple[Path | None, bool]:
-    """Recolors ``images``; returns the last output and an error flag."""
+) -> tuple[Path | None, Path | None, bool]:
+    """Recolors ``images``; returns the last output, its source image, and
+    an error flag."""
 
     lutgen = shutil.which("lutgen")
     config = resolve_render_config(args, env)
@@ -787,6 +820,7 @@ def render_many(
     ensure_directory(output_dir, "output directory")
 
     last_output: Path | None = None
+    last_source: Path | None = None
     had_error = False
 
     for image_arg in images:
@@ -804,6 +838,7 @@ def render_many(
                 continue
             print(output_file)
             last_output = output_file
+            last_source = image
             continue
 
         if not lutgen:
@@ -818,12 +853,17 @@ def render_many(
 
         print(output_file)
         last_output = output_file
+        last_source = image
 
-    return last_output, had_error
+    return last_output, last_source, had_error
 
 
 def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
-    pool = expand_user_path(args.pool_dir)
+    pool = (
+        expand_user_path(args.pool_dir)
+        if args.pool_dir is not None
+        else pool_dir_for_mode(palette_mode(env))
+    )
     queue_path = queue_file(env)
     previous = current_wallpaper(env)
 
@@ -839,7 +879,7 @@ def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
         if not wallpapers:
             if not FALLBACK.is_file():
                 die(f"no wallpapers found in {pool} and fallback missing: {FALLBACK}")
-            last_output, had_error = render_many(args, env, [FALLBACK])
+            last_output, _, had_error = render_many(args, env, [FALLBACK])
             if last_output is None:
                 return 1
             if previous is not None and previous != str(FALLBACK):
@@ -848,7 +888,7 @@ def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
             if not set_wallpaper(last_output):
                 return 1
             notify(
-                f"{NOTIFY_ICON} wallpaper changed",
+                f"{NOTIFY_ICON} Wallpaper changed",
                 f"<b>{FALLBACK.name}</b> set as fallback.",
             )
             return 1 if had_error else 0
@@ -864,7 +904,7 @@ def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
 
     write_lines_atomic(queue_path, remaining)
 
-    last_output, had_error = render_many(args, env, [Path(chosen)])
+    last_output, _, had_error = render_many(args, env, [Path(chosen)])
     if last_output is None:
         return 1
 
@@ -873,7 +913,7 @@ def go_next(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     record_last_wallpaper(chosen, env)
     if not set_wallpaper(last_output):
         return 1
-    notify(f"{NOTIFY_ICON} wallpaper changed", f"<b>{Path(chosen).name}</b>.")
+    notify(f"{NOTIFY_ICON} Wallpaper changed", f"<b>{Path(chosen).name}</b>.")
     return 1 if had_error else 0
 
 
@@ -901,7 +941,7 @@ def go_prev(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     if target is None:
         write_lines_atomic(history_file(env), history)
         notify(
-            f"{NOTIFY_ICON} no previous wallpaper",
+            f"{NOTIFY_ICON} No previous wallpaper",
             "You are at the start of the history.",
         )
         return 0
@@ -912,22 +952,37 @@ def go_prev(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     write_lines_atomic(queue_path, queue)
     write_lines_atomic(history_file(env), history)
 
-    last_output, had_error = render_many(args, env, [Path(target)])
+    last_output, _, had_error = render_many(args, env, [Path(target)])
     if last_output is None:
         return 1
 
     record_last_wallpaper(target, env)
     if not set_wallpaper(last_output):
         return 1
-    notify(f"{NOTIFY_ICON} wallpaper changed", f"<b>{Path(target).name}</b>.")
+    notify(f"{NOTIFY_ICON} Wallpaper changed", f"<b>{Path(target).name}</b>.")
     return 1 if had_error else 0
 
 
-def go_restore(args: argparse.Namespace, env: Mapping[str, str]) -> int:
-    """Re-applies the wallpaper recorded in `last` (still or animation).
+def restore_target(env: Mapping[str, str], previous: str | None) -> str | None:
+    """The wallpaper --restore re-applies: the readable last-changed record
+    ``previous``, else the mode's pool's first readable entry, else None."""
 
-    Idempotent: rotation state is untouched and no notification is sent,
-    so Sway can run it at login to restore whatever was live.
+    target = previous
+    if target is not None and not os.access(target, os.R_OK):
+        warn(f"last wallpaper unreadable, falling back: {target}")
+        target = None
+    if target is None:
+        pool = get_wallpapers(pool_dir_for_mode(palette_mode(env)))
+        target = next((path for path in pool if os.access(path, os.R_OK)), None)
+    return target
+
+
+def go_restore(args: argparse.Namespace, env: Mapping[str, str]) -> int:
+    """Re-applies the mode's last-changed wallpaper (still or animation).
+
+    Idempotent: rotation state is untouched and no notification is sent.
+    Sway runs it at login, and the palette mode hook runs it on a mode
+    switch, so the wallpaper lands on that mode's own variant.
     """
 
     ensure_backend()
@@ -935,16 +990,13 @@ def go_restore(args: argparse.Namespace, env: Mapping[str, str]) -> int:
     sw_cache(env).mkdir(parents=True, exist_ok=True)
 
     previous = current_wallpaper(env)
-    target = previous
-    if target is not None and not os.access(target, os.R_OK):
-        warn(f"last wallpaper unreadable, falling back: {target}")
-        target = None
+    target = restore_target(env, previous)
     if target is None:
         if not FALLBACK.is_file():
-            die("no previous wallpaper recorded and fallback missing")
+            die("no last wallpaper recorded, pool empty, and fallback missing")
         target = str(FALLBACK)
 
-    last_output, had_error = render_many(args, env, [Path(target)])
+    last_output, _, had_error = render_many(args, env, [Path(target)])
     if last_output is None:
         return 1
     if previous != target:
@@ -1027,8 +1079,8 @@ def parse_args(
     parser.add_argument(
         "--pool-dir",
         type=Path,
-        default=POOL_DIR,
-        help="rotation pool (default: ~/Pictures/Wallpapers/pool)",
+        default=None,
+        help="rotation pool (default: pool_light or pool_dark by mode)",
     )
     parser.add_argument(
         "--set",
@@ -1061,14 +1113,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not args.images:
         die("no images given (pass images, or use --next/--prev)")
 
-    last_output, had_error = render_many(args, env, args.images)
+    last_output, set_source, had_error = render_many(args, env, args.images)
 
     if args.set_wallpaper:
-        if last_output is None:
+        if set_source is None or last_output is None:
             warn("no themed image is available to set as wallpaper")
             had_error = True
         elif not set_wallpaper(last_output):
             had_error = True
+        else:
+            record_last_wallpaper(str(set_source), env)
 
     return 1 if had_error else 0
 

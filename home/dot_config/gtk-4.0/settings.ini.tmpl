@@ -1,0 +1,9 @@
+# Managed by chezmoi; edit the .tmpl source.
+{{- $mode := .mode }}
+[Settings]
+gtk-theme-name={{ if eq $mode "light" }}Orchis-Light-Compact{{ else }}Orchis-Dark-Compact{{ end }}
+gtk-icon-theme-name=Papirus{{ if eq $mode "light" }}-Light{{ else }}-Dark{{ end }}
+gtk-font-name=Source Sans 3 10
+gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-size=24
+gtk-application-prefer-dark-theme={{ if eq $mode "light" }}false{{ else }}true{{ end }}
