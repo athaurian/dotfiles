@@ -17,7 +17,8 @@ shadow-radius = 14;
 shadow-offset-x = 0;
 shadow-offset-y = 2;
 shadow-color = "{{ $p.black.hex }}";
-shadow-opacity = 0.5;
+# Weaker than SwayFX's black@0x80 twin: picom's shadow reads stronger.
+shadow-opacity = 0.4;
 
 corner-radius = 4;
 
@@ -43,4 +44,9 @@ rules: ({
   blur-background = false;
   shadow = false;
   corner-radius = 0;
+}, {
+  /* i3 draws decorations on frame windows; the tabbed title row would
+     cast its own shadow across the window below it. */
+  match = "class_g = 'i3-frame'";
+  shadow = false;
 })
