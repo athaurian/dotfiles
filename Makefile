@@ -16,13 +16,15 @@ SW_FILES := home/dot_local/bin/executable_sw \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette check-mpris check-sw
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw
 
 help:
 	@echo "Available commands:"
 	@echo "  format            - Format project docs with prettier"
 	@echo "  lint              - Check docs formatting without modifying them"
-	@echo "  palette           - Derive tints, write the LUT + chezmoi data, run checks"
+	@echo "  palette           - Derive tints, write both LUTs + the active mode's data, run checks"
+	@echo "  light             - Switch to light: record mode, regenerate, apply"
+	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 
@@ -37,8 +39,20 @@ format-md:
 lint-md:
 	$(PRETTIER) --check $(MD_FILES)
 
+# MODE=dark|light forces the mode for `make palette`; otherwise the machine's
+# mode file decides. `make light` and `make dark` switch the mode: they
+# record the mode file, regenerate the palette, and apply, so the rendered
+# configs update and the mode hook (dconf, wallpaper, session reloads)
+# runs.
+MODE :=
+
 palette:
-	uv run python3 meta/palette.py
+	uv run python3 meta/palette.py $(MODE:%=MODE=%)
+
+light dark:
+	printf '%s\n' '$@' > $(HOME)/.local/state/palette-mode
+	uv run python3 meta/palette.py MODE=$@
+	chezmoi apply
 
 check-mpris:
 	$(RUFF) check $(MPRIS_FILES)

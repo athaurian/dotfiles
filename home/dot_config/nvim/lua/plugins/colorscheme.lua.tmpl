@@ -1,10 +1,15 @@
 -- One Dark on Neutral, locked (meta/color-scheme.md): One Dark hues ×1.5
--- via catppuccin overrides. Dark mode only with static colors.
+-- via catppuccin overrides. Dark and light modes; colors come from the
+-- chezmoi palette data, rendered by meta/palette.py for the machine's mode.
+{{- $p := .palette }}
+{{- $mode := .mode }}
 
 return {
   {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "catppuccin-mocha" },
+    -- Follows the palette mode; a static value here would force one flavour
+    -- and bypass the mode's overrides after our setup runs.
+    opts = { colorscheme = {{ if eq $mode "light" }}"catppuccin-latte"{{ else }}"catppuccin-mocha"{{ end }} },
   },
   {
     "catppuccin/nvim",
@@ -13,7 +18,8 @@ return {
     priority = 1000,
     config = function()
       require("catppuccin").setup({
-        flavour = "mocha",
+        -- Mode-aware: latte renders the light palette via the same overrides.
+        flavour = {{ if eq $mode "light" }}"latte"{{ else }}"mocha"{{ end }},
         -- Transparent over wallpaper (foot uses same alpha).
         transparent_background = true,
         -- Keep bg-shade dim off: it paints NormalNC opaque, killing transparency.
@@ -29,55 +35,85 @@ return {
           snacks = true,
           blink_cmp = { style = "bordered" },
         },
+        -- Both flavour keys carry the overrides: whichever flavour loads
+        -- (ours below, or LazyVim's startup colorscheme) reads this palette.
         color_overrides = {
           mocha = {
-            rosewater = "#F2A256",
-            flamingo = "#FE4864",
-            pink = "#FF7376",
-            mauve = "#D95AFC",
-            red = "#FE4864",
-            maroon = "#FE4864",
-            peach = "#E49137",
-            yellow = "#F4BC45",
-            green = "#89C952",
-            teal = "#00BBCC",
-            sky = "#3DDAEE",
-            blue = "#48AFFF",
-            sapphire = "#48AFFF",
-            lavender = "#E67FFF",
-            text = "#D4D4D4",
-            subtext1 = "#B3B3B3",
-            subtext0 = "#8A8A8A",
-            overlay2 = "#8A8A8A",
-            overlay1 = "#3A3A3A",
-            overlay0 = "#5A5A5A",
-            surface2 = "#3A3A3A",
-            surface1 = "#2D2D2D",
-            surface0 = "#262626",
-            base = "#202020",
-            mantle = "#171717",
-            crust = "#101010",
+            rosewater = "{{ $p.orange_bright.hex }}",
+            flamingo = "{{ $p.red.hex }}",
+            pink = "{{ $p.red_bright.hex }}",
+            mauve = "{{ $p.purple.hex }}",
+            red = "{{ $p.red.hex }}",
+            maroon = "{{ $p.red.hex }}",
+            peach = "{{ $p.orange.hex }}",
+            yellow = "{{ $p.yellow.hex }}",
+            green = "{{ $p.green.hex }}",
+            teal = "{{ $p.cyan.hex }}",
+            sky = "{{ $p.cyan_bright.hex }}",
+            blue = "{{ $p.blue.hex }}",
+            sapphire = "{{ $p.blue.hex }}",
+            lavender = "{{ $p.purple_bright.hex }}",
+            text = "{{ $p.text.hex }}",
+            subtext1 = "{{ $p.subtext.hex }}",
+            subtext0 = "{{ $p.muted.hex }}",
+            overlay2 = "{{ $p.muted.hex }}",
+            overlay1 = "{{ $p.surface_2.hex }}",
+            overlay0 = "{{ $p.line.hex }}",
+            surface2 = "{{ $p.surface_2.hex }}",
+            surface1 = "{{ $p.surface_1.hex }}",
+            surface0 = "{{ $p.surface_0.hex }}",
+            base = "{{ $p.base.hex }}",
+            mantle = "{{ $p.mantle.hex }}",
+            crust = "{{ $p.crust.hex }}",
+          },
+          latte = {
+            rosewater = "{{ $p.orange_bright.hex }}",
+            flamingo = "{{ $p.red.hex }}",
+            pink = "{{ $p.red_bright.hex }}",
+            mauve = "{{ $p.purple.hex }}",
+            red = "{{ $p.red.hex }}",
+            maroon = "{{ $p.red.hex }}",
+            peach = "{{ $p.orange.hex }}",
+            yellow = "{{ $p.yellow.hex }}",
+            green = "{{ $p.green.hex }}",
+            teal = "{{ $p.cyan.hex }}",
+            sky = "{{ $p.cyan_bright.hex }}",
+            blue = "{{ $p.blue.hex }}",
+            sapphire = "{{ $p.blue.hex }}",
+            lavender = "{{ $p.purple_bright.hex }}",
+            text = "{{ $p.text.hex }}",
+            subtext1 = "{{ $p.subtext.hex }}",
+            subtext0 = "{{ $p.muted.hex }}",
+            overlay2 = "{{ $p.muted.hex }}",
+            overlay1 = "{{ $p.surface_2.hex }}",
+            overlay0 = "{{ $p.line.hex }}",
+            surface2 = "{{ $p.surface_2.hex }}",
+            surface1 = "{{ $p.surface_1.hex }}",
+            surface0 = "{{ $p.surface_0.hex }}",
+            base = "{{ $p.base.hex }}",
+            mantle = "{{ $p.mantle.hex }}",
+            crust = "{{ $p.crust.hex }}",
           },
         },
         custom_highlights = function(colors)
           return {
             -- Text selection uses the selection tint; cursors use the accent.
-            Visual = { bg = "#2F3C47" },
-            Cursor = { bg = colors.blue, fg = colors.base },
-            lCursor = { bg = colors.blue, fg = colors.base },
-            CursorIM = { bg = colors.blue, fg = colors.base },
-            TermCursor = { bg = colors.blue, fg = colors.base },
+            Visual = { bg = "{{ $p.selection.hex }}" },
+            Cursor = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
+            lCursor = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
+            CursorIM = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
+            TermCursor = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             CursorLine = { bg = colors.surface0 },
             CursorLineNr = { fg = colors.blue, style = { "bold" } },
-            Search = { bg = "#2F3C47", fg = colors.text },
-            IncSearch = { bg = colors.blue, fg = colors.base },
-            CurSearch = { bg = "#2F3C47", fg = "#FFFFFF", style = { "bold" } },
+            Search = { bg = "{{ $p.selection.hex }}", fg = colors.text },
+            IncSearch = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
+            CurSearch = { bg = "{{ $p.selection.hex }}", fg = "{{ $p.text_max.hex }}", style = { "bold" } },
 
             NormalNC = { bg = "none", fg = colors.subtext1 },
 
             -- Comments use italic muted.
-            Comment = { fg = "#8A8A8A", style = { "italic" } },
-            ["@comment"] = { fg = "#8A8A8A", style = { "italic" } },
+            Comment = { fg = "{{ $p.muted.hex }}", style = { "italic" } },
+            ["@comment"] = { fg = "{{ $p.muted.hex }}", style = { "italic" } },
 
             -- Follows the One Dark standard; catppuccin links differ.
             ["@variable.parameter"] = { fg = colors.text },
@@ -146,7 +182,7 @@ return {
             TabLine = { bg = colors.crust, fg = colors.subtext1 },
             TabLineSel = { fg = colors.text, bg = colors.base, style = { "bold" } },
             Pmenu = { bg = colors.mantle, fg = colors.text },
-            PmenuSel = { bg = colors.surface1, fg = "#FFFFFF", style = { "bold" } },
+            PmenuSel = { bg = colors.surface1, fg = "{{ $p.text_max.hex }}", style = { "bold" } },
             PmenuBorder = { fg = colors.surface2, bg = colors.mantle },
             BlinkCmpMenuBorder = { fg = colors.surface2, bg = colors.mantle },
             MatchParen = { bg = colors.surface0 },
@@ -154,7 +190,7 @@ return {
             Conceal = { fg = colors.overlay2 },
             Dimmed = { fg = colors.overlay2 },
             -- Backdrop for dim floats below (utility black).
-            BackdropDim = { bg = "#000000" },
+            BackdropDim = { bg = "{{ $p.black.hex }}" },
 
             WhichKeyDesc = { fg = colors.text },
             WhichKeySeparator = { fg = colors.overlay2 },
@@ -166,13 +202,13 @@ return {
             MasonHeading = { fg = colors.subtext1 },
 
             -- Lazy has no catppuccin integration; pin its ground/pills here.
-            MasonHighlightBlock = { bg = colors.blue, fg = colors.base },
-            MasonHighlightBlockBold = { bg = colors.blue, fg = colors.base },
+            MasonHighlightBlock = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
+            MasonHighlightBlockBold = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             MasonMutedBlock = { bg = colors.surface1, fg = colors.subtext1 },
             MasonMutedBlockBold = { bg = colors.surface1, fg = colors.subtext1 },
             LazyNormal = { bg = colors.mantle },
             LazyButton = { bg = colors.surface1, fg = colors.subtext1 },
-            LazyButtonActive = { bg = colors.blue, fg = colors.base },
+            LazyButtonActive = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             LazyH1 = { fg = colors.subtext1 },
             LazyH2 = { fg = colors.subtext1, style = { "bold" } },
 
@@ -205,7 +241,7 @@ return {
             SnacksPickerList = { bg = colors.mantle },
             SnacksPickerPreview = { bg = colors.base },
             SnacksPickerInput = { bg = colors.mantle },
-            SnacksPickerSelected = { bg = colors.surface1, fg = "#FFFFFF", style = { "bold" } },
+            SnacksPickerSelected = { bg = colors.surface1, fg = "{{ $p.text_max.hex }}", style = { "bold" } },
             SnacksPickerListCursorLine = { bg = colors.surface1, fg = colors.text, style = { "bold" } },
             SnacksPickerMatch = { fg = colors.blue, style = { "bold" } },
             SnacksPickerDir = { fg = colors.blue },
@@ -214,31 +250,31 @@ return {
             SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
 
             -- Diff colors are locked.
-            DiffAdd = { bg = "#2B4218" },
-            DiffChange = { bg = "#183D5A" },
-            DiffDelete = { bg = "#391C1E" },
-            DiffText = { bg = "#2D5E86" },
+            DiffAdd = { bg = "{{ $p.diff_add.hex }}" },
+            DiffChange = { bg = "{{ $p.diff_change.hex }}" },
+            DiffDelete = { bg = "{{ $p.diff_delete.hex }}" },
+            DiffText = { bg = "{{ $p.diff_text.hex }}" },
           }
         end,
       })
 
       local ansi = {
-        [0] = "#202020",
-        [1] = "#FE4864",
-        [2] = "#89C952",
-        [3] = "#F4BC45",
-        [4] = "#48AFFF",
-        [5] = "#D95AFC",
-        [6] = "#00BBCC",
-        [7] = "#D4D4D4",
-        [8] = "#8A8A8A",
-        [9] = "#FF7376",
-        [10] = "#B9EE7D",
-        [11] = "#FFD678",
-        [12] = "#98C3FF",
-        [13] = "#E67FFF",
-        [14] = "#3DDAEE",
-        [15] = "#FFFFFF",
+        [0] = "{{ $p.base.hex }}",
+        [1] = "{{ $p.red.hex }}",
+        [2] = "{{ $p.green.hex }}",
+        [3] = "{{ $p.yellow.hex }}",
+        [4] = "{{ $p.blue.hex }}",
+        [5] = "{{ $p.purple.hex }}",
+        [6] = "{{ $p.cyan.hex }}",
+        [7] = "{{ $p.text.hex }}",
+        [8] = "{{ $p.muted.hex }}",
+        [9] = "{{ $p.red_bright.hex }}",
+        [10] = "{{ $p.green_bright.hex }}",
+        [11] = "{{ $p.yellow_bright.hex }}",
+        [12] = "{{ $p.blue_bright.hex }}",
+        [13] = "{{ $p.purple_bright.hex }}",
+        [14] = "{{ $p.cyan_bright.hex }}",
+        [15] = "{{ $p.text_max.hex }}",
       }
 
       for i, hex in pairs(ansi) do

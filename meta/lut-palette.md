@@ -39,10 +39,12 @@ our own workflow.
 
 ## Palette contents
 
-The locked input contains 25 colors:
+Each mode's locked input contains 25 colors:
 
-- **Neutrals.** The eleven-step ramp from `#101010` through `#FFFFFF`.
-- **Chromatics.** Seven base hues and their seven bright variants.
+- **Neutrals.** The mode's eleven-step ramp: `#101010` through `#FFFFFF` for
+  dark, `#F3F3F3` through `#000000` for light.
+- **Chromatics.** Seven base hues and their seven bright variants. The bright
+  step is a dark-mode input; light mode uses the seven base hues twice.
 
 The generated palette adds intermediate colors to reduce posterization while
 remaining derived from those locked values.
@@ -81,10 +83,11 @@ problem.
 
 ## Generated artifact
 
-The generated palette is stored at:
+The generated palettes are stored at:
 
 ```text
 home/dot_config/lutgen/neutral
+home/dot_config/lutgen/neutral-light
 ```
 
 Generation order is:
@@ -94,7 +97,7 @@ Generation order is:
 3. Generated chromatic intermediates.
 4. Lightness-sorted output as static hexadecimal values.
 
-The file is checked in and reproducible. Do not hand-edit it.
+Both files are checked in and reproducible. Do not hand-edit them.
 
 The generator is intentionally a small Python script rather than a general
 palette-building system. Do not introduce chezmoi templates, YAML, contrast
@@ -102,10 +105,13 @@ gates, or another palette abstraction for this workflow.
 
 ## Application parameters
 
-The current working command is:
+The pipeline is two commands: `lutgen generate` builds the Hald CLUT once per
+palette (cached by `sw`), and `lutgen apply` renders a wallpaper against it. The
+locked parameters belong to the generate step:
 
 ```sh
-lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 img.png -o out.png
+lutgen generate -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 -o neutral.png
+lutgen apply -d --hald-clut neutral.png img.png -o out.png
 ```
 
 | Flag | Value  | Purpose                                                                           |
@@ -126,11 +132,12 @@ undesired blending or loss of detail.
 
 ## File layout
 
-| Path                             | Purpose                      |
-| -------------------------------- | ---------------------------- |
-| `home/dot_config/lutgen/neutral` | Checked-in generated palette |
-| `~/.cache/lutgen/`               | Runtime LUT output/cache     |
-| `~/Pictures/Wallpapers/neutral/` | Recolored wallpaper output   |
+| Path                                   | Purpose                       |
+| -------------------------------------- | ----------------------------- |
+| `home/dot_config/lutgen/neutral`       | Checked-in dark-mode palette  |
+| `home/dot_config/lutgen/neutral-light` | Checked-in light-mode palette |
+| `~/.cache/sw/luts/`                    | Runtime Hald CLUT cache       |
+| `~/.cache/sw/wallpapers/`              | Recolored wallpaper output    |
 
 Always pass `-o` for generated output instead of relying on the current working
 directory. Wallpaper selection is handled by the desktop wallpaper workflow.
@@ -139,8 +146,9 @@ directory. Wallpaper selection is handled by the desktop wallpaper workflow.
 
 1. **Change the source.** Edit a locked color or derivation specification in
    `meta/color-scheme.md`.
-2. **Regenerate.** Run the palette generator so `home/dot_config/lutgen/neutral`
-   reflects the new source values.
+2. **Regenerate.** Run the palette generator so both
+   `home/dot_config/lutgen/neutral` and `home/dot_config/lutgen/neutral-light`
+   reflect the new source values.
 3. **Apply.** Recolor a wallpaper with the working lutgen parameters.
 4. **Inspect.** Check the resulting image visually for gradients, hue bleeding,
    and preserved detail.
@@ -151,11 +159,11 @@ Example:
 
 ```sh
 lutgen apply -p neutral -R -s 96 -n 16 -l 10 -P -L 1.05 \
-  ~/Pictures/Wallpapers/dark/flower-basket.jpg \
-  -o ~/.cache/lutgen/neutral.png
+  ~/Pictures/Wallpapers/pool_dark/flower-basket.jpg \
+  -o /tmp/flower-basket-neutral.png
 ```
 
-Then display the output with the repository's wallpaper tooling.
+Inspect the output before adopting the parameter change.
 
 ## Validation
 
@@ -179,7 +187,8 @@ Check at least these properties:
 - No restoration of the old Python wallpaper themer.
 - No hand-tuned per-wallpaper palette subsets.
 - No contrast gates for LUT generation.
-- No automatic wallpaper recoloring triggered by palette changes.
+- No batch recolor of the whole pool on palette changes; renders are produced
+  per wallpaper on demand.
 
 The generator is a one-shot derivation step. The checked-in palette is the
 reusable artifact, and visual inspection remains the final rendering check.

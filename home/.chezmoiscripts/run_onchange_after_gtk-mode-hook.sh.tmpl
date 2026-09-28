@@ -1,0 +1,98 @@
+#!/bin/sh
+# GTK/desktop integration and session reload for the active palette mode.
+# Runs on apply whenever the rendered script changes — that is, when the
+# mode flips or the hook itself is edited (chezmoi run_onchange_).
+#
+# Templates reach every palette consumer through apply, including the
+# ~/.config/gtk-3.0 and gtk-4.0 settings.ini mirrors; the surfaces left
+# outside template land are dconf (org.gnome.desktop.interface) for
+# libadwaita apps and any xsettings reader, and processes that cache
+# colors until reloaded. This script covers those.
+#
+# mode: {{ .mode }}
+
+set -eu
+
+{{- if eq .mode "light" }}
+scheme=prefer-light
+theme=Orchis-Light-Compact
+icons=Papirus-Light
+{{- else }}
+scheme=prefer-dark
+theme=Orchis-Dark-Compact
+icons=Papirus-Dark
+{{- end }}
+
+# dconf: libadwaita apps read color-scheme from here; gsettings also feeds
+# any xsettings provider on the session.
+if command -v gsettings >/dev/null 2>&1; then
+	gsettings set org.gnome.desktop.interface color-scheme "$scheme"
+	gsettings set org.gnome.desktop.interface gtk-theme "$theme"
+	gsettings set org.gnome.desktop.interface icon-theme "$icons"
+fi
+
+# Wallpaper first: re-render the recorded wallpaper with the new mode's
+# palette and pool; --restore is idempotent and keeps rotation state
+# untouched. This is part of the palette change, so it happens before any
+# process reloads.
+if [ -x "$HOME/.local/bin/sw" ] && [ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]; then
+	"$HOME/.local/bin/sw" --restore >/dev/null 2>&1 || true
+fi
+
+# Session reloads come last: the palette state above is fully written
+# before any consumer is asked to re-read it. Each is guarded — machines
+# and sessions without a consumer skip silently — and every command that
+# can outlive the apply is backgrounded or silent so the apply never hangs.
+
+# Compositor config reload; sway respawns its bar (swaybar_command waybar)
+# on reload, so waybar needs no separate handling there.
+if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
+	swaymsg reload >/dev/null 2>&1 || true
+fi
+if command -v i3-msg >/dev/null 2>&1 && [ -n "${I3SOCK:-}" ]; then
+	i3-msg reload >/dev/null 2>&1 || true
+fi
+
+# i3 does not manage polybar, so its reload chain restarts the bar the same
+# way $mod+Shift+c does.
+if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
+	polybar-msg cmd restart >/dev/null 2>&1 || true
+fi
+
+# Waybar reads style.css only at startup, and sway re-execs its bar on
+# reload only when the sway bar block changed — which a palette switch
+# never does. On sway: kill the bar, then reload so sway re-creates it
+# sway-managed with the fresh CSS. Elsewhere: kill and respawn standalone.
+if pgrep -x waybar >/dev/null 2>&1; then
+	pkill -x waybar || true
+	if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
+		sleep 0.3
+		swaymsg reload >/dev/null 2>&1 || true
+	else
+		sleep 0.3
+		(setsid waybar >/dev/null 2>&1 < /dev/null &) || true
+	fi
+fi
+
+# kitty re-reads its config on SIGUSR1 (its documented reload signal).
+pkill -USR1 -x kitty >/dev/null 2>&1 || true
+
+# dunst re-reads its config on reload; a plain kill also works because dbus
+# activation relaunches it with the new config.
+if command -v dunstctl >/dev/null 2>&1; then
+	dunstctl reload >/dev/null 2>&1 || pkill -x dunst >/dev/null 2>&1 || true
+fi
+
+# picom reads its config only at startup; the deployed cmdline points at
+# ~/.config/picom.conf, whose shadow colors follow the palette.
+if command -v picom >/dev/null 2>&1 && pgrep -x picom >/dev/null 2>&1; then
+	pkill -x picom || true
+	sleep 0.3
+	(setsid picom --config "$HOME/.config/picom.conf" >/dev/null 2>&1 < /dev/null &) || true
+fi
+
+# Per-launch consumers (rofi, fuzzel, foot, zathura, Qt via qt5ct) pick the
+# new colors up on their next start; running nvim instances keep their
+# loaded colorscheme until reopened.
+
+echo "gtk-mode-hook: $scheme, $theme, $icons"

@@ -26,6 +26,11 @@ alias czp='chezmoi apply && exec $SHELL'
 alias cze='chezmoi edit'
 alias czc='cd {{ .chezmoi.workingTree }}'
 
+# The session exports QT_QPA_PLATFORMTHEME=qt6ct (Qt6 apps); Qt5 builds like
+# KeePassXC cannot load that plugin and silently fall back to their built-in
+# theme. The desktop entry pins qt5ct; this alias covers shell launches.
+alias keepassxc='QT_QPA_PLATFORMTHEME=qt5ct keepassxc'
+
 bak() { cp -v "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"; }
 
 # vim: ft=sh
