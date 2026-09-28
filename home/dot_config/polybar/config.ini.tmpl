@@ -108,13 +108,13 @@ label-foreground = ${colors.muted}
 type = internal/cpu
 interval = 5
 ; Waybar on-click parity: click opens btop in kitty (foot is thinkpad-only).
-format = %{A1:kitty -e btop:}󰻠 <label>%{A}
+format = %{A1:kitty --name btop -e btop:}󰻠 <label>%{A}
 label = %percentage%%
 
 [module/memory]
 type = internal/memory
 interval = 5
-format = %{A1:kitty -e btop:}󰍛 <label>%{A}
+format = %{A1:kitty --name btop -e btop:}󰍛 <label>%{A}
 label = %percentage_used%%
 
 [module/custom/updates]
