@@ -109,6 +109,62 @@ def test_pool_scan(tmpdir):
     check("pool missing", sw.get_wallpapers(Path(tmpdir) / "nope") == [])
 
 
+def test_mode(tmpdir):
+    env = {"HOME": str(tmpdir)}
+    state = Path(tmpdir) / ".local" / "state"
+    state.mkdir(parents=True)
+
+    check("mode missing file", sw.palette_mode(env) == "dark")
+    (state / "palette-mode").write_text("light\n")
+    check("mode from state file", sw.palette_mode(env) == "light")
+    check(
+        "pool follows mode",
+        sw.pool_dir_for_mode(sw.palette_mode(env))
+        == Path.home() / "Pictures" / "Wallpapers" / "pool_light",
+    )
+    check(
+        "palette follows mode",
+        sw.palette_for_mode("light") == "neutral-light"
+        and sw.palette_for_mode("dark") == "neutral",
+    )
+    env["SW_MODE"] = "dark"
+    check("SW_MODE override", sw.palette_mode(env) == "dark")
+    queue_dark = sw.queue_file(env)
+    last_dark = sw.last_file(env)
+    env["SW_MODE"] = "light"
+    queue_light = sw.queue_file(env)
+    last_light = sw.last_file(env)
+    check(
+        "queue file mode-scoped",
+        queue_dark.name == "queue-dark"
+        and queue_light.name == "queue-light"
+        and queue_dark != queue_light,
+    )
+    check(
+        "last file mode-scoped",
+        last_dark.name == "last-dark"
+        and last_light.name == "last-light"
+        and last_dark != last_light,
+    )
+    (state / "palette-mode").write_text("bogus\n")
+    env.pop("SW_MODE")
+    check("mode garbage falls back dark", sw.palette_mode(env) == "dark")
+
+
+def test_restore_target(tmpdir):
+    env = {"HOME": str(tmpdir)}
+    state = Path(tmpdir) / ".local" / "state"
+    state.mkdir(parents=True, exist_ok=True)
+    (state / "palette-mode").write_text("dark\n")
+
+    recorded = Path(tmpdir) / "recorded.jpg"
+    recorded.write_bytes(b"x")
+    check(
+        "restore uses the readable record",
+        sw.restore_target(env, str(recorded)) == str(recorded),
+    )
+
+
 def test_palette(tmpdir):
     lutgen_dir = Path(tmpdir) / "lutgen"
     lutgen_dir.mkdir()
@@ -244,6 +300,8 @@ def main():
         test_history(tmpdir)
         test_pool_scan(tmpdir)
         test_animation(tmpdir)
+        test_mode(tmpdir)
+        test_restore_target(tmpdir)
         test_palette(tmpdir)
     test_args()
     test_numbers()
