@@ -256,17 +256,11 @@ No picom change was made. Flag for veto if the user disagrees.
 - **Separator vertical nudge**: waybar `padding: 0 0 2px` gives 2px of bottom
   padding, while polybar format padding is horizontal only, so the `|`
   baseline can't be nudged.
-- **cpu/memory click opens a tiled window** unless i3 gets a for_window rule.
-  Waybar's `foot -e btop` is likewise unmanaged on thinkpad (sway has no btop
-  rule), so verify the desired float behavior on optiplex.
 - **Battery module absent** in polybar: intentional, optiplex is a desktop
   (waybar battery is thinkpad hardware).
 - **Window title icon**: waybar's `sway/window` shows a window icon
   (`icon: true`, 14px); polybar's `custom/window` is text-only (its
   rewrite rules and 72-column cap are ported, see item 12).
-- **Workspace icon font-size 16px** (waybar `#workspaces button label`) vs
-  polybar single `font-0 … size=10`: per-label font size unverifiable from
-  thinkpad → left as is; check visually on optiplex.
 - **Hover styling**: waybar `:hover` bg/border/transition effects have no
   polybar equivalent (only `cursor-click = pointer`).
 - **Tooltips**: waybar clock/mpris/cpu/memory tooltips don't exist for polybar
@@ -476,10 +470,8 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
   twin of the 10s pre-lock idle warning (`helper_idle_*` stay sway-only per
   AGENTS: optiplex has no idle suspend), touchpad `input` block, waybar
   tooltips/hover styling (polybar cannot).
-- `cliphist` referenced nowhere on either machine, so parity holds. Optional
-  drop from the shared package list reported, not done (user's call).
 
-### Open questions reported for optiplex (no edits made)
+### Open questions reported for optiplex
 
 - GTK CSD blur/shadow exclusion: resolved by the current `rules:` block.
   `_GTK_FRAME_EXTENTS` windows get `blur-background = false` and
@@ -488,8 +480,10 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 - picom `corner-radius` vs waybar's 4px chip corners: resolved by the
   current values. The global radius is `4` (matching the chips); only the
   tooltip rule sets `8` ("typed tooltips keep their own corners").
-- dunst shadow strength vs thinkpad: still open, needs a visual look,
-  report only.
+- dunst shadow strength vs thinkpad: resolved as a picom matter — i3's
+  `i3-frame` decoration windows (the tabbed title rows) cast their own
+  shadows on top of the clients', so frames are excluded from shadows and
+  `shadow-opacity` is `0.4`.
 - polybar must be built `+i3` for `custom/i3mode`, verified on optiplex:
   `polybar -vvv` includes `+i3`.
 
@@ -523,9 +517,9 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 
 ### Verification results: 2026-09-25 (optiplex)
 
-Checklist: 1–5, 7, 9, 10 verified; **8 still pending** a real logout
-cycle (its `i3-session.target` stop/start substitute passed). Item 6 was
-verified later — see "Scratchpad and suspend round" below.
+Checklist: 1–10 all verified — 8 through a real logout cycle (its
+`i3-session.target` stop/start substitute passed), 6 in the "Scratchpad
+and suspend round" below.
 
 1. ✓ `i3 -C` exit 0: reload chain, `border normal`, `--release`
    bindings.
@@ -710,8 +704,7 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    xset returned to `timeout 0` / DPMS Disabled. The power-menu and
    `systemctl suspend` legs were later user-tested with real suspend
    cycles (journal, 00:08; both reported working). Item 8's logout cycle
-   remains the user's call (the i3-session.target stop/start substitute
-   passed).
+   passed with a real logout afterward.
 7. **Reported gap (scratchpad restore hotkey):** `$mod+Shift+space` was
    plain `floating toggle`; on a shown scratchpad window it tiled the
    window but kept the scratchpad's `border normal` titlebar. The binding
