@@ -1,7 +1,7 @@
 [Appearance]
 color_scheme_path=/home/renowned/.config/qt5ct/colors/neutral.conf
 custom_palette=true
-icon_theme=Papirus-Dark
+icon_theme=Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
 standard_dialogs=gtk3
 style=Fusion
 

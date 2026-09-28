@@ -1,6 +1,6 @@
 # Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
 font=SauceCodePro Nerd Font Mono:size=8
-icon-theme=Papirus-Dark
+icon-theme=Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
 width=56
 anchor=center
 minimal-lines=yes

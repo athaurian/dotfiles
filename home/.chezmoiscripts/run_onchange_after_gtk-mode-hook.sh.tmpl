@@ -44,6 +44,14 @@ fi
 # and sessions without a consumer skip silently — and every command that
 # can outlive the apply is backgrounded or silent so the apply never hangs.
 
+# Tray applets resolve the icon theme only when they start; kill them
+# before the reload so the exec_always lines respawn them against the
+# new theme.
+if [ -n "${SWAYSOCK:-}${I3SOCK:-}" ]; then
+	pkill -x nm-applet >/dev/null 2>&1 || true
+	pkill -x blueman-applet >/dev/null 2>&1 || true
+fi
+
 # Compositor config reload; sway respawns its bar (swaybar_command waybar)
 # on reload, so waybar needs no separate handling there.
 if command -v swaymsg >/dev/null 2>&1 && [ -n "${SWAYSOCK:-}" ]; then
