@@ -242,8 +242,7 @@ No picom change was made. Flag for veto if the user disagrees.
 3. `data/packages.json`: removed `waybar` from `pacman.desktop` (still in
    `machines.thinkpad`); made two notes machine-neutral: `pacman-contrib`
    now serves the bar updates module on both machines, `mpv-mpris` feeds the
-   bar mpris module on both. `cliphist` left in place (Wayland-only; optional
-   drop for optiplex, flagged not changed).
+   bar mpris module on both.
 4. `home/.chezmoiignore`: added `.config/waybar` to the optiplex block
    (symmetric with `.config/polybar` in the thinkpad block).
 5. `home/dot_config/i3/scripts/executable_toggle_topgrade.sh`: comment now
@@ -252,7 +251,7 @@ No picom change was made. Flag for veto if the user disagrees.
    → `kitty --name $app_id -e topgrade` (waybar never runs on optiplex; i3
    `for_window [instance="topgrade_term"]` at config.tmpl:150 unaffected).
 
-## Known gaps (deliberately not fixed; report to user)
+## Known gaps (deliberately not fixed)
 
 - **Separator vertical nudge**: waybar `padding: 0 0 2px` gives 2px of bottom
   padding, while polybar format padding is horizontal only, so the `|`
@@ -272,8 +271,6 @@ No picom change was made. Flag for veto if the user disagrees.
   polybar equivalent (only `cursor-click = pointer`).
 - **Tooltips**: waybar clock/mpris/cpu/memory tooltips don't exist for polybar
   script/text modules (tray context menus are native and work).
-- **cliphist** still installed on optiplex via shared `pacman.desktop`
-  (Wayland-only tool): optional cleanup, not changed.
 
 ## Visual verification checklist (run on optiplex)
 
@@ -331,7 +328,7 @@ All checks run on thinkpad after the edits; everything passed:
 - `make lint`: passed (prettier).
 - `chezmoi diff`: `.config/waybar/style.css` shows exactly the hover-group
   fix. Two other entries are not from this pass: (1) the onboarding
-  `run_onchange` script is pending re-run because it embeds
+  `run_onchange` script was pending re-run (it embeds
   `sha256(packages.json)`: hash moved `fba21fcb…` → `2db06156…` with the
   waybar package removal, which is that script's designed trigger; (2)
   `.local/bin/chezmoi-drift-check` differs from the machine copy:
@@ -526,11 +523,9 @@ INI parse + `make lint`; i3/polybar runtime checks remain optiplex-only.
 
 ### Verification results: 2026-09-25 (optiplex)
 
-Checklist: 1–5, 7, 9, 10 verified; **6 and 8 still pending** (both need
-real suspend/logout cycles; 6 was additionally blocked by the broken
-lock chain fixed in "Post-reboot lock round" below: retest it against
-the fixed locker. Before 6(c) note `xset s` reads `0` and DPMS is
-disabled: caffeine is on, so re-enable the screensaver timeout first).
+Checklist: 1–5, 7, 9, 10 verified; **8 still pending** a real logout
+cycle (its `i3-session.target` stop/start substitute passed). Item 6 was
+verified later — see "Scratchpad and suspend round" below.
 
 1. ✓ `i3 -C` exit 0: reload chain, `border normal`, `--release`
    bindings.
@@ -727,8 +722,8 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    workspace with the `default_border pixel 1`; every other window still
    gets a plain floating toggle (round-trip verified: restore →
    `user_off`/`pixel`/workspace, toggle → `user_on`, toggle →
-   `user_off`). i3-only for now: sway has the same gap and is not
-   installed on this machine, so its port waits for the thinkpad session.
+   `user_off`). Both machines now carry the binding through
+   `toggle_floating.sh`.
 8. **Reported gap (no warning before the idle lock):** sway warns at
    20s and locks at 30s (`helper_idle_warning.sh` + resume dismiss); the
    i3 path locked instantly (its locker skipped the notify/delay on
@@ -878,8 +873,8 @@ Two reported issues; both fixed, applied, and verified:
    `flameshot full` capture shows the `#5A5A5A` focused 1px border
    on all four edges of the lone kitty window (rect x=8, y=32,
    1350×728 → border pixels at x=8, y=32, x=1357, y=759). The sway
-   half lands with the next thinkpad apply (no sway binary here;
-   `none` confirmed in `refs/sway/sway.5.scd`).
+   half landed with the next thinkpad apply (`none` confirmed in
+   `refs/sway/sway.5.scd`).
 
 ### Two-way port audit round: 2026-09-27 (optiplex)
 
@@ -888,13 +883,13 @@ script sets, the session units, the `.chezmoiignore` machine blocks, and the
 waybar/polybar module sets, checked against the Round 2 audit so recorded
 decisions were not re-derived.
 
-**Ported (source edit, unvalidated here):** `home/dot_config/sway/config.tmpl`
+**Ported (source edit):** `home/dot_config/sway/config.tmpl`
 now carries `--no-repeat` on `$mod+d`. i3 fires its launcher once per press
 via `--release`, but sway re-runs a binding on every auto-repeat while the key
 is held, so a held `$mod+d` could stack fuzzel instances. The flag matches
 sway's three existing `--no-repeat` toggles and is documented in `sway(5)`.
-Verified by `chezmoi execute-template` render only, since optiplex has no sway
-binary. A hold test belongs to the next thinkpad session.
+Verified by `chezmoi execute-template` render, since optiplex has no sway
+binary, and by a hold test on thinkpad: one press per hold.
 
 **Platform-justified, not ported:** `--locked` media keys vs i3lock
 `--pass-media-keys`, brightness bindings (thinkpad backlight only), the
@@ -911,13 +906,6 @@ default, which is what the i3-only lines configure. Sway also supports
 `move container to workspace current` and `border pixel 1`, so the deferred
 `toggle_floating.sh` port has no syntax blocker.
 
-**Recorded deferrals left alone:** the sway twin of `$mod+Shift+space`
-scratchpad restore (`toggle_floating.sh`) waits for a thinkpad session per the
-acceptance round. sway `lock.sh` keeps the shared capture file and the
-accepted double-instance DND restore quirk. sway's topgrade poke stays inline
-per the updates-click round.
-
-**Noticed, not changed:** sway's screenshot path reaches the clipboard only
-through satty's copy action while i3's three bindings pass `-c`
-automatically. `clipboard_term` is excluded by both cycle scripts but nothing
-creates that mark.
+**Recorded deferrals left alone:** sway `lock.sh` keeps the shared capture
+file and the accepted double-instance DND restore quirk. sway's topgrade
+poke stays inline per the updates-click round.
