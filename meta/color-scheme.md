@@ -281,7 +281,8 @@ the new mode's palette, and reloads the session's consumers last, after all
 palette state is written. The hook calls `sw --restore`, which re-applies that
 mode's own last-changed wallpaper — recorded per mode by `sw` in `~/.cache/sw` —
 so a switch lands on a wallpaper from the mode's pool rather than the previous
-mode's last pick.
+mode's last pick. `palette-mode toggle` flips to the other mode through the same
+pipeline and is bound to `$mod+Shift+t` in the sway and i3 configs.
 
 The LUT palettes follow the same source boundary and are documented separately
 in `meta/lut-palette.md`.

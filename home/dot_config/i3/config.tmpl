@@ -115,6 +115,9 @@ bindsym $mod+Shift+n exec dunstctl close-all
 # --release so auto-repeat cannot flip dnd straight back.
 bindsym --release $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
 
+# Palette mode.
+bindsym --release $mod+Shift+t exec $HOME/.local/bin/palette-mode toggle
+
 # Reload; restart polybar too, since reload only re-reads this file.
 bindsym $mod+Shift+c reload, exec --no-startup-id polybar-msg cmd restart
 
