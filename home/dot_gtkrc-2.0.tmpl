@@ -2,8 +2,8 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/renowned/.gtkrc-2.0.mine"
-gtk-theme-name="Orchis-Dark-Compact"
-gtk-icon-theme-name="Papirus-Dark"
+gtk-theme-name="{{ if eq .mode "light" }}Orchis-Light-Compact{{ else }}Orchis-Dark-Compact{{ end }}"
+gtk-icon-theme-name="Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}"
 gtk-font-name="Source Sans 3 10"
 gtk-cursor-theme-name="Adwaita"
 gtk-cursor-theme-size=24
