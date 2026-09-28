@@ -4,42 +4,113 @@
 # the commits the findings cite, man-page/doc fetches pinned to the same
 # commits, and the pre-reset bundle regenerated from local git history.
 #
-# The committed refs/ entries (this script, .gitignore, the handoff, the
-# findings, zellij-themes) are never touched, and refs/.gitignore keeps
-# everything restored here out of `git status`.
+# The committed refs/ entries (this script, .gitignore, the findings,
+# zellij-themes) are never touched, and refs/.gitignore keeps everything
+# restored here out of `git status`.
 #
-# Usage: sh refs/fetch-refs.sh [target-dir]
+# Usage: sh refs/fetch-refs.sh [--check] [target-dir]
 #   target-dir defaults to this script's own directory (refs/).
-#   Existing entries are skipped, so re-running is safe.
+#   Existing entries are skipped, so re-running is safe; failed entries are
+#   collected, reported at the end, and retried by the next run.
+#   --check probes every remote URL without downloading or writing anything
+#   and exits non-zero if one no longer resolves. It proves the pinned hosts
+#   and paths still exist, not that each pinned commit is reachable; real
+#   runs report unreachable commits through the checkout warning below.
 set -eu
 
+mode=fetch
+if [ "${1:-}" = "--check" ]; then
+	mode=check
+	shift
+fi
 target=${1:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-mkdir -p "$target"
+if [ "$mode" = fetch ]; then
+	mkdir -p "$target"
+fi
+
+failures=""
+fail() { # fail ENTRY REASON — collect and keep going instead of aborting
+	failures="${failures}fetch-refs: $1: $2
+"
+}
+
+probe() { # probe URL — check mode: resolve the URL, collect it when dead
+	if ! curl -fsSIL -o /dev/null --max-time 30 "$1"; then
+		fail "$1" "does not resolve"
+	fi
+}
 
 fetch() { # fetch URL RELATIVE-PATH
 	url=$1 path=$2
+	if [ "$mode" = check ]; then
+		probe "$url"
+		return 0
+	fi
 	[ -f "$target/$path" ] && return 0
 	mkdir -p "$target/$(dirname "$path")"
-	curl -fsSL "$url" -o "$target/$path"
+	# Download under a temporary name and rename on success: a failed curl
+	# can leave an empty file behind, and the existence check above must
+	# never mistake one for a completed fetch.
+	if curl -fsSL "$url" -o "$target/$path.$$"; then
+		mv "$target/$path.$$" "$target/$path"
+	else
+		rm -f "$target/$path.$$"
+		fail "$path" "download failed ($url)"
+	fi
 }
 
 clone() { # clone URL RELATIVE-PATH COMMIT
 	url=$1 path=$2 sha=$3
-	[ -d "$target/$path/.git" ] || git clone -q "$url" "$target/$path"
+	if [ "$mode" = check ]; then
+		git ls-remote --exit-code "$url" HEAD >/dev/null 2>&1 ||
+			fail "$url" "clone source does not resolve"
+		return 0
+	fi
+	if [ ! -d "$target/$path/.git" ]; then
+		if ! git clone -q "$url" "$target/$path"; then
+			fail "$path" "clone failed ($url)"
+			return 0
+		fi
+	fi
 	git -C "$target/$path" checkout -q "$sha" 2>/dev/null ||
 		echo "fetch-refs: $path: $sha unreachable upstream, kept default branch" >&2
 }
 
 source_tree() { # source_tree NAME TARBALL-URL
 	name=$1 url=$2
+	if [ "$mode" = check ]; then
+		probe "$url"
+		return 0
+	fi
 	dest=$target/src/$name
 	# The recorded tarball URL doubles as the pin: editing it refreshes.
 	[ -f "$dest/.source" ] && [ "$(cat "$dest/.source")" = "$url" ] && return 0
 	rm -rf "$dest"
 	mkdir -p "$dest"
-	curl -fsSL "$url" | tar xz --strip-components=1 -C "$dest"
-	printf '%s\n' "$url" >"$dest/.source"
+	# The pin is recorded only after a clean extract; a failed run leaves no
+	# .source marker, so the next run starts from scratch.
+	if curl -fsSL "$url" | tar xz --strip-components=1 -C "$dest"; then
+		printf '%s\n' "$url" >"$dest/.source"
+	else
+		rm -rf "$dest"
+		fail "src/$name" "tarball fetch failed ($url)"
+	fi
+}
+
+extract() { # extract GIT-DIR REF RELATIVE-PATH — copy one path out of a clone
+	gitdir=$1 ref=$2 path=$3
+	if [ "$mode" = check ]; then
+		return 0 # derived from a clone above; no remote URL of its own
+	fi
+	[ -f "$target/$path" ] && return 0
+	mkdir -p "$target/$(dirname "$path")"
+	if git -C "$gitdir" show "$ref" >"$target/$path.$$" 2>/dev/null; then
+		mv "$target/$path.$$" "$target/$path"
+	else
+		rm -f "$target/$path.$$"
+		fail "$path" "not present in $gitdir at $ref"
+	fi
 }
 
 # Reference clones, pinned to the commits they were last read at. The chezmoi
@@ -63,21 +134,23 @@ source_tree polybar "https://github.com/polybar/polybar/archive/b3af5a33166604c6
 # Doc copies derived from those trees (same pins, no second source of truth);
 # the rendered userguide.html is the only artifact not in the tree and tracks
 # the latest i3 release rather than the pin.
-if [ ! -f "$target/i3/i3.man" ]; then
+if [ "$mode" = fetch ] && [ ! -f "$target/i3/i3.man" ]; then
 	mkdir -p "$target/i3"
-	cp "$target/src/i3/man/i3.man" "$target/src/i3/man/i3-msg.man" "$target/i3/"
+	cp "$target/src/i3/man/i3.man" "$target/src/i3/man/i3-msg.man" "$target/i3/" ||
+		fail "i3/*.man" "not copied: source tree missing"
 fi
 fetch https://i3wm.org/docs/userguide.html i3/userguide.html
-if [ ! -f "$target/polybar/polybar.1.rst" ]; then
+if [ "$mode" = fetch ] && [ ! -f "$target/polybar/polybar.1.rst" ]; then
 	mkdir -p "$target/polybar"
 	cp "$target/src/polybar/doc/man/polybar.1.rst" \
 		"$target/src/polybar/doc/man/polybar.5.rst" \
 		"$target/src/polybar/doc/user/modules/tray.rst" \
-		"$target/polybar/"
+		"$target/polybar/" || fail "polybar/*.rst" "not copied: source tree missing"
 fi
-if [ ! -f "$target/polybar/default-config.ini" ]; then
+if [ "$mode" = fetch ] && [ ! -f "$target/polybar/default-config.ini" ]; then
 	mkdir -p "$target/polybar"
-	cp "$target/src/polybar/doc/config.ini" "$target/polybar/default-config.ini"
+	cp "$target/src/polybar/doc/config.ini" "$target/polybar/default-config.ini" ||
+		fail "polybar/default-config.ini" "not copied: source tree missing"
 fi
 
 # Flat copies of the wiki pages the bar config uses, extracted from the
@@ -85,16 +158,10 @@ fi
 # repos at any ref, so the clone is the only source. Names match the
 # curated refs/polybar/ layout.
 for page in i3 script text ipc cpu memory date pulseaudio xworkspaces; do
-	if [ ! -f "$target/polybar/module-$page.md" ]; then
-		mkdir -p "$target/polybar"
-		git -C "$target/polybar-wiki" show "$wiki_sha:Module:-$page.md" >"$target/polybar/module-$page.md"
-	fi
+	extract "$target/polybar-wiki" "$wiki_sha:Module:-$page.md" "polybar/module-$page.md"
 done
 for page in Configuration Formatting; do
-	if [ ! -f "$target/polybar/$page.md" ]; then
-		mkdir -p "$target/polybar"
-		git -C "$target/polybar-wiki" show "$wiki_sha:$page.md" >"$target/polybar/$page.md"
-	fi
+	extract "$target/polybar-wiki" "$wiki_sha:$page.md" "polybar/$page.md"
 done
 
 # Wayland side (thinkpad): compositor, locker, bar, launchers, capture,
@@ -120,6 +187,10 @@ done
 fetch "https://raw.githubusercontent.com/emersion/grim/47e2658619c6b5a790732c5876fb84e8273f08a9/grim.1.scd" grim/grim.1.scd
 fetch "https://raw.githubusercontent.com/emersion/slurp/a3998d3ec79fbd85b81911f43010466b032ed0d9/slurp.1.scd" slurp/slurp.1.scd
 fetch "https://raw.githubusercontent.com/Satty-org/Satty/2bcd9111390a7ae03ef965e87a6a12dfd22bf93b/README.md" satty/README.md
+# Clipboard leg of the screenshot pipeline (sway screenshot.sh, lock blur).
+fetch "https://raw.githubusercontent.com/bugaevc/wl-clipboard/985b9f4f23ae015df1498759f139a807cb931a16/README.md" wl-clipboard/README.md
+# Sway brightness binds (thinkpad only).
+fetch "https://raw.githubusercontent.com/Hummer12007/brightnessctl/ad863aef28a231e9c96d1ffb9f22befd7e0b08f0/brightnessctl.1" brightnessctl/brightnessctl.1
 wlsunset_sha=0c8cc663d085388fa59efb7cbea8df8c8234c562
 fetch "https://raw.githubusercontent.com/kennylevinsen/wlsunset/$wlsunset_sha/README.md" wlsunset/README.md
 fetch "https://raw.githubusercontent.com/kennylevinsen/wlsunset/$wlsunset_sha/wlsunset.1.scd" wlsunset/wlsunset.1.scd
@@ -148,11 +219,21 @@ fetch "https://raw.githubusercontent.com/jonls/redshift/490ba2aae9cfee097a88b6e2
 xss_lock_sha=cd0b89df9bac1880ea6ea830251c6b4492d505a5
 fetch "https://raw.githubusercontent.com/xdbob/xss-lock/$xss_lock_sha/doc/xss-lock.1.rst.in" xss-lock/xss-lock.1.rst.in
 fetch "https://raw.githubusercontent.com/xdbob/xss-lock/$xss_lock_sha/doc/transfer-sleep-lock-i3lock.sh" xss-lock/transfer-sleep-lock-i3lock.sh
+# xset arms optiplex's idle timeouts (xset s / dpms / xset q); gitlab's raw
+# endpoint serves this path anonymously (verified through --check).
+fetch "https://gitlab.freedesktop.org/xorg/app/xset/-/raw/3fadaad29df656b69a64c463dd68dc35d09274b3/man/xset.man" xset/xset.man
 fetch "https://raw.githubusercontent.com/derf/feh/4852b6f8b47f2b31be2b46851b43ab772defdefa/man/feh.pre" feh/feh.pre
 fetch "https://raw.githubusercontent.com/flameshot-org/flameshot/2d478061ffeeba5919d3a3d9168f93542ea9b357/README.md" flameshot/README.md
+# flameshot's -c clipboard write runs through xclip (findings cite its
+# byte-identical output).
+fetch "https://raw.githubusercontent.com/astrand/xclip/f8ae40fb9fc899807573867a7e488c892692719b/xclip.1" xclip/xclip.1
 
 # Shared config surfaces: terminals, apps, and services with repo-owned
 # configs (data/packages.json) or invoked by repo scripts.
+# Display manager: both machines start their session through ly; the config
+# at /etc/ly/config.ini is unmanaged, so this upstream sample (last commit
+# carrying the INI format this machine runs) is the only reference copy.
+fetch "https://codeberg.org/fairyglade/ly/raw/commit/1117ef5a3bde630cecd6821d42400bbce8f48f3c/res/config.ini" ly/config.ini
 fetch "https://raw.githubusercontent.com/kovidgoyal/kitty/f03c45419681e3027ecb871defcf06dd1c08234b/docs/conf.rst" kitty/conf.rst
 zathura_sha=4fad4e4d82ac3275632fcbc55386915ff361e404
 fetch "https://raw.githubusercontent.com/pwmt/zathura/$zathura_sha/doc/man/zathura.1.rst" zathura/zathura.1.rst
@@ -169,6 +250,11 @@ fetch "https://raw.githubusercontent.com/jesseduffield/lazygit/$lazygit_sha/docs
 fetch "https://raw.githubusercontent.com/jesseduffield/lazygit/$lazygit_sha/docs/keybindings/Keybindings_en.md" lazygit/Keybindings_en.md
 fetch "https://raw.githubusercontent.com/topgrade-rs/topgrade/14c3f001d14a6304acdf015ed908f004931354d5/README.md" topgrade/README.md
 fetch "https://raw.githubusercontent.com/altdesktop/playerctl/b19a71cb9dba635df68d271bd2b3f6a99336a223/README.md" playerctl/README.md
+# pactl backs the volume/mute binds and both bars' audio modules.
+fetch "https://raw.githubusercontent.com/pulseaudio/pulseaudio/86e9c901289d2e1a3c2c6cb5885294a829f3eb27/man/pactl.1.xml.in" pulseaudio/pactl.1.xml.in
+# nmcli and rclone back calibre-sync-netmon and calibre-drive-sync.
+fetch "https://raw.githubusercontent.com/NetworkManager/NetworkManager/c5693cd629f5749c48e6f3e1afa2ff66b0abe65e/man/nmcli.xml" networkmanager/nmcli.xml
+fetch "https://raw.githubusercontent.com/rclone/rclone/0e19ed565fab73afcc463457d04339df63923518/docs/content/docs.md" rclone/docs.md
 # Session-target/timer/EnvironmentFile semantics for home/dot_config/systemd.
 systemd_sha=1cf66d1c674ce5928f5b2709629afeaaaf79aee2
 for page in systemd.unit systemd.service systemd.exec systemd.timer systemd.special; do
@@ -179,10 +265,25 @@ done
 # backup/pre-reset-2567b2d branch still holds the identical objects. The
 # branch can be absent on a given machine, so machines without it skip the
 # bundle instead of failing the run.
-if [ ! -f "$target/dotfiles-pre-reset.bundle" ]; then
+if [ "$mode" = fetch ] && [ ! -f "$target/dotfiles-pre-reset.bundle" ]; then
 	if git -C "$repo" rev-parse --verify --quiet backup/pre-reset-2567b2d >/dev/null; then
-		git -C "$repo" bundle create "$target/dotfiles-pre-reset.bundle" backup/pre-reset-2567b2d
+		if git -C "$repo" bundle create "$target/dotfiles-pre-reset.bundle.$$" backup/pre-reset-2567b2d; then
+			mv "$target/dotfiles-pre-reset.bundle.$$" "$target/dotfiles-pre-reset.bundle"
+		else
+			rm -f "$target/dotfiles-pre-reset.bundle.$$"
+			fail "dotfiles-pre-reset.bundle" "bundle create failed"
+		fi
 	else
 		echo "fetch-refs: backup/pre-reset-2567b2d absent here, skipping dotfiles-pre-reset.bundle" >&2
 	fi
+fi
+
+if [ -n "$failures" ]; then
+	count=$(printf '%s' "$failures" | wc -l | tr -d ' ')
+	printf '%s' "$failures" >&2
+	printf 'fetch-refs: %s failed; re-run to retry.\n' "$count" >&2
+	exit 1
+fi
+if [ "$mode" = check ]; then
+	echo "fetch-refs: every remote URL resolves" >&2
 fi
