@@ -3,7 +3,7 @@ set -eu
 
 # Polybar custom/dnd module and toggle. DND is a partial pause, not
 # `set-paused true`: that is level 100 and nothing bypasses it, so the
-# script's own notices would queue silently.
+# script's own notices would queue silently.{{ $p := .palette }}
 
 APP_NAME="dunst-dnd"
 ID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd_id"
@@ -96,7 +96,7 @@ if [ "${1:-}" = "--toggle" ]; then
 fi
 
 if is_dnd; then
-	printf '%%{F#FE4864}%s%%{F-}\n' "$ICON_ENABLED"
+	printf '%%{F{{ $p.red.hex }}}%s%%{F-}\n' "$ICON_ENABLED"
 else
 	printf '%s\n' "$ICON_DISABLED"
 fi

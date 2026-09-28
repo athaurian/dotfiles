@@ -49,7 +49,6 @@ ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
 
 MAX_TEXT_LEN = 44
-MUTED = "#8A8A8A"
 
 # Interval between authoritative resync queries. Override it with the
 # `MPRIS_POLL_INTERVAL` environment variable so the test harness can run
@@ -192,10 +191,11 @@ def _render(status: str, artist: str, title: str) -> str:
     Builds the polybar label for an active player.
 
     Formats the label as `Artist - Title` and falls back to just the title
-    or artist when only one field is present. Paused playback renders
-    muted in the italic font face (polybar's counterpart to Waybar's
-    `<i>`). Returns the empty payload when both fields are absent, which
-    can happen briefly during player startup before metadata arrives.
+    or artist when only one field is present. Paused playback renders in
+    the italic font face (polybar's counterpart to Waybar's `<i>`) tinted
+    by the module's `label-foreground`, which follows the palette mode.
+    Returns the empty payload when both fields are absent, which can
+    happen briefly during player startup before metadata arrives.
     """
     if artist and title:
         label = f"{artist} - {title}"
@@ -209,7 +209,7 @@ def _render(status: str, artist: str, title: str) -> str:
     label = _truncate(label)
     icon = ICON_PLAYING if status == "Playing" else ICON_PAUSED
     if status == "Paused":
-        return f"%{{T3}}%{{F{MUTED}}}{icon} {label}%{{F-}}%{{T-}}"
+        return f"%{{T3}}{icon} {label}%{{T-}}"
     return f"{icon} {label}"
 
 
