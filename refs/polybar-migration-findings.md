@@ -811,7 +811,7 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     `flameshot full -p … -c` wrote both the file and an identical
     260348-byte PNG through `xclip -t image/png`, and both scripts
     pass `-c` to `flameshot gui` (their confirm/cancel legs rest on
-    the documented flag, paste-test pending). (e) `custom/window`
+    the documented flag; the paste test passed). (e) `custom/window`
     replaced `xwindow` with a 1s `xdotool` poll (`xprop` is absent)
     carrying waybar's `rewrite` table and 72-column cap; verified
     against a shadow xdotool table (` - Helium` stripped,
