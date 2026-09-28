@@ -3,8 +3,7 @@
 Self-contained record of every verified fact, decision, and edit for the
 thinkpad→optiplex bar migration. Committed to the repo; `refs/fetch-refs.sh`
 restores the pruned upstream material. Read this after a
-context compaction instead of re-deriving anything, and read
-`refs/HANDOFF.md` first for session state and the current checklist.
+context compaction instead of re-deriving anything.
 
 Context: `thinkpad` runs Sway/Waybar; `optiplex` runs i3/polybar. The waybar
 config (`home/dot_config/waybar/config.jsonc` + `style.css.tmpl`) is the
@@ -30,20 +29,19 @@ entry is pinned, so a restore yields exactly the bytes cited below.
   latest release, not the pin).
 - The rest of the inventory (waybar wiki, sway/SwayFX/rofi/picom/dunst/fuzzel
   man pages, chezmoi reference docs, systemd unit XML, …) is enumerated in
-  `refs/fetch-refs.sh`; the reasons for what is deliberately absent are in
-  `refs/HANDOFF.md`.
+  `refs/fetch-refs.sh`.
 
 ## Why the old spacing was broken (root cause)
 
-- Bar `padding`/`module-margin` parse as `spacing_val`; a BARE NUMBER IS A
-  COUNT OF SPACES, not pixels (units.cpp: no unit → `spacing_type::SPACE`).
+- Bar `padding`/`module-margin` parse as `spacing_val`; a bare number is a
+  count of spaces, not pixels (units.cpp: no unit → `spacing_type::SPACE`).
   Old config: `padding-right = 8` → 8 spaces ≈ 48px right gutter;
   `module-margin = 1` → 1 space ≈ 6px between modules.
 - No `[settings] format-padding` existed and no module set `format-*` except
   systray `format-margin = 8px` → every module had zero internal padding and
   text ran together (only the ~6px module-margin space between modules).
 - `label-separator = " "` + `label-separator-padding = 8` on xworkspaces were
-  DEAD KEYS (see below) → workspace icons had no gaps at all.
+  dead keys (see below) → workspace icons had no gaps.
 - All spacing values in the new config carry explicit `px` units on purpose.
 
 ## Source-verified mechanics (polybar b3af5a3)
@@ -55,7 +53,7 @@ entry is pinned, so a restore yields exactly the bytes cited below.
   (`<modname>.<format>-<param>`, e.g. `format-padding`) win over it.
 - Covered params: foreground, background, underline, overline, underline-size,
   overline-size, spacing, padding, margin, offset, font.
-- ⇒ `[settings] format-padding = 8px` and `format-margin = 1px` are GLOBAL
+- ⇒ `[settings] format-padding = 8px` and `format-margin = 1px` are global
   fallbacks for every module format; per-module `format-padding`/`format-margin`
   override.
 
@@ -65,7 +63,7 @@ entry is pinned, so a restore yields exactly the bytes cited below.
   /`-right` override each side.
 - `controller.cpp:510-560`: module-margin is applied only between modules
   (never before the first left-block module), and only renders if set.
-- Decision: bar gets NO `padding-*` and NO `module-margin` (defaults = 0).
+- Decision: bar gets no `padding-*` and no `module-margin` (defaults = 0).
   The waybar `margin: 1px` per-module rule maps to the settings
   `format-margin = 1px` fallback: inter-module gap = A-right 1px + B-left 1px
   = 2px = two waybar module margins; first module flush like waybar
@@ -100,7 +98,7 @@ Gap arithmetic verified equal on both sides:
   → dead here; removed. Icon gaps now come from
   `label-*-padding` (`load_optional_label` → `load_label` parses
   `<name>-padding`/`-left`/`-right`; label padding renders as builder spacing).
-- `enable-scroll` default TRUE (`xworkspaces.hpp:106`; scroll actions emit
+- `enable-scroll` defaults to true (`xworkspaces.hpp:106`; scroll actions emit
   SCROLL_UP/DOWN switching workspaces, cpp:350-352). Waybar's
   `sway/workspaces` has no scroll-to-switch → set `enable-scroll = false`.
 - Duplicate module names are allowed (controller `setup_modules` builds a
@@ -111,18 +109,18 @@ Gap arithmetic verified equal on both sides:
 
 - `tray-size` = `percentage_with_offset{66., ZERO_PX_EXTENT}` relative to bar
   height, default 66% (≈15.8px at 24px) → `50%` = 12px = waybar icon-size 12.
-- `tray-padding` = extent added before AND after each icon (default 0px);
+- `tray-padding` = extent added before and after each icon (default 0px);
   `tray-spacing` = gap between icons.
 
 ### Actions / clicks
 
 - `builder::action` (builder.cpp:321) escapes `:` in commands.
-- `tags/action_context.cpp get_actions(x)`: per button, the HIGHEST action ID
+- `tags/action_context.cpp get_actions(x)`: per button, the highest action ID
   whose range contains x wins. IDs are assigned in parse order
   (`action_open`: `id = m_action_blocks.size()`). Unit test `stacking`
   (`tests/unit_tests/tags/action_context.cpp`) documents nested semantics:
   inner (opened later in the string) wins inside its range.
-- `pulseaudio.cpp:110-145 get_output()`: builds the format first, THEN opens
+- `pulseaudio.cpp:110-145 get_output()`: builds the format first, then opens
   right/middle/left(EVENT_TOGGLE mute)/scroll wrappers, then `node(output)`.
   In the final string the outer opens precede the format's inner
   `%{A1:pavucontrol:}` ⇒ inner has the higher ID ⇒ **left-click = pavucontrol**
@@ -137,10 +135,10 @@ Gap arithmetic verified equal on both sides:
 - Raw action commands execute via `controller.cpp:481`
   `fork_detached(… exec_sh(cmd))` → shell → `~` expands, so
   `click-left = ~/.config/…` works.
-- `%{A1:cmd:}` inside `format` is the DOCUMENTED click pattern
+- `%{A1:cmd:}` inside `format` is the documented click pattern
   (wiki Formatting.md:375; Known-Issues.md:39 explicitly recommends
   format-level action tags) ⇒ cpu/memory `on-click` ports as
-  `format = %{A1:kitty -e btop:}…%{A}`. internal cpu/memory/xwindow read NO
+  `format = %{A1:kitty -e btop:}…%{A}`. internal cpu/memory/xwindow read no
   `click-*` keys, but the format tag needs none. `foot` is thinkpad-only;
   optiplex terminal is `kitty` (and `btop` is in shared pacman.tui).
 - script module reads click-left/middle/right, double-click-*, scroll-up/down
@@ -150,14 +148,14 @@ Gap arithmetic verified equal on both sides:
 ### Script modules (repo copies under `home/dot_config/polybar/scripts/`)
 
 - `updates.sh` always emits text: `󰏓 0` in muted `#8A8A8A` at zero updates,
-  `󰚰 N` in `#F4BC45` at >0 → module ALWAYS VISIBLE = waybar `.ok` /
+  `󰚰 N` in `#F4BC45` at >0 → module always visible = waybar `.ok` /
   `.has-updates` visible states. Colors match the palette
   (`meta/color-scheme.md`). Uses `checkupdates` (pacman-contrib) + `paru -Qum`.
 - `dunst-dnd.sh`: `--toggle` at line 99. It always prints its icon, with
   colors hardcoded to palette (`#FE4864`).
 - `mpris.py`: prints a blank line when no player → module collapses
   (the script's own docstring asserts this = waybar `hide-empty-text`). It is
-  NOT a chezmoi template (`.py`, no `.tmpl`) so f-string `{{…}}` is safe, and
+  not a chezmoi template (`.py`, no `.tmpl`) so f-string `{{…}}` is safe, and
   the paused state is muted via `%{F#8A8A8A}`.
 - waybar's scripts live under `.config/waybar/scripts/` and deploy only on
   thinkpad (`.chezmoiignore`); polybar's under `.config/polybar/scripts/`,
@@ -181,10 +179,10 @@ Gap arithmetic verified equal on both sides:
 - dnd: interval 5, signal 9, on-click `dunst-dnd.sh --toggle`.
 - clock: no on-click (tooltip only). battery: thinkpad-only.
 
-## Picom: earlier revert plan CANCELLED (correction)
+## Picom: correction to the earlier revert plan
 
 The earlier plan to restore `blur-background-exclude`/`shadow-exclude` lists
-removed by `28f262b` was WRONG and was not carried out. `picom.conf.tmpl`
+removed by `28f262b` was incorrect and was not carried out. `picom.conf.tmpl`
 `rules:` blocks (present since before 28f262b) already set
 `blur-background = false; shadow = false` for `_GTK_FRAME_EXTENTS@` and for
 `window_type = 'dock' || 'desktop'`; 28f262b only deleted the redundant
@@ -193,7 +191,7 @@ No picom change was made. Flag for veto if the user disagrees.
 
 ## Waybar CSS hover bug from `28f262b` (fixed in this pass)
 
-- 28f262b inserted `#custom-updates.ok { color: muted }` into the MIDDLE of
+- 28f262b inserted `#custom-updates.ok { color: muted }` into the middle of
   the 8-selector hover group, splitting it into two rules:
   - rule 1: `[battery, clock, cpu, custom-dnd, custom-mpris]:hover` +
     `#custom-updates.ok` → only `color: muted` ⇒ hovering those five modules
@@ -201,7 +199,7 @@ No picom change was made. Flag for veto if the user disagrees.
     border), and they lost bg/border entirely;
   - rule 2: `[custom-updates, memory, pulseaudio]:hover` → full treatment
     (accidentally correct for these three).
-- Fix: `#custom-updates.ok` moved BEFORE the complete 8-selector hover rule.
+- Fix: `#custom-updates.ok` moved before the complete 8-selector hover rule.
   Specificity tie (`#custom-updates.ok` = `#custom-updates:hover`, both
   id+class) → later rule wins → at rest `.ok` is muted, on hover the full
   hover treatment applies. `#custom-updates.has-updates` / `.has-updates:hover`
@@ -290,7 +288,7 @@ No picom change was made. Flag for veto if the user disagrees.
      pavucontrol (floating), right mutes, scroll changes volume by 5%. tray
      icon menus. dnd click toggles + recolors to red. mpris: click play-pause,
      scroll next/prev (only while a player shows).
-   - Scroll over workspaces must NOT change workspace (`enable-scroll=false`).
+   - Scroll over workspaces must not change workspace (`enable-scroll=false`).
    - Hover/waybar checks: `#custom-updates.ok` muted at rest, full hover on
      hover; battery/clock/cpu/dnd/mpris hover restored (thinkpad, waybar).
 3. Font `SauceCodePro Nerd Font Mono` = `ttf-sourcecodepro-nerd` in
@@ -332,7 +330,7 @@ All checks run on thinkpad after the edits; everything passed:
   in the script.
 - `make lint`: passed (prettier).
 - `chezmoi diff`: `.config/waybar/style.css` shows exactly the hover-group
-  fix. Two other entries are NOT from this pass: (1) the onboarding
+  fix. Two other entries are not from this pass: (1) the onboarding
   `run_onchange` script is pending re-run because it embeds
   `sha256(packages.json)`: hash moved `fba21fcb…` → `2db06156…` with the
   waybar package removal, which is that script's designed trigger; (2)
@@ -559,7 +557,7 @@ disabled: caffeine is on, so re-enable the screensaver timeout first).
    installs (by design).
 10. ✓ `polybar -vvv` includes `+i3`.
 
-Fix verification (HANDOFF round fixes):
+Fix verification:
 
 1. ✓ Rofi: glyph hugs the input text. Box inset 16px left/right and 8px
    top/bottom. 2px prompt spacing (fuzzel geometry).
@@ -609,13 +607,13 @@ following; each is fixed, applied, and verified:
 1. **Wrong locker binary.** `lock.sh` called `i3lock-color`, but that
    package installs its binary as `i3lock`, so every lock path (manual
    `$mod+Shift+x`, power-menu suspend, `systemctl suspend`, and idle via
-   xss-lock) died with command-not-found. Invocation, `pkill`
+   xss-lock) failed with command-not-found. Invocation, `pkill`
    trap, and comments now use `i3lock`; a `getopt` probe confirms every
    other flag is accepted by the installed build.
-2. **DND stranded at pause 100.** The failing locker aborted the script
+2. **DND left at pause 100.** The failing locker aborted the script
    under `set -e` before `cleanup()`, leaving dunst paused at 100 (above
    the 90-level bypass rules), so all later notices (e.g. the caffeine
-   toggle) were swallowed. `run_lock || true` guarantees
+   toggle) were suppressed. `run_lock || true` guarantees
    cleanup; pause was reset to 0 and observed back at 0 with
    `pause_file` removed after both a scripted and a real lock/unlock
    cycle.
@@ -760,7 +758,7 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
    polybar renders no waybar-style tooltips. The actionable three,
    (b), (c), and (h), are item 11 below; (a), (d), (e), and (f) are
    fixed in item 12.
-10. **Reported gap (no final `locking screen...` beat):** the countdown
+10. **Reported gap (no final `Locking screen...` notice):** the countdown
     showed but the sequence ended silently at lock time. Sway's idle
     timeout runs `lock.sh` (notify + 2.5s + lock) and reserves `--now`
     for before-sleep; i3's xss-lock uses one locker for both idle and
@@ -771,7 +769,7 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     line, now dropped from `config.tmpl`), and every path shares the
     backgrounded run with the TERM→kill-i3lock trap (the old foreground
     branch had none). Live-verified all three paths: idle = countdown
-    painted → SIGTERM closes it → beat painted at cycle end → i3lock at
+    painted → SIGTERM closes it → notice painted at cycle end → i3lock at
     cycle-end+2.5s. Manual = `displayed@1s=1`, i3lock at t3s. Sleep sim
     (`XSS_SLEEP_LOCK_FD` plus an open fd) = `displayed@1s=0`, i3lock at
     t1s (suspend never delayed). Every path restored pause 0 and removed
@@ -812,8 +810,8 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     need it; the gif path does not). Live: `--set`/`--next`/
     `--restore` exit 0 on the pool gif, `~/.fehbg` keeps sw's form and
     `sh ~/.fehbg` runs, `chezmoi apply` stays silent with sw's file,
-    and where pre-fix `sw --restore` died with "awww daemon is not
-    responding" it now reaches the real "no previous wallpaper
+    and where pre-fix `sw --restore` failed with "awww daemon is not
+    responding" it now reaches the actual "No previous wallpaper
     recorded" error. (d) `-c` landed on all three bindings:
     `flameshot full -p … -c` wrote both the file and an identical
     260348-byte PNG through `xclip -t image/png`, and both scripts
@@ -828,7 +826,7 @@ applied, exercised on i3, and evidenced under `/tmp/opencode/shots/`:
     whole (follow + resync, hide-after-grace, cache, stall) with
     polybar tags; `custom/mpris` switched `interval = 5` →
     `tail = true`, the twin suite reuses waybar's `fake_playerctl.py`
-    instead of duplicating it (7 scenarios PASS), and
+    instead of duplicating it (7 scenarios pass), and
     `make check-mpris` now type-checks and runs both scripts' suites.
 
 ### Updates-click and edge-borders round: 2026-09-27 (optiplex)

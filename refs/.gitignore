@@ -2,7 +2,6 @@
 # only the curated session artifacts are committed.
 *
 !.gitignore
-!HANDOFF.md
 !polybar-migration-findings.md
 !fetch-refs.sh
 !zellij-themes/
