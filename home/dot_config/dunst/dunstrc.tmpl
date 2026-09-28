@@ -41,7 +41,7 @@
     icon_position = left
     min_icon_size = 0
     max_icon_size = 32
-    icon_theme = Papirus-Dark
+    icon_theme = Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
     sticky_history = yes
     history_length = 50
     title = Dunst
