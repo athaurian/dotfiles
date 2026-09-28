@@ -12,7 +12,7 @@ fi
 
 if [ "$immediate" -eq 0 ]; then
 	# Timeout avoids hangs on backlogged dunst. -a lock matches dnd_bypass_lock.
-	timeout 2 notify-send -a lock -u low -t 2500 " locking screen..." || true
+	timeout 2 notify-send -a lock -u low -t 2500 " Locking screen..." || true
 	sleep 2.5
 fi
 

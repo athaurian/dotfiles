@@ -69,7 +69,7 @@ choice=""
 if command -v fuzzel >/dev/null 2>&1; then
 	choice="$(confirm_menu "$prompt" "Enter=yes, Esc=no" yes no)" || choice=""
 else
-	notify-send -a power-confirm -u critical "fuzzel not found" "power confirmation cancelled" 2>/dev/null || true
+	notify-send -a power-confirm -u critical "Fuzzel not found" "Power confirmation cancelled." 2>/dev/null || true
 fi
 
 if [ -f "$state_file" ] && [ "$(cat "$state_file")" = "$action" ]; then

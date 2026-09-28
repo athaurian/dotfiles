@@ -25,7 +25,7 @@ close_notice() {
 trap 'close_notice' HUP TERM
 
 # Timeout avoids hangs on backlogged dunst; -a matches idle-warning.
-nid=$(timeout 2 dunstify -a idle-warning -u low -t "${cycle}000" -p '󰂠 idle warning' "screen locking in ${cycle}s" 2>/dev/null || true)
+nid=$(timeout 2 dunstify -a idle-warning -u low -t "${cycle}000" -p '󰂠 Idle warning' "Screen locking in ${cycle}s." 2>/dev/null || true)
 nid=$(printf '%s' "$nid" | tr -cd '0-9')
 
 # Stay alive so xss-lock can signal us; the notice also self-expires

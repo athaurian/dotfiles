@@ -54,7 +54,7 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 		[ -f "$save_filename" ] && wl-copy <"$save_filename" 2>/dev/null || true
 
 	elif command -v wl-copy >/dev/null 2>&1; then
-		wl-copy <"$SCREENSHOT_TMP" && notify-send -a screenshot -u low -t 1500 "󰄄 screenshot" "copied to clipboard" 2>/dev/null || true
+		wl-copy <"$SCREENSHOT_TMP" && notify-send -a screenshot -u low -t 1500 "󰄄 Screenshot" "Copied to clipboard." 2>/dev/null || true
 	fi
 fi
 

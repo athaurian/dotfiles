@@ -63,28 +63,28 @@ screensaver_timeout() {
 
 disable_timers() {
 	if ! xset s off; then
-		send_notice " caffeine toggle failed" "<b>xset s off failed.</b>"
+		send_notice " Caffeine toggle failed" "<b>Xset s off failed.</b>"
 		exit 1
 	fi
 	if ! xset -dpms; then
-		send_notice " caffeine toggle failed" "<b>xset -dpms failed.</b>"
+		send_notice " Caffeine toggle failed" "<b>Xset -dpms failed.</b>"
 		exit 1
 	fi
-	send_notice "󰒳 caffeine mode on" "<b>idle timers disabled.</b> The system stays awake indefinitely"
+	send_notice "󰒳 Caffeine mode on" "<b>idle timers disabled.</b> The system stays awake indefinitely."
 }
 
 enable_timers() {
 	# Both numbers: timeout arms xss-lock, cycle is idle_notifier.sh's
 	# countdown to the lock (20s warning, lock at 30s).
 	if ! xset s 20 10; then
-		send_notice " caffeine toggle failed" "<b>xset s 20 10 failed.</b>"
+		send_notice " Caffeine toggle failed" "<b>Xset s 20 10 failed.</b>"
 		exit 1
 	fi
 	if ! xset +dpms || ! xset dpms 90 90 90; then
-		send_notice " caffeine toggle failed" "<b>xset dpms failed.</b>"
+		send_notice " Caffeine toggle failed" "<b>Xset dpms failed.</b>"
 		exit 1
 	fi
-	send_notice "󰒲 caffeine mode off" "<b>idle timers restored.</b> Normal idle rules apply"
+	send_notice "󰒲 Caffeine mode off" "<b>idle timers restored.</b> Normal idle rules apply."
 }
 
 timeout_value=$(screensaver_timeout)
@@ -92,7 +92,7 @@ timeout_value=$(screensaver_timeout)
 case "$timeout_value" in
 0) enable_timers ;;
 "")
-	send_notice " caffeine toggle failed" "<b>could not read the screensaver timeout.</b>"
+	send_notice " Caffeine toggle failed" "<b>Could not read the screensaver timeout.</b>"
 	exit 1
 	;;
 *) disable_timers ;;
