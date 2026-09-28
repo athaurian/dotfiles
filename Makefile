@@ -16,7 +16,7 @@ SW_FILES := home/dot_local/bin/executable_sw \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config
 
 help:
 	@echo "Available commands:"
@@ -28,6 +28,7 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
+	@echo "  check-config      - Validate the applied sway/i3 configs (skips absent WMs)"
 
 format: format-md
 
@@ -71,3 +72,6 @@ check-sw:
 
 check-refs:
 	sh refs/fetch-refs.sh --check
+
+check-config:
+	sh meta/check-config.sh
