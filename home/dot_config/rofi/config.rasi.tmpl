@@ -3,7 +3,7 @@
 configuration {
     modes: [ drun ];
     show-icons: true;
-    icon-theme: "Papirus-Dark";
+    icon-theme: "Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}";
     terminal: "kitty";
     drun {
         display-name: " ";
