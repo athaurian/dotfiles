@@ -115,8 +115,9 @@ bindsym $mod+Shift+n exec dunstctl close-all
 # --release so auto-repeat cannot flip dnd straight back.
 bindsym --release $mod+Shift+d exec $HOME/.config/polybar/scripts/dunst-dnd.sh --toggle
 
-# Palette mode.
-bindsym --release $mod+Shift+t exec $HOME/.local/bin/palette-mode toggle
+# Palette mode. The switch opens no window, so --no-startup-id keeps i3
+# from holding its watch cursor for the full 60s startup timeout.
+bindsym --release $mod+Shift+t exec --no-startup-id $HOME/.local/bin/palette-mode toggle
 
 # Reload; restart polybar too, since reload only re-reads this file.
 bindsym $mod+Shift+c reload, exec --no-startup-id polybar-msg cmd restart
@@ -186,5 +187,7 @@ exec --no-startup-id $HOME/.fehbg
 # Flameshot's Print binding saves here; create the directory up front.
 exec --no-startup-id mkdir -p $HOME/Pictures/Screenshots
 
-exec_always blueman-applet
-exec_always nm-applet --indicator
+# Re-run on reload so a palette switch re-resolves the icon theme;
+# --no-startup-id keeps that respawn from re-arming i3's watch cursor.
+exec_always --no-startup-id blueman-applet
+exec_always --no-startup-id nm-applet --indicator
