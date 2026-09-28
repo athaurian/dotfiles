@@ -16,7 +16,7 @@ SW_FILES := home/dot_local/bin/executable_sw \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs
 
 help:
 	@echo "Available commands:"
@@ -27,6 +27,7 @@ help:
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
+	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 
 format: format-md
 
@@ -67,3 +68,6 @@ check-sw:
 	$(RUFF) format --check $(SW_FILES)
 	$(MYPY) home/dot_local/bin/executable_sw
 	uv run python3 -u home/dot_local/bin/tests/test_sw.py
+
+check-refs:
+	sh refs/fetch-refs.sh --check
