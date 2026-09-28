@@ -5,7 +5,7 @@ PRETTIER := prettier
 RUFF := uv run --with ruff ruff
 MYPY := uv run --with mypy mypy
 
-MD_FILES := $(wildcard meta/*.md) AGENTS.md
+MD_FILES := $(wildcard meta/*.md) AGENTS.md FEATURES.md
 MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/waybar/scripts/tests/fake_playerctl.py \
 	home/dot_config/waybar/scripts/tests/test_mpris.py \
