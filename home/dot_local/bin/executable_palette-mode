@@ -60,7 +60,10 @@ flock -n 9 || {
 # The checkout, not chezmoi source-path: source-path resolves into home/
 # (.chezmoiroot), while the Makefile lives at the repo root.
 # A keypress has no terminal output, so the outcome shows up on the desktop.
-cd "$HOME/.local/share/chezmoi" && make "${mode}" || {
+# The lock fd stops here: the pipeline backgrounds long-lived processes (the
+# gtk-mode hook restarts picom), which would otherwise inherit fd 9 and hold
+# the lock after this script exits.
+cd "$HOME/.local/share/chezmoi" && make "${mode}" 9>&- || {
 	status=$?
 	dunstify -a palette-mode -u critical "Palette mode" \
 		"Switch to ${mode} failed." >/dev/null 2>&1 || true
