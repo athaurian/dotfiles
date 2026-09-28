@@ -28,7 +28,7 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
-	@echo "  check-config      - Validate the applied sway/i3 configs (skips absent WMs)"
+	@echo "  check-config      - Validate the applied configs with each program's checker"
 
 format: format-md
 

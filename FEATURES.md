@@ -103,7 +103,7 @@ Lives at the checkout root `~/.local/share/chezmoi` (not the `home/` source root
 | `make check-mpris`          | Ruff, mypy, and tests for the bar MPRIS scripts                             |
 | `make check-sw`             | Checks for the wallpaper helper                                             |
 | `make check-refs`           | Probe every pinned `refs/` URL for bitrot (network)                         |
-| `make check-config`         | Validate the applied sway/i3 configs (skips absent WMs)                     |
+| `make check-config`         | Validate the applied configs with each program's own checker                |
 | `chezmoi-drift-check`       | Reports repository drift; run daily by `chezmoi-drift.timer`                |
 | `meta/probe*.lua`           | Headless Neovim checks: palette, Mason/Lazy pill chrome, dim-float backdrop |
 
