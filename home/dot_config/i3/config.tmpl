@@ -153,7 +153,7 @@ for_window [class="(?i)polkit-gnome-authentication-agent-1"] floating enable, bo
 for_window [window_role="GtkFileChooserDialog"] floating enable, resize set width 70 ppt height 70 ppt, move position center
 for_window [instance="scratchpad_term"] floating enable, border normal, resize set width 75 ppt height 70 ppt, mark drop_term, move scratchpad, scratchpad show, move position center
 for_window [instance="topgrade_term"] floating enable, border normal, resize set width 75 ppt height 70 ppt, mark topgrade_term, move scratchpad, scratchpad show, move position center
-for_window [instance="btop"] floating enable, border normal, move position center
+for_window [instance="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
 
 # Locked scheme (meta/color-scheme.md).
 client.focused           {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
