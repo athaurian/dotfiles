@@ -38,7 +38,7 @@ fi
 if [ -n "$status_output" ]; then
 	count=$(printf '%s\n' "$status_output" | wc -l | tr -d ' ')
 	preview=$(printf '%s\n' "$status_output" | head -n 5)
-	notify "󰚰 dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp"
+	notify "󰚰 Dotfiles drift: ${count} file(s)" "${preview}\nRun: chezmoi diff | czp."
 fi
 
 # Flag unmanaged files in fully managed directories, usually stale
@@ -65,5 +65,5 @@ done
 if [ -n "$unmanaged" ]; then
 	count=$(printf '%s\n' "$unmanaged" | wc -l | tr -d ' ')
 	preview=$(printf '%s\n' "$unmanaged" | head -n 5)
-	notify "󰚰 unmanaged file(s): ${count}" "${preview}\nRemove them or run: chezmoi add <file>"
+	notify "󰚰 Unmanaged file(s): ${count}" "${preview}\nRemove them or run: chezmoi add <file>."
 fi

@@ -21,7 +21,7 @@ return {
               local filepath = item.file
               local file = io.open(filepath, "r")
               if not file then
-                vim.notify("Could not open file: " .. filepath, vim.log.levels.WARN)
+                vim.notify("Could not open file: " .. filepath .. ".", vim.log.levels.WARN)
                 return
               end
               local content = file:read("*a")
@@ -30,7 +30,7 @@ return {
               vim.fn.setreg("+", content)
               vim.fn.setreg('"', content)
 
-              vim.notify("Yanked contents of: " .. vim.fn.fnamemodify(filepath, ":t"))
+              vim.notify("Yanked contents of: " .. vim.fn.fnamemodify(filepath, ":t") .. ".")
             end,
           },
         },

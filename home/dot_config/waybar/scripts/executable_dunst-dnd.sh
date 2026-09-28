@@ -7,7 +7,7 @@ set -eu
 # carry override_pause_level=90 via dunstrc rules and stay visible during
 # DND. The screen lock pauses at 100 and hides even those.
 # Do not use `set-paused true` here. It sets level 100, which nothing
-# bypasses, so the "dnd enabled" notice and all other script notices queue
+# bypasses, so the "DND enabled" notice and all other script notices queue
 # silently in history.
 
 APP_NAME="dunst-dnd"
@@ -19,8 +19,8 @@ DND_PAUSE_LEVEL=50
 
 ICON_ENABLED=""
 ICON_DISABLED=""
-TEXT_ENABLED="dnd enabled"
-TEXT_DISABLED="dnd disabled"
+TEXT_ENABLED="DND enabled"
+TEXT_DISABLED="DND disabled"
 
 send_notice() {
 	summary=$1
@@ -79,7 +79,7 @@ is_dnd() {
 
 toggle_dnd() {
 	if ! command -v dunstctl >/dev/null 2>&1; then
-		notify-send -u critical "dunst" "dunstctl not found" 2>/dev/null || true
+		notify-send -u critical "Dunst" "Dunstctl not found." 2>/dev/null || true
 		exit 1
 	fi
 	# Serialize with flock like the swayidle caffeine toggle.
@@ -87,10 +87,10 @@ toggle_dnd() {
 	flock -w 2 9 || exit 0
 
 	if is_dnd; then
-		send_notice "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>notifications on.</b> Popups and sounds will appear again"
+		send_notice "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>Notifications on.</b> Popups and sounds will appear again."
 		dunstctl set-pause-level 0 2>/dev/null || true
 	else
-		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>notifications silenced.</b> Click the indicator or press Super+Shift+d to disable"
+		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>Notifications silenced.</b> Click the indicator or press Super+Shift+d to disable."
 		dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
 	fi
 	pkill -RTMIN+9 waybar 2>/dev/null || true

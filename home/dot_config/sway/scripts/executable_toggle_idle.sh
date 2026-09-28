@@ -65,16 +65,16 @@ start_unit() {
 
 	if ! systemctl --user start "$unit"; then
 		state=$(unit_state)
-		send_notice " caffeine toggle failed" "systemctl start failed; $unit state: $state"
+		send_notice " Caffeine toggle failed" "Systemctl start failed; $unit state: $state."
 		exit 1
 	fi
 
 	state=$(unit_state)
 
 	if [ "$state" = "active" ]; then
-		send_notice "󰒲 caffeine mode off" "<b>swayidle restarted.</b> Normal idle rules apply"
+		send_notice "󰒲 Caffeine mode off" "<b>swayidle restarted.</b> Normal idle rules apply."
 	else
-		send_notice " caffeine toggle failed" "after start, $unit state is: $state"
+		send_notice " Caffeine toggle failed" "After start, $unit state is: $state."
 		exit 1
 	fi
 }
@@ -82,16 +82,16 @@ start_unit() {
 stop_unit() {
 	if ! systemctl --user stop "$unit"; then
 		state=$(unit_state)
-		send_notice " caffeine toggle failed" "systemctl stop failed; $unit state: $state"
+		send_notice " Caffeine toggle failed" "Systemctl stop failed; $unit state: $state."
 		exit 1
 	fi
 
 	state=$(unit_state)
 
 	if [ "$state" = "inactive" ]; then
-		send_notice "󰒳 caffeine mode on" "<b>swayidle stopped.</b> The system stays awake indefinitely"
+		send_notice "󰒳 Caffeine mode on" "<b>swayidle stopped.</b> The system stays awake indefinitely."
 	else
-		send_notice " caffeine toggle failed" "after stop, $unit state is: $state"
+		send_notice " Caffeine toggle failed" "After stop, $unit state is: $state."
 		exit 1
 	fi
 }
@@ -110,7 +110,7 @@ inactive | failed)
 deactivating)
 	if ! systemctl --user stop "$unit"; then
 		state=$(unit_state)
-		send_notice " caffeine toggle failed" "could not finish pending stop; $unit state: $state"
+		send_notice " Caffeine toggle failed" "Could not finish pending stop; $unit state: $state."
 		exit 1
 	fi
 
@@ -118,7 +118,7 @@ deactivating)
 	;;
 
 *)
-	send_notice " caffeine toggle failed" "$unit is in unexpected state: $state"
+	send_notice " Caffeine toggle failed" "Unit $unit is in unexpected state: $state."
 	exit 1
 	;;
 esac
