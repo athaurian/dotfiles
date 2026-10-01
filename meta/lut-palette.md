@@ -5,19 +5,19 @@ wallpapers. It saves each table as an image called a Hald CLUT.
 
 ## The lutgen command
 
-| Mechanism         | Behavior                                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------------------- |
-| Custom palette    | Holds one hexadecimal color per line in `~/.config/lutgen/<name>`, with or without `#`                    |
-| Palette selection | `-p <name>` selects the named palette                                                                     |
-| Gaussian blur     | The default interpolation. The `-r RADIUS` flag sets the blur radius, which is also the Gaussian sigma.   |
-| Gaussian RBF      | Enable it with `-R`, and set the shape with `-s` and the neighbor count with `-n`                         |
-| Shepard           | Enable it with `-S`, which interpolates by inverse distance                                               |
-| Nearest neighbor  | Enable it with `-N`, which disables interpolation and produces a posterized result                        |
-| `-P`              | Preserves the source image's luminance after interpolation                                                |
-| `-L FACTOR`       | Adjusts weighting toward colorful or grayscale matches                                                    |
-| `-l LEVEL`        | Sets the Hald CLUT resolution. `10` is the default working level, and `16` stores the complete sRGB space |
-| `lutgen apply`    | Applies a provided Hald CLUT, or generates one from the palette and applies it in one command             |
-| `lutgen generate` | Writes a Hald CLUT to the current directory unless an output path is supplied                             |
+| Mechanism         | Behavior                                                                                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Custom palette    | Holds one hexadecimal color per line in `~/.config/lutgen/NAME`, where `NAME` is the palette name. Each color is written with or without `#` |
+| Palette selection | `-p NAME` selects the named palette                                                                                                          |
+| Gaussian blur     | The default interpolation. The `-r RADIUS` flag sets the blur radius, which is also the Gaussian sigma.                                      |
+| Gaussian RBF      | Enable it with `-R`, and set the shape with `-s` and the neighbor count with `-n`                                                            |
+| Shepard           | Enable it with `-S`, which interpolates by inverse distance                                                                                  |
+| Nearest neighbor  | Enable it with `-N`, which disables interpolation and produces a posterized result                                                           |
+| `-P`              | Preserves the source image's luminance after interpolation                                                                                   |
+| `-L FACTOR`       | Adjusts weighting toward colorful or grayscale matches                                                                                       |
+| `-l LEVEL`        | Sets the Hald CLUT resolution. `10` is the default working level, and `16` stores the complete sRGB space                                    |
+| `lutgen apply`    | Applies a provided Hald CLUT, or generates one from the palette and applies it in one command                                                |
+| `lutgen generate` | Writes a Hald CLUT to the current directory unless an output path is supplied                                                                |
 
 ## Palette contents
 

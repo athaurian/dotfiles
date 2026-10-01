@@ -5,7 +5,7 @@
 | Principle        | Rule                                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Neutral grounds  | All grounds use the pure-neutral ramps below, one per mode.                                                               |
-| Modes            | Dark and light share role names, chromatics, and derivation formulas; only the neutral ramps differ, and both are locked. |
+| Modes            | Dark and light share role names, chromatics, and derivation formulas. Only the neutral ramps differ, and both are locked. |
 | Chromatic source | All chromatic hues come from One Dark Pro classic: `refs/onedark-pro/src/themes/themeData.ts`, `textColors.classic`.      |
 | Chroma           | One Dark Pro base hues are boosted by `1.5×` at constant lightness and hue.                                               |
 | Accent           | `#48AFFF` and `#98C3FF` are the only accent pair.                                                                         |
