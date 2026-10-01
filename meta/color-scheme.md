@@ -110,13 +110,13 @@ color, and k is the fraction of that hue's chroma the tint keeps. A row with
 
 | Tint             | Anchor    | Hue    | k     | Dark hex                 | Light hex          | Semantic use                                   |
 | ---------------- | --------- | ------ | ----- | ------------------------ | ------------------ | ---------------------------------------------- |
-| `selection-deep` | n/a       | n/a    | n/a   | `#3A3F4B`                | `#BBC7D2`          | fuzzel and Qt selection                        |
-| `on-accent`      | n/a       | n/a    | n/a   | `#202020`                | `#FFFFFF`          | text placed on accent grounds                  |
-| `hover`          | n/a       | n/a    | n/a   | `rgba(255,255,255,0.08)` | `rgba(0,0,0,0.08)` | bar hover overlay                              |
+| `selection-deep` | n/a       | n/a    | n/a   | `#3A3F4B`                | `#BBC7D2`          | Selection in fuzzel and Qt                     |
+| `on-accent`      | n/a       | n/a    | n/a   | `#202020`                | `#FFFFFF`          | Text placed on accent grounds                  |
+| `hover`          | n/a       | n/a    | n/a   | `rgba(255,255,255,0.08)` | `rgba(0,0,0,0.08)` | Bar hover overlay                              |
 | warning-hover    | surface-1 | yellow | 0.302 | `#382B11`                | `#E2D7C3`          | Waybar and btop warning hover                  |
 | error-hover      | surface-1 | red    | 0.256 | `#452123`                | `#F7CCCD`          | Waybar and btop error hover                    |
-| urgent           | surface-1 | red    | 0.35  | `#4C1A1F`                | `#FFC8CA`          | critical notification and urgent-window ground |
-| notice           | surface-1 | blue   | 0.35  | `#142F46`                | `#C3DCF2`          | normal notification ground                     |
+| urgent           | surface-1 | red    | 0.35  | `#4C1A1F`                | `#FFC8CA`          | Critical notification and urgent-window ground |
+| notice           | surface-1 | blue   | 0.35  | `#142F46`                | `#C3DCF2`          | Normal notification ground                     |
 | selection        | surface-2 | blue   | 0.179 | `#2F3C47`                | `#BBC7D2`          | Neovim Visual and Search                       |
 | diff-add         | surface-2 | green  | 0.432 | `#2B4218`                | `#B8CDA9`          | Neovim additions                               |
 | diff-change      | surface-2 | blue   | 0.444 | `#183D5A`                | `#AAC9E5`          | Neovim changes                                 |
