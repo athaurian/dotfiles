@@ -1,11 +1,7 @@
 #!/usr/bin/env sh
 set -eu
-
-# Polybar custom/updates module (tail = true): counts pacman + AUR
-# updates with color tags. The loop refreshes every 600s and, when
-# SIGUSR1 arrives (wrapper_topgrade.sh pokes it once topgrade exits),
-# immediately instead of waiting out the interval.{{ $p := .palette }}
-
+# chezmoi renders this template. Colors come from meta/color-scheme.md.
+# {{- $p := .palette }}
 poked=0
 trap 'poked=1' USR1
 
@@ -16,7 +12,6 @@ report() {
 
 	if command -v checkupdates >/dev/null 2>&1; then
 		has_checkupdates=1
-		# Empty output means zero updates regardless of exit status.
 		pacman_out=$(checkupdates 2>/dev/null || true)
 		pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
 		count=$((count + ${pacman_count:-0}))
@@ -24,7 +19,6 @@ report() {
 
 	if command -v paru >/dev/null 2>&1; then
 		has_paru=1
-		# paru -Qum lists AUR updates.
 		paru_out=$(paru -Qum 2>/dev/null || true)
 		paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
 		count=$((count + ${paru_count:-0}))
@@ -47,8 +41,6 @@ while :; do
 	report
 	sleep 600 &
 	sleeper=$!
-	# A poke before the wait skips it; a poke during it returns early
-	# from wait and the sleeper is killed below.
 	if [ "$poked" -eq 0 ]; then
 		wait "$sleeper" || true
 	fi
