@@ -7,8 +7,6 @@ Wants=wlsunset-env.service
 
 [Service]
 Type=simple
-# Reuses the machine-local location env that wlsunset-location generates; the
-# script and the env file are platform-agnostic.
 EnvironmentFile=%h/.config/wlsunset.env
 ExecStart=/usr/bin/redshift -l ${WLSUNSET_LATITUDE}:${WLSUNSET_LONGITUDE} -t 6500:4000
 Restart=on-failure

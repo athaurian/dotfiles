@@ -1,8 +1,5 @@
-# Reconnect watcher; the 30-minute timer stays the fallback. Debounced in-script.
-
 [Unit]
 Description=Sync Calibre library promptly on reconnect
-# Both targets listed; the one absent on a machine never loads there.
 After=sway-session.target i3-session.target
 PartOf=sway-session.target i3-session.target
 
