@@ -5,3 +5,6 @@ site/
 
 __pycache__/
 *.pyc
+
+style-guide.md
+AGENTS.md
