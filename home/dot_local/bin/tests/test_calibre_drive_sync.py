@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""Tests for the naming logic of calibre-drive-sync.
-
-Run from the repository root::
-
-    python3 home/dot_local/bin/tests/test_calibre_drive_sync.py
-"""
 
 from __future__ import annotations
 
@@ -17,7 +11,6 @@ from unittest import mock
 _HERE = Path(__file__).resolve().parent
 _SCRIPT = _HERE.parent / "executable_calibre-drive-sync"
 
-# The script has no .py suffix, so the loader must be given explicitly.
 _LOADER = SourceFileLoader("calibre_drive_sync", str(_SCRIPT))
 _SPEC = importlib.util.spec_from_loader(_LOADER.name, _LOADER)
 assert _SPEC

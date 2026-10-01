@@ -1,9 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Sync soon after reconnect; the 30-minute timer stays the fallback.
-# Debounced so flapping Wi-Fi cannot hammer Drive. Exit 1 when nmcli is missing.
-
 COOLDOWN_SEC=120
 SETTLE_SEC=10
 STAMP="${XDG_CACHE_HOME:-$HOME/.cache}/calibre-drive-sync/last-net-trigger"
@@ -14,7 +11,6 @@ if ! command -v nmcli >/dev/null 2>&1; then
 fi
 
 mkdir -p "$(dirname "$STAMP")"
-# No login sync; the timer's Persistent=true already covers catch-up.
 touch "$STAMP"
 
 should_trigger() {
@@ -34,7 +30,6 @@ should_trigger() {
 	return 0
 }
 
-# nmcli monitor blocks; restart if it ever exits (NM restarted).
 while true; do
 	nmcli monitor 2>/dev/null | while IFS= read -r line; do
 		case "$line" in
@@ -45,7 +40,6 @@ while true; do
 				echo "network reconnected; starting calibre-sync.service"
 				systemctl --user start calibre-sync.service || true
 			else
-			# One sync per burst, not one per NM line.
 				touch "$STAMP"
 			fi
 			;;

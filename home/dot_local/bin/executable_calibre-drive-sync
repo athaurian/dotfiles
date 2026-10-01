@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""Mirrors the Calibre library to Google Drive as a flat folder.
-
-Stages every EPUB/PDF via hardlinks for rclone to mirror to
-gdrive:Books. Flat names are rebuilt as "Author - Series NN - Title.ext"
-from calibredb metadata (cached against metadata.db's mtime), with a
-hash suffix appended on collisions.
-
-When offline, staging still happens locally but the upload is skipped
-with a clean exit. The 30-minute timer plus the reconnect watcher
-upload on the next online run.
-"""
+"""Mirrors the Calibre library to Google Drive as a flat folder."""
 
 from __future__ import annotations
 
@@ -51,7 +41,6 @@ def die(message: str) -> None:
 
 
 def find_books(library: Path) -> list[Path]:
-    """Return every EPUB/PDF under the library, sorted for stable output."""
     books = [
         path
         for path in library.rglob("*")
@@ -61,7 +50,6 @@ def find_books(library: Path) -> list[Path]:
 
 
 def db_fingerprint(library: Path) -> dict:
-    """Return the metadata.db fingerprint used to invalidate the cache."""
     try:
         stat = (library / "metadata.db").stat()
     except OSError:
@@ -70,7 +58,6 @@ def db_fingerprint(library: Path) -> dict:
 
 
 def query_metadata(library: Path) -> dict[str, dict]:
-    """Map each format path to its Calibre metadata entry."""
     try:
         result = subprocess.run(
             [
@@ -102,7 +89,6 @@ def query_metadata(library: Path) -> dict[str, dict]:
 
 
 def _read_cache() -> dict | None:
-    """Return the raw cache document, or None when missing or corrupt."""
     try:
         return json.loads(METADATA_CACHE.read_text())
     except (OSError, ValueError):
@@ -110,18 +96,6 @@ def _read_cache() -> dict | None:
 
 
 def load_metadata(library: Path) -> dict[str, dict] | None:
-    """Return the cached format-path map, refreshed when metadata.db changes.
-
-    Reuses the previous cache when calibredb is unreachable (GUI lock,
-    timeout, corrupt output) so flat names stay stable.
-
-    Args:
-        library: Root of the Calibre library holding metadata.db.
-
-    Returns:
-        The format-path to metadata map, or None when metadata is
-        unavailable and no cache exists.
-    """
     fingerprint = db_fingerprint(library)
     cache = _read_cache()
     if cache is not None:
@@ -159,11 +133,6 @@ def sanitize(name: str) -> str:
 
 
 def have_network() -> bool:
-    """Return True when the Drive endpoint answers a short TCP probe.
-
-    A short TCP probe keeps offline runs cheap (stage locally, skip
-    upload). Captive portals may pass the probe and still fail in rclone.
-    """
     try:
         with socket.create_connection(
             (NETWORK_HOST, NETWORK_PORT), timeout=NETWORK_TIMEOUT
@@ -174,7 +143,6 @@ def have_network() -> bool:
 
 
 def format_index(index: float) -> str:
-    """Format a zero-padded series position (1.0 as '01', 8.5 as '08.5')."""
     text = f"{index:g}"
     whole, _, fraction = text.partition(".")
     padded = f"{int(whole):02d}"
@@ -182,7 +150,6 @@ def format_index(index: float) -> str:
 
 
 def clean_title(title: str, series: str) -> str:
-    """Drop a leading "<Series>, Book NN:" echo from the title."""
     pattern = re.compile(
         rf"^{re.escape(series)}\s*,\s*Book\s+\d+(?:\.\d+)?\s*[:_]\s*",
         re.IGNORECASE,
@@ -192,29 +159,17 @@ def clean_title(title: str, series: str) -> str:
 
 
 def display_name(entry: dict) -> str:
-    """Build the readable flat name: Author - Series NN - Title."""
     parts = [entry.get("authors") or "Unknown"]
     series = entry.get("series")
     title = entry.get("title") or "Untitled"
     if series:
         parts.append(f"{series} {format_index(entry.get('series_index', 0))}")
-        # Series position is in the name; drop a baked-in "<Series>, Book NN:" prefix.
         title = clean_title(title, series)
     parts.append(title)
     return sanitize(" - ".join(parts))
 
 
 def plan_names(books: list[Path], metadata: dict[str, dict] | None) -> list[str]:
-    """Plan one flat filename per book; hash-suffix on collisions.
-
-    Args:
-        books: Library files in stable sorted order.
-        metadata: Format-path to metadata map, or None for raw
-            filenames.
-
-    Returns:
-        Flat filenames aligned with ``books``.
-    """
     bases = []
     for book in books:
         entry = metadata.get(str(book)) if metadata else None
@@ -233,16 +188,6 @@ def plan_names(books: list[Path], metadata: dict[str, dict] | None) -> list[str]
 
 
 def restage(books: list[Path], metadata: dict[str, dict] | None) -> None:
-    """Mirror the library into staging; relink only changed books.
-
-    Unchanged hardlinks are kept so no-op runs stay cheap and rclone
-    sees no mtime churn.
-
-    Args:
-        books: Library files to stage.
-        metadata: Format-path to metadata map, or None for raw
-            filenames.
-    """
     planned = plan_names(books, metadata)
     wanted: dict[str, Path] = dict(zip(planned, books))
     STAGING_DIR.mkdir(parents=True, exist_ok=True)
@@ -277,7 +222,6 @@ def restage(books: list[Path], metadata: dict[str, dict] | None) -> None:
         try:
             os.link(book, target)
         except OSError:
-            # Copy when the link crosses filesystems.
             shutil.copy2(book, target)
         linked += 1
     print(f"staged {linked + reused} books in {STAGING_DIR} ({reused} reused)")
@@ -327,7 +271,6 @@ def main() -> None:
 
     books = find_books(LIBRARY_DIR)
     if not books:
-        # An empty staging directory would make rclone sync wipe the remote.
         die(f"no EPUB/PDF files found in {LIBRARY_DIR}; refusing to sync")
 
     restage(books, load_metadata(LIBRARY_DIR))

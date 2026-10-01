@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""Unit tests for the sw wallpaper utility.
-
-Covers pure logic only (no lutgen/awww/feh subprocesses): output naming,
-queue/history helpers, palette resolution, animation passthrough,
-transition selection, wallpaper backend selection, and argument
-parsing.
-
-Run from the repository root::
-
-    python3 home/dot_local/bin/tests/test_sw.py
-
-Or via::
-
-    make check-sw
-"""
 
 import importlib.machinery
 import importlib.util
@@ -27,7 +12,6 @@ _SW = _HERE.parent / "executable_sw"
 
 
 def _load():
-    # executable_sw has no .py suffix, so the loader must be explicit.
     loader = importlib.machinery.SourceFileLoader("sw", str(_SW))
     spec = importlib.util.spec_from_file_location("sw", str(_SW), loader=loader)
     assert spec is not None and spec.loader is not None
