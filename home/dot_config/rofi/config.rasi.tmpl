@@ -1,5 +1,5 @@
-/* Locked scheme (meta/color-scheme.md); fuzzel mirror. Managed by chezmoi;
-   edit the .tmpl source. */{{ $p := .palette }}
+/* Palette and mode come from meta/color-scheme.md. The applied copy is generated from this template. */
+/* {{- $p := .palette }} */
 configuration {
     modes: [ drun ];
     show-icons: true;
@@ -23,7 +23,6 @@ configuration {
 window {
     location:         center;
     width:            560px;
-    /* fuzzel: horizontal-pad=16, vertical-pad=8. */
     padding:          8px 16px;
     border:           1px solid;
     border-color:     @border;
@@ -38,8 +37,6 @@ mainbox {
 }
 
 inputbar {
-    /* inner-pad=8 in fuzzel; 8px of spacing on top of the prompt's trailing
-       space pushed the glyph away from the input text. */
     padding:   0px 0px 8px 0px;
     spacing:   2px;
     children:  [ prompt, entry ];
@@ -76,8 +73,6 @@ element normal.normal {
     text-color:       @foreground;
 }
 
-// Uneven rows carry the alternate modifier; without this the default theme's
-// lightbg background leaks through.
 element alternate.normal {
     background-color: transparent;
     text-color:       @foreground;

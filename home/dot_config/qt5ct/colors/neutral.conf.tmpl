@@ -1,16 +1,5 @@
-# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
-# source.{{ $p := .palette }}
-{{- $mode := .mode }}
-# Slot order: WindowText, Button, Light, Midlight, Dark, Mid, Text,
-# BrightText, ButtonText, Base, Window, Shadow, Highlight,
-# HighlightedText, Link, LinkVisited, AlternateBase, PlaceholderText,
-# ToolTipBase, ToolTipText.
-#
-# Fusion's bevel slots are brightness-absolute: Light >= Midlight >=
-# Button/Window >= Mid >= Dark >= Shadow must hold in every mode, and the
-# ramp inverts per mode, so the slot mapping inverts with it. Getting this
-# wrong paints raised panels (group boxes, the unlock panel) darker than
-# the window in light mode.
+# Palette and mode come from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}{{- $mode := .mode }}
 {{- $light := "" }}{{- $midlight := "" }}{{- $chrome := "" }}{{- $mid := "" }}{{- $dark := "" }}{{- $shadow := "" }}
 {{- if eq $mode "light" }}
 {{- $light = $p.crust.hex }}{{- $midlight = $p.mantle.hex }}{{- $chrome = $p.surface_1.hex }}{{- $mid = $p.surface_2.hex }}{{- $dark = $p.line.hex }}{{- $shadow = $p.muted.hex }}

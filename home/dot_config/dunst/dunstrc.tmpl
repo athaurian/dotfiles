@@ -1,14 +1,11 @@
-# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
-# source.{{ $p := .palette }}
-
+# Palette and mode come from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 [global]
     monitor = 0
     follow = none
     width = 340
     height = (0, 110)
     origin = top-right
-    {{/* Wayland: waybar's 24px strut shifts the popups first; X11 has no
-         strut awareness, so optiplex needs bar height + the same 8px. */}}
     offset = (8, {{ if eq .chezmoi.hostname "optiplex" }}32{{ else }}8{{ end }})
     notification_limit = 4
     progress_bar = true
@@ -81,7 +78,6 @@
     appname = caffeine-toggle
     override_pause_level = 90
 
-# sw is the wallpaper tool. Its notices carry appname "sw".
 [dnd_bypass_wallpaper]
     appname = sw
     override_pause_level = 90

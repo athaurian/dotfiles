@@ -1,5 +1,5 @@
-# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
-# source.{{ $p := .palette }}
+# Palette comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 gui:
   theme:
     activeBorderColor:
@@ -34,5 +34,3 @@ gui:
       - "{{ $p.purple.hex }}"
     markedBaseCommitFgColor:
       - "{{ $p.yellow.hex }}"
-
-# vim: ft=yaml

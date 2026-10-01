@@ -1,4 +1,5 @@
-# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
+# Palette and mode come from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 font=SauceCodePro Nerd Font Mono:size=8
 icon-theme=Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
 width=56
@@ -9,7 +10,6 @@ inner-pad=8
 prompt=" "
 placeholder="find something..."
 
-# Locked scheme (Waybar neutral-*); opaque.
 [colors]
 background={{ $p.base.hex }}FF
 text={{ $p.text.hex }}FF
@@ -24,7 +24,6 @@ selection-match={{ $p.blue_bright.hex }}FF
 counter={{ $p.muted.hex }}FF
 border={{ $p.line.hex }}FF
 
-# Square corners match the bar (fuzzel defaults to radius 10).
 [border]
 width=1
 radius=4
