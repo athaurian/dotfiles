@@ -1,4 +1,4 @@
-PRETTIER := prettier
+PRETTIER := npx --yes prettier@3.9.9
 RUFF := uv run --with ruff ruff
 MYPY := uv run --with mypy mypy
 
