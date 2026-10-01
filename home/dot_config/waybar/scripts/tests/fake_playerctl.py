@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Fake playerctl for test harness.
-
-Serves one-shot metadata queries and --follow streams from scenario files.
-Scenario files are JSON with ``{"oneshot": [...], "follow": [...]}`` keys.
-Each entry is a dict like ``{"line": "..."}``, ``{"line": "...", "delay":
-0.15}``, or ``{"exit": 1}``.
-"""
 
 import json
 import os
 import sys
 import time
+
+
+def advance(i):
+    with open(state_file, "w") as f:
+        json.dump(i, f)
+
+
+def norm(ev):
+    return ev if isinstance(ev, dict) else {"line": ev}
+
 
 with open(os.environ["FAKE_SCENARIO"]) as _f:
     scenario = json.load(_f)
@@ -30,16 +33,6 @@ try:
 except (FileNotFoundError, json.JSONDecodeError):
     pass
 
-
-def advance(i):
-    with open(state_file, "w") as f:
-        json.dump(i, f)
-
-
-def norm(ev):
-    return ev if isinstance(ev, dict) else {"line": ev}
-
-
 if not is_follow:
     if idx < len(stream):
         advance(idx + 1)
@@ -52,7 +45,6 @@ if not is_follow:
     sys.stdout.flush()
     sys.exit(0)
 
-# Follow mode emits remaining events with pacing, then sleeps to stay alive.
 for j in range(idx, len(stream)):
     ev = norm(stream[j])
     time.sleep(ev.get("delay", 0.0))
