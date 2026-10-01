@@ -1,13 +1,21 @@
 # Color scheme: One Dark on Neutral
 
+This document is the source of truth for every color in the repository, and
+`meta/palette.py` reads its tables to generate the palette data. Grounds, the
+background colors, come from one pure-gray neutral ramp per mode. Hues come from
+One Dark Pro, a color theme for Visual Studio Code, and the tints and syntax
+colors derive from those two sets.
+
 ## Design
+
+The following table states the design rules for the palette:
 
 | Principle        | Rule                                                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Neutral grounds  | All grounds use the pure-neutral ramps below, one per mode.                                                               |
 | Modes            | Dark and light share role names, chromatics, and derivation formulas. Only the neutral ramps differ, and both are locked. |
 | Chromatic source | All chromatic hues come from One Dark Pro classic: `refs/onedark-pro/src/themes/themeData.ts`, `textColors.classic`.      |
-| Chroma           | One Dark Pro base hues are boosted by `1.5×` at constant lightness and hue.                                               |
+| Chroma           | One Dark Pro base hues are boosted by `1.5×` in chroma, a measure of color intensity, at constant lightness and hue.      |
 | Accent           | `#48AFFF` and `#98C3FF` are the only accent pair.                                                                         |
 | Palette boundary | No application-local color inventions. Every application hex must be traceable here.                                      |
 | Hierarchy        | Neutral roles remain distinct and monotonic from dark to light.                                                           |
@@ -15,37 +23,49 @@
 
 ## Neutrals
 
+The neutrals are pure grays, one ramp per mode, and every ground color in the
+system comes from them. Each row pairs a hex value with a role, a name for where
+that color is used.
+
 ### Dark
+
+The following table lists the dark ramp from the deepest ground to maximal
+emphasis:
 
 | Hex       | Role      | Semantic use                                                          |
 | --------- | --------- | --------------------------------------------------------------------- |
-| `#101010` | crust     | deepest editor grounds, such as TabLine and folds                     |
-| `#171717` | mantle    | transient editor chrome, including floats, pickers, and Pmenu         |
-| `#202020` | base      | primary editor, terminal, bar, notification, and window grounds       |
-| `#262626` | surface-0 | cursorline, alternate base, tooltip base                              |
-| `#2D2D2D` | surface-1 | hover fills, buttons, menu selection, low-urgency notification ground |
-| `#3A3A3A` | surface-2 | borders, selections, btop boxes, indent guides, low-urgency frames    |
-| `#5A5A5A` | line      | focus borders and subtle dividers                                     |
-| `#8A8A8A` | muted     | comments, placeholders, disabled text, low-urgency text               |
-| `#B3B3B3` | subtext   | secondary text, titles, tab labels, dimmed emphasis                   |
-| `#D4D4D4` | text      | primary text                                                          |
-| `#FFFFFF` | text-max  | selected, hovered, or otherwise maximal emphasis                      |
+| `#101010` | crust     | Deepest editor grounds, such as TabLine and folds                     |
+| `#171717` | mantle    | Transient editor chrome, including floats, pickers, and Pmenu         |
+| `#202020` | base      | Primary editor, terminal, bar, notification, and window grounds       |
+| `#262626` | surface-0 | Cursorline, alternate base, tooltip base                              |
+| `#2D2D2D` | surface-1 | Hover fills, buttons, menu selection, low-urgency notification ground |
+| `#3A3A3A` | surface-2 | Borders, selections, btop boxes, indent guides, low-urgency frames    |
+| `#5A5A5A` | line      | Focus borders and subtle dividers                                     |
+| `#8A8A8A` | muted     | Comments, placeholders, disabled text, low-urgency text               |
+| `#B3B3B3` | subtext   | Secondary text, titles, tab labels, dimmed emphasis                   |
+| `#D4D4D4` | text      | Primary text                                                          |
+| `#FFFFFF` | text-max  | Selected, hovered, or otherwise maximal emphasis                      |
 
 ### Light
 
+The following table lists the light ramp in the same role order:
+
 | Hex       | Role      | Semantic use                                                          |
 | --------- | --------- | --------------------------------------------------------------------- |
-| `#FCFCFC` | crust     | deepest editor grounds, such as TabLine and folds                     |
-| `#F5F5F5` | mantle    | transient editor chrome, including floats, pickers, and Pmenu         |
-| `#EAEAEA` | base      | primary editor, terminal, bar, notification, and window grounds       |
-| `#E2E2E2` | surface-0 | cursorline, alternate base, tooltip base                              |
-| `#D8D8D8` | surface-1 | hover fills, buttons, menu selection, low-urgency notification ground |
-| `#C5C5C5` | surface-2 | borders, selections, btop boxes, indent guides, low-urgency frames    |
-| `#999999` | line      | focus borders and subtle dividers                                     |
-| `#676767` | muted     | comments, placeholders, disabled text, low-urgency text               |
-| `#474747` | subtext   | secondary text, titles, tab labels, dimmed emphasis                   |
-| `#303030` | text      | primary text                                                          |
-| `#000000` | text-max  | selected, hovered, or otherwise maximal emphasis                      |
+| `#FCFCFC` | crust     | Deepest editor grounds, such as TabLine and folds                     |
+| `#F5F5F5` | mantle    | Transient editor chrome, including floats, pickers, and Pmenu         |
+| `#EAEAEA` | base      | Primary editor, terminal, bar, notification, and window grounds       |
+| `#E2E2E2` | surface-0 | Cursorline, alternate base, tooltip base                              |
+| `#D8D8D8` | surface-1 | Hover fills, buttons, menu selection, low-urgency notification ground |
+| `#C5C5C5` | surface-2 | Borders, selections, btop boxes, indent guides, low-urgency frames    |
+| `#999999` | line      | Focus borders and subtle dividers                                     |
+| `#676767` | muted     | Comments, placeholders, disabled text, low-urgency text               |
+| `#474747` | subtext   | Secondary text, titles, tab labels, dimmed emphasis                   |
+| `#303030` | text      | Primary text                                                          |
+| `#000000` | text-max  | Selected, hovered, or otherwise maximal emphasis                      |
+
+The following table maps Catppuccin, a community color scheme, to the repository
+roles that correspond to its palette slots:
 
 | Catppuccin slot        | Repository color |
 | ---------------------- | ---------------- |
@@ -55,17 +75,22 @@
 
 ## Chromatics
 
+The following table lists the hues, their hex values in both modes, and their
+semantics:
+
 | Hue    | Dark base | Dark bright | Light base | Light bright | Semantics                                  |
 | ------ | --------- | ----------- | ---------- | ------------ | ------------------------------------------ |
-| red    | `#FE4864` | `#FF7376`   | `#B10035`  | `#96002B`    | errors, urgency, deleted content, specials |
-| green  | `#89C952` | `#B9EE7D`   | `#376200`  | `#2D5300`    | success, added content, strings            |
-| yellow | `#F4BC45` | `#FFD678`   | `#725200`  | `#604500`    | warnings, modified content, types          |
-| blue   | `#48AFFF` | `#98C3FF`   | `#005B92`  | `#004C7D`    | links, cursor, focus, directories, accent  |
-| purple | `#D95AFC` | `#E67FFF`   | `#9400B3`  | `#7D0099`    | keywords, root names                       |
-| cyan   | `#00BBCC` | `#3DDAEE`   | `#00616A`  | `#00525A`    | enum members, secondary types              |
-| orange | `#E49137` | `#F2A256`   | `#814A00`  | `#6D3E00`    | numbers, properties, dashboard header      |
+| red    | `#FE4864` | `#FF7376`   | `#B10035`  | `#96002B`    | Errors, urgency, deleted content, specials |
+| green  | `#89C952` | `#B9EE7D`   | `#376200`  | `#2D5300`    | Success, added content, strings            |
+| yellow | `#F4BC45` | `#FFD678`   | `#725200`  | `#604500`    | Warnings, modified content, types          |
+| blue   | `#48AFFF` | `#98C3FF`   | `#005B92`  | `#004C7D`    | Links, cursor, focus, directories, accent  |
+| purple | `#D95AFC` | `#E67FFF`   | `#9400B3`  | `#7D0099`    | Keywords, root names                       |
+| cyan   | `#00BBCC` | `#3DDAEE`   | `#00616A`  | `#00525A`    | Enum members, secondary types              |
+| orange | `#E49137` | `#F2A256`   | `#814A00`  | `#6D3E00`    | Numbers, properties, dashboard header      |
 
-| Source color     | Repository mapping     |
+The following table states the repository hue for each Catppuccin color:
+
+| Catppuccin color | Repository mapping     |
 | ---------------- | ---------------------- |
 | sapphire         | blue                   |
 | maroon           | red                    |
@@ -77,6 +102,11 @@
 | mauve / lavender | purple / purple-bright |
 
 ## Supporting tints
+
+The following table lists the supporting tints. Anchor names the neutral role
+that supplies a tint's lightness, Hue names the chromatic hue that supplies its
+color, and k is the fraction of that hue's chroma the tint keeps. A row with
+`n/a` in those three columns is hand-written rather than derived.
 
 | Tint             | Anchor    | Hue    | k     | Dark hex                 | Light hex          | Semantic use                                   |
 | ---------------- | --------- | ------ | ----- | ------------------------ | ------------------ | ---------------------------------------------- |
@@ -95,14 +125,19 @@
 
 ## Utility colors
 
+The following table lists the utility colors that fall outside the neutral ramp
+and how to use them:
+
 | Token         | Value              | Rule                                                                                                                                        |
 | ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `black`       | `#000000`          | Utility black for shadows and other uses outside the neutral ramp. When used as a shadow or line overlay, carry alpha, such as `#00000080`. |
-| `transparent` | `rgba(0, 0, 0, 0)` | Fully transparent black overlay for CSS surfaces, such as waybar borders.                                                                   |
+| `transparent` | `rgba(0, 0, 0, 0)` | Fully transparent black overlay for CSS surfaces, such as Waybar borders.                                                                   |
 
 ## Color semantics
 
 ### Accent usage
+
+The following table states the treatment for each accent use:
 
 | Accent use                                                     | Treatment                                                       |
 | -------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -115,14 +150,19 @@
 
 ## Palette boundary and checks
 
+The following table lists each color form in the configuration files and whether
+the palette check detects it:
+
 | Source form                                                      | Detected |
 | ---------------------------------------------------------------- | -------- |
 | `#hex`, including eight-digit alpha values after stripping alpha | Yes      |
-| foot-style bare `key=value` hexadecimal values                   | Yes      |
+| Foot-style bare `key=value` hexadecimal values                   | Yes      |
 | Quoted bare hex values                                           | No       |
 | `rgba()` values                                                  | No       |
 
 ## Syntax layer
+
+The following table maps each syntax capture to its repository role:
 
 | Capture                      | Hex       | Role          |
 | ---------------------------- | --------- | ------------- |
@@ -140,6 +180,9 @@
 | `@comment`                   | `#8A8A8A` | muted, italic |
 
 ### Deliberate deviations from One Dark Pro
+
+The following table states the repository decision and reason for each capture
+that differs from One Dark Pro:
 
 | Capture                 | Repository decision | Reason                                                                 |
 | ----------------------- | ------------------- | ---------------------------------------------------------------------- |
