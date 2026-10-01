@@ -1,8 +1,5 @@
-# Locked scheme (meta/color-scheme.md). The X11 counterpart of thinkpad's
-# SwayFX stack: dual_kawase blur, black shadows, and corner radius 4.
-# xrender-sync-fence is required for NVIDIA's explicit-sync drivers.
-# Managed by chezmoi; edit the .tmpl source.{{ $p := .palette }}
-
+# Palette comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 backend = "glx";
 vsync = true;
 use-damage = true;
@@ -17,7 +14,6 @@ shadow-radius = 14;
 shadow-offset-x = 0;
 shadow-offset-y = 2;
 shadow-color = "{{ $p.black.hex }}";
-# Weaker than SwayFX's black@0x80 twin: picom's shadow reads stronger.
 shadow-opacity = 0.4;
 
 corner-radius = 4;
@@ -26,27 +22,20 @@ detect-client-opacity = true;
 detect-transient = true;
 detect-client-leader = true;
 
-# No opacity rules: inactive windows stay opaque. Sway dims inactive
-# content (default_dim_inactive), which picom cannot replicate.
 rules: ({
-  /* Typed tooltips keep their own corners. */
   match = "window_type = 'tooltip'";
   fade = false;
   corner-radius = 8;
 }, {
-  /* GTK client-side decorations: no blur or shadow bleed. */
   match = "_GTK_FRAME_EXTENTS@";
   blur-background = false;
   shadow = false;
 }, {
-  /* Docks and desktop windows stay flat. */
   match = "window_type = 'dock' || window_type = 'desktop'";
   blur-background = false;
   shadow = false;
   corner-radius = 0;
 }, {
-  /* i3 draws decorations on frame windows; the tabbed title row would
-     cast its own shadow across the window below it. */
   match = "class_g = 'i3-frame'";
   shadow = false;
 })

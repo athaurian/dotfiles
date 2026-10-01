@@ -1,5 +1,5 @@
-# Managed by chezmoi; edit the .tmpl source.
-{{- $mode := .mode }}
+# Mode comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $mode := .mode }}
 [Settings]
 gtk-theme-name={{ if eq $mode "light" }}Orchis-Light-Compact{{ else }}Orchis-Dark-Compact{{ end }}
 gtk-icon-theme-name=Papirus{{ if eq $mode "light" }}-Light{{ else }}-Dark{{ end }}

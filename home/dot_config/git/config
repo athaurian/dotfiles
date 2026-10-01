@@ -66,35 +66,29 @@
   autocorrect = prompt
 
 [alias]
-  # Branching & Switching
   br = branch
   co = checkout
   sw = switch
 
-  # Committing & Reverting
   ca = commit --amend --no-edit
   ci = commit
   cm = commit --message
   undo = reset --soft HEAD~1
   wip = !git add -A && git commit -m 'wip: work in progress [skip ci]'
 
-  # History & Logging
   last = log -1 --stat
   lg = log --oneline --graph --decorate --all
   vsig = log --show-signature -1
 
-  # Remote Management
   r = remote
   ra = remote add
   rrm = remote remove
 
-  # Remote Sync (Push & Pull)
   p = push
   pl = pull
   pom = push origin main
   pushf = push --force-with-lease
 
-  # Status & Staging
   a = add
   aa = add --all
   s = status -sb
@@ -107,5 +101,3 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
-
-# vim: ft=gitconfig

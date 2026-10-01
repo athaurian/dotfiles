@@ -1,6 +1,5 @@
-# One Dark on Neutral, locked (meta/color-scheme.md). Managed by chezmoi; edit
-# the .tmpl source.{{ $p := .palette }}
-
+# Palette comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 theme[main_bg]="{{ $p.base.hex }}"
 theme[main_fg]="{{ $p.text.hex }}"
 theme[title]="{{ $p.subtext.hex }}"
@@ -12,29 +11,24 @@ theme[graph_text]="{{ $p.muted.hex }}"
 theme[meter_bg]="{{ $p.surface_2.hex }}"
 theme[proc_misc]="{{ $p.blue.hex }}"
 
-# Boxes
 theme[cpu_box]="{{ $p.surface_2.hex }}"
 theme[mem_box]="{{ $p.surface_2.hex }}"
 theme[net_box]="{{ $p.surface_2.hex }}"
 theme[proc_box]="{{ $p.surface_2.hex }}"
 theme[div_line]="{{ $p.surface_2.hex }}"
 
-# Temperature
 theme[temp_start]="{{ $p.green.hex }}"
 theme[temp_mid]="{{ $p.yellow.hex }}"
 theme[temp_end]="{{ $p.red.hex }}"
 
-# CPU
 theme[cpu_start]="{{ $p.green.hex }}"
 theme[cpu_mid]="{{ $p.yellow.hex }}"
 theme[cpu_end]="{{ $p.red.hex }}"
 
-# Processes
 theme[process_start]="{{ $p.green.hex }}"
 theme[process_mid]="{{ $p.yellow.hex }}"
 theme[process_end]="{{ $p.red.hex }}"
 
-# Used / cached
 theme[used_start]="{{ $p.purple.hex }}"
 theme[used_mid]="{{ $p.orange.hex }}"
 theme[used_end]="{{ $p.red.hex }}"
@@ -42,7 +36,6 @@ theme[cached_start]="{{ $p.purple.hex }}"
 theme[cached_mid]="{{ $p.orange.hex }}"
 theme[cached_end]="{{ $p.red.hex }}"
 
-# Free / available
 theme[free_start]="{{ $p.red.hex }}"
 theme[free_mid]="{{ $p.orange.hex }}"
 theme[free_end]="{{ $p.purple.hex }}"
@@ -50,7 +43,6 @@ theme[available_start]="{{ $p.red.hex }}"
 theme[available_mid]="{{ $p.orange.hex }}"
 theme[available_end]="{{ $p.purple.hex }}"
 
-# Network
 theme[download_start]="{{ $p.cyan.hex }}"
 theme[download_mid]="{{ $p.blue.hex }}"
 theme[download_end]="{{ $p.blue_bright.hex }}"
@@ -58,7 +50,6 @@ theme[upload_start]="{{ $p.cyan.hex }}"
 theme[upload_mid]="{{ $p.blue.hex }}"
 theme[upload_end]="{{ $p.blue_bright.hex }}"
 
-# States
 theme[proc_pause_bg]="{{ $p.warning_hover.hex }}"
 theme[proc_follow_bg]="{{ $p.surface_1.hex }}"
 theme[proc_banner_bg]="{{ $p.error_hover.hex }}"
