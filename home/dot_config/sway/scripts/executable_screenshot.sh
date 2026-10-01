@@ -1,10 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Annotate via satty, with a wl-copy fallback.
-# Usage: screenshot.sh <full|focused|region>
-# Requires: grim, slurp (region), satty or wl-copy, jq (focused), wayfreeze (optional).
-
 mode="${1:-}"
 case "$mode" in
 full | region | focused) ;;

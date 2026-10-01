@@ -1,10 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Cycle scratchpad windows, ignoring the dropdown terminal.
-# A focused visible window hides. A visible window elsewhere moves here.
-# Otherwise the first hidden window shows.
-
 focused_id=""
 hidden_ids=""
 visible_ids=""

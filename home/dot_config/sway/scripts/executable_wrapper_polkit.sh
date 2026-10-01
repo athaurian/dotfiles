@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Locate and exec the polkit GNOME authentication agent across distro paths.
-
 for path in \
 	/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 \
 	/usr/libexec/polkit-gnome-authentication-agent-1 \

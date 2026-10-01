@@ -1,11 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Runs under screenshot.sh/wayfreeze. Callers provide SCREENSHOT_MODE/TMP/GEOMETRY/FROZEN.
-
 unfreeze() {
 	if [ "${SCREENSHOT_FROZEN:-0}" = "1" ]; then
-		# wayfreeze may already be dead. || true keeps the script alive under set -e.
 		pkill -x wayfreeze 2>/dev/null || true
 	fi
 	return 0
@@ -30,7 +27,6 @@ else
 	grim "$SCREENSHOT_TMP"
 fi
 
-# Unfreeze before satty so the UI stays responsive.
 unfreeze
 
 if [ -s "$SCREENSHOT_TMP" ]; then
@@ -39,18 +35,13 @@ if [ -s "$SCREENSHOT_TMP" ]; then
 		mkdir -p "$save_dir"
 		save_filename="$save_dir/screenshot-$(date '+%Y%m%d-%H%M%S').png"
 
-		# The raw capture rides the clipboard up front, as i3's -c does;
-		# satty's copy or save then replaces it with the annotated version.
 		wl-copy <"$SCREENSHOT_TMP" 2>/dev/null || true
 
-		# || true keeps cleanup running however satty exits.
 		satty --filename "$SCREENSHOT_TMP" \
 			--copy-command wl-copy \
 			--output-filename "$save_filename" \
 			--early-exit || true
 
-		# satty only copies on its copy action; a save leaves the annotated
-		# file, so put that on the clipboard in place of the raw capture.
 		[ -f "$save_filename" ] && wl-copy <"$save_filename" 2>/dev/null || true
 
 	elif command -v wl-copy >/dev/null 2>&1; then

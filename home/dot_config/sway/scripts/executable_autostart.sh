@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Bootstrap the systemd user session. Import the compositor environment
-# first, then start the session targets.
 if ! command -v systemctl >/dev/null 2>&1; then
 	exit 0
 fi

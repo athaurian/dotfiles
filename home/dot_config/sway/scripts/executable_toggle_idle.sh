@@ -1,14 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-# Toggle swayidle (caffeine mode).
-
 unit="swayidle-unlocked.service"
 id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle_id"
 lock_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle.lock"
 app_name="caffeine-toggle"
 
-# Serialize rapid toggles.
 exec 9>"$lock_file"
 flock -w 2 9 || exit 0
 

@@ -1,4 +1,6 @@
-# Managed by chezmoi. Edit the .tmpl source.{{ $p := .palette }}
+# meta/color-scheme.md defines the palette, and the color values in this
+# config are locked to it.
+# {{- $p := .palette }}
 set $mod Mod4
 set $left h
 set $down j
@@ -54,7 +56,6 @@ bindsym $mod+Shift+8 move container to workspace number 8
 bindsym $mod+Shift+9 move container to workspace number 9
 bindsym $mod+Shift+0 move container to workspace number 10
 
-# Layout.
 bindsym $mod+o splith
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
@@ -66,9 +67,7 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+c move position center
 bindsym $mod+q kill
 
-# Apps.
 bindsym $mod+Return exec $term
-# --no-repeat: a held key would re-exec fuzzel on every auto-repeat.
 bindsym --no-repeat $mod+d exec $menu
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
@@ -76,15 +75,12 @@ bindsym $mod+Shift+p exec $passwordmanager
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
-# Caffeine toggle.
 bindsym --no-repeat $mod+Shift+i exec $HOME/.config/sway/scripts/toggle_idle.sh
 
-# Screenshots.
 bindsym Print exec $HOME/.config/sway/scripts/screenshot.sh full
 bindsym Ctrl+Print exec $HOME/.config/sway/scripts/screenshot.sh focused
 bindsym Shift+Print exec $HOME/.config/sway/scripts/screenshot.sh region
 
-# Media keys. Work while locked. They change output state, not session state.
 bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
 bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
 bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
@@ -97,34 +93,26 @@ bindsym --locked XF86AudioStop exec playerctl stop
 bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
 
-# Scratchpad.
 bindsym $mod+Shift+minus floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center, move scratchpad
 bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
 
-# Dropdown terminal.
 bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
 
-# Notifications.
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
 bindsym --no-repeat $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
 
-# Palette mode.
 bindsym --no-repeat $mod+Shift+t exec $HOME/.local/bin/palette-mode toggle
 
-# Reload.
 bindsym $mod+Shift+c reload
 
-# Lock.
 bindsym $mod+Shift+x exec $HOME/.config/sway/scripts/lock.sh
 
-# Power.
 bindsym $mod+Shift+BackSpace exec $HOME/.config/sway/scripts/power_control.sh poweroff
 bindsym $mod+Shift+r exec $HOME/.config/sway/scripts/power_control.sh reboot
 bindsym $mod+Shift+z exec $HOME/.config/sway/scripts/power_control.sh suspend
 bindsym $mod+Shift+e exec $HOME/.config/sway/scripts/power_control.sh logout
 
-# Resize mode.
 mode "resize" {
     bindsym $left resize shrink width 10px
     bindsym $down resize grow height 10px
@@ -139,7 +127,6 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
-# Trackpad.
 input type:touchpad {
     accel_profile flat
     pointer_accel 0.75
@@ -158,12 +145,10 @@ for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, 
 for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [app_id="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
 
-# Locked scheme (meta/color-scheme.md).
 client.focused          {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
 client.focused_inactive {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
 client.focused_tab_title {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }}
 client.unfocused        {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}
-# Dunst-critical treatment: urgent tint field, white text, red edges.
 client.urgent           {{ $p.red_bright.hex }} {{ $p.urgent.hex }} {{ $p.text_max.hex }} {{ $p.red_bright.hex }} {{ $p.red_bright.hex }}
 client.placeholder      {{ $p.base.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.base.hex }} {{ $p.base.hex }}
 client.background       {{ $p.base.hex }}
@@ -171,7 +156,6 @@ client.background       {{ $p.base.hex }}
 default_border pixel 1
 hide_edge_borders none
 
-# SwayFX (static).
 gaps inner 5
 gaps outer 3
 
@@ -186,7 +170,6 @@ shadow_offset 0 2
 shadow_inactive_color {{ $p.black.hex }}80
 corner_radius 4
 default_dim_inactive 0.05
-# The launcher namespace must match fuzzel.ini, or the fuzzel shadow never applies.
 layer_effects "launcher" {
     shadows enable;
 }
