@@ -2,9 +2,7 @@
 
 set -eu
 
-# Toggle the topgrade terminal (foot, app_id foot_topgrade) into and out of
-# the scratchpad. Uses shared lib_sway_lock.sh mkdir-based locking.
-# The Waybar custom/updates module runs this script on click.
+# Clicking the custom/updates module in Waybar runs this script.
 
 app_id=foot_topgrade
 
@@ -12,12 +10,12 @@ app_id=foot_topgrade
 acquire_sway_lock "toggle_topgrade" || exit 0
 
 if swaymsg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
-	# Test existence via get_marks (no state change, no render).
-	# Show and geometry run as one transaction. Sway renders once. Do not
-	# fold the test into the transaction (`if swaymsg "... scratchpad show,
-	# resize ..., move ..."`): when hiding, the trailing `move position center`
-	# fails on the hidden scratchpad window and poisons the exit status, so
-	# every hide falls through and spawns a duplicate terminal.
+	# The show, resize, and move below run as one swaymsg command for a
+	# single Sway render. The existence test must stay out of that command.
+	# If the script tested with that command, `scratchpad show` would hide
+	# a visible terminal, the trailing `move position center` would fail on
+	# the now-hidden window, and swaymsg would report failure. The script
+	# would read that failure as a missing terminal and spawn a duplicate.
 	swaymsg "[con_mark=topgrade_term] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
 	release_sway_lock "toggle_topgrade"
 	exit 0

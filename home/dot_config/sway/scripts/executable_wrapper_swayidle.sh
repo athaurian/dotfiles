@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Timing policy (seconds).
 IDLE_LOCK=30
 WARNING_OFFSET=10
 SCREEN_OFF_OFFSET=60
@@ -28,7 +27,6 @@ if [ "$mode" = "unlocked" ]; then
 		before-sleep "$SCRIPT_DIR/lock.sh --now"
 
 elif [ "$mode" = "locked" ]; then
-	# Locked timers restart at 0.
 	IDLE_SCREEN_OFF=$SCREEN_OFF_OFFSET
 	IDLE_SUSPEND=$((IDLE_SCREEN_OFF + SUSPEND_OFFSET))
 

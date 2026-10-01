@@ -1,10 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Fuzzel-confirmed power and session actions.
-# Usage: power_control.sh <poweroff|reboot|suspend|logout>
-# Same action re-invoked dismisses. A different action replaces (state in $XDG_RUNTIME_DIR/confirm_action).
-
 action="${1:-}"
 
 case "$action" in
@@ -18,8 +14,6 @@ logout) cmd="systemctl --user stop sway-session.target; swaymsg exit" ;;
 	;;
 esac
 
-# confirm_menu PROMPT PLACEHOLDER OPTION...: prints the choice. Returns 1
-# on cancel, timeout, or missing fuzzel.
 confirm_menu() {
 	confirm_prompt="${1:-}"
 	confirm_placeholder="${2:-}"
@@ -39,7 +33,6 @@ confirm_menu() {
 
 state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
 
-# Only power confirmations use a "confirm " prompt. Launcher and history pickers never match.
 if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "confirm "; then
 	current_action=""
 	if [ -f "$state_file" ]; then
@@ -55,7 +48,6 @@ if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "
 	fi
 fi
 
-# Drops stale swaynag state so no old prompt covers the new fuzzel one.
 rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaynag_action"
 if command -v pkill >/dev/null 2>&1; then
 	pkill -x swaynag 2>/dev/null || true
