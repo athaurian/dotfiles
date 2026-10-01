@@ -5,6 +5,8 @@ wallpapers. It saves each table as an image called a Hald CLUT.
 
 ## The lutgen command
 
+The following table lists each mechanism and its behavior:
+
 | Mechanism         | Behavior                                                                                                                                     |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Custom palette    | Holds one hexadecimal color per line in `~/.config/lutgen/NAME`, where `NAME` is the palette name. Each color is written with or without `#` |
@@ -36,6 +38,8 @@ The `sw` utility builds look-up tables for wallpapers and passes flags to
 
 ## File layout
 
+The following table lists each palette file and directory and its purpose:
+
 | Path                                   | Purpose                       |
 | -------------------------------------- | ----------------------------- |
 | `home/dot_config/lutgen/neutral`       | Checked-in dark-mode palette  |
@@ -44,6 +48,9 @@ The `sw` utility builds look-up tables for wallpapers and passes flags to
 | `~/.cache/sw/wallpapers/`              | Recolored wallpaper output    |
 
 ## Validation
+
+The following table lists each property to check in a recolored wallpaper and
+what to look for:
 
 | Property            | What to inspect                                                             |
 | ------------------- | --------------------------------------------------------------------------- |
