@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Logisim Evolution
+Comment=An educational tool for designing and simulating digital logic circuits
+Exec=env _JAVA_AWT_WM_NONREPARENTING=1 /usr/bin/logisim-evolution %f
+Icon=logisim-evolution
+Terminal=false
+Type=Application
+Categories=Education
+MimeType=application/x-logisim-evolution

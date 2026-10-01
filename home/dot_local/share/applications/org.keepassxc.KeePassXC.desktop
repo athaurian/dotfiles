@@ -5,7 +5,6 @@ Name=KeePassXC
 GenericName=Password Manager
 Comment=Community-driven port of the Windows application "KeePass Password Safe"
 Icon=keepassxc
-# Qt5 build: pin to qt5ct until KeePassXC 2.8 goes Qt6, then delete this file.
 Exec=env QT_QPA_PLATFORMTHEME=qt5ct keepassxc %f
 Terminal=false
 Categories=Utility;Security;Qt;
