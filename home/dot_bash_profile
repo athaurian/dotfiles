@@ -16,5 +16,3 @@ fi
 if [ -f "$HOME/.bashrc" ]; then
 	. "$HOME/.bashrc"
 fi
-
-# vim:ft=bash
