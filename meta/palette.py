@@ -1,26 +1,5 @@
 #!/usr/bin/env python3
-"""Palette machinery for the One Dark on Neutral scheme.
-
-meta/color-scheme.md is the seed and semantic source of truth: the locked
-per-mode neutral ramps, the One Dark Pro chromatics, and the tint specs.
-This script derives from them and verifies the desktop stays in palette:
-
-    palette.py            derive tints into the doc, write both LUT
-                          palettes and the active mode's chezmoi data,
-                          then run the checks (default)
-    palette.py tints      rewrite the doc's tint hex columns only
-    palette.py lut        write home/dot_config/lutgen/neutral[-light]
-    palette.py data       write home/.chezmoidata.yaml for the active mode
-    palette.py check      verify app-file hexes, contrast gates, report
-
-The active mode comes from ~/.local/state/palette-mode (missing means
-dark); any MODE=dark|light argument overrides it, so `make palette
-MODE=light` builds for light without touching the mode file.
-
-Everything is deterministic and idempotent: the same doc and mode always
-produce the same outputs. Stdlib only. See meta/lut-palette.md for the
-LUT math and parameters.
-"""
+"""Derive tints, both LUT palettes, and the chezmoi data, then verify them."""
 
 from __future__ import annotations
 
@@ -39,19 +18,18 @@ DATA = REPO / "home" / ".chezmoidata.yaml"
 MODE_FILE = Path("~/.local/state/palette-mode").expanduser()
 MODES = ("dark", "light")
 
-N_RAMP = 2  # intermediates between adjacent ramp steps
-K_CHROMA = 0.5  # LUT tint chroma falloff toward the lightness extremes
+N_RAMP = 2
+K_CHROMA = 0.5
 CONTRAST_AA = 4.5
 
 HEX_RE = re.compile(r"#([0-9A-Fa-f]{6})")
 HEX_FULL_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?\b")
-BARE_RE = re.compile(r"=\s*([0-9A-Fa-f]{6})\b")  # foot-style key=value
+BARE_RE = re.compile(r"=\s*([0-9A-Fa-f]{6})\b")
 RGBA_RE = re.compile(r"rgba\((\d+),\s*(\d+),\s*(\d+),\s*([0-9.]+)\)")
 BARE_EXEMPT: dict[str, set[str]] = {
-    "home/dot_bashrc": {"HISTFILESIZE"},  # a number, not a color
+    "home/dot_bashrc": {"HISTFILESIZE"},
 }
 
-# ---------------------------------------------------------------- color math
 
 M1 = (
     (0.4122214708, 0.5363325363, 0.0514459929),
@@ -85,7 +63,7 @@ def linear_to_srgb(c: float) -> float:
 
 def hex_to_rgb(h: str) -> tuple[float, float, float]:
     h = h.lstrip("#")
-    return tuple(int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))  # type: ignore[return-value]
+    return tuple(int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
 
 
 def rgb_to_hex(rgb: tuple[float, float, float]) -> str:
@@ -113,7 +91,6 @@ def in_gamut(L: float, C: float, H: float) -> bool:
 
 
 def oklch_to_hex(L: float, C: float, H: float) -> str:
-    # binary-search chroma down until the color fits sRGB
     lo, hi = 0.0, C
     for _ in range(20):
         mid = (lo + hi) / 2
@@ -137,10 +114,43 @@ def contrast_ratio(fg: str, bg: str) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
-# ---------------------------------------------------------------- doc model
+def solve_gray(bg: str, ratio: float) -> str:
+    y_bg = luminance(bg)
+    y = (y_bg + 0.05) / ratio - 0.05
+    if y <= 0:
+        return "#000000"
+    if y >= 1:
+        return "#FFFFFF"
+    c = 1.055 * y ** (1 / 2.4) - 0.055
+    v = f"{round(min(max(c, 0.0), 1.0) * 255):02X}"
+    return f"#{v}{v}{v}"
 
+
+def solve_gray_lighter(bg: str, ratio: float) -> str:
+    y = ratio * (luminance(bg) + 0.05) - 0.05
+    y = min(max(y, 0.0), 1.0)
+    c = 1.055 * y ** (1 / 2.4) - 0.055
+    v = f"{round(min(max(c, 0.0), 1.0) * 255):02X}"
+    return f"#{v}{v}{v}"
+
+
+def solve_chroma(base_hex: str, target: float, bg: str) -> str:
+    l0, c, h = rgb_to_oklch(hex_to_rgb(base_hex))
+    y_target = (luminance(bg) + 0.05) / target - 0.05
+    lo, hi = 0.0, l0
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        if luminance(oklch_to_hex(mid, c, h)) < y_target:
+            lo = mid
+        else:
+            hi = mid
+    return oklch_to_hex(hi, c, h)
+
+
+# parse_rows reads meta/color-scheme.md as table data rather than prose.
+# derive_tints rewrites the tint rows' hex columns in place. Never
+# hand-reformat or reword those rows. Regenerate the doc with `make palette`.
 def parse_rows(doc: str, start: str) -> list[tuple[str, list[str]]]:
-    """Table rows in the section whose header starts with `start`."""
     rows: list[tuple[str, list[str]]] = []
     in_section = False
     for line in doc.splitlines():
@@ -156,17 +166,6 @@ def parse_rows(doc: str, start: str) -> list[tuple[str, list[str]]]:
 
 
 def parse_neutrals(doc: str, mode: str) -> dict[str, str]:
-    """One mode's ramp: the `### Dark` or `### Light` subsection rows of
-    ## Neutrals, role name to hex.
-
-    The light ramp is recorded from the previous derivation run; this
-    rewrite re-solves every non-anchored role for the pure gray matching
-    the dark ramp's measured WCAG contrast of the same role against dark
-    base: crust and mantle on the lighter side of light base, the surface
-    and text roles on the darker side. `base` (light `#EAEAEA`) and
-    `text-max` (black) are the locked anchors, so the doc cells and the
-    generator stay in step.
-    """
     out: dict[str, str] = {}
     in_section = False
     in_mode = False
@@ -193,52 +192,13 @@ def parse_neutrals(doc: str, mode: str) -> dict[str, str]:
                      "line", "muted", "subtext", "text"):
             ratio = contrast_ratio(dark[role], dark["base"])
             if role in ("crust", "mantle"):
-                # lighter than light base: (Yrole + 0.05) / (Ybase + 0.05) = R
                 out[role] = solve_gray_lighter(base, ratio)
             else:
                 out[role] = solve_gray(base, ratio)
     return out
 
 
-def solve_gray(bg: str, ratio: float) -> str:
-    """The pure gray darker than bg whose WCAG contrast on bg equals ratio."""
-    y_bg = luminance(bg)
-    y = (y_bg + 0.05) / ratio - 0.05
-    if y <= 0:
-        return "#000000"
-    if y >= 1:
-        return "#FFFFFF"
-    c = 1.055 * y ** (1 / 2.4) - 0.055
-    v = f"{round(min(max(c, 0.0), 1.0) * 255):02X}"
-    return f"#{v}{v}{v}"
-
-
-def solve_gray_lighter(bg: str, ratio: float) -> str:
-    """The pure gray lighter than bg whose WCAG contrast on bg equals ratio."""
-    y = ratio * (luminance(bg) + 0.05) - 0.05
-    y = min(max(y, 0.0), 1.0)
-    c = 1.055 * y ** (1 / 2.4) - 0.055
-    v = f"{round(min(max(c, 0.0), 1.0) * 255):02X}"
-    return f"#{v}{v}{v}"
-
-
-def solve_chroma(base_hex: str, target: float, bg: str) -> str:
-    """The color at base_hex's OKLCH hue and chroma, at the darkest
-    lightness whose WCAG contrast on bg reaches target."""
-    l0, c, h = rgb_to_oklch(hex_to_rgb(base_hex))
-    y_target = (luminance(bg) + 0.05) / target - 0.05
-    lo, hi = 0.0, l0
-    for _ in range(50):
-        mid = (lo + hi) / 2
-        if luminance(oklch_to_hex(mid, c, h)) < y_target:
-            lo = mid
-        else:
-            hi = mid
-    return oklch_to_hex(hi, c, h)
-
-
 def parse_chromatics(doc: str, mode: str) -> dict[str, str]:
-    """One mode's base hues; `parse_brights` completes the chromatic set."""
     column = 1 if mode == "dark" else 3
     return {
         cells[0]: cells[column].upper()
@@ -248,7 +208,6 @@ def parse_chromatics(doc: str, mode: str) -> dict[str, str]:
 
 
 def parse_brights(doc: str, mode: str) -> dict[str, str]:
-    """One mode's bright step, keyed like the base hues."""
     column = 2 if mode == "dark" else 4
     return {
         cells[0]: cells[column].upper()
@@ -258,18 +217,16 @@ def parse_brights(doc: str, mode: str) -> dict[str, str]:
 
 
 def parse_tint_specs(doc: str) -> dict[str, tuple[str, str, str]]:
-    """Derived spec rows only: tint name to (anchor, hue, k)."""
     out: dict[str, tuple[str, str, str]] = {}
     for _, cells in parse_rows(doc, "## Supporting tints"):
         if cells and all(re.fullmatch(r":?-+:?", c) for c in cells):
-            continue  # separator row
+            continue
         if len(cells) == 7 and cells[0] != "Tint" and cells[1] != "n/a" and cells[2] != "n/a":
             out[cells[0]] = (cells[1], cells[2], cells[3])
     return out
 
 
 def parse_tint_hexes(doc: str) -> dict[str, tuple[str, str]]:
-    """Tint rows carrying hexes (derived or hand-written): name to (dark, light)."""
     out: dict[str, tuple[str, str]] = {}
     for _, cells in parse_rows(doc, "## Supporting tints"):
         if (
@@ -285,7 +242,6 @@ def parse_tint_hexes(doc: str) -> dict[str, tuple[str, str]]:
 
 
 def parse_tint_overlays(doc: str) -> dict[str, tuple[str, str]]:
-    """Hand-written alpha rows in the tints table: name to (dark, light) rgba."""
     out: dict[str, tuple[str, str]] = {}
     for _, cells in parse_rows(doc, "## Supporting tints"):
         if (
@@ -306,8 +262,9 @@ def parse_utility(doc: str) -> dict[str, str]:
     }
 
 
+# doc_allowed collects hexes from "|" table lines only, because a hex
+# that appears in prose is not part of the palette.
 def doc_allowed(doc: str) -> set[str]:
-    """Every hex in a doc table (prose mentions are not part of the palette)."""
     return {
         f"#{h.upper()}"
         for line in doc.splitlines()
@@ -316,21 +273,13 @@ def doc_allowed(doc: str) -> set[str]:
     }
 
 
-# ---------------------------------------------------------------- derivation
-
 def derive_tints(doc: str) -> str:
-    """Rewrites the Dark/Light hex columns of every spec row in the tints
-    table.
-
-    Rows are padded to prettier's column widths, so a derivation never
-    de-formats the table (`make format` stays a no-op afterwards).
-    """
     neutrals = {m: parse_neutrals(doc, m) for m in MODES}
     chroma = {m: parse_chromatics(doc, m) for m in MODES}
     out: list[str] = []
     changed = 0
     in_section = False
-    pending: list[tuple[str, list[str], str]] = []  # (kind, cells, raw)
+    pending: list[tuple[str, list[str], str]] = []
 
     def widths() -> list[int]:
         w = [0] * 7
@@ -360,7 +309,6 @@ def derive_tints(doc: str) -> str:
         pending.clear()
 
     def derive_row(cells: list[str]) -> list[str] | None:
-        """New [dark, light] hex cells for a spec row; None for hand-written rows."""
         name, anchor, hue, k = cells[0], cells[1], cells[2], cells[3]
         try:
             kk = float(k)
@@ -388,7 +336,7 @@ def derive_tints(doc: str) -> str:
                 continue
             if len(cells) == 7 and cells[0] != "Tint":
                 derived = derive_row(cells)
-                if derived is None:  # hand-written rows: not derived
+                if derived is None:
                     raw = [c.strip() for c in stripped.strip("|").split("|")]
                     pending.append(("body", raw, line))
                 else:
@@ -405,8 +353,6 @@ def derive_tints(doc: str) -> str:
 
 
 def build_lut(doc: str, mode: str) -> str:
-    """The lutgen palette for one mode: locked hexes, then OKLCH
-    intermediates, sorted by lightness."""
     neutrals = list(dict.fromkeys(parse_neutrals(doc, mode).values()))
     chromatics = list(
         dict.fromkeys(
@@ -427,8 +373,6 @@ def build_lut(doc: str, mode: str) -> str:
     for a, b in zip(ramp, ramp[1:]):
         La, Ca, Ha = rgb_to_oklch(hex_to_rgb(a))
         Lb, Cb, Hb = rgb_to_oklch(hex_to_rgb(b))
-        # hue from the endpoint with the stronger chroma; near-greys
-        # carry meaningless hue angles
         hold_h = Ha if Ca >= Cb else Hb
         for i in range(1, N_RAMP + 1):
             t = i / (N_RAMP + 1)
@@ -453,10 +397,7 @@ def build_lut(doc: str, mode: str) -> str:
     return "\n".join(out) + "\n"
 
 
-# ---------------------------------------------------------------- chezmoi data
-
 def normalize_rgba(value: str) -> str:
-    """CSS-canonical rgba(r, g, b, a) form of a doc rgba value."""
     m = RGBA_RE.fullmatch(value)
     if not m:
         return value
@@ -465,19 +406,16 @@ def normalize_rgba(value: str) -> str:
 
 
 def data_name(name: str) -> str:
-    """Doc role name to chezmoi data key (dashes are not identifiers)."""
     return name.replace("-", "_")
 
 
 def data_entry(value: str) -> str:
-    """YAML flow map with the formats a consumer needs."""
     if value.startswith("rgba"):
         return f'{{ rgba: "{normalize_rgba(value)}" }}'
     return f'{{ hex: "{value}", bare: "{value[1:]}" }}'
 
 
 def build_data(doc: str, mode: str) -> str:
-    """home/.chezmoidata.yaml: flat palette tokens for .tmpl consumers."""
     neutrals = parse_neutrals(doc, mode)
     chroma = parse_chromatics(doc, mode)
     brights = parse_brights(doc, mode)
@@ -522,15 +460,12 @@ def build_data(doc: str, mode: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-# ---------------------------------------------------------------- checks
-
 def drift_violations(doc: str) -> dict[str, set[str]]:
-    """App-file hexes that do not trace to a doc table."""
     allowed = doc_allowed(doc)
     violations: dict[str, set[str]] = {}
     for path in sorted((REPO / "home").rglob("*")):
         if not path.is_file() or "lutgen" in path.parts:
-            continue  # the LUT palettes are the doc's output, not an app
+            continue
         try:
             text = path.read_text()
         except UnicodeDecodeError:
@@ -556,10 +491,6 @@ def drift_violations(doc: str) -> dict[str, set[str]]:
     return violations
 
 
-# Hard gates: (fg role, bg role, floor). Roles resolve per mode through the
-# neutrals ramp, then chromatics, then brights, then tints. These are the
-# co-occurring pairs from the desktop audit — the same-hue tint stacks are
-# deliberately absent because no consumer renders them as fg/bg together.
 CONTRAST_GATES: list[tuple[str, str, float]] = [
     ("text", "base", 10.0),
     ("subtext", "base", 7.0),
@@ -579,7 +510,7 @@ CONTRAST_GATES: list[tuple[str, str, float]] = [
     ("red", "urgent", 4.0),
 ]
 
-HUE_BASE_FLOOR = 4.5  # every base hue and bright as text on base
+HUE_BASE_FLOOR = 4.5
 
 
 def resolve_gate_color(doc: str, mode: str, name: str) -> str:
@@ -601,7 +532,6 @@ def resolve_gate_color(doc: str, mode: str, name: str) -> str:
 
 
 def gate_failures(doc: str) -> list[str]:
-    """Hard contrast failures; empty means every named pair passes."""
     bad: list[str] = []
     for mode in MODES:
         for fg_name, bg_name, floor in CONTRAST_GATES:
@@ -633,7 +563,6 @@ def gate_failures(doc: str) -> list[str]:
 
 
 def contrast_report(doc: str) -> list[str]:
-    """Informational contrast ratios for the documented role pairs, per mode."""
     tint_hexes = parse_tint_hexes(doc)
     lines = []
     for mode in MODES:
@@ -658,11 +587,7 @@ def contrast_report(doc: str) -> list[str]:
     return lines
 
 
-# ---------------------------------------------------------------- mode state
-
 def read_mode() -> str:
-    """The machine's active mode: the state file's first token; dark when
-    the file is missing."""
     try:
         value = MODE_FILE.read_text().split()[0].lower()
     except (FileNotFoundError, IndexError):
@@ -675,7 +600,6 @@ def read_mode() -> str:
 
 
 def resolve_mode(argv: list[str]) -> tuple[list[str], str]:
-    """Splits MODE=<m> tokens out of argv; otherwise the machine's mode file."""
     args = [a for a in argv if not a.startswith("MODE=")]
     values = [a.split("=", 1)[1].lower() for a in argv if a.startswith("MODE=")]
     if values:
@@ -684,8 +608,6 @@ def resolve_mode(argv: list[str]) -> tuple[list[str], str]:
         return args, values[0]
     return args, read_mode()
 
-
-# ---------------------------------------------------------------- CLI
 
 COMMANDS = {"all", "tints", "lut", "data", "check"}
 
