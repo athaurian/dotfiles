@@ -23,30 +23,16 @@ wallpapers. It saves each table as an image called a Hald CLUT.
 
 ### Chromatic intermediates
 
-`meta/palette.py` inserts `N` intermediate colors between each pair of
-neighboring neutrals when it builds a palette. For every chromatic color it also
-derives a tint at each neutral lightness. The tint's chroma, a measure of color
-intensity, shrinks in proportion to `k` and the lightness distance from the
-source color.
-
-| Parameter | Value |
-| --------- | ----: |
-| `N`       |   `2` |
-| `k`       | `0.5` |
+`meta/palette.py` inserts intermediate colors between each pair of neighboring
+neutrals when it builds a palette. For every chromatic color it also derives a
+tint at each neutral lightness. The tint's chroma, a measure of color intensity,
+shrinks with the lightness distance from the source color. The two derivation
+parameters are `N_RAMP` and `K_CHROMA` in `meta/palette.py`.
 
 ## Application parameters
 
-By default, the `sw` utility passes these flags when it builds a look-up table
-for a wallpaper.
-
-| Flag | Value  | Purpose                                                                            |
-| ---- | ------ | ---------------------------------------------------------------------------------- |
-| `-R` |        | Enables Gaussian RBF interpolation                                                 |
-| `-s` | `96`   | Sets the RBF shape, which limits excessive bleeding between distant hues           |
-| `-n` | `16`   | Sets how many of the nearest palette colors to consider                            |
-| `-l` | `10`   | Sets the Hald CLUT level for the working pipeline                                  |
-| `-P` |        | Preserves source luminance and retains image detail                                |
-| `-L` | `1.05` | Slightly favors colorful matches while retaining the luminance-preserving behavior |
+The `sw` utility builds look-up tables for wallpapers and passes flags to
+`lutgen`. Its default values live in `sw` under `home/dot_local/bin/`.
 
 ## File layout
 
