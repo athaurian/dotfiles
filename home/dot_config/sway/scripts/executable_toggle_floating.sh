@@ -1,12 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# $mod+Shift+Space: a focused scratchpad window is restored to the current
-# workspace as a normal tiled window with the default border. Any other
-# window gets the usual floating toggle. Membership is the inherited
-# scratchpad_state, as in cycle_scratchpad.sh. The leaf check accepts
-# app_id or window: Wayland-native windows have no X11 window id.
-
 is_scratchpad=$(
 	swaymsg -t get_tree | jq -r '
 	def scan($state):
