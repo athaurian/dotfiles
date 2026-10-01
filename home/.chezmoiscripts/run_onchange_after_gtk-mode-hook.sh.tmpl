@@ -31,6 +31,15 @@ if command -v gsettings >/dev/null 2>&1; then
 	gsettings set org.gnome.desktop.interface icon-theme "$icons"
 fi
 
+calibre_gui="$HOME/.config/calibre/gui.json"
+if command -v jq >/dev/null 2>&1 && [ -f "$calibre_gui" ] && ! pgrep -x calibre >/dev/null 2>&1; then
+	if jq -j --arg palette "{{ .mode }}" '.color_palette = $palette' "$calibre_gui" >"$calibre_gui.tmp"; then
+		mv "$calibre_gui.tmp" "$calibre_gui"
+	else
+		rm -f "$calibre_gui.tmp"
+	fi
+fi
+
 # Wallpaper first: re-render the recorded wallpaper with the new mode's
 # palette and pool; --restore is idempotent and keeps rotation state
 # untouched. This is part of the palette change, so it happens before any
