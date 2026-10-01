@@ -1,6 +1,5 @@
-/* Locked scheme (meta/color-scheme.md). All vars referenced. Managed by
-   chezmoi. Edit the .tmpl source. */{{ $p := .palette }}
-
+/* chezmoi renders this template. Colors come from meta/color-scheme.md. */
+/* {{- $p := .palette }} */
 @define-color neutral-base {{ $p.base.hex }};
 @define-color neutral-text {{ $p.text.hex }};
 @define-color neutral-text-subtext {{ $p.subtext.hex }};
@@ -33,7 +32,6 @@ window#waybar {
   color: @neutral-text;
 }
 
-/* --- Workspaces --- */
 #workspaces {
   margin: 0;
   padding: 0 2px;
@@ -95,7 +93,6 @@ window#waybar {
   font-weight: bold;
 }
 
-/* --- Shared --- */
 #battery,
 #clock,
 #cpu,
@@ -117,7 +114,6 @@ window#waybar {
     border-color 120ms ease;
 }
 
-/* Zero-updates state is dimmed, mirroring polybar's topgrade module. */
 #custom-updates.ok {
   color: @neutral-text-muted;
 }
@@ -135,18 +131,14 @@ window#waybar {
   border-color: @neutral-border-inactive;
 }
 
-/* Muted dims like polybar's label-muted-foreground. It must follow
-   :hover so hovering cannot un-dim it. */
 #pulseaudio.muted {
   color: @neutral-text-muted;
 }
 
-/* --- MPRIS (custom/mpris module, muted until playing) --- */
 #custom-mpris {
   color: @neutral-text-muted;
 }
 
-/* --- Updates (custom/updates module, warning only when updates exist) --- */
 #custom-updates.has-updates {
   color: @neutral-warning;
 }
@@ -156,7 +148,6 @@ window#waybar {
   border-color: @neutral-warning;
 }
 
-/* --- DND (custom/dnd module, error tint while silenced) --- */
 #custom-dnd.enabled {
   color: @neutral-error-text;
 }
@@ -166,14 +157,12 @@ window#waybar {
   border-color: @neutral-error-text;
 }
 
-/* --- Separator --- */
 #custom-separator {
   padding: 0 0 2px;
   margin: 0;
   color: @neutral-text-muted;
 }
 
-/* --- Window Title --- */
 #window {
   padding: 0 12px;
   margin: 1px;
@@ -197,7 +186,6 @@ window#waybar {
   border-color: @neutral-border-inactive;
 }
 
-/* --- Battery States --- */
 #battery.warning {
   color: @neutral-warning;
 }
@@ -216,7 +204,6 @@ window#waybar {
   border-color: @neutral-error-text;
 }
 
-/* --- Tray & Tooltips --- */
 #tray {
   padding: 0 4px;
 }
@@ -242,8 +229,6 @@ tooltip {
   background-color: @neutral-surface-0;
   color: @neutral-text;
   border: 1px solid @neutral-focus-border;
-  /* Rounding the tooltip produces black corner artifacts. */
-  /* border-radius: 4px; */
 }
 
 #tray menu menuitem {

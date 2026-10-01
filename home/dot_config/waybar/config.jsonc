@@ -27,12 +27,11 @@
     "format": "󰘳 {}"
   },
   "custom/mpris": {
-    // chezmoi renames ``executable_mpris.py`` to ``mpris.py`` on apply.
     "exec": "~/.config/waybar/scripts/mpris.py",
     "return-type": "json",
     "hide-empty-text": true,
-    "restart-interval": 5, // relaunch if the script exits unexpectedly
-    "escape": false, // allow Pango <span>/<i> markup through
+    "restart-interval": 5,
+    "escape": false,
     "on-click": "playerctl play-pause",
     "on-scroll-up": "playerctl next",
     "on-scroll-down": "playerctl previous"
@@ -51,13 +50,6 @@
       "^nvim (.*)$": " Editing $1"
     }
   },
-  "pulseaudio": {
-    "format": "󰕾 {volume}%",
-    "format-muted": "󰖁 Muted",
-    "on-click": "pavucontrol",
-    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-    "scroll-step": 5
-  },
   "cpu": {
     "format": "󰻠 {usage}%",
     "tooltip": true,
@@ -71,7 +63,6 @@
     "on-click": "foot --app-id=btop -e btop"
   },
   "custom/updates": {
-    // chezmoi renames ``executable_updates.sh`` to ``updates.sh`` on apply.
     "exec": "~/.config/waybar/scripts/updates.sh",
     "return-type": "json",
     "interval": 3600,
@@ -79,17 +70,16 @@
     "tooltip": true,
     "on-click": "~/.config/sway/scripts/toggle_topgrade.sh"
   },
-  "custom/dnd": {
-    "exec": "~/.config/waybar/scripts/dunst-dnd.sh",
-    "return-type": "json",
-    "interval": 5,
-    "signal": 9,
-    "tooltip": true,
-    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle"
-  },
   "custom/separator": {
     "format": "|",
     "tooltip": false
+  },
+  "pulseaudio": {
+    "format": "󰕾 {volume}%",
+    "format-muted": "󰖁 Muted",
+    "on-click": "pavucontrol",
+    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "scroll-step": 5
   },
   "battery": {
     "states": { "warning": 30, "critical": 15 },
@@ -115,5 +105,13 @@
       }
     },
     "interval": 1
+  },
+  "custom/dnd": {
+    "exec": "~/.config/waybar/scripts/dunst-dnd.sh",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 9,
+    "tooltip": true,
+    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle"
   }
 }
