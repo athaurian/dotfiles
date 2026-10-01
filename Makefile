@@ -13,7 +13,7 @@ SW_FILES := home/dot_local/bin/executable_sw \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config site
 
 help:
 	@echo "Available commands:"
@@ -26,6 +26,7 @@ help:
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
+	@echo "  site              - Build the MkDocs site into site/"
 
 format: format-md
 
@@ -67,3 +68,6 @@ check-refs:
 
 check-config:
 	sh meta/check-config.sh
+
+site:
+	uv run --with mkdocs-material==9.7.7 mkdocs build --strict
