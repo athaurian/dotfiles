@@ -1,6 +1,7 @@
 home/.chezmoidata.yaml
 
 assets/
+site/
 
 __pycache__/
 *.pyc
