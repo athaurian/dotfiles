@@ -1,17 +1,4 @@
 #!/usr/bin/env bash
-# Prints, records, or toggles the machine's palette mode. Recording a mode
-# is best done through the repo Makefile from anywhere:
-#
-#   make light   # or: make dark
-#
-# which records the mode file, regenerates the palette, and applies (the
-# run_onchange hook then applies dconf, re-renders the wallpaper, and
-# reloads the session). A fresh clone must run `make palette` once before
-# `chezmoi apply`.
-#
-# `toggle` flips to the other mode through that same pipeline; the session
-# configs bind it to a key. Prints the current mode when called without
-# arguments.
 
 set -euo pipefail
 
@@ -46,23 +33,14 @@ toggle)
 	;;
 esac
 
-# The Makefile records the mode; make sure its state directory exists first.
 mkdir -p "${state_file%/*}"
 
-# One switch at a time: while a switch is applying, another invocation (a
-# repeated keypress, say) exits instead of racing the running one.
 exec 9>"${state_file}.lock"
 flock -n 9 || {
 	echo "palette-mode: another mode switch is running" >&2
 	exit 1
 }
 
-# The checkout, not chezmoi source-path: source-path resolves into home/
-# (.chezmoiroot), while the Makefile lives at the repo root.
-# A keypress has no terminal output, so the outcome shows up on the desktop.
-# The lock fd stops here: the pipeline backgrounds long-lived processes (the
-# gtk-mode hook restarts picom), which would otherwise inherit fd 9 and hold
-# the lock after this script exits.
 cd "$HOME/.local/share/chezmoi" && make "${mode}" 9>&- || {
 	status=$?
 	dunstify -a palette-mode -u critical "Palette mode" \
