@@ -1,4 +1,3 @@
--- Logo comes from logo.txt; change spacing by editing that file.
 local function read_logo()
   local file = io.open(vim.fn.stdpath("config") .. "/logo.txt", "r")
   if not file then
