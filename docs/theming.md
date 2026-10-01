@@ -1,7 +1,8 @@
 # Themes
 
-To change the color scheme, edit `meta/color-scheme.md` and run `make dark` or
-`make light` to apply it. For what those targets do, see
+To change the color scheme, edit
+[`meta/color-scheme.md`](https://github.com/athaurian/dotfiles/blob/main/meta/color-scheme.md)
+and run `make dark` or `make light` to apply it. For what those targets do, see
 [Palette system](palette-system.md). `$mod+Shift+t` toggles between dark and
 light mode.
 
