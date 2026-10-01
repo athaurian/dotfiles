@@ -1,6 +1,5 @@
-# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
-# source.{{ $p := .palette }}
-
+# Palette comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 set font "Source Sans 3 normal 10"
 
 set default-bg "{{ $p.base.hex }}"
@@ -37,7 +36,6 @@ set page-h-padding 8
 set render-loading-bg "{{ $p.base.hex }}"
 set render-loading-fg "{{ $p.muted.hex }}"
 
-# Accent 40% alpha, selection 35%.
 set highlight-color "{{ $p.blue.hex }}66"
 set highlight-active-color "{{ $p.selection.hex }}59"
 
@@ -58,5 +56,3 @@ set statusbar-basename true
 set statusbar-page-percent true
 set window-title-basename true
 set window-title-page true
-
-# vim: ft=zathurarc

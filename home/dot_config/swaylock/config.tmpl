@@ -1,6 +1,5 @@
-# Locked scheme (meta/color-scheme.md). Managed by chezmoi; edit the .tmpl
-# source.{{ $p := .palette }}
-
+# Palette comes from meta/color-scheme.md. The applied copy is generated from this template.
+# {{- $p := .palette }}
 ignore-empty-password
 show-failed-attempts
 
@@ -38,7 +37,6 @@ text-ver-color={{ $p.text.hex }}
 text-wrong-color={{ $p.red.hex }}
 text-caps-lock-color={{ $p.yellow_bright.hex }}
 
-# Keystroke arc pulses along the perimeter track.
 key-hl-color={{ $p.text.hex }}
 bs-hl-color={{ $p.red_bright.hex }}
 caps-lock-bs-hl-color={{ $p.red_bright.hex }}
@@ -51,5 +49,3 @@ line-wrong-color={{ $p.black.hex }}00
 line-caps-lock-color={{ $p.black.hex }}00
 
 separator-color={{ $p.black.hex }}00
-
-# vim: ft=conf
