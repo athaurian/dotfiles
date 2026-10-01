@@ -4,7 +4,6 @@ if [ -f "$HOME/.bash_aliases" ]; then
 	. "$HOME/.bash_aliases"
 fi
 
-# --- History ---
 export HISTSIZE=50000
 export HISTFILESIZE=100000
 export HISTCONTROL=ignoredups:erasedups
@@ -12,7 +11,6 @@ export HISTTIMEFORMAT='%F %T '
 shopt -s histappend 2>/dev/null || true
 shopt -s cmdhist 2>/dev/null || true
 
-# --- Environment ---
 set -o vi
 bind -x '"\C-l": clear'
 PROMPT_COMMAND='EXIT_CODE=$?; history -a'
@@ -26,24 +24,19 @@ case ":$PATH:" in
 *) export PATH="$HOME/.local/share/nvim/mason/bin:$PATH" ;;
 esac
 
-# Python bytecode goes to ~/.cache instead of __pycache__/ next to sources.
 export PYTHONPYCACHEPREFIX="$HOME/.cache/python"
 
-# pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
 *":$PNPM_HOME/bin:"*) ;;
 *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
-# pnpm end
 
-# bun
 case ":$PATH:" in
 *":$HOME/.bun/bin:"*) ;;
 *) export PATH="$HOME/.bun/bin:$PATH" ;;
 esac
 
-# --- Other tools ---
 if command -v zoxide >/dev/null 2>&1; then
 	eval "$(zoxide init bash)"
 fi
@@ -51,7 +44,6 @@ if command -v fnm >/dev/null 2>&1; then
 	eval "$(fnm env --use-on-cd)"
 fi
 
-# fzf bindings: Ctrl-r history, Ctrl-t files, Alt-c dirs (if installed).
 if command -v fzf >/dev/null 2>&1; then
 	eval "$(fzf --bash 2>/dev/null)"
 	if command -v fd >/dev/null 2>&1; then
@@ -60,5 +52,3 @@ if command -v fzf >/dev/null 2>&1; then
 		export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 	fi
 fi
-
-# vim: ft=bash
