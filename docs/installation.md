@@ -8,10 +8,13 @@
   [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
   skips and the machine's package list in
   [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json)
-- The `forge` package repository configured first, because its packages compile
-  for `x86-64-v3`, which older generic `x86_64` CPUs do not support
+- The `forge` package repository configured before the first apply, because the
+  first apply installs packages that exist only in forge
+- A CPU that supports `x86-64-v3`, because `forge` packages compile for that
+  level, which older generic `x86_64` CPUs do not support
 
-The following commands complete the `forge` repository setup:
+`forge` is an Arch package repository (like `core` or `extra`) I made to make my
+life easier. Run the following commands to set it up:
 
 ```sh
 sudo pacman-key --add <(curl -fsSL https://athaurian.github.io/forge/signing_key.asc)
