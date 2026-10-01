@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-"""Integration tests for the Waybar MPRIS module.
-
-Runs executable_mpris.py against a fake playerctl that replays canned
-scenarios simulating Chromium-family quirks. Each scenario asserts the
-exact sequence of emitted Waybar payloads.
-
-Run from the repository root::
-
-    python3 home/dot_config/waybar/scripts/tests/test_mpris.py
-
-Or via::
-
-    make check-mpris
-"""
 
 import json
 import os
@@ -27,13 +13,8 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 _SCRIPT = _HERE.parent / "executable_mpris.py"
-_FAKE_BIN = _HERE  # fake_playerctl.py lives here. The harness copies it to PATH
+_FAKE_BIN = _HERE
 _F = "\x1f"
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _line(player, status, pos, artist, title):
@@ -41,7 +22,6 @@ def _line(player, status, pos, artist, title):
 
 
 def _norm(text):
-    """Extracts (label, italic) from a Waybar payload for assertion."""
     t = re.sub(r"<span>[^<]*</span>", "", text)
     italic = "<i>" in t
     t = re.sub(r"</?i>", "", t).strip()
@@ -49,16 +29,12 @@ def _norm(text):
 
 
 def _sc(events, delay=0.15):
-    """Wrap lines and exit events into oneshot and follow streams."""
     os_ev = [e if isinstance(e, dict) else {"line": e} for e in events]
     fw_ev = [e if isinstance(e, dict) else {"line": e, "delay": delay} for e in events]
     return {"oneshot": os_ev, "follow": fw_ev}
 
 
 def _make_fakebin():
-    """Creates a temp dir with an executable 'playerctl' copy of
-    fake_playerctl.py. Copies (never symlinks) so the chmod cannot leak
-    the exec bit onto the working-tree source."""
     tmpdir = Path(tempfile.mkdtemp(prefix="mpris_fake_"))
     fakebin = tmpdir / "bin"
     fakebin.mkdir()
@@ -68,13 +44,7 @@ def _make_fakebin():
     return tmpdir, fakebin
 
 
-# ---------------------------------------------------------------------------
-# Scenarios
-# ---------------------------------------------------------------------------
-
 SCENARIOS = {
-    # 1. Track change: Chromium publishes empty Metadata mid-transition.
-    #    Cache keeps Song One visible through the gap, then shows Song Two.
     "track_change": {
         "streams": _sc(
             [
@@ -89,8 +59,6 @@ SCENARIOS = {
             ("Artist A - Song Two", False, "playing"),
         ],
     },
-    # 2. Stale PlaybackStatus: Chromium says Playing but position frozen.
-    #    Must downgrade to Paused, then recover to Playing on resume.
     "stale_status": {
         "streams": _sc(
             [
@@ -107,8 +75,6 @@ SCENARIOS = {
             ("Artist A - Song One", False, "playing"),
         ],
     },
-    # 3. Long pause: metadata cleared while Paused. Song must stay visible
-    #    through the grace window, then disappear after an explicit Stopped.
     "pause_blank": {
         "streams": _sc(
             [
@@ -124,8 +90,6 @@ SCENARIOS = {
             ("", False, "stopped"),
         ],
     },
-    # 4. Player disappears (playerctl exits non-zero), a different instance
-    #    appears with empty metadata. Must show blank, no cache leakage.
     "player_gone": {
         "streams": _sc(
             [
@@ -140,8 +104,6 @@ SCENARIOS = {
             ("", False, "stopped"),
         ],
     },
-    # 5. Live stream: position is 0. Must stay Playing, never downgrade
-    #    to Paused via stall detection.
     "live_stream": {
         "streams": _sc(
             [
@@ -154,8 +116,6 @@ SCENARIOS = {
             ("Radio - Live Stream", False, "playing"),
         ],
     },
-    # 6. Chromium blips a Stopped reading mid track-change. Grace keeps the
-    #    song visible through the blink, then the new track appears.
     "transition_stop": {
         "streams": _sc(
             [
@@ -170,8 +130,6 @@ SCENARIOS = {
             ("Artist A - Song Two", False, "playing"),
         ],
     },
-    # 7. Follow goes silent (playerctl issue #288: stops emitting after the
-    #    player churns). The resync poll must recover the new track.
     "follow_missed": {
         "streams": {
             "oneshot": [
@@ -202,11 +160,6 @@ SCENARIOS = {
         ],
     },
 }
-
-
-# ---------------------------------------------------------------------------
-# Runner
-# ---------------------------------------------------------------------------
 
 
 def _run_scenario(name, spec):
