@@ -29,5 +29,7 @@ pair relates.
 | Notifications        | dunst                    | dunst                    | Same program on both machines, one shared configuration file                                                    |
 | Session startup      | sway-session.target      | i3-session.target        | Parallel units that select what starts with the session                                                         |
 
-The authoritative machine selection lives in `home/.chezmoiignore` and
-`data/packages.json`.
+The authoritative machine selection lives in
+[`home/.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
+and
+[`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).

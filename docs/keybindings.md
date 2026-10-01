@@ -1,9 +1,12 @@
 # Keybindings
 
 `$mod` is the Super key. The bindings in the following table apply to both
-machines, and the configs at `home/dot_config/sway/config.tmpl` and
-`home/dot_config/i3/config.tmpl` are the authoritative lists. For the components
-that differ between the machines, see [Machines](machines.md).
+machines, and the configs at
+[`home/dot_config/sway/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/sway/config.tmpl)
+and
+[`home/dot_config/i3/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/config.tmpl)
+are the authoritative lists. For the components that differ between the
+machines, see [Machines](machines.md).
 
 | Binding                                     | Action                              |
 | ------------------------------------------- | ----------------------------------- |

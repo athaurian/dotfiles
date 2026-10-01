@@ -4,8 +4,10 @@
 
 - Arch Linux with `bash` and systemd user services, CachyOS preferred
 - A hostname of `thinkpad` or `optiplex`, because the hostname selects the
-  entries that `.chezmoiignore` skips and the machine's package list in
-  `data/packages.json`
+  entries that
+  [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
+  skips and the machine's package list in
+  [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json)
 - The `forge` package repository configured first, because its packages compile
   for `x86-64-v3`, which older generic `x86_64` CPUs do not support
 
