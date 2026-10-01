@@ -1,14 +1,9 @@
--- One Dark on Neutral, locked (meta/color-scheme.md): One Dark hues ×1.5
--- via catppuccin overrides. Dark and light modes; colors come from the
--- chezmoi palette data, rendered by meta/palette.py for the machine's mode.
-{{- $p := .palette }}
-{{- $mode := .mode }}
-
+-- Palette and mode come from meta/color-scheme.md. The applied copy is generated from this template.
+-- {{- $p := .palette }}
+-- {{- $mode := .mode }}
 return {
   {
     "LazyVim/LazyVim",
-    -- Follows the palette mode; a static value here would force one flavour
-    -- and bypass the mode's overrides after our setup runs.
     opts = { colorscheme = {{ if eq $mode "light" }}"catppuccin-latte"{{ else }}"catppuccin-mocha"{{ end }} },
   },
   {
@@ -18,15 +13,9 @@ return {
     priority = 1000,
     config = function()
       require("catppuccin").setup({
-        -- Mode-aware: latte renders the light palette via the same overrides.
         flavour = {{ if eq $mode "light" }}"latte"{{ else }}"mocha"{{ end }},
-        -- Transparent over wallpaper (foot uses same alpha).
         transparent_background = true,
-        -- Keep bg-shade dim off: it paints NormalNC opaque, killing transparency.
-        -- dim_inactive = { enabled = false, shade = "dark", percentage = 0.15 },
-        -- term_colors = false,
         styles = { conditionals = {} },
-        -- Only live plugins are listed here; the rest are auto-detected.
         integrations = {
           gitsigns = true,
           which_key = true,
@@ -35,8 +24,6 @@ return {
           snacks = true,
           blink_cmp = { style = "bordered" },
         },
-        -- Both flavour keys carry the overrides: whichever flavour loads
-        -- (ours below, or LazyVim's startup colorscheme) reads this palette.
         color_overrides = {
           mocha = {
             rosewater = "{{ $p.orange_bright.hex }}",
@@ -97,7 +84,6 @@ return {
         },
         custom_highlights = function(colors)
           return {
-            -- Text selection uses the selection tint; cursors use the accent.
             Visual = { bg = "{{ $p.selection.hex }}" },
             Cursor = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             lCursor = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
@@ -111,11 +97,9 @@ return {
 
             NormalNC = { bg = "none", fg = colors.subtext1 },
 
-            -- Comments use italic muted.
             Comment = { fg = "{{ $p.muted.hex }}", style = { "italic" } },
             ["@comment"] = { fg = "{{ $p.muted.hex }}", style = { "italic" } },
 
-            -- Follows the One Dark standard; catppuccin links differ.
             ["@variable.parameter"] = { fg = colors.text },
             ["@parameter"] = { fg = colors.text },
             ["@property"] = { fg = colors.peach },
@@ -141,7 +125,6 @@ return {
             Label = { fg = colors.red },
             Operator = { fg = colors.teal },
 
-            -- Emphasis uses text; links use the accent.
             ["@markup.strong"] = { fg = colors.text },
             ["@markup.italic"] = { fg = colors.text },
             ["@markup.link"] = { fg = colors.blue },
@@ -154,7 +137,6 @@ return {
             ["@markup.list.unchecked"] = { fg = colors.overlay2 },
             htmlH1 = { fg = colors.blue, style = { "bold" } },
 
-            -- Headings use a single accent with bold; upstream links rainbow1-6 across hues.
             ["@markup.heading.1.markdown"] = { fg = colors.blue, style = { "bold" } },
             ["@markup.heading.2.markdown"] = { fg = colors.blue, style = { "bold" } },
             ["@markup.heading.3.markdown"] = { fg = colors.blue, style = { "bold" } },
@@ -174,7 +156,6 @@ return {
             RenderMarkdownH5Bg = { bg = colors.surface0 },
             RenderMarkdownH6Bg = { bg = colors.surface0 },
 
-            -- Transient chrome.
             FloatBorder = { fg = colors.surface2, bg = colors.mantle },
             FloatTitle = { fg = colors.subtext1, bg = colors.mantle },
             WinSeparator = { fg = colors.surface2 },
@@ -189,7 +170,6 @@ return {
             QuickFixLine = { bg = colors.surface0 },
             Conceal = { fg = colors.overlay2 },
             Dimmed = { fg = colors.overlay2 },
-            -- Backdrop for dim floats below (utility black).
             BackdropDim = { bg = "{{ $p.black.hex }}" },
 
             WhichKeyDesc = { fg = colors.text },
@@ -201,7 +181,6 @@ return {
             MasonHeader = { bg = colors.surface1, fg = colors.subtext1 },
             MasonHeading = { fg = colors.subtext1 },
 
-            -- Lazy has no catppuccin integration; pin its ground/pills here.
             MasonHighlightBlock = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             MasonHighlightBlockBold = { bg = colors.blue, fg = "{{ $p.on_accent.hex }}" },
             MasonMutedBlock = { bg = colors.surface1, fg = colors.subtext1 },
@@ -221,17 +200,11 @@ return {
             DiagnosticFloatingInfo = { fg = colors.blue },
             DiagnosticSignInfo = { fg = colors.blue },
 
-            -- Kind icons match buffer semantics.
             BlinkCmpLabel = { fg = colors.text },
             BlinkCmpKindField = { fg = colors.peach },
             BlinkCmpKindProperty = { fg = colors.peach },
             BlinkCmpKindStruct = { fg = colors.yellow },
 
-            -- Terminal stays transparent like the editor (Snacks maps
-            -- Normal:SnacksNormal on every window, terminal included).
-            -- The fg must be explicit: a bg-only "none" leaves the group empty
-            -- and Snacks' managed default=true link (to opaque NormalFloat)
-            -- overwrites it on first load.
             SnacksNormal = { bg = "none", fg = colors.text },
             SnacksNormalNC = { bg = "none", fg = colors.subtext1 },
             SnacksPicker = { bg = colors.mantle },
@@ -249,7 +222,6 @@ return {
 
             SnacksDashboardHeader = { fg = colors.peach, style = { "bold" } },
 
-            -- Diff colors are locked.
             DiffAdd = { bg = "{{ $p.diff_add.hex }}" },
             DiffChange = { bg = "{{ $p.diff_change.hex }}" },
             DiffDelete = { bg = "{{ $p.diff_delete.hex }}" },
@@ -281,7 +253,6 @@ return {
         vim.g["terminal_color_" .. i] = hex
       end
 
-      -- Mason and lazy skip dim floats when Normal has no background. Dim the backdrop here instead.
       local backdrops = {}
       local backdrop_augroup = vim.api.nvim_create_augroup("backdrop-dim", { clear = true })
       for _, w in ipairs(vim.api.nvim_list_wins()) do
