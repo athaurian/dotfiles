@@ -1,5 +1,3 @@
-# Imperative only (no [Install]); PartOf= stops it with the session.
-
 [Unit]
 Description=Sway idle manager (locked)
 Documentation=man:swayidle(1)
