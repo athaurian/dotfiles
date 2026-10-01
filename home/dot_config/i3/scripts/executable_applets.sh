@@ -1,8 +1,4 @@
 #!/bin/sh
-# Restart the tray applets as a single instance: i3 runs this from
-# exec_always (startup/restart only) and the gtk-mode hook runs it after a
-# reload, so killing first keeps every path idempotent. Applets resolve the
-# current icon theme when they start.
 
 set -eu
 

@@ -2,9 +2,7 @@
 
 set -eu
 
-# Toggle the topgrade terminal (kitty, instance topgrade_term) into and out of
-# the scratchpad. Uses shared lib_sway_lock.sh mkdir-based locking.
-# The polybar custom/updates module runs this script on click.
+# Clicking the custom/updates module in Polybar runs this script.
 
 app_id=topgrade_term
 
@@ -12,21 +10,16 @@ app_id=topgrade_term
 acquire_sway_lock "toggle_topgrade" || exit 0
 
 if i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
-	# Test existence via get_marks (no state change, no render).
-	# Show and geometry run as one transaction. i3 renders once. Do not
-	# fold the test into the transaction (`if i3-msg "... scratchpad show,
-	# resize ..., move ..."`): when hiding, the trailing `move position center`
-	# fails on the hidden scratchpad window and poisons the exit status, so
-	# every hide falls through and spawns a duplicate terminal.
+	# The show, resize, and move below run as one i3-msg command for a
+	# single i3 render. The existence test must stay out of that command.
+	# If the script tested with that command, `scratchpad show` would hide
+	# a visible terminal, the trailing `move position center` would fail on
+	# the now-hidden window, and i3-msg would report failure. The script
+	# would read that failure as a missing terminal and spawn a duplicate.
 	i3-msg "[con_mark=topgrade_term] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
 	release_sway_lock "toggle_topgrade"
 	exit 0
 fi
 
-# The wrapper runs topgrade in this terminal and pokes the updates
-# module on exit. As one quoted argument: i3-msg otherwise treats
-# --no-startup-id as its own option, and i3 splits bare `;` into a
-# second command (single quotes don't protect it). --no-startup-id
-# stops i3 arming the startup-notification watch cursor for the spawn.
 i3-msg "exec --no-startup-id kitty --name $app_id -e $HOME/.config/i3/scripts/wrapper_topgrade.sh"
 release_sway_lock "toggle_topgrade"

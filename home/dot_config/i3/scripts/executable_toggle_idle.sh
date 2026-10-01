@@ -1,14 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-# Toggle caffeine mode: the X screensaver and DPMS timers off and on.
-# Native X11 idle has no daemon to pause, so the timers themselves are the state.
-
 id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle_id"
 lock_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/caffeine_toggle.lock"
 app_name="caffeine-toggle"
 
-# Serialize rapid toggles.
 exec 9>"$lock_file"
 flock -w 2 9 || exit 0
 
@@ -57,7 +53,6 @@ send_notice() {
 }
 
 screensaver_timeout() {
-	# xset q prints "timeout:  N"; 0 means the screensaver is off.
 	xset q 2>/dev/null | sed -n 's/.*timeout: *\([0-9]\+\).*/\1/p' | head -n 1
 }
 
@@ -74,8 +69,6 @@ disable_timers() {
 }
 
 enable_timers() {
-	# Both numbers: timeout arms xss-lock, cycle is idle_notifier.sh's
-	# countdown to the lock (20s warning, lock at 30s).
 	if ! xset s 20 10; then
 		send_notice " Caffeine toggle failed" "<b>Xset s 20 10 failed.</b>"
 		exit 1
