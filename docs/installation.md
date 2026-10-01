@@ -26,7 +26,7 @@ cd ~/.local/share/chezmoi
 make dark
 ```
 
-The `make dark` target regenerates the palette data and applies the
-configuration in dark mode. The `make light` target does the same in light mode.
-The first apply installs the machine's missing packages from
-`data/packages.json`.
+Run `make dark` or `make light` to generate the palette data and apply the
+configuration for the first time. For what those targets do, see
+[Palette system](palette-system.md). The first apply installs the machine's
+missing packages from `data/packages.json`.
