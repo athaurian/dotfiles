@@ -1,8 +1,18 @@
 # Machines
 
-This repository runs on two machines, `thinkpad` and `optiplex`, and each
-machine gets a different set of programs. The following table compares the
-components on both machines and states how each pair relates.
+This repository runs on two machines, `thinkpad` and `optiplex`, and those are
+their actual hostnames. The hostname decides which set of programs each machine
+gets.
+
+`thinkpad` is a ThinkPad L14 Gen 1 laptop, and it is the machine I use daily. It
+runs Sway on Wayland.
+
+`optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is
+[an ancient NVIDIA card from the Egyptian era](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376),
+and it cannot run Wayland, so `optiplex` runs i3 on X11 instead.
+
+The following table compares the components on both machines and states how each
+pair relates.
 
 | Component            | thinkpad (Sway)          | optiplex (i3)            | Relationship                                                                                                    |
 | -------------------- | ------------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------- |
