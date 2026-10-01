@@ -4,6 +4,9 @@ Colors are defined only in
 [`meta/color-scheme.md`](https://github.com/athaurian/dotfiles/blob/main/meta/color-scheme.md).
 Every other color in the system derives from that file.
 
+The palette comes in two modes, dark and light, and every color has a dark value
+and a light value. The active mode decides which values the entire desktop uses.
+
 The [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
 owns regeneration and application:
 
