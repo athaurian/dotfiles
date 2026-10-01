@@ -1,6 +1,3 @@
-# Docs formatting (prettier), palette checks, and MPRIS gates for both bars (ruff, mypy).
-# Python commands run through uv so the gates never assume pip-installed
-# tooling: --with provisions ruff and mypy on demand.
 PRETTIER := prettier
 RUFF := uv run --with ruff ruff
 MYPY := uv run --with mypy mypy
@@ -41,11 +38,6 @@ format-md:
 lint-md:
 	$(PRETTIER) --check $(MD_FILES)
 
-# MODE=dark|light forces the mode for `make palette`; otherwise the machine's
-# mode file decides. `make light` and `make dark` switch the mode: they
-# record the mode file, regenerate the palette, and apply, so the rendered
-# configs update and the mode hook (dconf, wallpaper, session reloads)
-# runs.
 MODE :=
 
 palette:

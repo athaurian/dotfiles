@@ -1,22 +1,14 @@
 #!/bin/sh
-# Validates the applied configs with each program's own checker. Every entry
-# skips itself when the program is not installed or the config is not applied
-# (the machine split keeps the other machine's files away from a machine).
-#
-# Configs without a native checker are deliberately absent: kitty, polybar,
-# picom, dunst, waybar, swaylock, nvim, and the tool/app configs (btop, cava,
-# fastfetch, lazygit, zathura, zellij, topgrade, gtk/qt) ship no check mode;
-# refs/ pins the docs and CLI sources that establish this.
 set -eu
 
 failures=""
 
-fail() { # fail PATH — collect and keep going, like refs/fetch-refs.sh
+fail() {
 	failures="${failures}$1
 "
 }
 
-check() { # check BINARY CONFIG COMMAND... — run the checker, collect failures
+check() {
 	bin=$1 config=$2
 	shift 2
 	if ! command -v "$bin" >/dev/null 2>&1; then
@@ -52,8 +44,6 @@ check bash "$HOME/.bashrc" bash -n "$HOME/.bashrc"
 check bash "$HOME/.bash_profile" bash -n "$HOME/.bash_profile"
 check bash "$HOME/.bash_aliases" bash -n "$HOME/.bash_aliases"
 
-# One verify over every deployed unit file. --man=no: verify otherwise fails
-# on Documentation=man: entries whose page happens to be missing locally.
 units_dir=$HOME/.config/systemd/user
 if command -v systemd-analyze >/dev/null 2>&1 && [ -d "$units_dir" ]; then
 	units=$(find "$units_dir" -maxdepth 1 -type f \

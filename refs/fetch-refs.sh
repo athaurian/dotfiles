@@ -1,23 +1,14 @@
 #!/usr/bin/env sh
-# Restore the refs/ material that is not committed because it is reproducible
-# in one command per entry: upstream clones and full source trees pinned to
-# the commits the findings cite, man-page/doc fetches pinned to the same
-# commits, and the pre-reset bundle regenerated from local git history.
-#
-# The committed refs/ entries (this script, .gitignore, the findings,
-# zellij-themes) are never touched, and refs/.gitignore keeps everything
-# restored here out of `git status`.
-#
-# Usage: sh refs/fetch-refs.sh [--check] [target-dir]
-#   target-dir defaults to this script's own directory (refs/).
-#   Existing entries are skipped, so re-running is safe; failed entries are
-#   collected, reported at the end, and retried by the next run.
-#   --check probes every remote URL without downloading or writing anything
-#   and exits non-zero if one no longer resolves. It proves the pinned hosts
-#   and paths still exist, not that each pinned commit is reachable; real
-#   runs report unreachable commits through the checkout warning below.
+# refs/ holds reference material that is not committed because one
+# command per entry regenerates it. This script fetches upstream
+# clones, man pages, and the pre-reset bundle, each pinned to a fixed
+# commit or URL, and skips anything already present so re-running is
+# safe. refs/.gitignore keeps everything it restores out of git status.
 set -eu
 
+# --check probes every remote URL without downloading anything and exits
+# non-zero when one no longer resolves. It proves each remote still
+# exists, not that each pinned commit is reachable.
 mode=fetch
 if [ "${1:-}" = "--check" ]; then
 	mode=check
@@ -30,18 +21,18 @@ if [ "$mode" = fetch ]; then
 fi
 
 failures=""
-fail() { # fail ENTRY REASON — collect and keep going instead of aborting
+fail() {
 	failures="${failures}fetch-refs: $1: $2
 "
 }
 
-probe() { # probe URL — check mode: resolve the URL, collect it when dead
+probe() {
 	if ! curl -fsSIL -o /dev/null --max-time 30 "$1"; then
 		fail "$1" "does not resolve"
 	fi
 }
 
-fetch() { # fetch URL RELATIVE-PATH
+fetch() {
 	url=$1 path=$2
 	if [ "$mode" = check ]; then
 		probe "$url"
@@ -49,9 +40,6 @@ fetch() { # fetch URL RELATIVE-PATH
 	fi
 	[ -f "$target/$path" ] && return 0
 	mkdir -p "$target/$(dirname "$path")"
-	# Download under a temporary name and rename on success: a failed curl
-	# can leave an empty file behind, and the existence check above must
-	# never mistake one for a completed fetch.
 	if curl -fsSL "$url" -o "$target/$path.$$"; then
 		mv "$target/$path.$$" "$target/$path"
 	else
@@ -60,7 +48,7 @@ fetch() { # fetch URL RELATIVE-PATH
 	fi
 }
 
-clone() { # clone URL RELATIVE-PATH COMMIT
+clone() {
 	url=$1 path=$2 sha=$3
 	if [ "$mode" = check ]; then
 		git ls-remote --exit-code "$url" HEAD >/dev/null 2>&1 ||
@@ -77,19 +65,16 @@ clone() { # clone URL RELATIVE-PATH COMMIT
 		echo "fetch-refs: $path: $sha unreachable upstream, kept default branch" >&2
 }
 
-source_tree() { # source_tree NAME TARBALL-URL
+source_tree() {
 	name=$1 url=$2
 	if [ "$mode" = check ]; then
 		probe "$url"
 		return 0
 	fi
 	dest=$target/src/$name
-	# The recorded tarball URL doubles as the pin: editing it refreshes.
 	[ -f "$dest/.source" ] && [ "$(cat "$dest/.source")" = "$url" ] && return 0
 	rm -rf "$dest"
 	mkdir -p "$dest"
-	# The pin is recorded only after a clean extract; a failed run leaves no
-	# .source marker, so the next run starts from scratch.
 	if curl -fsSL "$url" | tar xz --strip-components=1 -C "$dest"; then
 		printf '%s\n' "$url" >"$dest/.source"
 	else
@@ -98,10 +83,10 @@ source_tree() { # source_tree NAME TARBALL-URL
 	fi
 }
 
-extract() { # extract GIT-DIR REF RELATIVE-PATH — copy one path out of a clone
+extract() {
 	gitdir=$1 ref=$2 path=$3
 	if [ "$mode" = check ]; then
-		return 0 # derived from a clone above; no remote URL of its own
+		return 0
 	fi
 	[ -f "$target/$path" ] && return 0
 	mkdir -p "$target/$(dirname "$path")"
@@ -113,9 +98,8 @@ extract() { # extract GIT-DIR REF RELATIVE-PATH — copy one path out of a clone
 	fi
 }
 
-# Reference clones, pinned to the commits they were last read at. The chezmoi
-# clone carries the template/syntax reference under assets/chezmoi.io/docs/;
-# the waybar wiki is the porting source of truth for the bar migration.
+# No entry below may overwrite a committed path: this script,
+# refs/.gitignore, polybar-migration-findings.md, and zellij-themes/.
 clone https://github.com/catppuccin/nvim catppuccin-nvim edefef779ab08ce1a4a404713e3012b0d202bd35
 clone https://github.com/folke/lazy.nvim lazy-nvim 306a05526ada86a7b30af95c5cc81ffba93fef97
 clone https://github.com/williamboman/mason.nvim mason-nvim 2a6940af80375532e5e9e7c1f2fc6319a1b7a69d
@@ -126,14 +110,9 @@ clone https://github.com/polybar/polybar.wiki.git polybar-wiki "$wiki_sha"
 clone https://github.com/twpayne/chezmoi chezmoi 593166436bf621259efb33d12ebeecd7bae17329
 clone https://github.com/Alexays/Waybar.wiki.git waybar-wiki c9b404b7297254c1948fc65517a87d7110881b2c
 
-# Full source trees for the exact commits cited as proof in
-# polybar-migration-findings.md (parser-specs/, bindings.c, units.cpp, …).
 source_tree i3 "https://github.com/i3/i3/archive/903bcd518df32b0e055b17f5da3f988a0187fd3d.tar.gz"
 source_tree polybar "https://github.com/polybar/polybar/archive/b3af5a33166604c689705d7dc67b69c01482d707.tar.gz"
 
-# Doc copies derived from those trees (same pins, no second source of truth);
-# the rendered userguide.html is the only artifact not in the tree and tracks
-# the latest i3 release rather than the pin.
 if [ "$mode" = fetch ] && [ ! -f "$target/i3/i3.man" ]; then
 	mkdir -p "$target/i3"
 	cp "$target/src/i3/man/i3.man" "$target/src/i3/man/i3-msg.man" "$target/i3/" ||
@@ -153,10 +132,6 @@ if [ "$mode" = fetch ] && [ ! -f "$target/polybar/default-config.ini" ]; then
 		fail "polybar/default-config.ini" "not copied: source tree missing"
 fi
 
-# Flat copies of the wiki pages the bar config uses, extracted from the
-# pinned polybar-wiki clone; raw.githubusercontent.com cannot serve wiki
-# repos at any ref, so the clone is the only source. Names match the
-# curated refs/polybar/ layout.
 for page in i3 script text ipc cpu memory date pulseaudio xworkspaces; do
 	extract "$target/polybar-wiki" "$wiki_sha:Module:-$page.md" "polybar/module-$page.md"
 done
@@ -164,8 +139,6 @@ for page in Configuration Formatting; do
 	extract "$target/polybar-wiki" "$wiki_sha:$page.md" "polybar/$page.md"
 done
 
-# Wayland side (thinkpad): compositor, locker, bar, launchers, capture,
-# wallpaper, colour temperature.
 sway_sha=1652c54b73f67df17b7b4ab0b0f7048204aa8104
 for page in sway.1.scd sway.5.scd sway-bar.5.scd sway-input.5.scd sway-output.5.scd sway-ipc.7.scd; do
 	fetch "https://raw.githubusercontent.com/swaywm/sway/$sway_sha/sway/$page" "sway/$page"
@@ -173,7 +146,6 @@ done
 fetch "https://raw.githubusercontent.com/swaywm/sway/$sway_sha/swaymsg/swaymsg.1.scd" sway/swaymsg.1.scd
 fetch "https://raw.githubusercontent.com/wlrfx/swayfx/972e98614168a3a79ae1a84f59baa5001639e15f/README.md" swayfx/README.md
 fetch "https://raw.githubusercontent.com/swaywm/swaylock/44b82de635c3bc66b0093abd1cf8cc1c8b1b9c0f/swaylock.1.scd" swaylock/swaylock.1.scd
-# The Arch package is jirutka's maintained fork (AUR upstream), not mortie's.
 fetch "https://raw.githubusercontent.com/jirutka/swaylock-effects/496059a8565c2d5eed672c2e5bc5e1edd14b3de8/README.md" swaylock-effects/README.md
 fetch "https://raw.githubusercontent.com/swaywm/swayidle/a959e59c64b55dd17a974dda4c4b71dff520af3a/swayidle.1.scd" swayidle/swayidle.1.scd
 fuzzel_sha=616485c08cd0924af23f0ee9cbf7f104baba2dcc
@@ -187,9 +159,7 @@ done
 fetch "https://raw.githubusercontent.com/emersion/grim/47e2658619c6b5a790732c5876fb84e8273f08a9/grim.1.scd" grim/grim.1.scd
 fetch "https://raw.githubusercontent.com/emersion/slurp/a3998d3ec79fbd85b81911f43010466b032ed0d9/slurp.1.scd" slurp/slurp.1.scd
 fetch "https://raw.githubusercontent.com/Satty-org/Satty/2bcd9111390a7ae03ef965e87a6a12dfd22bf93b/README.md" satty/README.md
-# Clipboard leg of the screenshot pipeline (sway screenshot.sh, lock blur).
 fetch "https://raw.githubusercontent.com/bugaevc/wl-clipboard/985b9f4f23ae015df1498759f139a807cb931a16/README.md" wl-clipboard/README.md
-# Sway brightness binds (thinkpad only).
 fetch "https://raw.githubusercontent.com/Hummer12007/brightnessctl/ad863aef28a231e9c96d1ffb9f22befd7e0b08f0/brightnessctl.1" brightnessctl/brightnessctl.1
 wlsunset_sha=0c8cc663d085388fa59efb7cbea8df8c8234c562
 fetch "https://raw.githubusercontent.com/kennylevinsen/wlsunset/$wlsunset_sha/README.md" wlsunset/README.md
@@ -199,7 +169,6 @@ for page in awww awww-clear awww-clear-cache awww-daemon awww-img awww-kill awww
 	fetch "https://codeberg.org/LGFae/awww/raw/commit/$awww_sha/doc/$page.1.scd" "awww/$page.1.scd"
 done
 
-# X11 side (optiplex): compositor, bar, launcher, locker, idle, capture.
 rofi_sha=7575b70967c6ea747ecdeb4e54dc88fbf3939e6d
 for page in rofi.1.markdown rofi-theme.5.markdown rofi-script.5.markdown default_configuration.rasi default_theme.rasi; do
 	fetch "https://raw.githubusercontent.com/davatorium/rofi/$rofi_sha/doc/$page" "rofi/$page"
@@ -213,29 +182,16 @@ for page in dunst.1.pod.in dunst.5.pod dunstctl.pod dunstify.pod; do
 done
 fetch "https://raw.githubusercontent.com/Raymo111/i3lock-color/e6c0caf9b7aa22cc7864493132a1a2e258da1761/i3lock.1" i3lock-color/i3lock.1
 fetch "https://raw.githubusercontent.com/jonls/redshift/490ba2aae9cfee097a88b6e2be98aeb1ce990050/redshift.1" redshift/redshift.1
-# gitlab.freedesktop.org serves a login page anonymously; this GitHub mirror
-# keeps the doc/ files (xss-lock.1, transfer-sleep-lock-i3lock.sh) the fd
-# contract in lock.sh is written against.
 xss_lock_sha=cd0b89df9bac1880ea6ea830251c6b4492d505a5
 fetch "https://raw.githubusercontent.com/xdbob/xss-lock/$xss_lock_sha/doc/xss-lock.1.rst.in" xss-lock/xss-lock.1.rst.in
 fetch "https://raw.githubusercontent.com/xdbob/xss-lock/$xss_lock_sha/doc/transfer-sleep-lock-i3lock.sh" xss-lock/transfer-sleep-lock-i3lock.sh
-# xset arms optiplex's idle timeouts (xset s / dpms / xset q); gitlab's raw
-# endpoint serves this path anonymously (verified through --check).
 fetch "https://gitlab.freedesktop.org/xorg/app/xset/-/raw/3fadaad29df656b69a64c463dd68dc35d09274b3/man/xset.man" xset/xset.man
 fetch "https://raw.githubusercontent.com/derf/feh/4852b6f8b47f2b31be2b46851b43ab772defdefa/man/feh.pre" feh/feh.pre
 fetch "https://raw.githubusercontent.com/flameshot-org/flameshot/2d478061ffeeba5919d3a3d9168f93542ea9b357/README.md" flameshot/README.md
-# flameshot's -c clipboard write runs through xclip (findings cite its
-# byte-identical output).
 fetch "https://raw.githubusercontent.com/astrand/xclip/f8ae40fb9fc899807573867a7e488c892692719b/xclip.1" xclip/xclip.1
 
-# Shared config surfaces: terminals, apps, and services with repo-owned
-# configs (data/packages.json) or invoked by repo scripts.
-# Display manager: both machines start their session through ly; the config
-# at /etc/ly/config.ini is unmanaged, so this upstream sample (last commit
-# carrying the INI format this machine runs) is the only reference copy.
 fetch "https://codeberg.org/fairyglade/ly/raw/commit/1117ef5a3bde630cecd6821d42400bbce8f48f3c/res/config.ini" ly/config.ini
 fetch "https://raw.githubusercontent.com/kovidgoyal/kitty/f03c45419681e3027ecb871defcf06dd1c08234b/docs/conf.rst" kitty/conf.rst
-# cli.py carries every CLI option, so it proves kitty has no config check mode.
 fetch "https://raw.githubusercontent.com/kovidgoyal/kitty/f03c45419681e3027ecb871defcf06dd1c08234b/kitty/cli.py" kitty/cli.py
 zathura_sha=4fad4e4d82ac3275632fcbc55386915ff361e404
 fetch "https://raw.githubusercontent.com/pwmt/zathura/$zathura_sha/doc/man/zathura.1.rst" zathura/zathura.1.rst
@@ -252,21 +208,14 @@ fetch "https://raw.githubusercontent.com/jesseduffield/lazygit/$lazygit_sha/docs
 fetch "https://raw.githubusercontent.com/jesseduffield/lazygit/$lazygit_sha/docs/keybindings/Keybindings_en.md" lazygit/Keybindings_en.md
 fetch "https://raw.githubusercontent.com/topgrade-rs/topgrade/14c3f001d14a6304acdf015ed908f004931354d5/README.md" topgrade/README.md
 fetch "https://raw.githubusercontent.com/altdesktop/playerctl/b19a71cb9dba635df68d271bd2b3f6a99336a223/README.md" playerctl/README.md
-# pactl backs the volume/mute binds and both bars' audio modules.
 fetch "https://raw.githubusercontent.com/pulseaudio/pulseaudio/86e9c901289d2e1a3c2c6cb5885294a829f3eb27/man/pactl.1.xml.in" pulseaudio/pactl.1.xml.in
-# nmcli and rclone back calibre-sync-netmon and calibre-drive-sync.
 fetch "https://raw.githubusercontent.com/NetworkManager/NetworkManager/c5693cd629f5749c48e6f3e1afa2ff66b0abe65e/man/nmcli.xml" networkmanager/nmcli.xml
 fetch "https://raw.githubusercontent.com/rclone/rclone/0e19ed565fab73afcc463457d04339df63923518/docs/content/docs.md" rclone/docs.md
-# Session-target/timer/EnvironmentFile semantics for home/dot_config/systemd.
 systemd_sha=1cf66d1c674ce5928f5b2709629afeaaaf79aee2
 for page in systemd.unit systemd.service systemd.exec systemd.timer systemd.special; do
 	fetch "https://raw.githubusercontent.com/systemd/systemd/$systemd_sha/man/$page.xml" "systemd/$page.xml"
 done
 
-# Pre-reset history snapshot; regenerable because the local
-# backup/pre-reset-2567b2d branch still holds the identical objects. The
-# branch can be absent on a given machine, so machines without it skip the
-# bundle instead of failing the run.
 if [ "$mode" = fetch ] && [ ! -f "$target/dotfiles-pre-reset.bundle" ]; then
 	if git -C "$repo" rev-parse --verify --quiet backup/pre-reset-2567b2d >/dev/null; then
 		if git -C "$repo" bundle create "$target/dotfiles-pre-reset.bundle.$$" backup/pre-reset-2567b2d; then

@@ -1,17 +1,3 @@
--- Core semantics probe: One Dark on Neutral, locked (meta/color-scheme.md).
--- Run headless from anywhere; self-quits (exit 1 on any FAIL):
---   nvim --headless -c "luafile <repo>/meta/probe.lua"
--- Headless-only: refuses to run with a UI attached (never :q! a live session).
---
--- Expectations come from home/.chezmoidata.yaml, the generator's output for
--- the machine's active mode, so the probe follows palette and mode changes
--- without edits. The loaded colorscheme follows the mode too: catppuccin-latte
--- on light, catppuccin-mocha on dark.
---
--- Contract: this verifies the DEPLOYED config (~/.config/nvim) against the
--- source palette data, so run it after `chezmoi apply`. A stale deployment is
--- detected and reported instead of producing a wall of mismatches.
-
 if #vim.api.nvim_list_uis() > 0 then
   io.stderr:write("probe: refusing to run with a UI attached (headless only)\n")
   vim.cmd("cquit 2")
@@ -102,7 +88,6 @@ local function check_gvar(name, want)
   end
 end
 
--- Grounds and semantics (meta/color-scheme.md).
 check("Normal", "fg", p.text)
 check("Comment", "fg", p.muted)
 check_flag("Comment", "italic")
@@ -112,7 +97,6 @@ check("@variable.parameter", "fg", p.text)
 check("@string.escape", "fg", p.cyan)
 check("@tag", "fg", p.red)
 
--- Cursor, selection, search. Cursors carry on-accent text over the accent.
 check("Cursor", "bg", p.blue)
 check("Cursor", "fg", p.on_accent)
 check("TermCursor", "bg", p.blue)
@@ -120,25 +104,20 @@ check("Visual", "bg", p.selection)
 check("CurSearch", "bg", p.selection)
 check("CurSearch", "fg", p.text_max)
 
--- Live integrations: palette blue intact through overrides.
 check("DiagnosticInfo", "fg", p.blue)
 check("WhichKeyDesc", "fg", p.text)
 check("NoiceCmdlineIcon", "fg", p.blue)
 check("DiffAdd", "bg", p.diff_add)
 check("DiffText", "bg", p.diff_text)
 
--- Audit pins: markdown heading grounds neutral, chrome borders on surface-2
--- (btop's box grey).
 check("RenderMarkdownH1Bg", "bg", p.surface_0)
 check("BlinkCmpMenuBorder", "fg", p.surface_2)
 check("WinSeparator", "fg", p.surface_2)
 check("FloatBorder", "fg", p.surface_2)
 
--- Snacks terminal stays transparent like the editor.
 check_nobg("SnacksNormal")
 check_nobg("SnacksNormalNC")
 
--- Terminal ANSI (red/cursor codes).
 check_gvar("terminal_color_0", p.base)
 check_gvar("terminal_color_1", p.red)
 check_gvar("terminal_color_4", p.blue)
