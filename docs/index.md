@@ -2,7 +2,9 @@
 
 Hi. This is my dotfiles repository, managed by a neat tool called
 [`chezmoi`](https://www.chezmoi.io/). The `thinkpad` machine runs Sway, and the
-`optiplex` machine runs i3.
+`optiplex` machine runs i3. I decided to make both light and dark modes for the
+setup because they serve different purposes. I created light mode because dark
+mode is awful to use outdoors, whereas I like dark mode indoors.
 
 This documentation is for people who are setting up or maintaining the desktop,
 which is me (duh). Start with [Installation](installation.md).
