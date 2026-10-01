@@ -1,7 +1,5 @@
-; Ported from the Sway waybar config (waybar/config.jsonc + style.css).
-; Colors come from the locked scheme (meta/color-scheme.md). Managed by
-; chezmoi; edit the .tmpl source.{{ $p := .palette }}
-
+; chezmoi renders this template. Colors come from meta/color-scheme.md.
+; {{- $p := .palette }}
 [colors]
 base = {{ $p.base.hex }}
 text = {{ $p.text.hex }}
@@ -21,8 +19,6 @@ foreground = ${colors.text}
 border-size = 0
 font-0 = SauceCodePro Nerd Font Mono:size=10;2
 font-1 = SauceCodePro Nerd Font Mono:size=10:weight=bold;2
-; Waybar renders the paused MPRIS label with <i>; custom/mpris switches to
-; this slot with %{T3} (1-based tag index) while paused.
 font-2 = SauceCodePro Nerd Font Mono:style=Italic:size=10;2
 modules-left = xworkspaces i3mode custom/mpris
 modules-center = custom/window
@@ -30,8 +26,6 @@ modules-right = cpu memory custom/updates separator pulseaudio systray date sepa
 cursor-click = pointer
 enable-ipc = true
 
-; Mirrors waybar's shared rule (margin 1px, padding 0 8px); modules
-; with different metrics override it below.
 [settings]
 screenchange-reload = true
 pseudo-transparency = true
@@ -40,10 +34,6 @@ format-padding = 8px
 
 [module/xworkspaces]
 type = internal/i3
-; i3's IPC carries both WM_HINTS and _NET_WM_STATE_DEMANDS_ATTENTION
-; urgency, like Waybar; internal/xworkspaces sees only WM_HINTS.
-; Waybar #workspaces: margin 0, padding 0 2px, buttons padded 6px per side;
-; waybar has no scroll-to-switch, so wheel over icons must not change focus.
 format = <label-state>
 format-margin = 0
 format-padding = 2px
@@ -68,9 +58,6 @@ label-urgent = %icon%
 label-urgent-foreground = ${colors.red}
 label-urgent-padding = 6px
 
-; Waybar #mode: format output is empty at rest (with its margins), so
-; the bar changes only while a mode is active. 4px margin and the bold
-; face mirror the CSS. format-font is 1-based (2 = font-1).
 [module/i3mode]
 type = internal/i3
 format = <label-mode>
@@ -80,34 +67,25 @@ format-background = ${colors.warning-hover}
 format-margin = 4px
 format-font = 2
 
+[module/custom/mpris]
+type = custom/script
+exec = ~/.config/polybar/scripts/mpris.py
+tail = true
+click-left = playerctl play-pause
+scroll-up = playerctl next
+scroll-down = playerctl previous
+label-foreground = ${colors.muted}
+
 [module/custom/window]
-; Waybar #window: padding 0 12px (margin comes from the settings fallback).
-; internal/xwindow cannot express Waybar's title rewrite rules, so the
-; script applies the same table from config.jsonc, capped tighter than
-; waybar's 72 so long titles cannot push the right-hand modules off-screen.
 type = custom/script
 exec = ~/.config/polybar/scripts/window_title.py
 interval = 1
 format-padding = 12px
 label-foreground = ${colors.subtext}
 
-[module/custom/mpris]
-type = custom/script
-; Runs Waybar's daemon pattern (follow stream + resync poll, Stopped
-; grace window): tail keeps the one script alive and polybar restart
-; reaps it, as with custom/updates.
-exec = ~/.config/polybar/scripts/mpris.py
-tail = true
-click-left = playerctl play-pause
-scroll-up = playerctl next
-scroll-down = playerctl previous
-; Waybar renders #custom-mpris muted; its hover state is the only lift.
-label-foreground = ${colors.muted}
-
 [module/cpu]
 type = internal/cpu
 interval = 5
-; Waybar on-click parity: click opens btop in kitty (foot is thinkpad-only).
 format = %{A1:kitty --name btop -e btop:}󰻠 <label>%{A}
 label = %percentage%%
 
@@ -119,13 +97,16 @@ label = %percentage_used%%
 
 [module/custom/updates]
 type = custom/script
-; Polling and signalling are split across module types: custom/ipc has
-; no interval and custom/script has no action, so the script carries
-; both: a 600s loop plus SIGUSR1 from wrapper_topgrade.sh when
-; topgrade exits.
 exec = ~/.config/polybar/scripts/updates.sh
 tail = true
 click-left = ~/.config/i3/scripts/toggle_topgrade.sh
+
+[module/separator]
+type = custom/text
+format = |
+format-padding = 0
+format-margin = 0
+format-foreground = ${colors.muted}
 
 [module/pulseaudio]
 type = internal/pulseaudio
@@ -137,12 +118,6 @@ click-right = pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 [module/systray]
 type = internal/tray
-; Waybar #tray: padding 0 4px, #tray > widget padding 0 6px, icon-size 12
-; (50% of the 24px bar), tray spacing 12. Polybar deviates: tray-size 66%
-; (16px) because nm-applet draws its icon at a fixed 16px into the tray
-; client window, so anything smaller shears it (polybar/polybar#2933 class
-; of tray rendering bugs, no upstream fix). tray-spacing 6px tightens the
-; gaps without shrinking the icons.
 format-padding = 4px
 tray-padding = 6px
 tray-spacing = 6px
@@ -155,18 +130,7 @@ date = %Y-%m-%d %H:%M:%S
 label = %date%
 
 [module/custom/dnd]
-; Only --toggle (and lock.sh's net-zero save/restore) changes the pause
-; level, so this is event-driven: --toggle re-runs hook-0.
 type = custom/ipc
 hook-0 = ~/.config/polybar/scripts/dunst-dnd.sh
 initial = 1
 click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle
-
-; Mirrors waybar's custom/separator: only between module groups; zero
-; padding/margin override the settings fallback.
-[module/separator]
-type = custom/text
-format = |
-format-padding = 0
-format-margin = 0
-format-foreground = ${colors.muted}
