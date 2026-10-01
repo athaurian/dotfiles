@@ -1,11 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# $mod+Shift+Space: a focused scratchpad window is restored to the current
-# workspace as a normal tiled window with the default border. Any other
-# window gets the usual floating toggle. Membership is the inherited
-# scratchpad_state, as in cycle_scratchpad.sh.
-
 is_scratchpad=$(
 	i3-msg -t get_tree | jq -r '
 	def scan($state):
