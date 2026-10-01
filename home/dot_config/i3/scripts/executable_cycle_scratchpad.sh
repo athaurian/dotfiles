@@ -1,10 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Cycle scratchpad windows, ignoring the dropdown terminal.
-# A focused visible window hides. A visible window elsewhere moves here.
-# Otherwise the first hidden window shows.
-
 focused_id=""
 hidden_ids=""
 visible_ids=""
@@ -16,9 +12,6 @@ i3-msg -t get_tree | jq -r '
 def not_drop_term: ((.marks // []) | index("drop_term")) | not;
 def cyclable: not_drop_term;
 
-# Emit window-leaf ids: criteria match windows, not floating wrappers
-# (a wrapper id makes scratchpad show fail). Carries the inherited
-# scratchpad state and detects __i3_scratch by name.
 def scan($state; $hidden):
   (if (.scratchpad_state? != null and .scratchpad_state? != "none")
    then .scratchpad_state else $state end) as $s |

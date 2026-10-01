@@ -1,30 +1,31 @@
 #!/usr/bin/env sh
 set -eu
 
-# Requires i3lock-color (its binary is `i3lock`), imagemagick,
-# notify-send, dunstctl.{{ $p := .palette }}
+# {{- $p := .palette }}
 
-# xss-lock sets XSS_SLEEP_LOCK_FD only when it locks because the system
-# is about to sleep. That path skips the notify/delay because suspend
-# waits on the fd. The manual and idle paths keep the "locking
-# screen..." beat before locking. It is the idle countdown's finale,
-# at sway's timing (notify+delay on the idle timeout path there too).
+# The idle locker xss-lock runs this script after the idle countdown and
+# before suspend, and the script locks the screen with i3lock.
+
+# xss-lock sets XSS_SLEEP_LOCK_FD only when the system is about to sleep.
+# The before-sleep path skips the warning and the delay, because both
+# would hold suspend off while it waits for that fd to close.
 before_sleep=0
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	before_sleep=1
 fi
 
 if [ "$before_sleep" -eq 0 ]; then
-	# Timeout avoids hangs on backlogged dunst; -a lock matches dnd_bypass_lock.
+	# Every dunst and notify call runs under a timeout to keep a hanging
+	# daemon from blocking suspend.
 	timeout 2 notify-send -a lock -u low -t 2500 " Locking screen..." || true
 	sleep 2.5
 fi
 
-# Pause at 100 (above the 90 bypasses); save the level for restore.
-# Timeouts keep a hanging daemon from blocking suspend.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
-# First instance records the pre-lock level; an overlapping locker would
-# record the already-paused 100 and strand DND after unlock.
+# The first locker saves the pause level before raising it, and cleanup
+# restores that value after the unlock to put dunst back where it was. A
+# second locker must not save the level, because it would capture the
+# raised level of 100 and leave dunst stuck there after unlock.
 pause_owner=0
 if [ ! -f "$pause_file" ]; then
 	timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
@@ -32,12 +33,9 @@ if [ ! -f "$pause_file" ]; then
 fi
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 
-# Per-instance name so an overlapping locker cannot truncate a capture
-# i3lock is already reading.
 lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/i3lock_bg_$$.png"
 timeout 3 import -window root "$lockimg" 2>/dev/null || true
 
-# Downscale first to keep CPU and IO use low.
 if command -v magick >/dev/null 2>&1; then
 	timeout 3 magick "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 elif command -v convert >/dev/null 2>&1; then
@@ -45,7 +43,6 @@ elif command -v convert >/dev/null 2>&1; then
 fi
 
 cleanup() {
-	# Restore the pre-lock level instead of unpausing, so DND stays on.
 	if [ "$pause_owner" -eq 1 ]; then
 		restore_level=0
 		if [ -f "$pause_file" ]; then
@@ -60,9 +57,6 @@ cleanup() {
 }
 
 run_lock() {
-	# Colors are rrggbbaa without a leading hash; the palette exports the bare form.
-	# Media and brightness keys pass through while locked, mirroring sway --locked.
-	# Without --fill i3lock draws the capture at native size, top-left.
 	i3lock --nofork \
 		--image "$lockimg" \
 		--fill \
@@ -100,9 +94,6 @@ run_lock() {
 		--date-color={{ $p.text.bare }}FF
 }
 
-# xss-lock gates sleep on the fd, not this process: i3lock must not
-# inherit a copy (it never closes one), and closing ours releases
-# logind instead of waiting out InhibitDelayMaxSec.
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	(
 		eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
@@ -115,10 +106,6 @@ lock_pid=$!
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	eval "exec ${XSS_SLEEP_LOCK_FD}>&-"
 fi
-# xss-lock re-runs the locker only after the previous one exits. A
-# forced unlock TERMs us, which the trap turns into killing i3lock.
-# `wait || true` keeps set -e from skipping cleanup on a failed locker,
-# which would strand dunst at pause level 100.
 trap 'pkill -x -u "$(id -u)" i3lock 2>/dev/null || true' TERM INT
 wait "$lock_pid" || true
 cleanup

@@ -1,17 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-# Rofi-confirmed power and session actions.
-# Usage: power_control.sh <poweroff|reboot|suspend|logout>
-# Same action re-invoked dismisses; different action replaces (state in $XDG_RUNTIME_DIR/confirm_action).
-
 action="${1:-}"
 
 case "$action" in
 poweroff) cmd="systemctl poweroff" ;;
 reboot) cmd="systemctl reboot" ;;
-# No locker needed: xss-lock locks on PrepareForSleep and its
-# sleep-lock fd gates sleep.
 suspend) cmd="systemctl suspend" ;;
 logout) cmd="systemctl --user stop i3-session.target; i3-msg exit" ;;
 *)
@@ -20,8 +14,6 @@ logout) cmd="systemctl --user stop i3-session.target; i3-msg exit" ;;
 	;;
 esac
 
-# confirm_menu PROMPT PLACEHOLDER OPTION...: prints the choice; returns 1
-# on cancel, timeout, or missing rofi.
 confirm_menu() {
 	confirm_prompt="${1:-}"
 	confirm_placeholder="${2:-}"
@@ -32,8 +24,6 @@ confirm_menu() {
 	if ! command -v rofi >/dev/null 2>&1; then
 		return 1
 	fi
-	# The theme never renders -mesg, so the hint rides in the placeholder.
-	# Choices carry no icons; the 1em slot would show as leading whitespace.
 	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	if [ -z "$confirm_choice" ]; then
 		return 1
@@ -43,7 +33,6 @@ confirm_menu() {
 
 state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
 
-# Only power confirmations use a "confirm " prompt; launcher and history pickers never match.
 if command -v pgrep >/dev/null 2>&1 && pgrep -af rofi 2>/dev/null | grep -qF "confirm "; then
 	current_action=""
 	if [ -f "$state_file" ]; then

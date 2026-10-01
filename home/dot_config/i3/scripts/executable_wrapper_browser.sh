@@ -1,10 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Launch the preferred browser.
-
 if [ -n "${BROWSER:-}" ]; then
-	# shellcheck disable=SC2086 # $BROWSER may contain args
 	exec $BROWSER "$@"
 fi
 
