@@ -1,22 +1,15 @@
 #!/usr/bin/env sh
 set -eu
 
-# Onboarding: install missing packages.
-#
-# Edit data/packages.json to change what a fresh machine gets. The hash
-# below changes the rendered script whenever the file changes, so chezmoi
-# re-runs this script (run_onchange_).
 # packages.json: {{ include "../data/packages.json" | sha256sum }}
 
 DATA_DIR="$HOME/.local/share/chezmoi/data"
 
-# Not Arch-based: skip instead of failing the apply.
 if ! command -v pacman >/dev/null 2>&1; then
 	echo "install_packages: pacman not found, skipping"
 	exit 0
 fi
 
-# Check if the custom 'forge' pacman repository is configured.
 if ! grep -q "^\[forge\]" /etc/pacman.conf; then
 	echo "install_packages: custom 'forge' repository is not configured."
 	echo ""
@@ -31,33 +24,23 @@ if ! grep -q "^\[forge\]" /etc/pacman.conf; then
 	exit 1
 fi
 
-# jq reads packages.json; the onboarding installs it on a fresh machine.
 if ! command -v jq >/dev/null 2>&1; then
 	echo "install_packages: installing jq (required to read packages.json)"
 	sudo pacman -S --needed jq
 fi
 
-# Package selections from data/packages.json. The pacman entry is grouped by
-# area; machines[$host] holds the packages only this machine needs.
 PACMAN_PACKAGES=$(jq -r '[.pacman[][]] | join(" ")' "$DATA_DIR/packages.json")
 CACHYOS_PACKAGES=$(jq -r '.cachyos | join(" ")' "$DATA_DIR/packages.json")
 AUR_PACKAGES=$(jq -r '.aur | join(" ")' "$DATA_DIR/packages.json")
 CUSTOM_PACKAGES=$(jq -r '.custom | join(" ")' "$DATA_DIR/packages.json")
 MACHINE_PACKAGES=$(jq -r --arg host "{{ .chezmoi.hostname }}" '(.machines[$host] // []) | join(" ")' "$DATA_DIR/packages.json")
 
-# Print the subset of $1 that is not already installed.
 missing() {
 	if [ -n "$1" ]; then
-		# pacman -T returns missing packages and exits >0 if any are missing.
-		# || true prevents set -e from aborting the script.
 		pacman -T $1 || true
 	fi
 }
 
-# Everything below installs through pacman: the official repos, the cachyos
-# repos, the forge repo, and the machine-specific list. On vanilla Arch the
-# cachyos packages keep their names in the AUR, so paru still resolves them
-# when the cachyos repos are absent.
 ALL_PACMAN_PACKAGES="$PACMAN_PACKAGES $CACHYOS_PACKAGES $CUSTOM_PACKAGES $MACHINE_PACKAGES"
 
 missing_pacman=$(missing "$ALL_PACMAN_PACKAGES")
@@ -88,5 +71,3 @@ if [ -n "$missing_pacman" ] || [ -n "$missing_aur" ]; then
 else
 	echo "install_packages: all system packages already installed"
 fi
-
-# vim: ft=sh

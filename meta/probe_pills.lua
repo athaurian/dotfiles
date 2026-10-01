@@ -1,8 +1,3 @@
--- Pills probe: Mason/Lazy active-vs-muted chrome (Bold preserved on actives).
--- Run headless from the repo root; self-quits (exit 1 on any FAIL):
---   nvim --headless -c "luafile <repo>/meta/probe_pills.lua"
--- Headless-only: refuses to run with a UI attached (never :q! a live session).
-
 if #vim.api.nvim_list_uis() > 0 then
   io.stderr:write("probe_pills: refusing to run with a UI attached (headless only)\n")
   vim.cmd("cquit 2")
@@ -24,7 +19,6 @@ local function check(group, attr, want)
   end
 end
 
--- Active pills: blue ground, base text.
 check("MasonHighlightBlock", "bg", "#48AFFF")
 check("MasonHighlightBlock", "fg", "#202020")
 check("MasonHighlightBlockBold", "bg", "#48AFFF")
@@ -32,7 +26,6 @@ check("MasonHighlightBlockBold", "fg", "#202020")
 check("LazyButtonActive", "bg", "#48AFFF")
 check("LazyButtonActive", "fg", "#202020")
 
--- Muted pills and headers: surface-1 ground, muted text.
 check("MasonMutedBlock", "bg", "#2D2D2D")
 check("MasonMutedBlock", "fg", "#B3B3B3")
 check("MasonMutedBlockBold", "bg", "#2D2D2D")
@@ -42,7 +35,6 @@ check("MasonHeader", "fg", "#B3B3B3")
 check("LazyButton", "bg", "#2D2D2D")
 check("LazyButton", "fg", "#B3B3B3")
 
--- Lazy ground and headings (no catppuccin integration; pinned here).
 check("LazyNormal", "bg", "#171717")
 check("LazyH1", "fg", "#B3B3B3")
 
