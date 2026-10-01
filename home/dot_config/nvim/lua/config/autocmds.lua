@@ -1,5 +1,3 @@
--- Default autocmds reference: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
-
 local persistenceGroup = vim.api.nvim_create_augroup("PersistenceAutoload", { clear = true })
 
 vim.api.nvim_create_autocmd("StdinReadPre", {
@@ -15,8 +13,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     require("lazy").load({ plugins = { "persistence.nvim" } })
 
-    -- Stop persistence for launches with file arguments or stdin, so the
-    -- session only tracks bare, argumentless launches.
     if vim.fn.argc() > 0 or vim.g.started_with_stdin then
       require("persistence").stop()
     end
@@ -24,8 +20,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  -- Writes the SnacksExplorerOpen flag on exit for the <leader>qs keymap
-  -- in persistence.lua.
   group = vim.api.nvim_create_augroup("PersistenceCleanup", { clear = true }),
   callback = function()
     local explorer_open = 0
@@ -37,8 +31,6 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
       vim.cmd("redraw")
     end
 
-    -- Preserved in persistence sessions by the globals option, so the
-    -- <leader>qs keymap in persistence.lua can reopen the explorer.
     vim.g.SnacksExplorerOpen = explorer_open
   end,
 })
