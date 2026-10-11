@@ -1,7 +1,8 @@
 # Dotfiles
 
-Hi. This is my dotfiles repository, managed by a neat tool called `chezmoi`. The
-`thinkpad` machine runs Sway, and the `optiplex` machine runs i3.
+Hi. This is my dotfiles repository, managed by a neat tool called
+[`chezmoi`](https://www.chezmoi.io/). The `thinkpad` machine runs Sway, and the
+`optiplex` machine runs i3.
 
 For requirements and install steps, see
 [Installation](https://athaurian.github.io/dotfiles/installation/).
