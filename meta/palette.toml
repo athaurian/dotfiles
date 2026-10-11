@@ -1,162 +1,124 @@
-# The source of truth for every color in the repository. meta/palette.py
-# derives the LUT palettes and the chezmoi data from this file, then
-# verifies them. meta/color-scheme.md documents the system.
-#
-# Grounds come from pure-gray neutral ramps, one per mode. The light ramp
-# derives from the dark ramp by holding each role's contrast ratio to base;
-# light base and text-max are the hand-set anchors.
-#
-# Chromatic hues come from One Dark Pro classic (textColors.classic),
-# already boosted 1.5x in chroma at constant lightness and hue, locked as
-# data in both modes. Blue is the accent hue; its bright step is the
-# accent pair.
-#
-# A tint is either hand-written (explicit dark and light values) or
-# derived: anchor names the neutral role that supplies its lightness, hue
-# names the chromatic that supplies its color, and k is the fraction of
-# that hue's chroma the tint keeps.
+# This is the single source of truth for the colors used in this repository.
+# meta/palette.py derives the LUT palettes and the chezmoi data from it.
 
 [neutrals.dark]
-crust = "#101010"                 # Deepest editor grounds, such as TabLine and folds
-mantle = "#171717"                # Transient editor chrome, including floats, pickers, and Pmenu
-base = "#202020"                  # Primary editor, terminal, bar, notification, and window grounds
-surface-0 = "#262626"             # Cursorline, alternate base, tooltip base
-surface-1 = "#2D2D2D"             # Hover fills, buttons, menu selection, low-urgency notification ground
-surface-2 = "#3A3A3A"             # Borders, selections, btop boxes, indent guides, low-urgency frames
-line = "#5A5A5A"                  # Focus borders and subtle dividers
-muted = "#8A8A8A"                 # Comments, placeholders, disabled text, low-urgency text
-subtext = "#B3B3B3"               # Secondary text, titles, tab labels, dimmed emphasis
-text = "#D4D4D4"                  # Primary text
-text-max = "#FFFFFF"              # Selected, hovered, or otherwise maximal emphasis
+crust = "#101010"
+mantle = "#171717"
+base = "#202020"
+surface-0 = "#262626"
+surface-1 = "#2D2D2D"
+surface-2 = "#3A3A3A"
+line = "#5A5A5A"
+muted = "#8A8A8A"
+subtext = "#B3B3B3"
+text = "#D4D4D4"
+text-max = "#FFFFFF"
 
 [neutrals.light]
-base = "#EAEAEA"                  # Hand-set anchor: primary editor, terminal, bar, notification, and window grounds
-text-max = "#000000"              # Hand-set anchor: selected, hovered, or otherwise maximal emphasis
+base = "#EAEAEA"
+text-max = "#000000"
 
 [chromatics.red]
 dark = "#FE4864"
 dark-bright = "#FF7376"
 light = "#B10035"
 light-bright = "#96002B"
-use = "Errors, urgency, deleted content, specials"
 
 [chromatics.green]
 dark = "#89C952"
 dark-bright = "#B9EE7D"
 light = "#376200"
 light-bright = "#2D5300"
-use = "Success, added content, strings"
 
 [chromatics.yellow]
 dark = "#F4BC45"
 dark-bright = "#FFD678"
 light = "#725200"
 light-bright = "#604500"
-use = "Warnings, modified content, types"
 
 [chromatics.blue]
 dark = "#48AFFF"
 dark-bright = "#98C3FF"
 light = "#005B92"
 light-bright = "#004C7D"
-use = "Links, cursor, focus, directories, accent"
 
 [chromatics.purple]
 dark = "#D95AFC"
 dark-bright = "#E67FFF"
 light = "#9400B3"
 light-bright = "#7D0099"
-use = "Keywords, root names"
 
 [chromatics.cyan]
 dark = "#00BBCC"
 dark-bright = "#3DDAEE"
 light = "#00616A"
 light-bright = "#00525A"
-use = "Enum members, secondary types"
 
 [chromatics.orange]
 dark = "#E49137"
 dark-bright = "#F2A256"
 light = "#814A00"
 light-bright = "#6D3E00"
-use = "Numbers, properties, dashboard header"
 
-[tints]  # selection-deep, on-accent, and hover are hand-written; the rest
-# derive from anchor, hue, and k.
 [tints.selection-deep]
 dark = "#3A3F4B"
 light = "#BBC7D2"
-use = "Selection in fuzzel and Qt"
 
 [tints.on-accent]
 dark = "#202020"
 light = "#FFFFFF"
-use = "Text placed on accent grounds"
 
 [tints.hover]
-dark = "rgba(255,255,255,0.08)"
-light = "rgba(0,0,0,0.08)"
-use = "Bar hover overlay"
+dark = "rgba(255, 255, 255, 0.08)"
+light = "rgba(0, 0, 0, 0.08)"
 
 [tints.warning-hover]
 anchor = "surface-1"
 hue = "yellow"
 k = 0.302
-use = "Waybar and btop warning hover"
 
 [tints.error-hover]
 anchor = "surface-1"
 hue = "red"
 k = 0.256
-use = "Waybar and btop error hover"
 
 [tints.urgent]
 anchor = "surface-1"
 hue = "red"
 k = 0.35
-use = "Critical notification and urgent-window ground"
 
 [tints.notice]
 anchor = "surface-1"
 hue = "blue"
 k = 0.35
-use = "Normal notification ground"
 
 [tints.selection]
 anchor = "surface-2"
 hue = "blue"
 k = 0.179
-use = "Neovim Visual and Search"
 
 [tints.diff-add]
 anchor = "surface-2"
 hue = "green"
 k = 0.432
-use = "Neovim additions"
 
 [tints.diff-change]
 anchor = "surface-2"
 hue = "blue"
 k = 0.444
-use = "Neovim changes"
 
 [tints.diff-delete]
 anchor = "surface-0"
 hue = "red"
 k = 0.208
-use = "Neovim deletions"
 
 [tints.diff-text]
 anchor = "line"
 hue = "blue"
 k = 0.562
-use = "Neovim changed text"
 
 [utility.black]
 value = "#000000"
-use = "Utility black for shadows and other uses outside the neutral ramp. When used as a shadow or line overlay, carry alpha, such as `#00000080`."
 
 [utility.transparent]
 value = "rgba(0, 0, 0, 0)"
-use = "Fully transparent black overlay for CSS surfaces, such as Waybar borders."
