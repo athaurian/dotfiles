@@ -19,7 +19,7 @@ help:
 	@echo "Available commands:"
 	@echo "  format            - Format project docs with prettier"
 	@echo "  lint              - Check docs formatting without modifying them"
-	@echo "  palette           - Derive tints, write both LUTs + the active mode's data, run checks"
+	@echo "  palette           - Write both LUTs + the active mode's data, run checks"
 	@echo "  light             - Switch to light: record mode, regenerate, apply"
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"

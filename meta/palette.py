@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Derive tints, both LUT palettes, and the chezmoi data, then verify them."""
+"""Derive the LUT palettes and the chezmoi data from meta/palette.toml, then verify them."""
 
 from __future__ import annotations
 
 import math
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DOC = REPO / "meta" / "color-scheme.md"
+SOURCE = REPO / "meta" / "palette.toml"
 LUTS = {
     "dark": REPO / "home" / "dot_config" / "lutgen" / "neutral",
     "light": REPO / "home" / "dot_config" / "lutgen" / "neutral-light",
@@ -21,6 +22,7 @@ MODES = ("dark", "light")
 N_RAMP = 2
 K_CHROMA = 0.5
 CONTRAST_AA = 4.5
+HUE_BASE_FLOOR = 4.5
 
 HEX_RE = re.compile(r"#([0-9A-Fa-f]{6})")
 HEX_FULL_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?\b")
@@ -51,6 +53,8 @@ M1_INV = (
     (-1.2684380046, 2.6097574011, -0.3413193965),
     (-0.0041960863, -0.7034186147, 1.7076147010),
 )
+
+LIGHT_LIGHTER = ("crust", "mantle")
 
 
 def srgb_to_linear(c: float) -> float:
@@ -134,236 +138,78 @@ def solve_gray_lighter(bg: str, ratio: float) -> str:
     return f"#{v}{v}{v}"
 
 
-def solve_chroma(base_hex: str, target: float, bg: str) -> str:
-    l0, c, h = rgb_to_oklch(hex_to_rgb(base_hex))
-    y_target = (luminance(bg) + 0.05) / target - 0.05
-    lo, hi = 0.0, l0
-    for _ in range(50):
-        mid = (lo + hi) / 2
-        if luminance(oklch_to_hex(mid, c, h)) < y_target:
-            lo = mid
-        else:
-            hi = mid
-    return oklch_to_hex(hi, c, h)
-
-
-# parse_rows reads meta/color-scheme.md as table data rather than prose.
-# derive_tints rewrites the tint rows' hex columns in place. Never
-# hand-reformat or reword those rows. Regenerate the doc with `make palette`.
-def parse_rows(doc: str, start: str) -> list[tuple[str, list[str]]]:
-    rows: list[tuple[str, list[str]]] = []
-    in_section = False
-    for line in doc.splitlines():
-        if line.lstrip().startswith("## "):
-            if in_section:
-                break
-            in_section = line.lstrip().startswith(start)
+# The light ramp derives from the dark ramp by holding each role's contrast
+# ratio to base; light base and text-max are the hand-set anchors in the
+# source file. Only the dark ramp order defines role order downstream.
+def load() -> dict:
+    with SOURCE.open("rb") as fh:
+        pal = tomllib.load(fh)
+    dark = {role: hex_.upper() for role, hex_ in pal["neutrals"]["dark"].items()}
+    light = {role: hex_.upper() for role, hex_ in pal["neutrals"]["light"].items()}
+    for role, hex_ in dark.items():
+        if role in light:
             continue
-        if in_section and line.lstrip().startswith("|"):
-            cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
-            rows.append((line, cells))
-    return rows
+        ratio = contrast_ratio(hex_, dark["base"])
+        light[role] = (
+            solve_gray_lighter(light["base"], ratio)
+            if role in LIGHT_LIGHTER
+            else solve_gray(light["base"], ratio)
+        )
+    pal["neutrals"]["dark"] = dark
+    pal["neutrals"]["light"] = {role: light[role] for role in dark}
+    return pal
 
 
-def parse_neutrals(doc: str, mode: str) -> dict[str, str]:
-    out: dict[str, str] = {}
-    in_section = False
-    in_mode = False
-    for line in doc.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("## "):
-            if in_section:
-                break
-            in_section = stripped.startswith("## Neutrals")
-            continue
-        if not in_section:
-            continue
-        if stripped.startswith("### "):
-            in_mode = stripped[4:].strip().lower() == mode
-            continue
-        if stripped.startswith("|") and in_mode:
-            cells = [c.strip().strip("`") for c in stripped.strip("|").split("|")]
-            if len(cells) >= 3 and cells[0].startswith("#") and len(cells[0]) == 7:
-                out[cells[1]] = cells[0].upper()
-    if mode == "light":
-        dark = parse_neutrals(doc, "dark")
-        base = out["base"]
-        for role in ("crust", "mantle", "surface-0", "surface-1", "surface-2",
-                     "line", "muted", "subtext", "text"):
-            ratio = contrast_ratio(dark[role], dark["base"])
-            if role in ("crust", "mantle"):
-                out[role] = solve_gray_lighter(base, ratio)
-            else:
-                out[role] = solve_gray(base, ratio)
-    return out
+CHROMA_KEYS = {"dark": ("dark", "dark-bright"), "light": ("light", "light-bright")}
 
 
-def parse_chromatics(doc: str, mode: str) -> dict[str, str]:
-    column = 1 if mode == "dark" else 3
+def chromatics(pal: dict, mode: str) -> dict[str, str]:
+    base, _ = CHROMA_KEYS[mode]
+    return {name: c[base].upper() for name, c in pal["chromatics"].items()}
+
+
+def brights(pal: dict, mode: str) -> dict[str, str]:
+    _, bright = CHROMA_KEYS[mode]
+    return {name: c[bright].upper() for name, c in pal["chromatics"].items()}
+
+
+def tint_hex(pal: dict, name: str, mode: str) -> str:
+    tint = pal["tints"][name]
+    if "anchor" in tint:
+        La = rgb_to_oklch(hex_to_rgb(pal["neutrals"][mode][tint["anchor"]]))[0]
+        Ch, Hh = rgb_to_oklch(hex_to_rgb(chromatics(pal, mode)[tint["hue"]]))[1:]
+        return f"#{oklch_to_hex(La, Ch * float(tint['k']), Hh)}"
+    value = tint[mode]
+    return value.upper() if value.startswith("#") else value
+
+
+def tint_hexes(pal: dict, mode: str) -> dict[str, str]:
     return {
-        cells[0]: cells[column].upper()
-        for _, cells in parse_rows(doc, "## Chromatics")
-        if len(cells) >= 5 and cells[column].startswith("#") and len(cells[column]) == 7
+        name: value
+        for name in pal["tints"]
+        if not (value := tint_hex(pal, name, mode)).startswith("rgba")
     }
 
 
-def parse_brights(doc: str, mode: str) -> dict[str, str]:
-    column = 2 if mode == "dark" else 4
+def tint_overlays(pal: dict, mode: str) -> dict[str, str]:
     return {
-        cells[0]: cells[column].upper()
-        for _, cells in parse_rows(doc, "## Chromatics")
-        if len(cells) >= 5 and cells[column].startswith("#") and len(cells[column]) == 7
+        name: value
+        for name in pal["tints"]
+        if (value := tint_hex(pal, name, mode)).startswith("rgba")
     }
 
 
-def parse_tint_specs(doc: str) -> dict[str, tuple[str, str, str]]:
-    out: dict[str, tuple[str, str, str]] = {}
-    for _, cells in parse_rows(doc, "## Supporting tints"):
-        if cells and all(re.fullmatch(r":?-+:?", c) for c in cells):
-            continue
-        if len(cells) == 7 and cells[0] != "Tint" and cells[1] != "n/a" and cells[2] != "n/a":
-            out[cells[0]] = (cells[1], cells[2], cells[3])
-    return out
-
-
-def parse_tint_hexes(doc: str) -> dict[str, tuple[str, str]]:
-    out: dict[str, tuple[str, str]] = {}
-    for _, cells in parse_rows(doc, "## Supporting tints"):
-        if (
-            len(cells) == 7
-            and cells[0] != "Tint"
-            and cells[4].startswith("#")
-            and len(cells[4]) == 7
-            and cells[5].startswith("#")
-            and len(cells[5]) == 7
-        ):
-            out[cells[0]] = (cells[4].upper(), cells[5].upper())
-    return out
-
-
-def parse_tint_overlays(doc: str) -> dict[str, tuple[str, str]]:
-    out: dict[str, tuple[str, str]] = {}
-    for _, cells in parse_rows(doc, "## Supporting tints"):
-        if (
-            len(cells) == 7
-            and cells[0] != "Tint"
-            and cells[4].startswith("rgba(")
-            and cells[5].startswith("rgba(")
-        ):
-            out[cells[0]] = (cells[4], cells[5])
-    return out
-
-
-def parse_utility(doc: str) -> dict[str, str]:
-    return {
-        cells[0]: cells[1]
-        for _, cells in parse_rows(doc, "## Utility colors")
-        if len(cells) >= 3 and cells[1].startswith(("#", "rgba("))
-    }
-
-
-# doc_allowed collects hexes from "|" table lines only, because a hex
-# that appears in prose is not part of the palette.
-def doc_allowed(doc: str) -> set[str]:
-    return {
-        f"#{h.upper()}"
-        for line in doc.splitlines()
-        if line.lstrip().startswith("|")
-        for h in HEX_RE.findall(line)
-    }
-
-
-def derive_tints(doc: str) -> str:
-    neutrals = {m: parse_neutrals(doc, m) for m in MODES}
-    chroma = {m: parse_chromatics(doc, m) for m in MODES}
-    out: list[str] = []
-    changed = 0
-    in_section = False
-    pending: list[tuple[str, list[str], str]] = []
-
-    def widths() -> list[int]:
-        w = [0] * 7
-        for kind, cells, _ in pending:
-            if kind == "sep":
-                continue
-            for i, c in enumerate(cells):
-                w[i] = max(w[i], len(c))
-        return w
-
-    def flush() -> None:
-        nonlocal changed
-        if not pending:
-            return
-        w = widths()
-        for kind, cells, raw in pending:
-            if kind == "sep":
-                dashes = " | ".join("-" * max(x, 3) for x in w)
-                out.append(f"| {dashes} |\n")
-                continue
-            if kind == "spec":
-                derived = cells[4:6]
-                if any(h.strip("`") not in raw for h in derived):
-                    changed += 1
-            padded = " | ".join(c.ljust(x) for c, x in zip(cells, w))
-            out.append(f"| {padded} |\n")
-        pending.clear()
-
-    def derive_row(cells: list[str]) -> list[str] | None:
-        name, anchor, hue, k = cells[0], cells[1], cells[2], cells[3]
-        try:
-            kk = float(k)
-        except ValueError:
-            return None
-        for m in MODES:
-            if anchor not in neutrals[m] or hue not in chroma[m]:
-                raise SystemExit(f"bad tint spec: {name} ({anchor!r}, {hue!r})")
-        hexes = []
-        for m in MODES:
-            La = rgb_to_oklch(hex_to_rgb(neutrals[m][anchor]))[0]
-            Ch, Hh = rgb_to_oklch(hex_to_rgb(chroma[m][hue]))[1:]
-            hexes.append(f"`#{oklch_to_hex(La, Ch * kk, Hh)}`")
-        return hexes
-
-    for line in doc.splitlines(keepends=True):
-        stripped = line.strip()
-        if stripped.startswith("## "):
-            flush()
-            in_section = stripped.startswith("## Supporting tints")
-        elif in_section and stripped.startswith("|"):
-            cells = [c.strip().strip("`") for c in stripped.strip("|").split("|")]
-            if len(cells) == 7 and all(re.fullmatch(r":?-+:?", c) for c in cells):
-                pending.append(("sep", cells, line))
-                continue
-            if len(cells) == 7 and cells[0] != "Tint":
-                derived = derive_row(cells)
-                if derived is None:
-                    raw = [c.strip() for c in stripped.strip("|").split("|")]
-                    pending.append(("body", raw, line))
-                else:
-                    pending.append(("spec", cells[:4] + derived + cells[6:], line))
-                continue
-            pending.append(("head", cells, line))
-            continue
-        else:
-            flush()
-        out.append(line)
-    flush()
-    print(f"tints: {changed} derived hex values updated")
-    return "".join(out)
-
-
-def build_lut(doc: str, mode: str) -> str:
-    neutrals = list(dict.fromkeys(parse_neutrals(doc, mode).values()))
-    chromatics = list(
+def build_lut(pal: dict, mode: str) -> str:
+    neutrals = list(dict.fromkeys(pal["neutrals"][mode].values()))
+    hues = list(
         dict.fromkeys(
-            list(parse_chromatics(doc, mode).values())
-            + list(parse_brights(doc, mode).values())
+            list(chromatics(pal, mode).values()) + list(brights(pal, mode).values())
         )
     )
-    if len(neutrals) != 11 or len(chromatics) != 14:
+    if len(neutrals) != 11 or len(hues) != 14:
         raise SystemExit(
             f"unexpected palette size ({mode}): {len(neutrals)} neutrals, "
-            f"{len(chromatics)} chromatics"
+            f"{len(hues)} chromatics"
         )
 
     ramp = sorted(neutrals, key=lambda h: rgb_to_oklch(hex_to_rgb(h))[0])
@@ -381,15 +227,15 @@ def build_lut(doc: str, mode: str) -> str:
             )
 
     tints = list(fillers)
-    for hex_ in chromatics:
+    for hex_ in hues:
         Lh, Ch, Hh = rgb_to_oklch(hex_to_rgb(hex_))
         for Lr in base_lights:
             chroma_value = Ch * max(0.0, 1 - abs(Lr - Lh) * K_CHROMA)
             if chroma_value > 1e-4:
                 tints.append(oklch_to_hex(Lr, chroma_value, Hh))
 
-    seen = set(neutrals) | set(chromatics)
-    out = list(ramp) + chromatics
+    seen = set(neutrals) | set(hues)
+    out = list(ramp) + hues
     for h in sorted(tints, key=lambda x: rgb_to_oklch(hex_to_rgb(x))[0]):
         if h not in seen:
             seen.add(h)
@@ -415,39 +261,27 @@ def data_entry(value: str) -> str:
     return f'{{ hex: "{value}", bare: "{value[1:]}" }}'
 
 
-def build_data(doc: str, mode: str) -> str:
-    neutrals = parse_neutrals(doc, mode)
-    chroma = parse_chromatics(doc, mode)
-    brights = parse_brights(doc, mode)
-    tint_hexes = parse_tint_hexes(doc)
-    overlays = parse_tint_overlays(doc)
-    utility = parse_utility(doc)
-
-    missing = [n for n in parse_tint_specs(doc) if n not in tint_hexes]
-    if missing:
-        raise SystemExit(
-            f"tint rows missing generated hexes: {', '.join(missing)}; run make palette"
-        )
+def build_data(pal: dict, mode: str) -> str:
+    neutrals = pal["neutrals"][mode]
+    hues = chromatics(pal, mode)
+    steps = brights(pal, mode)
+    utility = {name: t["value"] for name, t in pal["utility"].items()}
 
     groups: list[tuple[str, list[tuple[str, str]]]] = [
-        ("Neutrals, deepest ground role to maximal emphasis.", [(r, neutrals[r]) for r in neutrals]),
-        ("One Dark Pro hues, chroma ×1.5.", [(h, chroma[h]) for h in chroma]),
-        ("Bright step per hue.", [(f"{h}_bright", brights[h]) for h in brights]),
-        (
-            "Derived and hand-written tints.",
-            [(n, tint_hexes[n][0] if mode == "dark" else tint_hexes[n][1]) for n in tint_hexes],
-        ),
+        ("Neutrals, deepest ground role to maximal emphasis.", list(neutrals.items())),
+        ("One Dark Pro hues, chroma ×1.5.", list(hues.items())),
+        ("Bright step per hue.", [(f"{h}_bright", v) for h, v in steps.items()]),
+        ("Derived and hand-written tints.", list(tint_hexes(pal, mode).items())),
         (
             "Alpha overlays and utility colors.",
-            [(n, overlays[n][0] if mode == "dark" else overlays[n][1]) for n in overlays]
-            + [(n, utility[n]) for n in utility],
+            list(tint_overlays(pal, mode).items()) + list(utility.items()),
         ),
     ]
     names = [data_name(n) for _, group in groups for n, _ in group]
     if len(names) != len(set(names)):
         raise SystemExit("duplicate data token name")
     lines = [
-        "# Generated by meta/palette.py from meta/color-scheme.md; do not edit",
+        "# Generated by meta/palette.py from meta/palette.toml; do not edit",
         "# by hand. Run make palette, then chezmoi apply.",
         "",
         f"mode: {mode}",
@@ -460,8 +294,24 @@ def build_data(doc: str, mode: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def drift_violations(doc: str) -> dict[str, set[str]]:
-    allowed = doc_allowed(doc)
+def palette_hexes(pal: dict) -> set[str]:
+    out: set[str] = set()
+    for mode in MODES:
+        out.update(pal["neutrals"][mode].values())
+        out.update(chromatics(pal, mode).values())
+        out.update(brights(pal, mode).values())
+        out.update(tint_hexes(pal, mode).values())
+    out.update(v for v in (t["value"] for t in pal["utility"].values()) if v.startswith("#"))
+    return out
+
+
+def allowed_hexes(pal: dict) -> set[str]:
+    listed = {f"#{h.upper()}" for h in HEX_RE.findall(SOURCE.read_text())}
+    return listed | palette_hexes(pal)
+
+
+def drift_violations(pal: dict) -> dict[str, set[str]]:
+    allowed = allowed_hexes(pal)
     violations: dict[str, set[str]] = {}
     for path in sorted((REPO / "home").rglob("*")):
         if not path.is_file() or "lutgen" in path.parts:
@@ -510,45 +360,38 @@ CONTRAST_GATES: list[tuple[str, str, float]] = [
     ("red", "urgent", 4.0),
 ]
 
-HUE_BASE_FLOOR = 4.5
 
-
-def resolve_gate_color(doc: str, mode: str, name: str) -> str:
+def resolve_gate_color(pal: dict, mode: str, name: str) -> str:
     for source in (
-        parse_neutrals(doc, mode),
-        parse_chromatics(doc, mode),
-        parse_brights(doc, mode),
+        pal["neutrals"][mode],
+        chromatics(pal, mode),
+        brights(pal, mode),
     ):
         if name in source:
             return source[name]
-    tints = {
-        n: (v[0] if mode == "dark" else v[1])
-        for n, v in parse_tint_hexes(doc).items()
-        if not (v[0] if mode == "dark" else v[1]).startswith("rgba")
-    }
+    tints = tint_hexes(pal, mode)
     if name in tints:
         return tints[name]
     raise SystemExit(f"contrast gate references unknown role: {name!r}")
 
 
-def gate_failures(doc: str) -> list[str]:
+def gate_failures(pal: dict) -> list[str]:
     bad: list[str] = []
     for mode in MODES:
         for fg_name, bg_name, floor in CONTRAST_GATES:
-            fg = resolve_gate_color(doc, mode, fg_name)
-            bg = resolve_gate_color(doc, mode, bg_name)
+            fg = resolve_gate_color(pal, mode, fg_name)
+            bg = resolve_gate_color(pal, mode, bg_name)
             ratio = contrast_ratio(fg, bg)
             if ratio < floor:
                 bad.append(
                     f"{mode}: {fg_name} on {bg_name} {ratio:.2f}:1 < {floor}:1"
                 )
-        for hue in parse_chromatics(doc, mode):
+        for hue in chromatics(pal, mode):
             base_ratio = contrast_ratio(
-                parse_chromatics(doc, mode)[hue], parse_neutrals(doc, mode)["base"]
+                chromatics(pal, mode)[hue], pal["neutrals"][mode]["base"]
             )
             bright_ratio = contrast_ratio(
-                parse_brights(doc, mode)[hue],
-                parse_neutrals(doc, mode)["base"],
+                brights(pal, mode)[hue], pal["neutrals"][mode]["base"]
             )
             if bright_ratio < base_ratio:
                 bad.append(
@@ -562,20 +405,19 @@ def gate_failures(doc: str) -> list[str]:
     return bad
 
 
-def contrast_report(doc: str) -> list[str]:
-    tint_hexes = parse_tint_hexes(doc)
+def contrast_report(pal: dict) -> list[str]:
     lines = []
     for mode in MODES:
-        roles = parse_neutrals(doc, mode)
-        chroma = parse_chromatics(doc, mode)
-        tints = {n: v[0] if mode == "dark" else v[1] for n, v in tint_hexes.items()}
+        roles = pal["neutrals"][mode]
+        hues = chromatics(pal, mode)
+        tints = tint_hexes(pal, mode)
         base = roles.get("base")
         pairs = [
             ("text on base", roles.get("text"), base),
             ("subtext on base", roles.get("subtext"), base),
             ("muted on base", roles.get("muted"), base),
             ("text-max on base", roles.get("text-max"), base),
-            ("accent on base", chroma.get("blue"), base),
+            ("accent on base", hues.get("blue"), base),
             ("text on selection", roles.get("text"), tints.get("selection")),
         ]
         lines.append(f"{mode}:")
@@ -609,7 +451,7 @@ def resolve_mode(argv: list[str]) -> tuple[list[str], str]:
     return args, read_mode()
 
 
-COMMANDS = {"all", "tints", "lut", "data", "check"}
+COMMANDS = {"all", "lut", "data", "check"}
 
 
 def main(argv: list[str]) -> int:
@@ -619,27 +461,22 @@ def main(argv: list[str]) -> int:
         print(__doc__.strip())
         return 0 if command == "--help" else 2
 
-    if command in {"all", "tints"}:
-        doc = derive_tints(DOC.read_text())
-        DOC.write_text(doc)
-    else:
-        doc = DOC.read_text()
+    pal = load()
 
     if command in {"all", "lut"}:
         for m in MODES:
-            text = build_lut(doc, m)
+            text = build_lut(pal, m)
             path = LUTS[m]
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text)
             print(f"{text.count(chr(10))} colors -> {path}")
 
     if command in {"all", "data"}:
-        text = build_data(doc, mode)
+        text = build_data(pal, mode)
         DATA.write_text(text)
         print(f"{text.count(chr(10))} palette tokens -> {DATA} ({mode})")
 
     if command in {"all", "check"}:
-        doc = DOC.read_text()
         ok = True
         for m in MODES:
             path = LUTS[m]
@@ -647,27 +484,27 @@ def main(argv: list[str]) -> int:
                 current = path.read_text()
             except FileNotFoundError:
                 current = None
-            if build_lut(doc, m) != current:
+            if build_lut(pal, m) != current:
                 print(f"check: {path.relative_to(REPO)} is stale; run make palette")
                 ok = False
         try:
             current_data = DATA.read_text()
         except FileNotFoundError:
             current_data = None
-        if build_data(doc, mode) != current_data:
+        if build_data(pal, mode) != current_data:
             print(
                 f"check: {DATA.relative_to(REPO)} is stale for mode {mode}; "
                 "run make palette"
             )
             ok = False
-        violations = drift_violations(doc)
+        violations = drift_violations(pal)
         if violations:
             for f, hexes in sorted(violations.items()):
                 print(f"{f}: {', '.join(sorted(hexes))}")
             ok = False
         else:
-            print(f"check: every hex traces to the doc ({len(doc_allowed(doc))} allowed)")
-        gates = gate_failures(doc)
+            print(f"check: every hex traces to the palette ({len(allowed_hexes(pal))} allowed)")
+        gates = gate_failures(pal)
         if gates:
             for gate in gates:
                 print(f"gate: {gate}")
@@ -675,7 +512,7 @@ def main(argv: list[str]) -> int:
         else:
             print(f"gates: all {len(CONTRAST_GATES)} contrast pairs pass in both modes")
         print("contrast (informational):")
-        for line in contrast_report(doc):
+        for line in contrast_report(pal):
             print(f"  {line}")
         if not ok:
             return 1
