@@ -18,7 +18,7 @@ life easier. Run the following commands to set it up:
 
 ```sh
 sudo pacman-key --add <(curl -fsSL https://athaurian.github.io/forge/signing_key.asc)
-sudo pacman-key --lsign-key 45EAC3E28FC392FC4418F415C0C5B611BF77F6E5
+sudo pacman-key --lsign-key 6E299CB692113F71A3ABC006EAC1C444324DD6C6
 echo -e '\n[forge]\nSigLevel = Required DatabaseOptional\nServer = https://athaurian.github.io/forge' | sudo tee -a /etc/pacman.conf
 sudo pacman -Syu
 ```
