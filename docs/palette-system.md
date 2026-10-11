@@ -7,8 +7,8 @@ Every other color in the system derives from that file.
 The palette comes in two modes, dark and light, and every color has a dark value
 and a light value. The active mode decides which values the entire desktop uses.
 
-The [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
-owns regeneration and application:
+The [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile) owns
+regeneration and application:
 
 - `palette` regenerates the derived palette data without applying anything.
 - `dark` and `light` regenerate the same data and apply the configuration in the
