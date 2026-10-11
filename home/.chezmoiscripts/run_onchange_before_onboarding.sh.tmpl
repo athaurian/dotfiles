@@ -16,7 +16,7 @@ if ! grep -q "^\[forge\]" /etc/pacman.conf; then
 	echo "Please run the following commands to import the GPG key and add the repository:"
 	echo ""
 	echo "  sudo pacman-key --add <(curl -fsSL https://athaurian.github.io/forge/signing_key.asc)"
-	echo "  sudo pacman-key --lsign-key 45EAC3E28FC392FC4418F415C0C5B611BF77F6E5"
+	echo "  sudo pacman-key --lsign-key 6E299CB692113F71A3ABC006EAC1C444324DD6C6"
 	echo "  echo -e '\n[forge]\nSigLevel = Required DatabaseOptional\nServer = https://athaurian.github.io/forge' | sudo tee -a /etc/pacman.conf"
 	echo "  sudo pacman -Syu"
 	echo ""
