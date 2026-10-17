@@ -19,7 +19,7 @@ if command -v gsettings >/dev/null 2>&1; then
 	gsettings set org.gnome.desktop.interface icon-theme "$icons"
 	gsettings set org.gnome.desktop.interface font-name "{{ .fonts.sans }} 10"
 	gsettings set org.gnome.desktop.interface document-font-name "{{ .fonts.sans }} 10"
-	gsettings set org.gnome.desktop.interface monospace-font-name "{{ .fonts.nerd }} Mono 10"
+	gsettings set org.gnome.desktop.interface monospace-font-name "{{ .fonts.code }} 10"
 fi
 
 calibre_gui="$HOME/.config/calibre/gui.json"
