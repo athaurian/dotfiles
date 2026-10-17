@@ -66,10 +66,10 @@ run_lock() {
 		--clock \
 		--time-str "%R" \
 		--date-str "%a, %e %b" \
-		--time-font "GoogleSansCode Nerd Font Mono" \
-		--date-font "GoogleSansCode Nerd Font Mono" \
-		--verif-font "GoogleSansCode Nerd Font Mono" \
-		--wrong-font "GoogleSansCode Nerd Font Mono" \
+		--time-font "{{ .fonts.nerd }} Mono" \
+		--date-font "{{ .fonts.nerd }} Mono" \
+		--verif-font "{{ .fonts.nerd }} Mono" \
+		--wrong-font "{{ .fonts.nerd }} Mono" \
 		--time-size 18 \
 		--date-size 14 \
 		--verif-size 14 \
