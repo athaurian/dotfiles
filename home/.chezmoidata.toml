@@ -1,0 +1,5 @@
+# Font families. Merged with the generated palette data in .chezmoidata.yaml.
+
+[fonts]
+sans = "Google Sans"
+nerd = "GoogleSansCode Nerd Font"

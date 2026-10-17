@@ -17,9 +17,9 @@ radius = 0
 background = ${colors.base}
 foreground = ${colors.text}
 border-size = 0
-font-0 = GoogleSansCode Nerd Font Mono:size=10;2
-font-1 = GoogleSansCode Nerd Font Mono:size=10:weight=bold;2
-font-2 = GoogleSansCode Nerd Font Mono:style=Italic:size=10;2
+font-0 = {{ .fonts.nerd }} Mono:size=10;2
+font-1 = {{ .fonts.nerd }} Mono:size=10:weight=bold;2
+font-2 = {{ .fonts.nerd }} Mono:style=Italic:size=10;2
 modules-left = xworkspaces i3mode custom/mpris
 modules-center = custom/window
 modules-right = cpu memory custom/updates separator pulseaudio systray date separator custom/dnd
