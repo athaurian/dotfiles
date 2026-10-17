@@ -1,6 +1,6 @@
 # Palette comes from meta/palette.toml. The applied copy is generated from this template.
 # {{- $p := .palette }}
-set font "Google Sans normal 10"
+set font "{{ .fonts.sans }} normal 10"
 
 set default-bg "{{ $p.base.hex }}"
 set default-fg "{{ $p.text.hex }}"
