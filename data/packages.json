@@ -24,7 +24,7 @@
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
   "aur": ["topgrade-bin"],
-  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git", "ttf-google-sans"],
+  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git", "ttf-google-sans", "ttf-google-sans-code"],
   "machines": {
     "optiplex": [
       "i3-wm", "kitty", "rofi", "picom", "feh", "lutgen-cli-git",
