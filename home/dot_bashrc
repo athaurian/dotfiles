@@ -26,12 +26,6 @@ esac
 
 export PYTHONPYCACHEPREFIX="$HOME/.cache/python"
 
-export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME/bin:"*) ;;
-*) export PATH="$PNPM_HOME/bin:$PATH" ;;
-esac
-
 case ":$PATH:" in
 *":$HOME/.bun/bin:"*) ;;
 *) export PATH="$HOME/.bun/bin:$PATH" ;;
