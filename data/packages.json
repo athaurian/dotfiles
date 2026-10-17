@@ -14,8 +14,8 @@
       "lazygit", "neovim", "python", "rclone", "ripgrep", "uv", "zellij"
     ],
     "fonts": [
-      "adwaita-cursors", "noto-fonts", "ttf-sourcecodepro-nerd",
-      "adobe-source-code-pro-fonts", "papirus-icon-theme"
+      "adwaita-cursors", "noto-fonts",
+      "ttf-googlesanscode-nerd", "papirus-icon-theme"
     ],
     "apps": [
       "calibre", "fnm", "keepassxc", "pinentry", "qt5ct", "qt6ct",
@@ -24,7 +24,7 @@
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
   "aur": ["topgrade-bin"],
-  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
+  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git", "ttf-google-sans"],
   "machines": {
     "optiplex": [
       "i3-wm", "kitty", "rofi", "picom", "feh", "lutgen-cli-git",
