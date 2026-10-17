@@ -8,8 +8,8 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   font:
-    text: Google Sans
-    code: Google Sans Code
+    text: Source Sans 3
+    code: Source Code Pro
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
