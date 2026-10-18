@@ -1,8 +1,7 @@
 # Screenshots, lock, and idle
 
-The following shortcuts control screenshots, the screen locker, and the idle
-timer. Every binding is the same on both machines, and only the programs and
-mechanisms differ.
+These are the shortcuts for screenshots, the screen locker, and the idle timer.
+The keys are the same on both machines. Only the programs behind them differ.
 
 | Shortcut        | Action                      | thinkpad                                                                                                                                                            | optiplex                                                                                                                                                                |
 | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

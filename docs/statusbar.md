@@ -1,8 +1,8 @@
 # Status bar
 
-thinkpad runs Waybar, started by the Sway config. Its files live under
+`thinkpad` starts Waybar from the Sway config, with its files under
 [`home/dot_config/waybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/waybar/).
-optiplex runs Polybar as `polybar main`, started by the i3 session's
-`autostart.sh` script and restarted by `$mod+Shift+c`. Its files live under
+`optiplex` starts Polybar as `polybar main` from the i3 session's
+`autostart.sh`, and `$mod+Shift+c` restarts it. Its files live under
 [`home/dot_config/polybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/polybar/).
-Each bar's module scripts live under its own `scripts/` directory.
+Each bar keeps its module scripts in a `scripts/` directory of its own.

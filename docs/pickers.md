@@ -1,8 +1,8 @@
 # Pickers
 
-`$mod+d` opens the application launcher, fuzzel on thinkpad and rofi on
-optiplex. The following power shortcuts each open a confirmation menu in the
-same picker before they run. Press `Enter` to confirm or `Esc` to cancel.
+`$mod+d` opens the application launcher, fuzzel on `thinkpad` and rofi on
+`optiplex`. Each power shortcut opens a confirmation menu in the same picker
+before it runs. Press `Enter` to confirm or `Esc` to cancel.
 
 | Binding                | Action    |
 | ---------------------- | --------- |
