@@ -1,0 +1,89 @@
+[project]
+site_name = "dotfiles"
+site_description = "Chezmoi-managed Arch Linux desktop configuration"
+site_url = "https://athaurian.github.io/dotfiles/"
+repo_url = "https://github.com/athaurian/dotfiles"
+repo_name = "athaurian/dotfiles"
+edit_uri = "edit/main/docs/"
+copyright = """
+<span>Made with ❤️ and <a href="https://zensical.org">Zensical</a></span> <span>Content licensed under <a href="https://github.com/athaurian/dotfiles/blob/main/LICENSE">MIT</a></span>
+"""
+
+# Lora is loaded as a webfont for the serif roles that extra.css assigns.
+extra_css = [
+  "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=fallback",
+  "stylesheets/extra.css",
+]
+
+nav = [
+  { "Home" = "index.md" },
+  { "Installation" = "installation.md" },
+  { "Machines" = "machines.md" },
+  { "Keybindings" = "keybindings.md" },
+  { "Palette system" = "palette-system.md" },
+  { "Pickers" = "pickers.md" },
+  { "Screenshots, lock, and idle" = "screenshots-lock-idle.md" },
+  { "Background services" = "services.md" },
+  { "Status bar" = "statusbar.md" },
+  { "Themes" = "theming.md" },
+]
+
+[project.theme]
+variant = "modern"
+font.text = "Google Sans"
+font.code = "Google Sans Code"
+# The monogram tile comes from the docs theme, at --fill 0.38.
+# It is both the header logo and the favicon.
+logo = "favicon.svg"
+favicon = "favicon.svg"
+features = [
+  "navigation.sections",
+  "navigation.top",
+  "navigation.footer",
+  "content.code.copy",
+  "content.action.edit",
+  "search.highlight",
+]
+
+# overrides/home.html sets the home page's document title to the site name.
+custom_dir = "overrides"
+
+# The visible colors come from stylesheets/extra.css, which overrides the --md-*
+# variables. The scheme names here only select which block applies.
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "indigo"
+accent = "indigo"
+toggle.icon = "material/brightness-7"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "indigo"
+accent = "indigo"
+toggle.icon = "material/brightness-4"
+toggle.name = "Switch to light mode"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+tables = {}
+toc.permalink = true
+pymdownx.details = {}
+pymdownx.highlight.anchor_linenums = true
+pymdownx.inlinehilite = {}
+pymdownx.snippets = {}
+pymdownx.superfences = {}
+pymdownx.tabbed.alternate_style = true
+
+# generator = false drops the stock "Made with Zensical" line next to the
+# copyright. homepage is the logo link target. The home page's nav url is empty,
+# and the value goes through the url filter, so give it a URL rather than a
+# source path.
+[project.extra]
+generator = false
+homepage = "."
