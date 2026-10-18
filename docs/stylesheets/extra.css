@@ -143,18 +143,22 @@
   border-radius: 0.4rem;
 }
 
-/* The article uses smaller type and tighter spacing than the theme's defaults.
-   At wide widths it also caps the line width at 65ch. The cap applies only to
-   the article, because .md-typeset also matches the footer band, which must
-   keep its full-width strip. */
+/* The article uses smaller type than the theme default and caps lines at 65ch.
+   The 32px margin floor keeps code blocks and table wrappers inside. */
 .md-typeset {
   font-size: 0.7rem;
 }
 
-@media screen and (min-width: 76.25em) {
-  .md-content__inner.md-typeset {
-    max-width: 65ch;
-  }
+.md-content__inner.md-typeset {
+  max-width: 65ch;
+  /* The theme roots html at 125%. 1.6rem is 32px here. */
+  margin-inline: max(1.6rem, calc((100% - 65ch) / 2));
+}
+
+/* The theme's sidebar-visible layout needs this repeated selector. The margin
+   floor applies here too. */
+[dir] .md-sidebar:not([hidden]) ~ .md-content > .md-content__inner.md-typeset {
+  margin-inline: max(1.6rem, calc((100% - 65ch) / 2));
 }
 
 .md-typeset p,
