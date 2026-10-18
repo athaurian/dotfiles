@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import select
 import shutil
 import signal
 import subprocess
@@ -30,10 +31,27 @@ def _norm(line):
     return text, paused
 
 
-def _sc(events, delay=0.15):
+def _ev(player, status, pos, artist, title, delay=None):
+    event = {"line": _line(player, status, pos, artist, title)}
+    if delay is not None:
+        event["delay"] = delay
+    return event
+
+
+def _sc(events, delay=0.15, poll=0.15):
     os_ev = [e if isinstance(e, dict) else {"line": e} for e in events]
     fw_ev = [e if isinstance(e, dict) else {"line": e, "delay": delay} for e in events]
-    return {"oneshot": os_ev, "follow": fw_ev}
+    return {"oneshot": os_ev, "follow": fw_ev, "poll": poll}
+
+
+def _readline(stream, deadline):
+    remaining = deadline - time.time()
+    if remaining <= 0:
+        return ""
+    ready, _, _ = select.select([stream], [], [], remaining)
+    if not ready:
+        return ""
+    return stream.readline()
 
 
 def _make_fakebin():
@@ -61,15 +79,46 @@ SCENARIOS = {
             ("Artist A - Song Two", False),
         ],
     },
-    "stale_status": {
+    "missing_artist": {
         "streams": _sc(
             [
-                _line("chromium.i1", "Playing", "5000000", "Artist A", "Song One"),
-                _line("chromium.i1", "Playing", "5000000", "Artist A", "Song One"),
-                _line("chromium.i1", "Playing", "5000000", "Artist A", "Song One"),
-                _line("chromium.i1", "Playing", "6000000", "Artist A", "Song One"),
+                _line("chromium.i1", "Playing", "1000000", "Artist A", "Song One"),
+                _line("chromium.i1", "Playing", "2000000", "", "Video Title"),
             ]
         ),
+        "expected": [
+            ("", False),
+            ("Artist A - Song One", False),
+            ("Video Title", False),
+        ],
+    },
+    "missing_title": {
+        "streams": _sc(
+            [
+                _line("chromium.i1", "Playing", "1000000", "Artist A", "Song One"),
+                _line("chromium.i1", "Playing", "2000000", "Artist B", ""),
+            ]
+        ),
+        "expected": [
+            ("", False),
+            ("Artist A - Song One", False),
+            ("Artist B", False),
+        ],
+    },
+    "stale_status": {
+        "streams": {
+            "oneshot": [
+                _ev("chromium.i1", "Playing", "5000000", "Artist A", "Song One"),
+                _ev("chromium.i1", "Playing", "5000000", "Artist A", "Song One"),
+                _ev("chromium.i1", "Playing", "6000000", "Artist A", "Song One"),
+            ],
+            "follow": [
+                _ev("chromium.i1", "Playing", "5000000", "Artist A", "Song One", 0.5),
+                _ev("chromium.i1", "Playing", "5000000", "Artist A", "Song One", 0.4),
+                _ev("chromium.i1", "Playing", "6000000", "Artist A", "Song One", 0.3),
+            ],
+            "poll": 1.5,
+        },
         "expected": [
             ("", False),
             ("Artist A - Song One", False),
@@ -178,7 +227,7 @@ def _run_scenario(name, spec):
 
     env = dict(os.environ)
     env["PATH"] = str(fakebin) + os.pathsep + env.get("PATH", "")
-    env["MPRIS_POLL_INTERVAL"] = "0.15"
+    env["MPRIS_POLL_INTERVAL"] = str(streams.get("poll", 0.15))
     env["MPRIS_STALL_MIN_TIME"] = "0.3"
     env["MPRIS_GRACE_SECONDS"] = "0.4"
     env["FAKE_SCENARIO"] = str(scen)
@@ -190,12 +239,13 @@ def _run_scenario(name, spec):
         stdout=subprocess.PIPE,
         text=True,
         env=env,
+        start_new_session=True,
     )
     got = []
     deadline = time.time() + 10
     try:
         while time.time() < deadline:
-            raw = proc.stdout.readline()
+            raw = _readline(proc.stdout, deadline)
             if raw:
                 got.append(_norm(raw))
                 if len(got) >= len(spec["expected"]):
@@ -203,11 +253,16 @@ def _run_scenario(name, spec):
             elif proc.poll() is not None:
                 break
     finally:
-        proc.send_signal(signal.SIGTERM)
+        if proc.poll() is None:
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+            except (ProcessLookupError, PermissionError):
+                pass
         try:
             proc.wait(timeout=2)
         except subprocess.TimeoutExpired:
             proc.kill()
+        proc.stdout.close()
 
     shutil.rmtree(tmpdir, ignore_errors=True)
 

@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-# Runs a `playerctl --follow` stream and a periodic poll through one
-# state machine. Chromium sends event bursts that the follow stream
-# misses or merges, and it recycles players in ways that can silence
-# the stream. Follow-only then loses state, while poll-only reacts
-# late. The waybar twin of this script emits JSON instead of format
-# tags. Apply any change to the event model to both files.
+# Runs a `playerctl --follow` stream and a periodic poll through one state
+# machine. Apply any change to the event model to the twin script too.
 
 import os
 import queue
@@ -159,8 +155,7 @@ class _PlayerState:
             )
             if still_grace and (self.cache_artist or self.cache_title):
                 # Chromium briefly reports an empty or Stopped status during
-                # track changes. The cache keeps the song visible for
-                # `GRACE_SECONDS`.
+                # track changes. The cache keeps the song visible during that gap.
                 payload = _render(self.last_status, self.cache_artist, self.cache_title)
             else:
                 self.cache_artist = self.cache_title = ""
@@ -180,13 +175,12 @@ class _PlayerState:
                 self.last_pos_time = None
                 self.stall = 0
 
-            if artist and title:
+            if artist or title:
                 self.cache_artist, self.cache_title = artist, title
             else:
                 # Chromium clears its metadata during long pauses and track
                 # changes. The cached artist and title fill that gap.
-                artist = artist or self.cache_artist
-                title = title or self.cache_title
+                artist, title = self.cache_artist, self.cache_title
 
             # Chromium reports Playing while it is paused. A frozen position
             # then renders the state as Paused.
