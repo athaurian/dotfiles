@@ -1,12 +1,12 @@
 # Keybindings
 
-`$mod` is the Super key, which is usually the key with the Windows logo. The
-bindings in the following table apply to both machines, and the configs at
+`$mod` is the Super key, which is usually the key with the Windows logo. Every
+binding here works on both machines. You can see the actual lists in
 [`home/dot_config/sway/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/sway/config.tmpl)
 and
-[`home/dot_config/i3/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/config.tmpl)
-are the authoritative lists. For the components that differ between the
-machines, see [Machines](machines.md).
+[`home/dot_config/i3/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/config.tmpl).
+For the components that differ between the machines, see
+[Machines](machines.md).
 
 | Binding                                     | Action                              |
 | ------------------------------------------- | ----------------------------------- |

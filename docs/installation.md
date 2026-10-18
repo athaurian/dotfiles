@@ -3,13 +3,13 @@
 ## Prerequisites
 
 - Arch Linux with `bash` and systemd user services, CachyOS preferred
-- A hostname of `thinkpad` or `optiplex`, because the hostname selects the
-  entries that
-  [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
-  skips and the machine's package list in
-  [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json)
-- The `forge` package repository configured before the first apply, because the
-  first apply installs packages that exist only in forge
+- A hostname that decides the setup, covered in [Machines](machines.md). The
+  files each setup skips live in
+  [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore),
+  and the packages live in
+  [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).
+- The `forge` package repository set up before the first apply, since some
+  packages exist only there
 - A CPU that supports `x86-64-v3`, because `forge` packages compile for that
   level, which older generic `x86_64` CPUs do not support
 
@@ -33,6 +33,6 @@ make dark
 ```
 
 Run `make dark` or `make light` to generate the palette data and apply the
-configuration for the first time. For what those targets do, see
-[Palette system](palette-system.md). The first apply installs the machine's
-missing packages from `data/packages.json`.
+configuration for the first time. That first run also installs whatever packages
+the machine is missing. For what those targets do, see
+[Palette system](palette-system.md).

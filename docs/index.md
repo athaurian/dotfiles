@@ -1,10 +1,24 @@
-# Dotfiles
+---
+template: home.html
+---
+
+# dotfiles
+
+## Preface
 
 Hi. This is my dotfiles repository, managed by a neat tool called
-[`chezmoi`](https://www.chezmoi.io/). The `thinkpad` machine runs Sway, and the
-`optiplex` machine runs i3. I decided to make both light and dark modes for the
-setup because they serve different purposes. I created light mode because dark
-mode is awful to use outdoors, whereas I like dark mode indoors.
+[`chezmoi`](https://www.chezmoi.io/). It holds my setup for two machines with
+conflicting hardware components. The `thinkpad` laptop runs Sway on Wayland, and
+the `optiplex` desktop runs i3 on X11. The two machines share the keybindings
+and the color palette.
+
+Thankfully, I didn't have to make two disjointed Git branches like a psycho.
+`chezmoi` can separate the two machines in a single source tree, and the
+hostname decides which files it copies, which packages it installs, and which
+setup you get.
+
+I made _both_ light and dark modes because dark mode is awful to use outdoors
+and I like it indoors.
 
 This documentation is for people who are setting up or maintaining the desktop,
 which is me (duh). Start with [Installation](installation.md).
