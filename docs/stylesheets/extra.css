@@ -1,0 +1,204 @@
+/* The shared documentation theme. */
+
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #f3efec;
+  --md-default-fg-color: #303030;
+  --md-default-fg-color--light: #474747;
+  --md-default-fg-color--lighter: #676767;
+  --md-default-fg-color--lightest: #d8cdbc;
+  --md-typeset-table-color: #d8cdbc;
+  --md-code-bg-color: #e9e2db;
+  --md-code-bg-color--light: #f3efec;
+  --md-code-bg-color--lighter: #efe9e2;
+  --md-code-fg-color: #303030;
+  --md-primary-fg-color: #f3efec;
+  --md-primary-bg-color: #303030;
+  --md-accent-fg-color: #005B92;
+  --md-accent-fg-color--transparent: #005B921f;
+  --md-accent-bg-color: #f3efec;
+  --md-typeset-mark-color: #005B9233;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #050505;
+  --md-default-fg-color: #d4d4d4;
+  --md-default-fg-color--light: #b3b3b3;
+  --md-default-fg-color--lighter: #8a8a8a;
+  --md-default-fg-color--lightest: #222222;
+  --md-typeset-table-color: #222222;
+  --md-code-bg-color: #121212;
+  --md-code-bg-color--light: #262626;
+  --md-code-bg-color--lighter: #1c1c1c;
+  --md-code-fg-color: #d4d4d4;
+  --md-primary-fg-color: #050505;
+  --md-primary-bg-color: #d4d4d4;
+  --md-accent-fg-color: #48AFFF;
+  --md-accent-fg-color--transparent: #48AFFF1f;
+  --md-accent-bg-color: #050505;
+  --md-typeset-mark-color: #48AFFF33;
+}
+
+/* The theme tunes its syntax highlighting colors for its own palette. The
+   tokens below follow the theme colors instead, and the two schemes stay
+   distinguishable. */
+[data-md-color-scheme="default"] {
+  --md-code-hl-color: #005B92;
+  --md-code-hl-color--light: #005B921a;
+  --md-code-hl-comment-color: #8a8378;
+  --md-code-hl-generic-color: #8a8378;
+  --md-code-hl-keyword-color: #005B92;
+  --md-code-hl-special-color: #00616A;
+  --md-code-hl-string-color: #376200;
+  --md-code-hl-number-color: #B10035;
+  --md-code-hl-constant-color: #B10035;
+  --md-code-hl-function-color: #9400B3;
+  --md-code-hl-operator-color: #676767;
+  --md-code-hl-punctuation-color: #676767;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-code-hl-color: #48AFFF;
+  --md-code-hl-color--light: #48AFFF1a;
+  --md-code-hl-comment-color: #8a8a8a;
+  --md-code-hl-generic-color: #8a8a8a;
+  --md-code-hl-keyword-color: #48AFFF;
+  --md-code-hl-special-color: #00BBCC;
+  --md-code-hl-string-color: #89C952;
+  --md-code-hl-number-color: #FE4864;
+  --md-code-hl-constant-color: #FE4864;
+  --md-code-hl-function-color: #D95AFC;
+}
+
+/* The theme sets the link color on the scheme and primary attributes, with
+   specificity 0,2,0. The selector below repeats both attributes to take
+   precedence. */
+[data-md-color-scheme="default"][data-md-color-primary],
+[data-md-color-scheme="slate"][data-md-color-primary] {
+  --md-typeset-a-color: var(--md-accent-fg-color);
+}
+
+/* The footer puts the credit and the license notice on one line, at opposite
+   ends instead of sharing a separator. This font's text sits slightly above
+   the center of its line box, which leaves flex centering high.
+   Trimming the box to the cap band centers it. The padding restores the strip
+   height that the trimmed box no longer supplies. */
+.md-copyright {
+  flex: 1;
+  padding-block: 0.75rem;
+}
+
+.md-copyright__highlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.md-copyright__highlight > span {
+  text-box: trim-both cap alphabetic;
+}
+
+/* The theme gives the highlight a full-strength foreground. The credit is a
+   footnote, and it sits a step below that. --md-default-fg-color--light is its
+   own muted tone for this band and stays above AA contrast on the beige
+   strip. */
+.md-copyright__highlight > span:first-child {
+  color: var(--md-default-fg-color--light);
+}
+
+/* The theme separates regions with hairlines rather than tinted chrome. */
+.md-header {
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-footer {
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* The copy control sits on the code background, so it needs a foreground tone.
+   The theme's hairline color (--md-default-fg-color--lightest) disappears
+   there. */
+.md-code__button {
+  color: var(--md-default-fg-color--lighter);
+}
+
+/* Google Sans carries prose and UI, Google Sans Code carries code, and Lora
+   fills the serif roles, which are the headings and the header title. The
+   header title repeats the repository name. Lora has no weight below 400. The
+   light weight renders as 400. */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset blockquote,
+.md-header__title .md-header__topic {
+  font-family: "Lora", Georgia, serif;
+  font-weight: 300;
+}
+
+/* The theme removes the border radius from code blocks because they normally
+   extend past the content column. These blocks stay inside the column, and the
+   code block and its copy strip get their rounding back. */
+.md-content__inner > .highlight > pre > code,
+.md-code__nav {
+  border-radius: 0.4rem;
+}
+
+/* The article uses smaller type and tighter spacing than the theme's defaults.
+   At wide widths it also caps the line width at 65ch. The cap applies only to
+   the article, because .md-typeset also matches the footer band, which must
+   keep its full-width strip. */
+.md-typeset {
+  font-size: 0.7rem;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-content__inner.md-typeset {
+    max-width: 65ch;
+  }
+}
+
+.md-typeset p,
+.md-typeset ul,
+.md-typeset ol,
+.md-typeset blockquote {
+  margin: 0.8em 0;
+}
+
+.md-typeset h1 {
+  margin-bottom: 1em;
+}
+
+.md-typeset h2 {
+  margin: 1.2em 0 0.5em;
+}
+
+.md-typeset h3 {
+  margin: 1.2em 0 0.6em;
+}
+
+.md-typeset h4 {
+  margin: 0.8em 0;
+}
+
+.md-typeset h5,
+.md-typeset h6 {
+  margin: 1em 0;
+}
+
+.md-typeset hr {
+  margin: 1.2em 0;
+}
+
+/* Code blocks stay inside the column instead of extending past it. */
+.md-content__inner > pre,
+.md-content__inner > .highlight {
+  margin: 0.8em 0;
+}
+
+.md-main__inner {
+  margin-top: 1rem;
+}
+
+.md-content__inner {
+  padding-top: 0.4rem;
+}
