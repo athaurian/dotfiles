@@ -4,24 +4,37 @@ template: home.html
 
 # dotfiles
 
+<div class="image-pair">
+  <figure>
+    <img src="images/hero.webp" alt="Some test file in Neovim with its output in the terminal.">
+    <figcaption>Some test file in Neovim with its output in the terminal.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/hero-empty.webp" alt="The same desktop with nothing open.">
+    <figcaption>The same desktop with nothing open.</figcaption>
+  </figure>
+</div>
+
 ## Preface
 
 Hi. This is my dotfiles repository, managed by a neat tool called
-[`chezmoi`](https://www.chezmoi.io/). It holds my setup for two machines with
+[`chezmoi`](https://www.chezmoi.io/). It contains my setup for two machines with
 conflicting hardware components. The `thinkpad` laptop runs Sway on Wayland, and
 the `optiplex` desktop runs i3 on X11. The two machines share the keybindings
 and the color palette.
 
-Thankfully, I didn't have to make two disjointed Git branches like a psycho.
-`chezmoi` can separate the two machines in a single source tree, and the
-hostname decides which files it copies, which packages it installs, and which
-setup you get.
+Thankfully, with `chezmoi`, I can easily separate the two machines in a single
+source tree, so I didn't have to make two disjointed Git branches like a psycho.
+Once everything is in place, the machine's hostname determines which files
+chezmoi copies, which packages it installs, and which setup I get.
 
-I made _both_ light and dark modes because dark mode is awful to use outdoors
-and I like it indoors.
+I decided to make both light and dark themes because dark mode is awful to use
+outdoors. I still like using it indoors, though.
 
-This documentation is for people who are setting up or maintaining the desktop,
-which is me (duh). Start with [Installation](installation.md).
+As a final note, this documentation is for people who are setting up or
+maintaining the desktop, which is me (duh).
+
+Start with [Installation](installation.md).
 
 ## Guides
 

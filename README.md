@@ -6,7 +6,7 @@
 </div>
 
 Hi. This is my dotfiles repository, managed by a neat tool called
-[`chezmoi`](https://www.chezmoi.io/). It holds my setup for two machines with
+[`chezmoi`](https://www.chezmoi.io/). It contains my setup for two machines with
 conflicting hardware components. The `thinkpad` laptop runs Sway, and the
 `optiplex` desktop runs i3. Any hostname other than `optiplex` gets the
 `thinkpad` setup.
