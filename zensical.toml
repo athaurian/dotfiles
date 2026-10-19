@@ -69,6 +69,9 @@ toggle.name = "Switch to light mode"
 [project.markdown_extensions]
 admonition = {}
 attr_list = {}
+# Images open in a lightbox instead of being static. Light and dark variants
+# are separate galleries, so the hidden mode is not offered in the lightbox.
+zensical.extensions.glightbox.auto_themed = true
 def_list = {}
 footnotes = {}
 tables = {}

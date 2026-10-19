@@ -206,3 +206,53 @@
 .md-content__inner {
   padding-top: 0.4rem;
 }
+
+/* Paired screenshots sit side by side, with captions in the body face. */
+.image-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin: 0.8em 0 1.2em;
+}
+
+.image-pair figure {
+  margin: 0;
+}
+
+.image-pair img,
+figure.screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.2rem;
+}
+
+/* Zensical hides the image that does not match the active scheme. The
+   lightbox wraps each image in a link, so hide that link too and keep the
+   hidden variant out of the tab order. */
+[data-md-color-scheme="default"] a.glightbox:has(> img[src$="#only-dark"]),
+[data-md-color-scheme="slate"] a.glightbox:has(> img[src$="#only-light"]) {
+  display: none;
+}
+
+.image-pair figcaption,
+figure.screenshot figcaption {
+  margin-top: 0.35em;
+  font-family: var(--md-text-font-family);
+  font-weight: 300;
+  font-size: 0.6rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--md-default-fg-color--light);
+  text-align: center;
+}
+
+figure.screenshot {
+  margin: 0.8em 0 1.2em;
+}
+
+@media screen and (max-width: 37.5em) {
+  .image-pair {
+    grid-template-columns: 1fr;
+  }
+}

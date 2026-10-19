@@ -8,13 +8,15 @@
   [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore),
   and the packages live in
   [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).
-- The `forge` package repository set up before the first apply, since some
-  packages exist only there
+- The `forge` package repository, set up before the first apply
 - A CPU that supports `x86-64-v3`, because `forge` packages compile for that
   level, which older generic `x86_64` CPUs do not support
 
 `forge` is an Arch package repository (like `core` or `extra`) I made to make my
-life easier. Run the following commands to set it up:
+life easier. It contains some modified PKGBUILDs and packages that do not exist
+at all in the official Arch/CachyOS repositories.
+
+Run the following commands to set it up:
 
 ```sh
 curl -fsSL https://athaurian.github.io/forge/signing_key.asc -o /tmp/forge-signing-key.asc
