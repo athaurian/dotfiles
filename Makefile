@@ -47,7 +47,7 @@ palette:
 light dark:
 	printf '%s\n' '$@' > $(HOME)/.local/state/palette-mode
 	uv run python3 meta/palette.py MODE=$@
-	chezmoi apply
+	chezmoi apply --force
 
 check-mpris:
 	$(RUFF) check $(MPRIS_FILES)
