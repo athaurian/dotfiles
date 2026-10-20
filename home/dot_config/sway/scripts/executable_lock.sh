@@ -2,11 +2,13 @@
 set -eu
 
 # The idle timeout, the before-sleep hook, and the lock keybinding all lock
-# the screen through this script.
+# the screen through this script. Extra arguments after --now are forwarded to
+# swaylock. The screenshot procedure uses that to pin the clock.
 
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
 	immediate=1
+	shift
 fi
 
 # The idle and manual paths warn before locking. The before-sleep path passes
@@ -56,7 +58,7 @@ cleanup() {
 }
 
 if [ "$immediate" -eq 1 ]; then
-	swaylock --image "$lockimg" &
+	swaylock --image "$lockimg" "$@" &
 	lock_pid=$!
 	(
 		while kill -0 "$lock_pid" 2>/dev/null; do
@@ -65,6 +67,6 @@ if [ "$immediate" -eq 1 ]; then
 		cleanup
 	) &
 else
-	swaylock --image "$lockimg"
+	swaylock --image "$lockimg" "$@"
 	cleanup
 fi
