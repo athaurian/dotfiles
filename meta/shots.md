@@ -155,17 +155,19 @@ offsets. Use `empty-light.png` when recomputing the light frames.
 
 `lock.sh` shows a 2.5-second warning, blurs a snapshot of the desktop, then
 starts swaylock. `grim` captures the locked screen 8 seconds later. Unlock it
-yourself afterward.
+yourself afterward. Pass literal `--timestr` and `--datestr` values so the two
+captures show the same clock. `lock.sh` forwards extra arguments to swaylock.
 
 ```sh
 swaymsg workspace 3
 dunstctl close-all
 ( sleep 8; grim /tmp/opencode/lock-dark.png ) &
-~/.config/sway/scripts/lock.sh
+~/.config/sway/scripts/lock.sh --timestr '18:10' --datestr 'Mon, 19 Oct'
 ```
 
 Wait 15 seconds at the password prompt before unlocking. For light mode, repeat
-the capture and save it as `lock-light.png`. Convert both captures:
+the capture with the same strings and save it as `lock-light.png`. Convert both
+captures:
 
 ```sh
 magick /tmp/opencode/lock-dark.png -quality 88 docs/images/lock.webp
