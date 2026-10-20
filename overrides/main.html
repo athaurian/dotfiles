@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{# Load after the theme bundle so the palette handler is already in place. #}
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ 'javascripts/theme-transition.js' | url }}"></script>
+{% endblock %}
