@@ -30,8 +30,8 @@ chezmoi copies, which packages it installs, and which setup I get.
 I decided to make both light and dark themes because dark mode is awful to use
 outdoors. I still like using it indoors, though.
 
-As a final note, this documentation is for people who are setting up or
-maintaining the desktop, which is me (duh).
+As a final note, all of this is for people who are setting up or maintaining the
+desktop, which is me (duh).
 
 Start with [Installation](installation.md).
 
