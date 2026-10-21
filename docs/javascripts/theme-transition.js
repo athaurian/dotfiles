@@ -66,11 +66,25 @@
     event.stopImmediatePropagation();
 
     var id = ++transitionId;
+
+    // Pinning a sticky header keeps it in the snapshot when the mobile URL bar
+    // offsets the snapshot origin. Reserve its height so the flow stays put.
+    if (!root.classList.contains("theme-transitioning")) {
+      var header = document.querySelector(".md-header");
+      var headerPosition = header ? window.getComputedStyle(header).position : "";
+      var headerHeight =
+        header && headerPosition !== "fixed" && headerPosition !== "absolute"
+          ? header.getBoundingClientRect().height
+          : 0;
+      root.style.setProperty("--theme-header-height", headerHeight + "px");
+    }
+
     root.classList.add("theme-transitioning");
 
     function finish() {
       if (id === transitionId) {
         root.classList.remove("theme-transitioning");
+        root.style.removeProperty("--theme-header-height");
       }
     }
 
