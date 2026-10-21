@@ -15,19 +15,23 @@ template: home.html
 
 ## Preface
 
-Hi. This is the documentation I wrote for my dotfiles repository, managed by a
-neat tool called [`chezmoi`](https://www.chezmoi.io/). It contains my setup for
-two machines with conflicting hardware components. The `thinkpad` laptop runs
-Sway on Wayland, and the `optiplex` desktop runs i3 on X11. The two machines
-share the keybindings and the color palette. If you'd rather read the source
-code, it's on [GitHub](https://github.com/athaurian/dotfiles).
+Hi. This is the documentation I wrote for my dotfiles repository. If you'd
+rather read the source code, it's on
+[GitHub](https://github.com/athaurian/dotfiles).
 
-Thankfully, with `chezmoi`, I can easily separate the two machines in a single
-source tree, so I didn't have to make two disjointed Git branches like a psycho.
-Once everything is in place, the machine's hostname determines which files
-chezmoi copies, which packages it installs, and which setup I get.
+The dotfiles themselves are managed with a neat tool called
+[`chezmoi`](https://www.chezmoi.io/). Together they contain my setup for two
+machines with conflicting hardware components.
 
-I decided to make both light and dark themes because dark mode is awful to use
+The `thinkpad` laptop runs Sway on Wayland. Conversely, the `optiplex` desktop
+runs i3 on X11. Both machines share the keybindings and the color palette.
+
+Fortunately, `chezmoi` lets me separate the two machines in a single source
+tree, so I didn't have to make two disjointed Git branches like a psycho. Once
+everything is in place, each machine's hostname determines which files chezmoi
+copies, which packages it installs, and which configuration I end up with.
+
+I decided to make both light and dark modes because dark mode is awful to use
 outdoors. I still like using it indoors, though.
 
 As a final note, all of this is for people who are setting up or maintaining the
