@@ -105,6 +105,7 @@ clone https://github.com/folke/lazy.nvim lazy-nvim 306a05526ada86a7b30af95c5cc81
 clone https://github.com/williamboman/mason.nvim mason-nvim 2a6940af80375532e5e9e7c1f2fc6319a1b7a69d
 clone https://github.com/Binaryify/OneDark-Pro onedark-pro 54c3280b29f2c2ed9751e5ca4e071380b7b42205
 clone https://github.com/folke/snacks.nvim snacks-nvim 882c996cf28183f4d63640de0b4c02ec886d01f2
+clone https://github.com/leonardssh/vscord vscord f1d3f42c3ace1bc3eaf31c8478d83bea84b7a2ef
 wiki_sha=b4f3c9e9108741bd34e4d02b2e8fa40046cb0c65
 clone https://github.com/polybar/polybar.wiki.git polybar-wiki "$wiki_sha"
 clone https://github.com/twpayne/chezmoi chezmoi 593166436bf621259efb33d12ebeecd7bae17329
