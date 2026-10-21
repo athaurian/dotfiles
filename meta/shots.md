@@ -1,16 +1,16 @@
 # Screenshot capture
 
 The desktop images in `docs/images/` come from the live Sway session, not a
-headless renderer. `meta/hero.py` cuts and composes the split pairs, and
-`meta/palette-card.py` renders the palette card. The capture steps take over the
-session, so run them by hand in order.
+headless renderer. The `meta/hero.py` script cuts and composes the split pairs,
+and the `meta/palette-card.py` script renders the palette card. The capture
+steps take over the session, so run them by hand in order.
 
 ## Rules
 
-- Switch to workspace 3 before starting. `swaymsg exec` uses the focused
-  workspace, so start programs there.
-- foot reads its configuration at startup. To capture both modes, switch modes
-  and start fresh foot processes instead of reusing them.
+- Switch to workspace 3 before starting. The `swaymsg exec` command uses the
+  focused workspace, so start programs there.
+- The `foot` terminal reads its configuration at startup. To capture both modes,
+  switch modes and start fresh `foot` processes instead of reusing them.
 - The hero pair uses the `hero-nvim` and `hero-term` app IDs so the kill steps
   can target them.
 - Start nvim with `--listen` so the remote commands can clear the prompt and
@@ -20,8 +20,8 @@ session, so run them by hand in order.
 - Focus `hero-nvim` after both panes exist so the border and cursor land in the
   right pane.
 - Close notifications with `dunstctl close-all` before every `grim` command.
-- `grim` captures the display at its current resolution, so full-screen shots
-  are 1920x1080.
+- The `grim` command captures the display at its current resolution, so
+  full-screen shots are 1920x1080.
 - Restore the session at the end: dark mode, workspace 1, no `hero-*` or
   `fuzzel` processes, and no nvim socket.
 
@@ -42,6 +42,8 @@ The following table lists each image and its source.
 | `picker-poweroff-light.webp` | `menu-poweroff-light.png`, cropped             |
 | `lock.webp`                  | `lock-dark.png`                                |
 | `lock-light.webp`            | `lock-light.png`                               |
+| `bar.webp`                   | `bar-dark.png`, cropped to the bar             |
+| `bar-light.webp`             | `bar-light.png`, cropped to the bar            |
 | `neovim-editor.webp`         | dark editor capture, cropped                   |
 | `neovim-editor-light.webp`   | light editor capture, cropped                  |
 | `neovim-discord.webp`        | Discord profile card, cropped to its border    |
@@ -52,8 +54,8 @@ Staging files go in `/tmp/chezmoi-shots/` and can be discarded.
 
 ## Hero pair
 
-The following block captures light mode. Repeat it with `palette-mode dark` and
-`stage-dark.png` for the dark capture:
+The following block captures light mode. Repeat it with the `palette-mode dark`
+command and `stage-dark.png` for the dark capture:
 
 ```sh
 ~/.local/bin/palette-mode light
@@ -98,8 +100,8 @@ sleep 2
 grim /tmp/chezmoi-shots/empty-light.png
 ```
 
-Repeat with `palette-mode dark` and `empty-dark.png`, then compose with the same
-`meta/hero.py` command as the hero pair.
+Repeat with the `palette-mode dark` command and `empty-dark.png`, then compose
+with the same `meta/hero.py` command as the hero pair.
 
 ## Pickers
 
@@ -127,8 +129,9 @@ rm -f "${XDG_RUNTIME_DIR}/confirm_action"
 ```
 
 Do not use a `pkill -f` pattern that mentions the fuzzel confirmation prompt in
-the invoking command line. `power_control.sh` matches that pattern against full
-command lines and kills the caller. Use `pkill -x fuzzel` to cancel both menus.
+the invoking command line. The `power_control.sh` script matches that pattern
+against full command lines and kills the caller. Use `pkill -x fuzzel` to cancel
+both menus.
 
 Both modes use the same 752x498 frame, centered on each menu's bounding-box
 center. The offsets come from a difference against the empty capture for that
@@ -157,10 +160,11 @@ offsets. Use `empty-light.png` when recomputing the light frames.
 
 ## Lock screen
 
-`lock.sh` shows a 2.5-second warning, blurs a snapshot of the desktop, then
-starts swaylock. `grim` captures the locked screen 8 seconds later. Unlock it
-yourself afterward. Pass literal `--timestr` and `--datestr` values so the two
-captures show the same clock. `lock.sh` forwards extra arguments to swaylock.
+The `lock.sh` script shows a 2.5-second warning, blurs a snapshot of the
+desktop, then starts `swaylock`. The `grim` command captures the locked screen 8
+seconds later. Unlock it yourself afterward. Pass literal `--timestr` and
+`--datestr` values so the two captures show the same clock. The `lock.sh` script
+forwards extra arguments to `swaylock`.
 
 ```sh
 swaymsg workspace 3
@@ -178,6 +182,37 @@ magick /tmp/chezmoi-shots/lock-dark.png -quality 88 docs/images/lock.webp
 magick /tmp/chezmoi-shots/lock-light.png -quality 88 docs/images/lock-light.webp
 ```
 
+## Status bar
+
+Waybar occupies the top 24 pixels of the screen. Capture the strip on workspace
+4 with the preview terminal focused, starting in light mode. Pause playback
+first if the player is running, so the track does not change between modes:
+
+```sh
+playerctl pause
+swaymsg workspace 4
+swaymsg exec "foot -a bar-preview -T hl_test.py nvim $HOME/.local/share/chezmoi/assets/hl_test.py"
+sleep 2
+swaymsg '[app_id=bar-preview] focus'
+dunstctl close-all
+grim -g "0,0 1920x24" /tmp/chezmoi-shots/bar-light.png
+```
+
+The `-T` flag fixes the focused window title, so the center module always reads
+`hl_test.py`. Repeat with the `palette-mode dark` command and `bar-dark.png`.
+The mode switch restarts Waybar and posts a notification, so close notifications
+again before the second `grim`. Restore the session and convert both strips:
+
+```sh
+~/.local/bin/palette-mode light
+swaymsg '[app_id=bar-preview] kill'
+swaymsg workspace 3
+magick /tmp/chezmoi-shots/bar-dark.png -quality 90 docs/images/bar.webp
+magick /tmp/chezmoi-shots/bar-light.png -quality 90 docs/images/bar-light.webp
+```
+
+Resume playback afterwards if it was running before the captures.
+
 ## Palette card
 
 Render the palette card from the derived palette. It needs no session capture:
@@ -188,10 +223,10 @@ uv run --with pillow python3 meta/palette-card.py
 
 ## Themed images
 
-The picker and lock figures include both captures. The light URL ends in
-`#only-light` and the dark URL in `#only-dark`. Zensical hides the variant that
-does not match the active scheme. The GLightbox `auto_themed` option in
-`zensical.toml` keeps the hidden variant out of the gallery.
+The picker, lock, and status bar figures include both captures. The light URL
+ends in `#only-light` and the dark URL in `#only-dark`. Zensical hides the
+variant that does not match the active scheme. The GLightbox `auto_themed`
+option in `zensical.toml` keeps the hidden variant out of the gallery.
 
 The hero pairs and the palette card intentionally show both modes, so they stay
 visible in either scheme and carry no fragment.

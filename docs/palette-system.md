@@ -14,9 +14,10 @@ flipping the mode swaps every value on the desktop at once.
 The [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
 defines how regeneration and application are done as follows:
 
-- `palette` regenerates the derived palette data without applying anything.
-- `dark` and `light` regenerate the same data and apply the configuration in the
-  chosen mode.
+- The `palette` target regenerates the derived palette data without applying
+  anything.
+- The `dark` and `light` targets regenerate the same data and apply the
+  configuration in the chosen mode.
 
 The derived output includes
 [`home/.chezmoidata.yaml`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoidata.yaml)
