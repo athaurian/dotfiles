@@ -15,7 +15,6 @@ behind them differ.
 ## Lock screen
 
 <figure class="screenshot">
-  <img src="images/lock-light.webp#only-light" alt="The lock screen over a blurred copy of the desktop.">
-  <img src="images/lock.webp#only-dark" alt="The lock screen over a blurred copy of the desktop.">
-  <figcaption>The lock screen over a blurred copy of the desktop.</figcaption>
+  <img src="images/lock-light.webp#only-light" alt="The lock screen with a blurred wallpaper behind the clock.">
+  <img src="images/lock.webp#only-dark" alt="The lock screen with a blurred wallpaper behind the clock.">
 </figure>

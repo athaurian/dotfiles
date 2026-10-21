@@ -7,7 +7,7 @@ Each color carries two values, one for dark mode and one for light mode, and
 flipping the mode swaps every value on the desktop at once.
 
 <figure class="screenshot">
-  <img src="images/palette.webp" alt="Every palette value in both modes.">
+  <img src="images/palette.webp" alt="A reference card showing every palette color token and hex value for dark and light modes.">
   <figcaption>Every palette value in both modes.</figcaption>
 </figure>
 
