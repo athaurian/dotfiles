@@ -31,7 +31,7 @@ I can edit to match my predefined palette in
 
 Switching between light and dark updates the editor along with everything else!
 
-<figure class="screenshot">
+<figure class="screenshot no-radius">
   <img src="images/neovim-editor-light.webp#only-light" alt="Neovim in light mode with the file explorer open on the left.">
   <img src="images/neovim-editor.webp#only-dark" alt="Neovim in dark mode with the file explorer open on the left.">
 </figure>
@@ -48,7 +48,7 @@ it switches to `Working on file:line:column` and appends the number of errors
 and warnings. Also, when the repository you're working in has a Git remote, it
 displays a `View Repository` button that opens the repository in your browser.
 
-<figure class="screenshot">
+<figure class="screenshot no-radius">
   <img src="images/neovim-discord-light.webp#only-light" alt="A Discord activity card showing Neovim editing a Python file in the chezmoi repository, with a View Repository button.">
   <img src="images/neovim-discord.webp#only-dark" alt="A Discord activity card showing Neovim editing a Python file in the chezmoi repository, with a View Repository button.">
 </figure>
