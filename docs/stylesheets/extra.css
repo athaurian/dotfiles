@@ -257,6 +257,14 @@ figure.screenshot {
   }
 }
 
+/* A backdrop filter on a sticky header can drop the header out of the view
+   transition snapshots. Use the opaque page color for the transition. */
+html.theme-transitioning .md-header {
+  background-color: var(--md-default-bg-color);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 @property --theme-wipe {
   syntax: "<percentage>";
   inherits: false;
