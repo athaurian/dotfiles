@@ -1,7 +1,7 @@
 # Themes
 
-Run `$mod+Shift+t` to toggle between dark and light on-the-fly. But if you ever
-need to change the actual colors, edit
+Trigger the `$mod+Shift+t` keybind to toggle between dark and light on-the-fly.
+But if you ever need to change the actual colors, edit
 [`meta/palette.toml`](https://github.com/athaurian/dotfiles/blob/main/meta/palette.toml)
 and run `make dark` or `make light`. Read the
 [Palette system](palette-system.md) section for more information about those

@@ -1,7 +1,7 @@
 # Pickers
 
-`$mod+d` opens the application launcher, fuzzel on `thinkpad` and rofi on
-`optiplex`.
+Trigger the `$mod+d` keybind to open the application launcher, fuzzel on
+`thinkpad` and rofi on `optiplex`.
 
 <div class="image-pair">
   <figure>
