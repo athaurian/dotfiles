@@ -257,6 +257,13 @@ figure.screenshot {
   }
 }
 
+/* Hold the page still while the wipe runs so the old and new snapshots stay
+   aligned. The stable gutter keeps the scrollbar width reserved. */
+html.theme-transitioning {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
 /* A backdrop filter on a sticky header can drop the header out of the view
    transition snapshots. Use the opaque page color for the transition. */
 html.theme-transitioning .md-header {
