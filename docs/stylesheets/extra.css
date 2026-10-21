@@ -264,12 +264,20 @@ html.theme-transitioning {
   scrollbar-gutter: stable;
 }
 
-/* A backdrop filter on a sticky header can drop the header out of the view
-   transition snapshots. Use the opaque page color for the transition. */
+/* A sticky header can be captured at its static position when the mobile URL
+   bar offsets the snapshot origin. Pin it for the wipe and reserve its height
+   so the page does not jump. A backdrop filter can also drop the header out
+   of the snapshots, so use the opaque page color while it is pinned. */
 html.theme-transitioning .md-header {
+  position: fixed;
+  inset: 0 0 auto;
   background-color: var(--md-default-bg-color);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+html.theme-transitioning body {
+  padding-top: var(--theme-header-height, 0px);
 }
 
 @property --theme-wipe {
