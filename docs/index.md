@@ -15,11 +15,12 @@ template: home.html
 
 ## Preface
 
-Hi. This is my dotfiles repository, managed by a neat tool called
-[`chezmoi`](https://www.chezmoi.io/). It contains my setup for two machines with
-conflicting hardware components. The `thinkpad` laptop runs Sway on Wayland, and
-the `optiplex` desktop runs i3 on X11. The two machines share the keybindings
-and the color palette.
+Hi. This is the documentation I wrote for my dotfiles repository, managed by a
+neat tool called [`chezmoi`](https://www.chezmoi.io/). It contains my setup for
+two machines with conflicting hardware components. The `thinkpad` laptop runs
+Sway on Wayland, and the `optiplex` desktop runs i3 on X11. The two machines
+share the keybindings and the color palette. If you'd rather read the source
+code, it's on [GitHub](https://github.com/athaurian/dotfiles).
 
 Thankfully, with `chezmoi`, I can easily separate the two machines in a single
 source tree, so I didn't have to make two disjointed Git branches like a psycho.

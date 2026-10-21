@@ -17,9 +17,9 @@ I decided to use LazyVim and build on top of it instead of starting from
 scratch, because, well, I'm lazy. It's in the name.
 
 Starting from a clean slate would mean reinventing the wheel from first
-principles. The point is that it lets me keep my overrides small and spend my
-time _actually_ using the editor instead of learning Neovim's internals just to
-tune it to my liking.
+principles. The point is that it lets me keep my overrides small. I can spend my
+time _actually_ using the editor instead of having to learn Neovim's internals
+just to tune it to my liking.
 
 ## Looking like the desktop
 
