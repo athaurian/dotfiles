@@ -42,6 +42,10 @@ The following table lists each image and its source.
 | `picker-poweroff-light.webp` | `menu-poweroff-light.png`, cropped             |
 | `lock.webp`                  | `lock-dark.png`                                |
 | `lock-light.webp`            | `lock-light.png`                               |
+| `neovim-editor.webp`         | dark editor capture, cropped                   |
+| `neovim-editor-light.webp`   | light editor capture, cropped                  |
+| `neovim-discord.webp`        | Discord profile card, cropped to its border    |
+| `neovim-discord-light.webp`  | Discord profile card, cropped to its border    |
 | `palette.webp`               | `meta/palette-card.py`, no capture             |
 
 Staging files go in `/tmp/chezmoi-shots/` and can be discarded.

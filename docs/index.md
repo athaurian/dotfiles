@@ -6,12 +6,10 @@ template: home.html
 
 <div class="image-pair">
   <figure>
-    <img src="images/hero.webp" alt="Some test file in Neovim with its output in the terminal.">
-    <figcaption>Some test file in Neovim with its output in the terminal.</figcaption>
+    <img src="images/hero.webp" alt="Neovim editing a Python test file, with its test output in a terminal split.">
   </figure>
   <figure>
-    <img src="images/hero-empty.webp" alt="The same desktop with nothing open.">
-    <figcaption>The same desktop with nothing open.</figcaption>
+    <img src="images/hero-empty.webp" alt="The desktop with no windows open.">
   </figure>
 </div>
 
@@ -54,4 +52,5 @@ Each guide covers one part of the desktop:
   session.
 - [Status bar](statusbar.md) describes Waybar on `thinkpad` and Polybar on
   `optiplex`.
+- [Neovim](neovim.md) covers the LazyVim setup, plugins, and Discord presence.
 - [Themes](theming.md) explains dark mode, light mode, and the wallpapers.

@@ -5,14 +5,12 @@
 
 <div class="image-pair">
   <figure>
-    <img src="images/picker-launcher-light.webp#only-light" alt="The launcher open over the empty desktop.">
-    <img src="images/picker-launcher.webp#only-dark" alt="The launcher open over the empty desktop.">
-    <figcaption>The launcher open over the empty desktop.</figcaption>
+    <img src="images/picker-launcher-light.webp#only-light" alt="The application launcher open over the desktop wallpaper.">
+    <img src="images/picker-launcher.webp#only-dark" alt="The application launcher open over the desktop wallpaper.">
   </figure>
   <figure>
-    <img src="images/picker-poweroff-light.webp#only-light" alt="One confirmation before power off.">
-    <img src="images/picker-poweroff.webp#only-dark" alt="One confirmation before power off.">
-    <figcaption>One confirmation before power off.</figcaption>
+    <img src="images/picker-poweroff-light.webp#only-light" alt="A power-off confirmation dialog with yes and no options.">
+    <img src="images/picker-poweroff.webp#only-dark" alt="A power-off confirmation dialog with yes and no options.">
   </figure>
 </div>
 

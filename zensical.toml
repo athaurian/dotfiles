@@ -25,6 +25,7 @@ nav = [
   { "Screenshots, lock, and idle" = "screenshots-lock-idle.md" },
   { "Background services" = "services.md" },
   { "Status bar" = "statusbar.md" },
+  { "Neovim" = "neovim.md" },
   { "Themes" = "theming.md" },
 ]
 
