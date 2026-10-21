@@ -71,7 +71,7 @@ bindsym $mod+Return exec $term
 bindsym --no-repeat $mod+d exec $menu
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
-bindsym $mod+Shift+p exec $passwordmanager
+bindsym $mod+Shift+p exec $passwordmanager, [app_id="keepassxc"] scratchpad show, resize set width 75 ppt height 70 ppt, move position center
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
@@ -143,6 +143,7 @@ for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, borde
 for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
 for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+for_window [app_id="keepassxc"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [app_id="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
 
 client.focused          {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
