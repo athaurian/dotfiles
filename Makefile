@@ -10,10 +10,12 @@ MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/polybar/scripts/tests/test_mpris.py
 SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
+PICKER_FILES := home/dot_local/bin/executable_clipboard \
+	$(shell find home/dot_local/lib/picker_lib -name '*.py')
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config site
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-picker check-refs check-config site
 
 help:
 	@echo "Available commands:"
@@ -24,6 +26,7 @@ help:
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
+	@echo "  check-picker      - Ruff + mypy + tests for the clipboard picker library"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
@@ -62,6 +65,12 @@ check-sw:
 	$(RUFF) format --check $(SW_FILES)
 	$(MYPY) home/dot_local/bin/executable_sw
 	uv run python3 -u home/dot_local/bin/tests/test_sw.py
+
+check-picker:
+	$(RUFF) check $(PICKER_FILES)
+	$(RUFF) format --check $(PICKER_FILES)
+	$(MYPY) home/dot_local/lib/picker_lib
+	PYTHONPATH=home/dot_local/lib uv run python3 -u -m unittest discover -s home/dot_local/lib/picker_lib/tests
 
 check-refs:
 	sh refs/fetch-refs.sh --check

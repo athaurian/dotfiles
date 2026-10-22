@@ -1,7 +1,7 @@
 {
   "pacman": {
     "desktop": [
-      "imagemagick", "jq", "libnotify", "fzf", "dunst",
+      "imagemagick", "jq", "kitty", "libnotify", "fzf", "dunst",
       "polkit-gnome", "xdg-utils"
     ],
     "system": [
@@ -27,12 +27,12 @@
   "custom": ["orchis-theme-4px", "xdg-terminal-exec-git", "ttf-google-sans", "ttf-google-sans-code"],
   "machines": {
     "optiplex": [
-      "i3-wm", "kitty", "rofi", "picom", "feh", "lutgen-cli-git",
+      "i3-wm", "rofi", "picom", "feh", "lutgen-cli-git",
       "flameshot", "redshift", "xclip", "xdotool", "xss-lock", "xorg-xset",
       "i3lock-color", "polybar"
     ],
     "thinkpad": [
-      "awww", "foot", "fuzzel", "grim", "slurp", "satty", "swayidle",
+      "awww", "cliphist", "fuzzel", "grim", "slurp", "satty", "swayidle",
       "wl-clipboard", "wlsunset", "swaylock-effects", "swayfx-git",
       "wayfreeze-git", "lutgen-cli-git", "qt6-wayland", "waybar"
     ]

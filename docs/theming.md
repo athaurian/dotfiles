@@ -16,3 +16,8 @@ rotating it.
 For more information, run `sw --help` (or, y'know, read the
 [`executable_sw`](https://github.com/athaurian/dotfiles/blob/main/home/dot_local/bin/executable_sw)
 script yourself).
+
+## Hot-reloading
+
+Neovim reloads its colorscheme when the palette changes. Open editors repaint
+without a restart.

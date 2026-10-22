@@ -1,3 +1,5 @@
+require("config.palette").watch()
+
 local persistenceGroup = vim.api.nvim_create_augroup("PersistenceAutoload", { clear = true })
 
 vim.api.nvim_create_autocmd("StdinReadPre", {

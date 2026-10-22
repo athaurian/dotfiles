@@ -153,14 +153,16 @@ fuzzel_sha=616485c08cd0924af23f0ee9cbf7f104baba2dcc
 for page in fuzzel.1.scd fuzzel.ini.5.scd; do
 	fetch "https://codeberg.org/dnkl/fuzzel/raw/commit/$fuzzel_sha/doc/$page" "fuzzel/$page"
 done
-foot_sha=9f5c70ea6eed64706471ea3ca349181a77f21c66
-for page in foot.1.scd foot.ini.5.scd; do
-	fetch "https://codeberg.org/dnkl/foot/raw/commit/$foot_sha/doc/$page" "foot/$page"
-done
 fetch "https://raw.githubusercontent.com/emersion/grim/47e2658619c6b5a790732c5876fb84e8273f08a9/grim.1.scd" grim/grim.1.scd
 fetch "https://raw.githubusercontent.com/emersion/slurp/a3998d3ec79fbd85b81911f43010466b032ed0d9/slurp.1.scd" slurp/slurp.1.scd
 fetch "https://raw.githubusercontent.com/Satty-org/Satty/2bcd9111390a7ae03ef965e87a6a12dfd22bf93b/README.md" satty/README.md
 fetch "https://raw.githubusercontent.com/bugaevc/wl-clipboard/985b9f4f23ae015df1498759f139a807cb931a16/README.md" wl-clipboard/README.md
+# cliphist ships no man page and no doc tree, so the readme and the source
+# are what the picker's parsing is checked against.
+cliphist_sha=efb61cb5b5a28d896c05a24ac83b9c39c96575f2
+for page in readme.md cliphist.go; do
+	fetch "https://raw.githubusercontent.com/sentriz/cliphist/$cliphist_sha/$page" "cliphist/$page"
+done
 fetch "https://raw.githubusercontent.com/Hummer12007/brightnessctl/ad863aef28a231e9c96d1ffb9f22befd7e0b08f0/brightnessctl.1" brightnessctl/brightnessctl.1
 wlsunset_sha=0c8cc663d085388fa59efb7cbea8df8c8234c562
 fetch "https://raw.githubusercontent.com/kennylevinsen/wlsunset/$wlsunset_sha/README.md" wlsunset/README.md

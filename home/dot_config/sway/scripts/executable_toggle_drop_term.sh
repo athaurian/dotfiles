@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-app_id=foot_drop
+# Every kitty window shares one app_id, so the sway rule matches on title.
+title=drop_term
 
 . "$(dirname -- "$0")/lib_sway_lock.sh"
 acquire_sway_lock "toggle_drop_term" || exit 0
@@ -16,7 +17,7 @@ if swaymsg -t get_marks 2>/dev/null | grep -qF '"drop_term"'; then
 	exit 0
 fi
 
-swaymsg exec "foot --app-id=$app_id"
+swaymsg exec "kitty --title=$title"
 
 i=0
 while [ "$i" -lt 40 ]; do
