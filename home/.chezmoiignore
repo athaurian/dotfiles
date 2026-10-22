@@ -8,7 +8,6 @@ __pycache__/
 # thinkpad set.
 {{ if eq .chezmoi.hostname "optiplex" }}
 .config/sway
-.config/foot
 .config/fuzzel
 .config/swaylock
 .config/waybar
@@ -23,7 +22,6 @@ __pycache__/
 .config/systemd/user/wlsunset.service
 {{ else }}
 .config/i3
-.config/kitty
 .config/rofi
 .config/polybar
 .config/picom.conf

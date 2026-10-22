@@ -6,7 +6,7 @@ set $left h
 set $down j
 set $up k
 set $right l
-set $term foot
+set $term kitty
 set $menu fuzzel
 set $browser $HOME/.config/sway/scripts/wrapper_browser.sh
 set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
@@ -98,6 +98,8 @@ bindsym $mod+minus exec $HOME/.config/sway/scripts/cycle_scratchpad.sh
 
 bindsym --no-repeat $mod+grave exec $HOME/.config/sway/scripts/toggle_drop_term.sh
 
+bindsym $mod+Ctrl+v exec $HOME/.config/sway/scripts/toggle_clipboard.sh
+
 bindsym $mod+n exec dunstctl close
 bindsym $mod+Shift+n exec dunstctl close-all
 bindsym --no-repeat $mod+Shift+d exec $HOME/.config/waybar/scripts/dunst-dnd.sh --toggle
@@ -141,10 +143,12 @@ for_window [app_id="pavucontrol"] floating enable, border normal, resize set wid
 for_window [app_id="blueman-manager"] floating enable, border normal, resize set width 30 ppt height 40 ppt, move position center
 for_window [app_id="polkit-gnome-authentication-agent-1"] floating enable, border normal, move position center
 for_window [app_id="satty"] floating enable, border normal, resize set width 90 ppt height 80 ppt, move position center
-for_window [app_id="foot_drop"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-for_window [app_id="foot_topgrade"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+# Every kitty window carries the same app_id, so these rules match on title.
+for_window [app_id="kitty" title="drop_term"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+for_window [app_id="kitty" title="topgrade_term"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+for_window [app_id="kitty" title="clipboard_term"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad
 for_window [app_id="keepassxc"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-for_window [app_id="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
+for_window [app_id="kitty" title="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
 
 client.focused          {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
 client.focused_inactive {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}

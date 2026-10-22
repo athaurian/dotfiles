@@ -13,9 +13,9 @@ runs Sway on Wayland.
 and it does not run Wayland without issues, so the machine runs i3 on X11
 instead.
 
-Almost every desktop component exists twice, once per machine. `dunst` is the
-exception, which runs just fine on both machines from one shared configuration
-file.
+Almost every desktop component exists twice, once per machine. `dunst` and
+`kitty` are the exceptions, which run just fine on both machines from one shared
+configuration file.
 
 | Component            | thinkpad (Sway)          | optiplex (i3)            |
 | -------------------- | ------------------------ | ------------------------ |
@@ -23,7 +23,7 @@ file.
 | Window compositing   | Built into Sway          | picom (an extra process) |
 | Status bar           | Waybar                   | Polybar                  |
 | Application launcher | fuzzel                   | rofi                     |
-| Terminal             | foot                     | kitty                    |
+| Terminal             | kitty                    | kitty                    |
 | Screen locker        | swaylock                 | i3lock                   |
 | Idle handling        | swayidle user units      | xset timer plus xss-lock |
 | Color temperature    | wlsunset                 | redshift                 |
