@@ -2,11 +2,8 @@
 
 set -eu
 
-# Toggle the fzf clipboard history picker. Only one instance runs and a
-# second press hides the visible picker instead of spawning another. The
-# picker exits after each selection. Uses the shared lib_sway_lock.sh
-# locking, held until the new window's mark appears so rapid keybind
-# repeats queue behind the first spawn.
+# Toggle the fzf clipboard history picker. A second press hides the
+# visible picker, and the lock ignores repeats while it spawns.
 
 mark=clipboard_term
 
@@ -16,29 +13,30 @@ acquire_sway_lock "toggle_clipboard" || exit 0
 # The picker itself is shared, so this script is sway's lifecycle around it.
 picker="$HOME/.local/bin/clipboard"
 
-# State-free mark probe for the toggle below and the wait loop. Reading
-# `scratchpad show` would toggle visibility and `focus` would steal
-# focus on every poll.
+# The mark probe must not toggle visibility or steal focus.
 has_mark() {
 	swaymsg -t get_marks 2>/dev/null | grep -qF "\"$mark\""
 }
 
-if has_mark; then
-	# Test first, then show. Folding the test into the swaymsg call
-	# breaks hiding because `move position center` fails on a hidden
-	# scratchpad window and that failure would spawn a duplicate
-	# picker. The combined show call renders once.
+show_picker() {
 	swaymsg "[con_mark=$mark] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
+}
+
+if has_mark; then
+	show_picker
 	release_sway_lock "toggle_clipboard"
 	exit 0
 fi
 
-[ -x "$picker" ] || exit 0
+if [ ! -x "$picker" ]; then
+	release_sway_lock "toggle_clipboard"
+	exit 0
+fi
 
 "$picker" &
 
-# Hold the lock until the mark appears, so a second keypress queues
-# behind the first spawn. The timeout covers exits that open no
+# Hold the lock until the mark appears, so a second keypress is ignored
+# while the first spawn starts. The timeout covers exits that open no
 # window (empty history, missing dependencies).
 i=0
 while [ "$i" -lt 40 ]; do
@@ -50,6 +48,6 @@ while [ "$i" -lt 40 ]; do
 done
 if has_mark; then
 	# Pickers start hidden, so map the new one already centered.
-	swaymsg "[con_mark=$mark] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
+	show_picker
 fi
 release_sway_lock "toggle_clipboard"

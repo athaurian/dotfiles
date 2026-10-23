@@ -10,7 +10,9 @@ trap 'rm -f "$tmp_tree"' EXIT
 
 swaymsg -t get_tree | jq -r '
 def not_drop_term: ((.marks // []) | index("drop_term")) | not;
-def cyclable: not_drop_term;
+def not_clipboard_term: ((.marks // []) | index("clipboard_term")) | not;
+def not_keepassxc: ((.marks // []) | index("keepassxc")) | not;
+def cyclable: not_drop_term and not_clipboard_term and not_keepassxc;
 
 ([.. | select(.focused? == true)] | first | .id) as $focused
 | ([.nodes[].nodes[]
