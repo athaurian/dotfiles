@@ -8,5 +8,9 @@ directory listing the units that start with the session.
 - `thinkpad` uses `sway-session.target.wants`.
 - `optiplex` uses `i3-session.target.wants`.
 
-When a unit acts up, run `systemctl --user status UNIT` to show its state and
-`journalctl --user -u UNIT` to see the logs. Swap the unit's name in for `UNIT`.
+When a unit acts up:
+
+- Run `systemctl --user status UNIT` to show its state.
+- Run `journalctl --user -u UNIT` to see the logs.
+
+(Replace `UNIT` with the unit's name.)

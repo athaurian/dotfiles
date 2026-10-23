@@ -1,6 +1,6 @@
 [project]
 site_name = "dotfiles"
-site_description = "Chezmoi-managed Arch Linux desktop configuration"
+site_description = "My Linux setup."
 site_url = "https://athaurian.github.io/dotfiles/"
 repo_url = "https://github.com/athaurian/dotfiles"
 repo_name = "athaurian/dotfiles"

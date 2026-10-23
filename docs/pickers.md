@@ -27,11 +27,14 @@ Press `Return` to confirm or `Esc` to cancel.
 
 ## Clipboard history
 
-I keep my clipboard history in an `fzf` list inside a floating terminal. Press
-`$mod+Ctrl+v` to open it. Type part of an entry to filter the list, and the
-preview pane shows the full text or image of the highlighted entry. Press
-`Return` to copy that entry back to the clipboard and close the picker. Press
-`Esc` to close it without copying anything.
+I keep my clipboard history in an `fzf` list inside a floating terminal. Use the
+picker as follows:
+
+1. Press `$mod+Ctrl+v` to open the picker.
+2. Type part of an entry to filter the list. The preview pane shows the full
+   text or image of the highlighted entry.
+3. Press `Return` to copy the highlighted entry back to the clipboard and close
+   the picker, or press `Esc` to close the picker without copying anything.
 
 If the picker is already open, the same shortcut hides it instead of opening a
 second copy.

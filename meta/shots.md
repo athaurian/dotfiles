@@ -124,15 +124,21 @@ grim meta/captures/editor-dark.png
 ```
 
 Repeat with the `palette-mode light` command and `editor-light.png`. The window
-border box is `1904x1040+8+32`, recorded beside each raw as a `.geom` file, and
-the crop keeps that border:
+border box is `1904x1040+8+32`, recorded beside each raw as a `.geom` file. The
+crop keeps that border and masks the corners outside it:
 
 ```sh
 magick meta/captures/editor-dark.png \
   -crop 1904x1040+8+32 +repage \
+  \( -size 1904x1040 xc:none -fill white \
+     -draw "roundrectangle 0,0,1903,1039,4,4" \) \
+  -compose DstIn -composite \
   -quality 92 docs/images/neovim-editor.webp
 magick meta/captures/editor-light.png \
   -crop 1904x1040+8+32 +repage \
+  \( -size 1904x1040 xc:none -fill white \
+     -draw "roundrectangle 0,0,1903,1039,4,4" \) \
+  -compose DstIn -composite \
   -quality 92 docs/images/neovim-editor-light.webp
 ```
 
@@ -141,14 +147,20 @@ magick meta/captures/editor-light.png \
 Capture the Discord profile card in both modes at full screen. Archive the
 screenshots as `discord-dark.png` and `discord-light.png`. The card sits at
 `432x160+960+281` in the 1920x1080 capture, recorded beside each raw as a
-`.geom` file. Crop each raw to the card border:
+`.geom` file. Crop each raw to the card border and mask the corners outside it:
 
 ```sh
 magick meta/captures/discord-dark.png \
   -crop 432x160+960+281 +repage \
+  \( -size 432x160 xc:none -fill white \
+     -draw "roundrectangle 0,0,431,159,8,8" \) \
+  -compose DstIn -composite \
   -quality 92 docs/images/neovim-discord.webp
 magick meta/captures/discord-light.png \
   -crop 432x160+960+281 +repage \
+  \( -size 432x160 xc:none -fill white \
+     -draw "roundrectangle 0,0,431,159,8,8" \) \
+  -compose DstIn -composite \
   -quality 92 docs/images/neovim-discord-light.webp
 ```
 

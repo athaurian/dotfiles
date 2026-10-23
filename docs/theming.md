@@ -8,9 +8,14 @@ and run `make dark` or `make light`. Read the
 targets.
 
 I wrote a script named `sw` to handle recoloring based on the generated palette.
-Run `sw --set IMAGE` to set an image as the wallpaper and `sw --next` to rotate
-to the next one. To go back to the previously shown wallpaper, run `sw --prev`.
-Run `sw --restore` to re-apply the recorded wallpaper without rotating it.
+The script provides these commands:
+
+| Command          | Action                                           |
+| ---------------- | ------------------------------------------------ |
+| `sw --set IMAGE` | Set an image as the wallpaper                    |
+| `sw --next`      | Rotate to the next wallpaper                     |
+| `sw --prev`      | Return to the previously shown wallpaper         |
+| `sw --restore`   | Re-apply the recorded wallpaper without rotating |
 
 For more information, run `sw --help` (or, y'know, read the
 [`executable_sw`](https://github.com/athaurian/dotfiles/blob/main/home/dot_local/bin/executable_sw)
