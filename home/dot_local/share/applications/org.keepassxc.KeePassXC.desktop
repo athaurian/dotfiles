@@ -5,7 +5,7 @@ Name=KeePassXC
 GenericName=Password Manager
 Comment=Community-driven port of the Windows application "KeePass Password Safe"
 Icon=keepassxc
-Exec=env QT_QPA_PLATFORMTHEME=qt5ct keepassxc %f
+Exec=env QT_QPA_PLATFORMTHEME=qt6ct keepassxc %f
 Terminal=false
 Categories=Utility;Security;Qt;
 MimeType=application/x-keepass2;
