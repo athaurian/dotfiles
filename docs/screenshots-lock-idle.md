@@ -1,8 +1,8 @@
 # Screenshots, lock, and idle
 
-These are the shortcuts for screenshots, the screen locker, and the idle timer.
-As you'd expect, the keys are the same on both machines. Only the programs
-behind them differ.
+These are the shortcuts I use for screenshots, the screen locker, and the idle
+timer. As you'd expect, the keys are the same on both machines. Only the
+programs behind them differ.
 
 | Shortcut        | Action                      | thinkpad                                                                                                                                                            | optiplex                                                                                                                                                                |
 | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

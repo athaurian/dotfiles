@@ -19,11 +19,11 @@ Hi. This is the documentation I wrote for my dotfiles repository. If you'd
 rather read the source code, it's on
 [GitHub](https://github.com/athaurian/dotfiles).
 
-The dotfiles themselves are managed with a neat tool called
+I manage the dotfiles with a neat tool called
 [`chezmoi`](https://www.chezmoi.io/). Together they contain my setup for two
 machines with conflicting hardware components.
 
-The `thinkpad` laptop runs Sway on Wayland. Conversely, the `optiplex` desktop
+My `thinkpad` laptop runs Sway on Wayland. Conversely, my `optiplex` desktop
 runs i3 on X11. Both machines share the keybindings and the color palette.
 
 Fortunately, `chezmoi` lets me separate the two machines in a single source
@@ -49,8 +49,8 @@ Each guide covers one part of the desktop:
   both machines.
 - [Palette system](palette-system.md) explains where every color in the system
   comes from.
-- [Pickers](pickers.md) introduces the application launcher and the power
-  shortcuts.
+- [Pickers](pickers.md) introduces the application launcher, the power
+  shortcuts, and the clipboard history.
 - [Screenshots, lock, and idle](screenshots-lock-idle.md) covers the capture,
   lock, and idle shortcuts.
 - [Background services](services.md) explains which units start with each

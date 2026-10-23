@@ -20,7 +20,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-QUALITY = 82
+QUALITY = 92
 MASK_SCALE = 4
 
 

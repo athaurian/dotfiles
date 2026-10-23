@@ -8,8 +8,8 @@
   <img src="images/bar.webp#only-dark" alt="The Waybar status bar in dark mode.">
 </figure>
 
-Trigger the `$mod+Shift+c` keybind to restart the bar on both machines. Waybar's
-files live under
+Press `$mod+Shift+c` to restart the bar on both machines. Waybar's files live
+under
 [`home/dot_config/waybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/waybar/),
 Polybar's under
 [`home/dot_config/polybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/polybar/).

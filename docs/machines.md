@@ -10,12 +10,11 @@ runs Sway on Wayland.
 
 `optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is
 [an ancient NVIDIA card from the Egyptian era](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376),
-and it does not run Wayland without issues, so the machine runs i3 on X11
-instead.
+and it does not run Wayland without issues, so I run i3 on X11 instead.
 
 Almost every desktop component exists twice, once per machine. `dunst` and
 `kitty` are the exceptions, which run just fine on both machines from one shared
-configuration file.
+configuration file each.
 
 | Component            | thinkpad (Sway)          | optiplex (i3)            |
 | -------------------- | ------------------------ | ------------------------ |
