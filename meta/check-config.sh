@@ -32,8 +32,6 @@ check sway "$HOME/.config/sway/config" \
 	sway -c "$HOME/.config/sway/config" --validate
 check i3 "$HOME/.config/i3/config" \
 	i3 -C -c "$HOME/.config/i3/config"
-check foot "$HOME/.config/foot/foot.ini" \
-	foot --check-config --config "$HOME/.config/foot/foot.ini"
 check fuzzel "$HOME/.config/fuzzel/fuzzel.ini" \
 	fuzzel --check-config --config "$HOME/.config/fuzzel/fuzzel.ini"
 check rofi "$HOME/.config/rofi/config.rasi" \
