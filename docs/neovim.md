@@ -1,6 +1,6 @@
 # Neovim
 
-Neovim is my editor. Its configuration is managed by chezmoi like the rest of
+Neovim is my editor. I manage its configuration with chezmoi like the rest of
 this repository. If you want, you can read the source code under
 [`home/dot_config/nvim/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/nvim/).
 
@@ -43,10 +43,10 @@ I had a lot of fun configuring the Cord plugin. I borrowed the layout from the
 powerful enough that I can make an effort to match what it displays on Discord.
 Isn't that cool?
 
-It shows `Viewing` until you edit the buffer. Once you start editing the file,
-it switches to `Working on file:line:column` and appends the number of errors
-and warnings. Also, when the repository you're working in has a Git remote, it
-displays a `View Repository` button that opens the repository in your browser.
+It shows `Viewing` until I edit the buffer. Once I start editing the file, it
+switches to `Working on file:line:column` and appends the number of errors and
+warnings. Also, when the repository I'm working in has a Git remote, it displays
+a `View Repository` button that opens the repository in my browser.
 
 <figure class="screenshot no-radius">
   <img src="images/neovim-discord-light.webp#only-light" alt="A Discord activity card showing Neovim editing a Python file in the chezmoi repository, with a View Repository button.">

@@ -11,8 +11,8 @@ flipping the mode swaps every value on the desktop at once.
   <figcaption>Every palette value in both modes.</figcaption>
 </figure>
 
-The [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
-defines how regeneration and application are done as follows:
+I use the [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
+targets to regenerate and apply the palette:
 
 - The `palette` target regenerates the derived palette data without applying
   anything.
