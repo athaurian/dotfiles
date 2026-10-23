@@ -43,19 +43,15 @@ Start with [Installation](installation.md).
 
 Each guide covers one part of the desktop:
 
-- [Installation](installation.md) sets up the prerequisites and the first apply.
-- [Machines](machines.md) compares the components on `thinkpad` and `optiplex`.
-- [Keybindings](keybindings.md) lists the window management bindings shared by
-  both machines.
-- [Palette system](palette-system.md) explains where every color in the system
-  comes from.
-- [Pickers](pickers.md) introduces the application launcher, the power
-  shortcuts, and the clipboard history.
-- [Screenshots, lock, and idle](screenshots-lock-idle.md) covers the capture,
-  lock, and idle shortcuts.
-- [Background services](services.md) explains which units start with each
-  session.
-- [Status bar](statusbar.md) describes Waybar on `thinkpad` and Polybar on
-  `optiplex`.
-- [Neovim](neovim.md) covers the LazyVim setup, plugins, and Discord presence.
-- [Themes](theming.md) explains dark mode, light mode, and the wallpapers.
+| Guide                                                   | Covers                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| [Installation](installation.md)                         | Prerequisites and the first apply                            |
+| [Machines](machines.md)                                 | Components on `thinkpad` and `optiplex`                      |
+| [Keybindings](keybindings.md)                           | Window management bindings shared by both machines           |
+| [Palette system](palette-system.md)                     | Where every color in the system comes from                   |
+| [Pickers](pickers.md)                                   | Application launcher, power shortcuts, and clipboard history |
+| [Screenshots, lock, and idle](screenshots-lock-idle.md) | Capture, lock, and idle shortcuts                            |
+| [Background services](services.md)                      | Units that start with each session                           |
+| [Status bar](statusbar.md)                              | Waybar on `thinkpad` and Polybar on `optiplex`               |
+| [Neovim](neovim.md)                                     | LazyVim setup, plugins, and Discord presence                 |
+| [Themes](theming.md)                                    | Dark mode, light mode, and the wallpapers                    |
