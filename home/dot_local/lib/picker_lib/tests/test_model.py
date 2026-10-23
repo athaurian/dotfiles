@@ -31,13 +31,5 @@ class TestSplitEntry(unittest.TestCase):
         self.assertIsNone(eid)
 
 
-class TestSingleLine(unittest.TestCase):
-    def test_newlines_become_spaces(self):
-        self.assertEqual(model.single_line("a\nb\nc"), "a b c")
-
-    def test_surrounding_whitespace_stripped(self):
-        self.assertEqual(model.single_line("  a\n"), "a")
-
-
 if __name__ == "__main__":
     unittest.main()

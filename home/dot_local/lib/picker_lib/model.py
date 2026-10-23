@@ -1,5 +1,4 @@
-"""Provides the menu line model shared by the clipboard and
-notification pickers.
+"""Provides the menu line model for the clipboard picker.
 
 The picker contract is that every menu line is
 ``"<id>\\t<display>"`` where ``<id>`` is a zero-padded decimal id of
@@ -29,8 +28,3 @@ def split_entry(line: str) -> tuple[int | None, str]:
     if not tab or not eid.isdigit():
         return None, line
     return int(eid), display
-
-
-def single_line(text: str) -> str:
-    """Collapses newlines to spaces for single-line menu display."""
-    return " ".join(text.split())
