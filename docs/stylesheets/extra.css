@@ -271,16 +271,11 @@ html.theme-transitioning {
   scrollbar-gutter: stable;
 }
 
-/* A sticky header can be captured at its static position when the mobile URL
-   bar offsets the snapshot origin. Pin it for the wipe and reserve its height
-   so the page does not jump. A backdrop filter can also drop the header out
-   of the snapshots, so use the opaque page color while it is pinned. */
+/* Pin the header so a mobile URL bar offset cannot capture it at its static
+   position. Reserve its height so the page does not jump. */
 html.theme-transitioning .md-header {
   position: fixed;
   inset: 0 0 auto;
-  background-color: var(--md-default-bg-color);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 
 html.theme-transitioning body {
