@@ -18,7 +18,7 @@
       "ttf-googlesanscode-nerd", "papirus-icon-theme"
     ],
     "apps": [
-      "calibre", "fnm", "keepassxc", "pinentry", "qt5ct", "qt6ct",
+      "calibre", "fnm", "keepassxc", "pinentry", "qt6ct",
       "thunar", "zathura", "zathura-pdf-mupdf", "zoxide"
     ]
   },
