@@ -36,4 +36,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="{{ config.site_url }}favicon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ config.site_url }}favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ config.site_url }}apple-touch-icon.png">
+  {% if config.extra.oembed %}
+    <link rel="alternate" type="application/json+oembed" href="{{ config.site_url ~ config.extra.oembed }}">
+  {% endif %}
 {% endblock %}
