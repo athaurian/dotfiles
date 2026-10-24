@@ -93,7 +93,8 @@ pymdownx.tabbed.alternate_style = true
 [project.extra]
 generator = false
 homepage = "."
-# og_image is the social banner, relative to site_url.
-og_image = "images/og.png"
+# og_image is the social banner, relative to site_url. Bump the version when
+# the banner changes so link previews fetch the new image.
+og_image = "images/og.png?v=2"
 # oembed.json carries the provider name and URL for link previews.
 oembed = "oembed.json"
