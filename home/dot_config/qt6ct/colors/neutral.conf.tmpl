@@ -1,0 +1,17 @@
+# Palette and mode come from meta/palette.toml. The applied copy is generated from this template.
+# {{- $p := .palette }}{{- $mode := .mode }}
+{{- $light := "" }}{{- $midlight := "" }}{{- $chrome := "" }}{{- $base := "" }}{{- $window := "" }}{{- $mid := "" }}{{- $dark := "" }}{{- $shadow := "" }}{{- $tip := "" }}{{- $alt := "" }}
+{{- if eq $mode "light" }}
+{{- $light = $p.crust.hex }}{{- $midlight = $p.mantle.hex }}{{- $chrome = $p.mantle.hex }}{{- $base = $p.crust.hex }}{{- $window = $p.base.hex }}{{- $mid = $p.surface_2.hex }}{{- $dark = $p.line.hex }}{{- $shadow = $p.muted.hex }}{{- $tip = $p.mantle.hex }}{{- $alt = $p.mantle.hex }}
+{{- else }}
+{{- $light = $p.surface_2.hex }}{{- $midlight = $p.surface_1.hex }}{{- $chrome = $p.surface_1.hex }}{{- $base = $p.crust.hex }}{{- $window = $p.base.hex }}{{- $mid = $p.surface_0.hex }}{{- $dark = $p.base.hex }}{{- $shadow = $p.crust.hex }}{{- $tip = $p.surface_2.hex }}{{- $alt = $p.mantle.hex }}
+{{- end }}
+# Entries are positional QPalette::ColorRole values: windowText, button, light, midlight,
+# dark, mid, text, brightText, buttonText, base, window, shadow, highlight, highlightedText,
+# link, linkVisited, alternateBase, NoRole, toolTipBase, toolTipText, placeholderText, accent.
+# base is the input and content surface, so it takes the extreme of the neutral ramp and
+# window sits between it and button, as Breeze does.
+[ColorScheme]
+active_colors={{ $p.text.hex }}, {{ $chrome }}, {{ $light }}, {{ $midlight }}, {{ $dark }}, {{ $mid }}, {{ $p.text.hex }}, {{ $p.text_max.hex }}, {{ $p.text.hex }}, {{ $base }}, {{ $window }}, {{ $shadow }}, {{ $p.selection.hex }}, {{ $p.text_max.hex }}, {{ $p.blue.hex }}, {{ $p.purple.hex }}, {{ $alt }}, {{ $p.text.hex }}, {{ $tip }}, {{ $p.text_max.hex }}, {{ $p.muted.hex }}, {{ $p.blue.hex }}
+inactive_colors={{ $p.text.hex }}, {{ $chrome }}, {{ $light }}, {{ $midlight }}, {{ $dark }}, {{ $mid }}, {{ $p.text.hex }}, {{ $p.text_max.hex }}, {{ $p.text.hex }}, {{ $base }}, {{ $window }}, {{ $shadow }}, {{ $p.selection.hex }}, {{ $p.text_max.hex }}, {{ $p.blue.hex }}, {{ $p.purple.hex }}, {{ $alt }}, {{ $p.text.hex }}, {{ $tip }}, {{ $p.text_max.hex }}, {{ $p.muted.hex }}, {{ $p.blue.hex }}
+disabled_colors={{ $p.muted.hex }}, {{ $chrome }}, {{ $light }}, {{ $midlight }}, {{ $dark }}, {{ $mid }}, {{ $p.muted.hex }}, {{ $p.text_max.hex }}, {{ $p.muted.hex }}, {{ $base }}, {{ $window }}, {{ $shadow }}, {{ $p.surface_2.hex }}, {{ $p.muted.hex }}, {{ $p.muted.hex }}, {{ $p.muted.hex }}, {{ $alt }}, {{ $p.muted.hex }}, {{ $tip }}, {{ $p.text_max.hex }}, {{ $p.muted.hex }}, {{ $p.muted.hex }}
