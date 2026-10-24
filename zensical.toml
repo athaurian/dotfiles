@@ -33,10 +33,11 @@ nav = [
 variant = "modern"
 font.text = "Google Sans"
 font.code = "Google Sans Code"
-# The monogram tile comes from the docs theme, at --fill 0.38.
-# It is both the header logo and the favicon.
+# The monogram tile comes from the docs theme, at --fill 0.38. It is the
+# header logo. The favicon is the ICO, and the theme adds the SVG and PNG
+# variants.
 logo = "favicon.svg"
-favicon = "favicon.svg"
+favicon = "favicon.ico"
 features = [
   "navigation.sections",
   "navigation.top",

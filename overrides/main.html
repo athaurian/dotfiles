@@ -23,7 +23,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{{ og_title }}">
   <meta name="twitter:description" content="{{ og_description | striptags }}">
-  <link rel="icon" href="{{ 'favicon.ico' | url }}" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="{{ 'favicon.svg' | url }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ 'favicon-192x192.png' | url }}">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ 'favicon-32x32.png' | url }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ 'apple-touch-icon.png' | url }}">
 {% endblock %}
