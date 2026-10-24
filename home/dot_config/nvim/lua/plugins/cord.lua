@@ -50,6 +50,13 @@ local function apply_viewing(opts)
   opts.is_read_only = opts.is_read_only or not edited_buffers[buf]
 end
 
+-- snacks.bigfile replaces the filetype of huge buffers, hiding the real one.
+local function resolve_bigfile(opts)
+  if opts.filetype ~= "bigfile" then return end
+  local filetype = vim.filetype.match({ buf = vim.api.nvim_get_current_buf() })
+  if filetype and filetype ~= "bigfile" then opts.force_filetype = filetype end
+end
+
 return {
   "vyfor/cord.nvim",
   opts = {
@@ -90,7 +97,10 @@ return {
         setup_diagnostics(manager)
         setup_viewing(manager)
       end,
-      pre_activity = apply_viewing,
+      pre_activity = function(opts)
+        resolve_bigfile(opts)
+        apply_viewing(opts)
+      end,
     },
     assets = {
       snacks_dashboard = { name = "Dashboard", tooltip = "Dashboard" },
