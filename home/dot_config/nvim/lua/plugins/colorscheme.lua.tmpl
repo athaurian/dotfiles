@@ -15,6 +15,9 @@ return {
       require("catppuccin").setup({
         flavour = {{ if eq $mode "light" }}"latte"{{ else }}"mocha"{{ end }},
         transparent_background = true,
+        -- Disable this because Catppuccin changes blue values in kitty.
+        -- This keeps the repo palette colors unchanged.
+        kitty = false,
         styles = { conditionals = {} },
         integrations = {
           gitsigns = true,
