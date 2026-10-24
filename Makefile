@@ -15,7 +15,7 @@ PICKER_FILES := home/dot_local/bin/executable_clipboard \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-picker check-refs check-config site
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-picker check-refs check-config site social
 
 help:
 	@echo "Available commands:"
@@ -30,6 +30,7 @@ help:
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
+	@echo "  social            - Rebuild the Open Graph banner from the hero screenshots"
 
 format: format-md
 
@@ -80,3 +81,9 @@ check-config:
 
 site:
 	uv run --with zensical==0.0.71 zensical build --strict
+
+social:
+	magick \
+		\( meta/captures/stage-light.png -crop 960x1008+0+36 +repage -resize 600x630^ -gravity center -extent 600x630 \) \
+		\( meta/captures/empty-dark.png -resize 600x630^ -gravity center -extent 600x630 \) \
+		+append -fill '#050505' -draw 'rectangle 596,0 603,629' +repage docs/images/og.png
