@@ -24,7 +24,9 @@ fi
 
 calibre_gui="$HOME/.config/calibre/gui.json"
 if command -v jq >/dev/null 2>&1 && [ -f "$calibre_gui" ] && ! pgrep -x calibre >/dev/null 2>&1; then
-	if jq -j --arg palette "{{ .mode }}" '.color_palette = $palette' "$calibre_gui" >"$calibre_gui.tmp"; then
+	if jq -j --arg palette "{{ .mode }}" --arg font "{{ .fonts.sans }}" \
+		'.color_palette = $palette | .font = [$font, 10, 400, false]' \
+		"$calibre_gui" >"$calibre_gui.tmp"; then
 		mv "$calibre_gui.tmp" "$calibre_gui"
 	else
 		rm -f "$calibre_gui.tmp"
