@@ -95,6 +95,6 @@ generator = false
 homepage = "."
 # og_image is the social banner, relative to site_url. Bump the version when
 # the banner changes so link previews fetch the new image.
-og_image = "images/og.png?v=2"
+og_image = "images/og.png?v=3"
 # oembed.json carries the provider name and URL for link previews.
 oembed = "oembed.json"

@@ -84,6 +84,6 @@ site:
 
 social:
 	magick \
-		\( meta/captures/stage-light.png -crop 960x1008+0+36 +repage -resize 600x630^ -gravity center -extent 600x630 \) \
-		\( meta/captures/empty-dark.png -resize 600x630^ -gravity center -extent 600x630 \) \
-		+append -fill '#050505' -draw 'rectangle 596,0 603,629' +repage docs/images/og.png
+		\( meta/captures/stage-light.png -crop 600x630+0+36 +repage \) \
+		\( meta/captures/empty-dark.png -crop 600x630+1320+0 +repage \) \
+		+append +repage docs/images/og.png
