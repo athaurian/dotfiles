@@ -226,8 +226,8 @@ figure.screenshot img {
   border-radius: 0.2rem;
 }
 
-/* Images that bring their own corners, like tight window crops or cards with
-   transparent corners, opt out so the rounding cannot clip them. */
+/* Images that already have their own rounded corners opt out, so the theme
+   rounding cannot clip them. */
 .image-pair.no-radius img,
 figure.screenshot.no-radius img {
   border-radius: 0;
