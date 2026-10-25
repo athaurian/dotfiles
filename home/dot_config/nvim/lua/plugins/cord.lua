@@ -1,7 +1,19 @@
 local edited_buffers = {}
 
+local PRIVATE_MARKER = ".cordprivate"
+
+-- A repo opts out of sharing its name and files by holding this file at its root.
+local function repo_is_private(opts)
+  local root = opts.workspace_dir or vim.uv.cwd()
+  local marker = io.open(root .. "/" .. PRIVATE_MARKER, "r")
+  if not marker then return false end
+  marker:close()
+  return true
+end
+
 local function repository_url(opts)
   if not opts.repo_url then return end
+  if repo_is_private(opts) then return end
   local url = opts.repo_url:gsub("(https?://)[^/@]+@", "%1")
   return url
 end
@@ -67,6 +79,7 @@ return {
 
     text = {
       workspace = function(opts)
+        if opts.private then return "In a private project" end
         local text = "In " .. opts.workspace
         if opts.type == "language" then
           text = text .. problems_suffix()
@@ -74,18 +87,22 @@ return {
         return text
       end,
       editing = function(opts)
+        if opts.private then return "Working on a private file" end
         return string.format("Working on %s:%d:%d", opts.filename, opts.cursor_line, opts.cursor_char + 1)
       end,
       viewing = function(opts)
+        if opts.private then return "Viewing a private file" end
         return "Viewing " .. opts.filename
       end,
       terminal = function(opts)
+        if opts.private then return "Running commands in the terminal" end
         if opts.name and opts.name:lower() == "terminal" then
           return "Running commands in the terminal"
         end
         return "Running commands in " .. opts.name
       end,
       file_browser = function(opts)
+        if opts.private then return "Browsing files" end
         if opts.name and opts.name:lower() == "picker" then
           return "Browsing files in the picker"
         end
@@ -100,6 +117,7 @@ return {
       pre_activity = function(opts)
         resolve_bigfile(opts)
         apply_viewing(opts)
+        opts.private = repo_is_private(opts)
       end,
     },
     assets = {

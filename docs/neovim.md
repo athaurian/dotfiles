@@ -48,6 +48,10 @@ switches to `Working on file:line:column` and appends the number of errors and
 warnings. Also, when the repository I'm working in has a Git remote, it displays
 a `View Repository` button that opens the repository in my browser.
 
+I keep private repositories private by dropping a `.cordprivate` file in the
+repository root. Cord then swaps the project and file names for generic text and
+drops the button.
+
 <figure class="screenshot no-radius">
   <img src="images/neovim-discord-light.webp#only-light" alt="A Discord activity card showing Neovim editing a Python file in the chezmoi repository, with a View Repository button.">
   <img src="images/neovim-discord.webp#only-dark" alt="A Discord activity card showing Neovim editing a Python file in the chezmoi repository, with a View Repository button.">
