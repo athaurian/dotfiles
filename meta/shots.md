@@ -2,8 +2,11 @@
 
 The desktop images in `docs/images/` come from the live Sway session, not a
 headless renderer. The `meta/hero.py` script cuts and composes the split pairs,
-and the `meta/palette-card.py` script renders the palette card. The capture
-steps take over the session, so run them by hand in order.
+the `meta/palette-card.py` script renders the palette card, and
+`meta/round-corners.py` crops the window screenshots onto the page background.
+The window figures use `no-radius` in `extra.css`, so each image supplies its
+own corners. The capture steps take over the session, so run them by hand in
+order.
 
 ## Rules
 
@@ -126,21 +129,18 @@ grim meta/captures/editor-dark.png
 
 Repeat with the `palette-mode light` command and `editor-light.png`. The window
 border box is `1904x1040+8+32`, recorded beside each raw as a `.geom` file. The
-crop keeps that border and masks the corners outside it:
+window corners have a 5px radius. `meta/round-corners.py` crops the border box,
+rounds the corners with anti-aliasing, and fills them with the page background
+(`#050505` for slate, `#f3efec` for default) instead of leaving transparent
+pixels. The `--edge` color is the theme's window border:
 
 ```sh
-magick meta/captures/editor-dark.png \
-  -crop 1904x1040+8+32 +repage \
-  \( -size 1904x1040 xc:none -fill white \
-     -draw "roundrectangle 0,0,1903,1039,4,4" \) \
-  -compose DstIn -composite \
-  -quality 92 docs/images/neovim-editor.webp
-magick meta/captures/editor-light.png \
-  -crop 1904x1040+8+32 +repage \
-  \( -size 1904x1040 xc:none -fill white \
-     -draw "roundrectangle 0,0,1903,1039,4,4" \) \
-  -compose DstIn -composite \
-  -quality 92 docs/images/neovim-editor-light.webp
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/editor-dark.png docs/images/neovim-editor.webp \
+  --crop 1904x1040+8+32 --radius 5 --edge 5a5a5a --background 050505
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/editor-light.png docs/images/neovim-editor-light.webp \
+  --crop 1904x1040+8+32 --radius 5 --edge 999999 --background f3efec
 ```
 
 ## Discord pair
@@ -148,21 +148,20 @@ magick meta/captures/editor-light.png \
 Capture the Discord profile card in both modes at full screen. Archive the
 screenshots as `discord-dark.png` and `discord-light.png`. The card sits at
 `432x160+960+281` in the 1920x1080 capture, recorded beside each raw as a
-`.geom` file. Crop each raw to the card border and mask the corners outside it:
+`.geom` file. The card corners have a 12px radius. The dark card draws no border
+and ends two pixels above the light card's border, so each crop keeps its
+measured height. `meta/round-corners.py` fills the corners with the page
+background (`#050505` for slate, `#f3efec` for default) instead of leaving
+transparent pixels. The `--edge` color is the card fill for dark and the card
+border for light:
 
 ```sh
-magick meta/captures/discord-dark.png \
-  -crop 432x160+960+281 +repage \
-  \( -size 432x160 xc:none -fill white \
-     -draw "roundrectangle 0,0,431,159,8,8" \) \
-  -compose DstIn -composite \
-  -quality 92 docs/images/neovim-discord.webp
-magick meta/captures/discord-light.png \
-  -crop 432x160+960+281 +repage \
-  \( -size 432x160 xc:none -fill white \
-     -draw "roundrectangle 0,0,431,159,8,8" \) \
-  -compose DstIn -composite \
-  -quality 92 docs/images/neovim-discord-light.webp
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/discord-dark.png docs/images/neovim-discord.webp \
+  --crop 432x158+960+281 --radius 12 --edge 17181b --background 050505
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/discord-light.png docs/images/neovim-discord-light.webp \
+  --crop 432x160+960+281 --radius 12 --edge eaeaec --background f3efec
 ```
 
 ## Pickers
@@ -259,28 +258,20 @@ swaymsg -t get_tree | jq -r '[.. | objects | select(.name? == "clipboard_term")]
   > meta/captures/picker-clipboard.geom
 ```
 
-Repeat in the other mode with `picker-clipboard-light.png` and the matching
-`.geom` file. The recorded rectangle still includes the titlebar, so crop to the
-picker's own border instead. Both modes draw that border in `srgb(95,95,95)`;
-trimming the recorded rectangle to that colour gives `1410x665+9+19`:
+Repeat in the other mode with `picker-clipboard-light.png`. Both modes put the
+picker border at `1428x728+246+188`. The corners have a 5px radius, so a
+rectangular crop would keep wallpaper pixels. `meta/round-corners.py` crops the
+border box, rounds the corners with anti-aliasing, and fills them with the page
+background (`#050505` for slate, `#f3efec` for default) instead of leaving
+transparent pixels. The `--edge` color is the theme's window border:
 
 ```sh
-magick meta/captures/picker-clipboard.png \
-  -crop "$(cat meta/captures/picker-clipboard.geom)" +repage \
-  -alpha off -fill black +opaque 'srgb(95,95,95)' \
-  -fill white -opaque 'srgb(95,95,95)' -format '%@\n' info:
-```
-
-Add those offsets to the rectangle origin, which puts the frame at
-`1410x665+255+230` for this window size. That keeps the rounded border, drops
-the titlebar, and opts out of the corners that `extra.css` adds to figures:
-
-```sh
-for suffix in "" "-light"; do
-  magick "meta/captures/picker-clipboard${suffix}.png" \
-    -crop 1410x665+255+230 +repage \
-    -quality 92 "docs/images/picker-clipboard${suffix}.webp"
-done
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/picker-clipboard.png docs/images/picker-clipboard.webp \
+  --crop 1428x728+246+188 --radius 5 --edge 5a5a5a --background 050505
+uv run --with pillow python3 meta/round-corners.py \
+  meta/captures/picker-clipboard-light.png docs/images/picker-clipboard-light.webp \
+  --crop 1428x728+246+188 --radius 5 --edge 999999 --background f3efec
 ```
 
 Confirm the picker was focused before `grim`, since an unfocused picker dims its
