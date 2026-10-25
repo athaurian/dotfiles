@@ -1,40 +1,99 @@
 {
   "pacman": {
     "desktop": [
-      "imagemagick", "jq", "kitty", "libnotify", "fzf", "dunst",
-      "polkit-gnome", "xdg-utils"
+      "imagemagick",
+      "jq",
+      "kitty",
+      "libnotify",
+      "fzf",
+      "dunst",
+      "polkit-gnome",
+      "xdg-utils"
     ],
     "system": [
-      "blueman", "brightnessctl", "networkmanager", "network-manager-applet",
-      "syncthing", "pacman-contrib", "pavucontrol", "pipewire",
-      "pipewire-pulse", "playerctl", "mpv-mpris"
+      "blueman",
+      "brightnessctl",
+      "networkmanager",
+      "network-manager-applet",
+      "syncthing",
+      "pacman-contrib",
+      "pavucontrol",
+      "pipewire",
+      "pipewire-pulse",
+      "playerctl",
+      "mpv-mpris"
     ],
     "tui": [
-      "bat", "btop", "cava", "eza", "fastfetch", "fd", "git", "github-cli",
-      "lazygit", "neovim", "python", "rclone", "ripgrep", "uv", "zellij"
+      "bat",
+      "btop",
+      "cava",
+      "eza",
+      "fastfetch",
+      "fd",
+      "git",
+      "github-cli",
+      "lazygit",
+      "neovim",
+      "python",
+      "rclone",
+      "ripgrep",
+      "uv",
+      "zellij"
     ],
     "fonts": [
-      "adwaita-cursors", "noto-fonts",
-      "ttf-googlesanscode-nerd", "papirus-icon-theme"
+      "adwaita-cursors",
+      "noto-fonts",
+      "adobe-source-sans-fonts",
+      "adobe-source-code-pro-fonts",
+      "ttf-sourcecodepro-nerd"
     ],
     "apps": [
-      "calibre", "fnm", "keepassxc", "pinentry", "qt6ct",
-      "thunar", "zathura", "zathura-pdf-mupdf", "zoxide"
+      "calibre",
+      "fnm",
+      "keepassxc",
+      "pinentry",
+      "qt6ct",
+      "thunar",
+      "zathura",
+      "zathura-pdf-mupdf",
+      "zoxide"
     ]
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
   "aur": ["topgrade-bin"],
-  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git", "ttf-google-sans", "ttf-google-sans-code"],
+  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [
-      "i3-wm", "rofi", "picom", "feh", "lutgen-cli-git",
-      "flameshot", "redshift", "xclip", "xdotool", "xss-lock", "xorg-xset",
-      "i3lock-color", "polybar"
+      "i3-wm",
+      "rofi",
+      "picom",
+      "feh",
+      "lutgen-cli-git",
+      "flameshot",
+      "redshift",
+      "xclip",
+      "xdotool",
+      "xss-lock",
+      "xorg-xset",
+      "i3lock-color",
+      "polybar"
     ],
     "thinkpad": [
-      "awww", "cliphist", "fuzzel", "grim", "slurp", "satty", "swayidle",
-      "wl-clipboard", "wlsunset", "swaylock-effects", "swayfx-git",
-      "wayfreeze-git", "lutgen-cli-git", "qt6-wayland", "waybar"
+      "awww",
+      "cliphist",
+      "fuzzel",
+      "grim",
+      "slurp",
+      "satty",
+      "swayidle",
+      "wl-clipboard",
+      "wlsunset",
+      "swaylock-effects",
+      "swayfx-git",
+      "wayfreeze-git",
+      "lutgen-cli-git",
+      "qt6-wayland",
+      "waybar"
     ]
   }
 }

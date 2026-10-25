@@ -9,9 +9,9 @@ copyright = """
 <span>Made with ❤️ and <a href="https://zensical.org">Zensical</a></span> <span>Content licensed under <a href="https://github.com/athaurian/dotfiles/blob/main/LICENSE">MIT</a></span>
 """
 
-# Lora is loaded as a webfont for the serif roles that extra.css assigns.
+# Merriweather is loaded as a webfont for the serif roles that extra.css assigns.
 extra_css = [
-  "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=fallback",
+  "https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300..900;1,300..900&display=fallback",
   "stylesheets/extra.css",
 ]
 
@@ -31,8 +31,8 @@ nav = [
 
 [project.theme]
 variant = "modern"
-font.text = "Google Sans"
-font.code = "Google Sans Code"
+font.text = "Source Sans 3"
+font.code = "Source Code Pro"
 # The monogram tile comes from the docs theme, at --fill 0.38. It is the
 # header logo. The favicon is the absolute ICO URL, so link preview crawlers
 # can fetch it without resolving a relative path. The theme adds the SVG and

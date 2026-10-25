@@ -121,17 +121,16 @@
   color: var(--md-default-fg-color--lighter);
 }
 
-/* Google Sans carries prose and UI, Google Sans Code carries code, and Lora
-   fills the serif roles, which are the headings and the header title. The
-   header title repeats the repository name. Lora has no weight below 400. The
-   light weight renders as 400. */
+/* Source Sans 3 carries prose and UI, Source Code Pro carries code, and Merriweather
+   fills the serif roles, which are the headings and the header title. The header
+   title repeats the repository name. Merriweather's light weight renders as 400. */
 .md-typeset h1,
 .md-typeset h2,
 .md-typeset h3,
 .md-typeset h4,
 .md-typeset blockquote,
 .md-header__title .md-header__topic {
-  font-family: "Lora", Georgia, serif;
+  font-family: "Merriweather", Georgia, serif;
   font-weight: 300;
 }
 
@@ -143,22 +142,22 @@
   border-radius: 0.4rem;
 }
 
-/* The article uses smaller type than the theme default and caps lines at 65ch.
+/* The article uses smaller type than the theme default and caps lines at 70ch.
    The 32px margin floor keeps code blocks and table wrappers inside. */
 .md-typeset {
   font-size: 0.7rem;
 }
 
 .md-content__inner.md-typeset {
-  max-width: 65ch;
+  max-width: 70ch;
   /* The theme roots html at 125%. 1.6rem is 32px here. */
-  margin-inline: max(1.6rem, calc((100% - 65ch) / 2));
+  margin-inline: max(1.6rem, calc((100% - 70ch) / 2));
 }
 
 /* The theme's sidebar-visible layout needs this repeated selector. The margin
    floor applies here too. */
 [dir] .md-sidebar:not([hidden]) ~ .md-content > .md-content__inner.md-typeset {
-  margin-inline: max(1.6rem, calc((100% - 65ch) / 2));
+  margin-inline: max(1.6rem, calc((100% - 70ch) / 2));
 }
 
 .md-typeset p,

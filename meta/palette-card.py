@@ -84,8 +84,8 @@ def scaled(value: float) -> float:
 
 def main() -> int:
     pal = palette.load()
-    body = resolve_font("Google Sans")
-    mono = resolve_font("Google Sans Code") or body
+    body = resolve_font("Source Sans 3")
+    mono = resolve_font("Source Code Pro") or body
     header_font = load_font(body, int(scaled(HEADER_SIZE)))
     section_font = load_font(body, int(scaled(SECTION_SIZE)))
     name_font = load_font(body, int(scaled(NAME_SIZE)))
