@@ -80,7 +80,7 @@ check-config:
 	sh meta/check-config.sh
 
 site:
-	uv run --with zensical==0.0.71 zensical build --strict
+	uv run --with zensical==0.0.72 zensical build --strict
 
 social:
 	magick \
