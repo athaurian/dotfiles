@@ -1,4 +1,4 @@
-name: Deploy Pages Artifact
+name: deploy-pages
 
 on:
   workflow_call:

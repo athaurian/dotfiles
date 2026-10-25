@@ -1,4 +1,4 @@
-name: Check Dotfiles and Deploy Pages
+name: build-site
 
 on:
   push:
