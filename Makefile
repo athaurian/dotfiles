@@ -30,7 +30,7 @@ help:
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
-	@echo "  social            - Rebuild the Open Graph banner from the hero screenshots"
+	@echo "  social            - Rebuild the Open Graph banner from the editor and empty captures"
 
 format: format-md
 
@@ -84,6 +84,6 @@ site:
 
 social:
 	magick \
-		\( meta/captures/stage-light.png -crop 600x630+0+36 +repage \) \
-		\( meta/captures/empty-dark.png -crop 600x630+1320+0 +repage \) \
+		\( meta/captures/editor-light.png -crop 960x1008+0+36 +repage -resize 600x630^ -extent 600x630 \) \
+		\( meta/captures/empty-dark.png -crop 960x1008+960+0 +repage -resize 600x630^ -extent 600x630 \) \
 		+append +repage docs/images/og.png

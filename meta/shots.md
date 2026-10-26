@@ -41,7 +41,7 @@ The following table lists each image and its source.
 | ----------------------------- | ----------------------------------------------- |
 | `hero.webp`                   | `stage-light.png` + `stage-dark.png`, composed  |
 | `hero-empty.webp`             | `empty-light.png` + `empty-dark.png`, composed  |
-| `og.png`                      | `stage-light.png` + `empty-dark.png`, composed  |
+| `og.png`                      | `editor-light.png` + `empty-dark.png`, composed |
 | `picker-launcher.webp`        | `menu-launcher.png`, cropped                    |
 | `picker-launcher-light.webp`  | `menu-launcher-light.png`, cropped              |
 | `picker-poweroff.webp`        | `menu-poweroff.png`, cropped                    |
