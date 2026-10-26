@@ -1,22 +1,28 @@
 #!/usr/bin/env sh
 set -eu
 
-is_scratchpad=$(
+state=$(
 	i3-msg -t get_tree | jq -r '
 	def scan($state):
 		(if (.scratchpad_state? != null and .scratchpad_state != "none")
 		 then .scratchpad_state else $state end) as $s |
 		if .focused? == true and .window? != null then
-			($s != null and $s != "none")
+			"\(if $s != null and $s != "none" then "scratchpad" else "window" end) \(.type)"
 		else
-			(((.nodes // []) | map(scan($s)) | any) or
-			 ((.floating_nodes // []) | map(scan($s)) | any))
+			([((.nodes // [])[] | scan($s)), ((.floating_nodes // [])[] | scan($s))]
+			 | map(select(. != null)) | first)
 		end;
-	scan(null)'
+	scan(null) // empty'
 )
 
-if [ "$is_scratchpad" = "true" ]; then
+case "$state" in
+scratchpad*)
 	i3-msg 'move container to workspace current, floating disable, border pixel 1' >/dev/null
-else
-	i3-msg 'floating toggle' >/dev/null
-fi
+	;;
+"window floating_con")
+	i3-msg 'floating disable, border pixel 1' >/dev/null
+	;;
+"window con")
+	i3-msg 'floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center' >/dev/null
+	;;
+esac
