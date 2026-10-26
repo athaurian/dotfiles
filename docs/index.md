@@ -13,8 +13,6 @@ template: home.html
   </figure>
 </div>
 
-## Preface
-
 Hi. This is the documentation I wrote for my dotfiles repository. If you'd
 rather read the source code, it's on
 [GitHub](https://github.com/athaurian/dotfiles).

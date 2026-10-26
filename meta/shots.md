@@ -1,37 +1,48 @@
 # Screenshot capture
 
-The desktop images in `docs/images/` come from the live Sway session, not a
-headless renderer. The `meta/hero.py` script cuts and composes the split pairs,
-the `meta/palette-card.py` script renders the palette card, and
-`meta/round-corners.py` crops the window screenshots onto the page background.
-The window figures use `no-radius` in `extra.css`, so each image supplies its
-own corners. The capture steps take over the session, so run them by hand in
-order.
+The desktop images in `docs/images/` come from a live Sway session, not a
+headless renderer. The scripts in `meta/shots/` capture the screen and crop or
+compose the published figures. Run them by hand because they take over the
+session.
 
-## Rules
+Run these commands from the repository root. Pass `--help` to a script to list
+its actions.
 
-- Switch to workspace 3 before starting. The `swaymsg exec` command uses the
-  focused workspace, so start programs there.
-- Start fresh `kitty` processes for each mode instead of reusing windows, so
-  each capture uses the current generated theme.
-- The hero pair uses the `hero-nvim` and `hero-term` app IDs so the kill steps
-  can target them.
-- Start nvim with `--listen` so the remote commands can clear the prompt and
-  recenter the buffer. If pyright fails at startup, nvim shows a press-Enter
-  prompt that blocks `--remote-expr`. Clear it with `--remote-send '<Esc><CR>'`
-  first.
-- Focus `hero-nvim` after both panes exist so the border and cursor land in the
-  right pane.
-- Close notifications with `dunstctl close-all` before every `grim` command.
-- Focus the window before `grim` when the theme dims the unfocused window, or
-  the capture comes out dimmed.
-- The `grim` command captures the display at its current resolution, so
-  full-screen shots are 1920x1080.
-- Restore the session at the end: dark mode, workspace 1, no `hero-*` or
-  `fuzzel` processes, and no nvim socket.
+For a complete refresh of every capture that does not need manual intervention,
+run `meta/shots/redo-all.sh`. It covers the hero pair through the palette card
+and restores dark mode on workspace 1. It does not touch the lock or Discord
+captures.
 
-The active mode is recorded in `~/.local/state/palette-mode`. Check it before
-starting with `cat ~/.local/state/palette-mode`.
+## Before capturing
+
+Most scripts set the palette, switch to the workspace they need, close
+notifications, and close the windows they open. Some captures need manual setup:
+
+- Close all windows and remove `/tmp/chezmoi-shots/nvim-hero.sock` for the empty
+  desktop pair.
+- Open a fresh kitty for each editor mode so the palette is current, and focus
+  the editor before capturing.
+- Close notifications before a manual `grim`.
+- Save the Discord captures as full-screen PNGs in `meta/captures/`.
+
+Full-screen captures are 1920x1080 because `grim` uses the current display
+resolution.
+
+For manual captures, check the active mode with:
+
+```sh
+cat ~/.local/state/palette-mode
+```
+
+When done, switch back to dark mode, return to your starting workspace, close
+any leftover `hero-*` windows, stop `fuzzel`, and remove
+`/tmp/chezmoi-shots/nvim-hero.sock`.
+
+## Closing capture windows
+
+`swaymsg ... kill` sends a close request. Kitty asks for confirmation when a
+program is running, so the window stays open. The scripts read the kitty PID
+from the Sway tree and send `SIGTERM`. `SIGKILL` is only a fallback.
 
 ## Outputs
 
@@ -50,320 +61,214 @@ The following table lists each image and its source.
 | `picker-clipboard-light.webp` | `picker-clipboard-light.png`, border crop       |
 | `lock.webp`                   | `lock-dark.png`                                 |
 | `lock-light.webp`             | `lock-light.png`                                |
-| `bar.webp`                    | `bar-dark.png`, cropped to the bar              |
-| `bar-light.webp`              | `bar-light.png`, cropped to the bar             |
+| `bar.webp`                    | `bar-dark.png`, top 24 pixels                   |
+| `bar-light.webp`              | `bar-light.png`, top 24 pixels                  |
 | `neovim-editor.webp`          | `editor-dark.png`, cropped                      |
 | `neovim-editor-light.webp`    | `editor-light.png`, cropped                     |
 | `neovim-discord.webp`         | `discord-dark.png`, cropped to the card border  |
 | `neovim-discord-light.webp`   | `discord-light.png`, cropped to the card border |
-| `palette.webp`                | `meta/palette-card.py`, no capture              |
+| `palette.webp`                | `meta/shots/palette.py`, rendered               |
 
-Raws are archived in `meta/captures/` with their crop geometry, except the lock
-pair. Scratch goes in `/tmp/chezmoi-shots/` and can be discarded.
+Raw captures stay in `meta/captures/` with their geometry where needed. Rebuild
+`og.png` with `make social`.
 
 ## Hero pair
 
-The following block captures light mode. Repeat it with the `palette-mode dark`
-command and `stage-dark.png` for the dark capture:
+Capture one mode at a time:
 
 ```sh
-~/.local/bin/palette-mode light
-swaymsg workspace 3
-rm -f /tmp/chezmoi-shots/nvim-hero.sock
-swaymsg exec "kitty --class hero-nvim nvim --listen /tmp/chezmoi-shots/nvim-hero.sock -c 'normal! zR' -c 'normal! 330Gzz' $HOME/.local/share/chezmoi/assets/hl_test.py"
-sleep 0.4
-swaymsg exec "kitty --class hero-term sh -c 'python3 $HOME/.local/share/chezmoi/assets/hl_test.py; exec sh'"
-sleep 0.6
-swaymsg '[app_id=hero-nvim] focus'
-sleep 11
-timeout 5 nvim --server /tmp/chezmoi-shots/nvim-hero.sock --remote-send '<Esc><CR>'
-timeout 8 nvim --server /tmp/chezmoi-shots/nvim-hero.sock --remote-expr 'execute("normal! 330Gzz")'
-dunstctl close-all
-grim meta/captures/stage-light.png
-swaymsg '[app_id=hero-nvim] kill'
-swaymsg '[app_id=hero-term] kill'
-rm -f /tmp/chezmoi-shots/nvim-hero.sock
+meta/shots/hero.py light
+meta/shots/hero.py dark
 ```
+
+The script sets the palette, switches to workspace 3, and opens nvim and a
+terminal. It waits 11 seconds for nvim to start. If pyright fails at startup,
+nvim waits at a prompt for Enter. The script clears it with `<Esc><CR>` before
+recentering the buffer, writes `stage-<mode>.png`, and closes both windows.
 
 Compose the pair with:
 
 ```sh
-uv run --with pillow python3 meta/hero.py meta/captures/stage-light.png \
-  meta/captures/stage-dark.png -o docs/images/hero.webp
+meta/shots/hero.py compose
 ```
 
-By default, the divider runs from 0.75 of the width at the top to 0.25 at the
-bottom. The dark capture fills the top, and the light capture fills the bottom.
-The output keeps the source resolution, with an anti-aliased edge and no
-separator line.
+The divider runs from 0.75 of the width at the top to 0.25 at the bottom. The
+dark capture fills the top and the light capture fills the bottom. The output
+keeps the source resolution, with an anti-aliased edge and no separator line.
 
 ## Empty desktop pair
 
-Start with no windows open and no nvim socket. Flip modes between captures:
+Close all windows and remove the nvim socket. Capture each mode:
 
 ```sh
-~/.local/bin/palette-mode light
-swaymsg workspace 3
-dunstctl close-all
-sleep 2
-grim meta/captures/empty-light.png
+meta/shots/empty.py light
+meta/shots/empty.py dark
 ```
 
-Repeat with the `palette-mode dark` command and `empty-dark.png`, then compose
-with the same `meta/hero.py` command as the hero pair.
+The script sets the palette, switches to workspace 3, closes notifications,
+waits ten seconds, and writes `empty-<mode>.png`. Compose the pair with:
+
+```sh
+meta/shots/empty.py compose
+```
 
 ## Editor pair
 
-Open nvim on `assets/hl_test.py` on workspace 3 with the explorer open on the
-left. Press `I` in the explorer to list ignored files: the explorer config
-leaves `ignored` off, and `assets/` is gitignored, so the file has no visible
-path in the tree until then. `H` toggles hidden files, which the config already
-enables and which hide the dotfiles again.
+Open nvim on `assets/hl_test.py` in workspace 3 with the explorer on the left.
+Start at line 330, open the explorer, press `I` to show ignored files, then move
+back to the editor and center the line. `assets/` is gitignored, and the
+explorer hides ignored files by default.
 
 ```sh
-~/.local/bin/palette-mode dark
-swaymsg workspace 3
-dunstctl close-all
-grim meta/captures/editor-dark.png
+swaymsg exec "kitty --class editor-nvim nvim +330 assets/hl_test.py"
 ```
 
-Repeat with the `palette-mode light` command and `editor-light.png`. The window
-border box is `1904x1040+8+32`, recorded beside each raw as a `.geom` file. The
-window corners have a 5px radius. `meta/round-corners.py` crops the border box,
-rounds the corners with anti-aliasing, and fills them with the page background
-(`#050505` for slate, `#f3efec` for default) instead of leaving transparent
-pixels. The `--edge` color is the theme's window border:
+In nvim, run `:lua Snacks.explorer()`, press `I`, then `<C-w>l` and `330Gzz`.
+Capture each mode:
 
 ```sh
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/editor-dark.png docs/images/neovim-editor.webp \
-  --crop 1904x1040+8+32 --radius 5 --edge 5a5a5a --background 050505
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/editor-light.png docs/images/neovim-editor-light.webp \
-  --crop 1904x1040+8+32 --radius 5 --edge 999999 --background f3efec
+meta/shots/editor.py dark
+meta/shots/editor.py light
 ```
+
+The script focuses the `editor-nvim` window, captures `editor-<mode>.png`, and
+saves the window geometry in `editor-<mode>.geom`. Compose the pair with:
+
+```sh
+meta/shots/editor.py compose
+```
+
+The compose step crops the border box with `meta/round-corners.py`. It uses a
+5px radius and fills the corners with the page background (`#050505` for slate,
+`#f3efec` for default). The `--edge` color is the window border. The geometry
+file keeps the crop aligned when the window size changes.
 
 ## Discord pair
 
-Capture the Discord profile card in both modes at full screen. Archive the
-screenshots as `discord-dark.png` and `discord-light.png`. The card sits at
-`432x160+960+281` in the 1920x1080 capture, recorded beside each raw as a
-`.geom` file. The card corners have a 12px radius. The dark card draws no border
-and ends two pixels above the light card's border, so each crop keeps its
-measured height. `meta/round-corners.py` fills the corners with the page
-background (`#050505` for slate, `#f3efec` for default) instead of leaving
-transparent pixels. The `--edge` color is the card fill for dark and the card
-border for light:
+Capture the profile card in both modes and save the full-screen images as
+`meta/captures/discord-dark.png` and `meta/captures/discord-light.png`. Crop
+them with:
 
 ```sh
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/discord-dark.png docs/images/neovim-discord.webp \
-  --crop 432x158+960+281 --radius 12 --edge 17181b --background 050505
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/discord-light.png docs/images/neovim-discord-light.webp \
-  --crop 432x160+960+281 --radius 12 --edge eaeaec --background f3efec
+meta/shots/discord.py dark
+meta/shots/discord.py light
 ```
+
+Use `compose` to crop both at once:
+
+```sh
+meta/shots/discord.py compose
+```
+
+The card sits at `432x160+960+281`, and its corners have a 12px radius. The dark
+card has no border. The light card's border extends two pixels lower, so the
+dark crop is `432x158+960+281`. The script fills the corners with the page
+background. The edge color is the card fill for dark and the card border for
+light.
 
 ## Pickers
 
-Capture the launcher and power menu in both modes. The following steps start in
-dark mode. Repeat them in light mode with the `-light` filenames.
+Capture both menus in each mode:
 
 ```sh
-~/.local/bin/palette-mode dark
-swaymsg workspace 3
-dunstctl close-all
-swaymsg exec fuzzel
-sleep 1.5
-dunstctl close-all
-grim meta/captures/menu-launcher.png
-pkill -x fuzzel
+meta/shots/pickers.py dark
+meta/shots/pickers.py light
 ```
+
+The script sets the palette, switches to workspace 3, captures the launcher and
+power menu, and crops the four figures. It stops fuzzel with `pkill -x fuzzel`.
+Avoid a broad `pkill -f` pattern; it can match the shell running the command and
+kill the caller.
+
+The crops are 752x498 and centered on the menu. If the menu size changes, use
+the `frame` action:
 
 ```sh
-swaymsg exec "$HOME/.config/sway/scripts/power_control.sh poweroff"
-sleep 1.5
-dunstctl close-all
-grim meta/captures/menu-poweroff.png
-pkill -x fuzzel
-rm -f "${XDG_RUNTIME_DIR}/confirm_action"
+meta/shots/pickers.py frame dark
+meta/shots/pickers.py frame light
 ```
 
-Do not use a `pkill -f` pattern that mentions the fuzzel confirmation prompt in
-the invoking command line. The `power_control.sh` script matches that pattern
-against full command lines and kills the caller. Use `pkill -x fuzzel` to cancel
-both menus.
-
-Both modes use the same 752x498 frame, centered on each menu's bounding-box
-center. The offsets come from a difference against the empty capture for that
-mode, with the bar rows excluded:
-
-```sh
-for suffix in "" "-light"; do
-  magick "meta/captures/menu-launcher${suffix}.png" -crop 752x498+581+307 +repage \
-    -quality 92 "docs/images/picker-launcher${suffix}.webp"
-  magick "meta/captures/menu-poweroff${suffix}.png" -crop 752x498+581+305 +repage \
-    -quality 92 "docs/images/picker-poweroff${suffix}.webp"
-done
-```
-
-If the menu changes size, recompute the frame:
-
-```sh
-magick meta/captures/menu-launcher.png meta/captures/empty-dark.png \
-  -compose difference -composite -crop 1920x1040+0+40 +repage \
-  -threshold 8% -trim info:
-```
-
-The output is the menu's bounding box in the cropped canvas. Add 40 pixels to
-the y coordinate, center a 752x498 frame on the box, and use that frame's
-offsets. Use `empty-light.png` when recomputing the light frames.
+It prints the menu bounds in a canvas that starts 40 pixels below the top of the
+screen. Add 40 to the y offset, center the 752x498 frame on the bounds, and
+update the offsets in `pickers.py`. The action uses the empty capture for the
+same mode.
 
 ## Clipboard history
 
-Capture the picker from a seeded database rather than the live one. The
-`--db-path` flag points it at a throwaway file, so the real history stays
-untouched and the capture holds no personal entries. Store the image last so it
-lands at the newest id, which is the entry fzf selects on open and the one the
-preview pane then shows:
+The script seeds a throwaway database in `/tmp/chezmoi-shots/`, sets the
+palette, and switches to workspace 3. The seeded entries end with
+`meta/shots/clipboard-preview.webp`, so the preview shows that image when the
+picker opens.
+
+Capture each mode:
 
 ```sh
-D=/tmp/chezmoi-shots/cliphist-demo
-mkdir -p "$D"
-printf 'git rebase -i HEAD~3\n' | cliphist -db-path "$D/db" store
-printf 'grep -rn "objects | select" home/ --include="*.sh"\n' | cliphist -db-path "$D/db" store
-printf 'https://github.com/athaurian/dotfiles\n' | cliphist -db-path "$D/db" store
-printf 'The palette lives in meta/palette.toml and every colour comes from it.\n' | cliphist -db-path "$D/db" store
-magick docs/images/palette.webp -resize 800x png:- | cliphist -db-path "$D/db" store
+meta/shots/clipboard.py light
+meta/shots/clipboard.py dark
 ```
 
-The picker re-executes itself inside a titled `kitty` window, and that window
-starts hidden in the scratchpad. The rule resizes and parks it, and the
-`scratchpad show` below brings it back centered. Use an otherwise empty
-workspace so nothing else lands in the capture:
+The picker opens in a kitty window titled `clipboard_term`. The script shows the
+window, centers it, focuses it, and captures it. It writes
+`picker-clipboard<mode>.png`, closes the picker by PID with `SIGTERM`, removes
+the database, and crops the figure. Use an otherwise empty workspace.
 
-```sh
-~/.local/bin/palette-mode light
-swaymsg workspace 5
-dunstctl close-all
-swaymsg exec "$HOME/.local/bin/clipboard --db-path $D/db"
-sleep 2.5
-swaymsg "[con_mark=clipboard_term] scratchpad show, resize set width 75 ppt height 70 ppt, move position center"
-sleep 1
-swaymsg '[con_mark=clipboard_term] focus'
-sleep 2.5
-dunstctl close-all
-grim meta/captures/picker-clipboard.png
-swaymsg -t get_tree | jq -r '[.. | objects | select(.name? == "clipboard_term")] | .[0] | "\(.rect.width)x\(.rect.height)@\(.rect.x),\(.rect.y)"' \
-  > meta/captures/picker-clipboard.geom
-```
+Both modes use the same border crop: `1428x728+246+188`. The corners have a 5px
+radius, so a rectangular crop would keep wallpaper pixels.
+`meta/round-corners.py` crops the border box, rounds the corners, and fills them
+with the page background. The edge color is the window border.
 
-Repeat in the other mode with `picker-clipboard-light.png`. Both modes put the
-picker border at `1428x728+246+188`. The corners have a 5px radius, so a
-rectangular crop would keep wallpaper pixels. `meta/round-corners.py` crops the
-border box, rounds the corners with anti-aliasing, and fills them with the page
-background (`#050505` for slate, `#f3efec` for default) instead of leaving
-transparent pixels. The `--edge` color is the theme's window border:
-
-```sh
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/picker-clipboard.png docs/images/picker-clipboard.webp \
-  --crop 1428x728+246+188 --radius 5 --edge 5a5a5a --background 050505
-uv run --with pillow python3 meta/round-corners.py \
-  meta/captures/picker-clipboard-light.png docs/images/picker-clipboard-light.webp \
-  --crop 1428x728+246+188 --radius 5 --edge 999999 --background f3efec
-```
-
-Confirm the picker was focused before `grim`, since an unfocused picker dims its
-preview pane and the capture comes out dimmed. Close the picker afterwards by
-killing the window's process id, read from the same tree query. A
-`swaymsg ... kill` on a kitty window leaves the process running, which prompts
-for confirmation and keeps the window alive, and a `pkill -f` pattern that
-matches the picker also matches the invoking shell and kills it:
-
-```sh
-P=$(swaymsg -t get_tree | jq -r '[.. | objects | select(.name? == "clipboard_term")] | .[0] | .pid')
-kill "$P"
-rm -rf "$D"
-```
+Create the database without capturing with `meta/shots/clipboard.py seed`.
+Recrop an existing raw with `meta/shots/clipboard.py crop light`.
 
 ## Lock screen
 
-The `lock.sh` script shows a 2.5-second warning, blurs a snapshot of the
-desktop, then starts `swaylock`. The `grim` command captures the locked screen 8
-seconds later. Unlock it yourself afterward. Pass literal `--timestr` and
-`--datestr` values so the two captures show the same clock. The `lock.sh` script
-forwards extra arguments to `swaylock`.
+Capture each mode:
 
 ```sh
-swaymsg workspace 3
-dunstctl close-all
-( sleep 8; grim meta/captures/lock-dark.png ) &
-~/.config/sway/scripts/lock.sh --timestr '18:10' --datestr 'Mon, 19 Oct'
+meta/shots/lock.py dark
+meta/shots/lock.py light
 ```
 
-Wait 15 seconds at the password prompt before unlocking. For light mode, repeat
-the capture with the same strings and save it as `lock-light.png`. Convert both
-captures:
+The script schedules a capture, then runs `lock.sh` with a fixed time and date.
+The lock script shows a warning for 2.5 seconds, blurs a snapshot of the
+desktop, and starts `swaylock`. The capture runs 8 seconds after `lock.py`
+starts. Wait at least 15 seconds before unlocking so the capture finishes.
 
-```sh
-magick meta/captures/lock-dark.png -quality 92 docs/images/lock.webp
-magick meta/captures/lock-light.png -quality 92 docs/images/lock-light.webp
-```
-
-Both published figures are re-encodes of the previous ones: the raws went to
-`/tmp/chezmoi-shots/` under the earlier staging rule and were discarded, so the next
-recapture has to start from a fresh raw.
+Convert an existing raw with `meta/shots/lock.py convert light`.
 
 ## Status bar
 
-Waybar occupies the top 24 pixels of the screen. Capture the strip on workspace
-4 with the preview terminal focused, starting in light mode. Pause playback
-first if the player is running, so the track does not change between modes:
+Capture each mode:
 
 ```sh
-playerctl pause
-swaymsg workspace 4
-swaymsg exec "kitty --class bar-preview --title hl_test.py nvim $HOME/.local/share/chezmoi/assets/hl_test.py"
-sleep 2
-swaymsg '[app_id=bar-preview] focus'
-dunstctl close-all
-grim -g "0,0 1920x24" meta/captures/bar-light.png
+meta/shots/bar.py light
+meta/shots/bar.py dark
 ```
 
-The `--title` flag fixes the focused window title, so the center module always
-reads `hl_test.py`. Repeat with the `palette-mode dark` command and
-`bar-dark.png`. The mode switch restarts Waybar and posts a notification, so
-close notifications again before the second `grim`. Restore the session and
-convert both strips:
+The script switches to workspace 3 and opens a preview terminal titled
+`hl_test.py`. The title keeps the center module stable. It waits ten seconds for
+the update module to initialize, captures the top 24 pixels, closes the preview,
+and converts the strip to WebP.
 
-```sh
-~/.local/bin/palette-mode light
-swaymsg '[app_id=bar-preview] kill'
-swaymsg workspace 3
-magick meta/captures/bar-dark.png -quality 92 docs/images/bar.webp
-magick meta/captures/bar-light.png -quality 92 docs/images/bar-light.webp
-```
-
-Resume playback afterwards if it was running before the captures.
+Convert an existing raw with `meta/shots/bar.py crop light`.
 
 ## Palette card
 
-Render the palette card from the derived palette. It needs no session capture:
+The palette card needs no capture:
 
 ```sh
-uv run --with pillow python3 meta/palette-card.py
+meta/shots/palette.py
 ```
 
 ## Themed images
 
-The picker, lock, and status bar figures include both captures. The light URL
-ends in `#only-light` and the dark URL in `#only-dark`. Zensical hides the
-variant that does not match the active scheme. The GLightbox `auto_themed`
-option in `zensical.toml` keeps the hidden variant out of the gallery.
+The picker, lock, and status bar figures have light and dark versions. The light
+URL ends in `#only-light` and the dark URL in `#only-dark`, so Zensical shows
+the version that matches the active scheme. The GLightbox `auto_themed` option
+in `zensical.toml` keeps the hidden version out of the gallery.
 
-The hero pairs and the palette card intentionally show both modes, so they stay
-visible in either scheme and carry no fragment.
+The hero pairs and the palette card show both modes on purpose, so they have no
+fragment.
 
 ## Checks
 
