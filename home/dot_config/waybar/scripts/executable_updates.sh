@@ -29,10 +29,10 @@ fi
 if [ "$count" -gt 0 ]; then
 	sample=""
 	if [ -n "$pacman_out" ]; then
-		sample=$(printf '%s' "$pacman_out" | head -n 5 | tr '\n' '; ' | sed 's/; $//')
+		sample=$(printf '%s' "$pacman_out" | head -n 5 | tr '\n' ';' | sed 's/;/; /g; s/; $//')
 	fi
 	if [ -z "$sample" ] && [ -n "$paru_out" ]; then
-		sample=$(printf '%s' "$paru_out" | head -n 5 | tr '\n' '; ' | sed 's/; $//')
+		sample=$(printf '%s' "$paru_out" | head -n 5 | tr '\n' ';' | sed 's/;/; /g; s/; $//')
 	fi
 	if [ -n "$sample" ]; then
 		tooltip="${count} update(s): ${sample}"
