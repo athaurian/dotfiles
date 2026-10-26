@@ -276,6 +276,48 @@ def test_fehbg():
     check("fehbg absolute passthrough", '"/elsewhere/x.png"' in out)
 
 
+def test_display_size():
+    check("display size parses", sw.parse_display_size("1366 768\n") == (1366, 768))
+    check("display size trims", sw.parse_display_size(" 1920 1080 ") == (1920, 1080))
+    check("display size rejects empty", sw.parse_display_size("") is None)
+    check("display size rejects short", sw.parse_display_size("1366") is None)
+    check("display size rejects words", sw.parse_display_size("1366 px") is None)
+    check("display size rejects zero", sw.parse_display_size("0 768") is None)
+    check("display size rejects negative", sw.parse_display_size("-1 768") is None)
+
+
+def test_screen_fit(tmpdir):
+    target = sw.screen_fit_path(
+        Path("/home/tester/.cache/sw/wallpapers/river.hash.jpg"),
+        (1366, 768),
+        Path(tmpdir),
+    )
+    check(
+        "screen fit path",
+        target == Path(tmpdir) / "river.hash.1366x768.png",
+    )
+    cmd = sw.screen_fit_command(
+        "/usr/bin/magick",
+        Path("/tmp/river.jpg"),
+        target,
+        (1366, 768),
+    )
+    check(
+        "screen fit command",
+        cmd[0] == "/usr/bin/magick"
+        and cmd[1] == "/tmp/river.jpg"
+        and "1366x768^" in cmd
+        and "PNG24:" + str(target) in cmd,
+    )
+    gif_cmd = sw.screen_fit_command(
+        "/usr/bin/magick",
+        Path("/tmp/orbit.gif"),
+        target,
+        (1366, 768),
+    )
+    check("screen fit gif first frame", gif_cmd[1] == "/tmp/orbit.gif[0]")
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="sw_test_") as tmpdir:
         test_output_path(tmpdir)
@@ -291,6 +333,8 @@ def main():
     test_numbers()
     test_backend()
     test_fehbg()
+    test_display_size()
+    test_screen_fit(tmpdir)
     print("ALL PASS" if _failures == 0 else "SOME FAILED")
     sys.exit(0 if _failures == 0 else 1)
 

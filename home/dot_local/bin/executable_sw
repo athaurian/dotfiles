@@ -464,6 +464,103 @@ def write_fehbg(path: Path) -> bool:
     return True
 
 
+def parse_display_size(raw: str) -> tuple[int, int] | None:
+    parts = raw.split()
+    if len(parts) != 2:
+        return None
+    try:
+        width, height = (int(part) for part in parts)
+    except ValueError:
+        return None
+    if width <= 0 or height <= 0:
+        return None
+    return width, height
+
+
+def display_size() -> tuple[int, int] | None:
+    xdotool = shutil.which("xdotool")
+    if xdotool is None:
+        return None
+    try:
+        result = subprocess.run(
+            [xdotool, "getdisplaygeometry"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    return parse_display_size(result.stdout)
+
+
+def screen_fit_path(
+    path: Path,
+    size: tuple[int, int],
+    cache_dir: Path | None = None,
+) -> Path:
+    directory = sw_cache() / "wallpapers" / "screen" if cache_dir is None else cache_dir
+    width, height = size
+    return directory / f"{path.stem}.{width}x{height}.png"
+
+
+def screen_fit_command(
+    magick: str,
+    image: Path,
+    target: Path,
+    size: tuple[int, int],
+) -> list[str]:
+    width, height = size
+    source = f"{image}[0]" if is_animation(image) else str(image)
+    return [
+        magick,
+        source,
+        "-auto-orient",
+        "-resize",
+        f"{width}x{height}^",
+        "-gravity",
+        "center",
+        "-extent",
+        f"{width}x{height}",
+        "-strip",
+        f"PNG24:{target}",
+    ]
+
+
+def fit_image_for_screen(image: Path, target: Path, size: tuple[int, int]) -> bool:
+    if is_nonempty_file(target):
+        return True
+
+    # feh's --bg-fill scaler blends the top and left edge pixels with stale
+    # pixmap contents. A screen-sized image keeps its render 1:1.
+    magick = shutil.which("magick")
+    if magick is None:
+        warn("magick not found; feh will scale the wallpaper itself")
+        return False
+
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(
+            prefix=".sw-fit-",
+            dir=target.parent,
+        ) as temp_dir:
+            staged = Path(temp_dir) / target.name
+            subprocess.run(
+                screen_fit_command(magick, image, staged, size),
+                check=True,
+            )
+            if not is_nonempty_file(staged):
+                warn(f"could not fit {image} to the screen")
+                return False
+            os.replace(staged, target)
+    except subprocess.CalledProcessError as exc:
+        warn(f"could not fit {image} to the screen (exit status {exc.returncode})")
+        return False
+    except OSError as exc:
+        warn(f"could not fit {image} to the screen: {exc}")
+        return False
+    return True
+
+
 def set_wallpaper(path: Path) -> bool:
     backend = wallpaper_backend()
     if backend is None:
@@ -472,9 +569,15 @@ def set_wallpaper(path: Path) -> bool:
     name, executable = backend
 
     if name == "feh":
+        feh_path = path
+        size = display_size()
+        if size is not None:
+            fitted = screen_fit_path(path, size)
+            if fit_image_for_screen(path, fitted, size):
+                feh_path = fitted
         try:
             subprocess.run(
-                [executable, "--no-fehbg", "--bg-fill", str(path)], check=True
+                [executable, "--no-fehbg", "--bg-fill", str(feh_path)], check=True
             )
         except subprocess.CalledProcessError as exc:
             warn(f"feh failed to set wallpaper (exit status {exc.returncode})")
@@ -482,7 +585,7 @@ def set_wallpaper(path: Path) -> bool:
         except OSError as exc:
             warn(f"could not run feh: {exc}")
             return False
-        write_fehbg(path)
+        write_fehbg(feh_path)
         return True
 
     duration, transition = transition_for(path)
