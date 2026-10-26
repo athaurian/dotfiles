@@ -50,6 +50,7 @@
     "apps": [
       "calibre",
       "fnm",
+      "imv",
       "keepassxc",
       "pinentry",
       "qt6ct",
