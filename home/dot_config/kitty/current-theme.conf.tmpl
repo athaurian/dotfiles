@@ -2,7 +2,8 @@
 # {{- $p := .palette }}
 background {{ $p.base.hex }}
 foreground {{ $p.text.hex }}
-cursor {{ $p.text_max.hex }}
+cursor {{ $p.blue.hex }}
+cursor_text_color {{ $p.on_accent.hex }}
 selection_background {{ $p.selection.hex }}
 selection_foreground {{ $p.text.hex }}
 color0 {{ $p.base.hex }}
