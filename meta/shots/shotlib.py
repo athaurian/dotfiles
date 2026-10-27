@@ -19,6 +19,7 @@ DOC_IMAGES = ROOT / "docs" / "images"
 HL_TEST = ROOT / "assets" / "hl_test.py"
 SHOT_TMP = Path("/tmp/chezmoi-shots")
 HERO_SOCKET = SHOT_TMP / "nvim-hero.sock"
+EDITOR_SOCKET = SHOT_TMP / "editor.sock"
 CLIP_DIR = SHOT_TMP / "cliphist-demo"
 CLIP_DB = CLIP_DIR / "db"
 RUNTIME = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
@@ -124,6 +125,65 @@ def wait_socket(path: Path, timeout: float = 10.0) -> None:
         if time.monotonic() >= deadline:
             error(f"socket did not appear: {path}")
         time.sleep(0.1)
+
+
+def nvim_remote_expr(socket: Path, expression: str) -> str:
+    result = run(
+        ["timeout", "5", "nvim", "--server", str(socket), "--remote-expr", expression],
+        capture=True,
+    )
+    return result.stdout.decode("utf-8", errors="replace").strip()
+
+
+def nvim_remote_send(socket: Path, keys: str) -> None:
+    run(["timeout", "5", "nvim", "--server", str(socket), "--remote-send", keys])
+
+
+def nvim_cursor(socket: Path) -> tuple[int, int]:
+    line = nvim_remote_expr(socket, "line('.')")
+    column = nvim_remote_expr(socket, "col('.')")
+    try:
+        return int(line), int(column)
+    except ValueError:
+        error(f"could not read cursor position: {line}:{column}")
+
+
+def verify_editor(socket: Path, *, path: Path, minimum_lines: int = 100) -> None:
+    buffer = nvim_remote_expr(socket, 'expand("%:p")')
+    try:
+        lines = int(nvim_remote_expr(socket, 'line("$")'))
+    except ValueError:
+        error("could not read the editor line count")
+    if buffer != str(path) or lines < minimum_lines:
+        error(
+            f"editor is {buffer} with {lines} lines, expected {path} with {minimum_lines} or more"
+        )
+
+
+def prime_editor(
+    socket: Path,
+    *,
+    line: int = 330,
+    column: int = 12,
+    settle: float = 0.3,
+) -> None:
+    nvim_remote_expr(
+        socket,
+        'execute("wincmd l") + execute("normal! ggzt") + execute("redraw!")',
+    )
+    time.sleep(settle)
+    nvim_remote_expr(
+        socket,
+        f'execute("call cursor({line}, {column})") '
+        f'+ execute("normal! zz") '
+        f'+ execute("redraw!")',
+    )
+    time.sleep(settle)
+    actual_line, actual_column = nvim_cursor(socket)
+    if actual_line != line or actual_column != column:
+        error(
+            f"editor cursor is {actual_line}:{actual_column}, expected {line}:{column}"
+        )
 
 
 def close_notifications() -> None:

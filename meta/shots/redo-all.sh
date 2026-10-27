@@ -4,66 +4,6 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)
 cd "$ROOT"
 
-SHOT_TMP=/tmp/chezmoi-shots
-EDITOR_SOCK="$SHOT_TMP/editor.sock"
-
-stop_editor() {
-	local pid
-	pid=$(swaymsg -t get_tree |
-		jq -r '.. | objects | select(.app_id? == "editor-nvim") | .pid' |
-		head -n 1)
-	if [ -n "${pid:-}" ]; then
-		kill -TERM "$pid" 2>/dev/null || true
-		for _ in $(seq 1 20); do
-			kill -0 "$pid" 2>/dev/null || break
-			sleep 0.1
-		done
-		kill -KILL "$pid" 2>/dev/null || true
-	fi
-	rm -f "$EDITOR_SOCK"
-}
-
-start_editor() {
-	stop_editor
-	swaymsg workspace 3 >/dev/null
-	swaymsg exec "sh -c 'cd $ROOT && exec kitty --class editor-nvim nvim --listen $EDITOR_SOCK +330 assets/hl_test.py'" >/dev/null
-	for _ in $(seq 1 100); do
-		if swaymsg -t get_tree |
-			jq -e '.. | objects | select(.app_id? == "editor-nvim")' >/dev/null
-		then
-			break
-		fi
-		sleep 0.1
-	done
-	for _ in $(seq 1 100); do
-		[ -S "$EDITOR_SOCK" ] && break
-		sleep 0.1
-	done
-	sleep 11
-	for _ in $(seq 1 3); do
-		timeout 5 nvim --server "$EDITOR_SOCK" --remote-send '<Esc><CR>' >/dev/null || true
-		sleep 1
-	done
-	timeout 5 nvim --server "$EDITOR_SOCK" --remote-send ':lua Snacks.explorer()<CR>' >/dev/null
-	sleep 1.5
-	timeout 5 nvim --server "$EDITOR_SOCK" --remote-send 'I' >/dev/null
-	sleep 1.5
-	timeout 5 nvim --server "$EDITOR_SOCK" --remote-send '<C-w>l330Gzz' >/dev/null
-	sleep 0.5
-
-	local buffer lines line
-	buffer=$(timeout 5 nvim --server "$EDITOR_SOCK" --remote-expr 'expand("%:p")')
-	lines=$(timeout 5 nvim --server "$EDITOR_SOCK" --remote-expr 'line("$")')
-	line=$(timeout 5 nvim --server "$EDITOR_SOCK" --remote-expr 'line(".")')
-	if [ "$buffer" != "$ROOT/assets/hl_test.py" ] || [ "$lines" -lt 100 ] || [ "$line" -ne 330 ]; then
-		printf 'editor setup failed: %s, %s lines, cursor %s\n' \
-			"$buffer" "$lines" "$line" >&2
-		exit 1
-	fi
-}
-
-stop_editor
-
 printf 'Clearing old captures\n'
 rm -f \
 	meta/captures/stage-light.png \
@@ -126,16 +66,10 @@ printf 'Bar light\n'
 meta/shots/bar.py light
 
 printf 'Editor dark\n'
-~/.local/bin/palette-mode dark
-start_editor
 meta/shots/editor.py dark
-stop_editor
 
 printf 'Editor light\n'
-~/.local/bin/palette-mode light
-start_editor
 meta/shots/editor.py light
-stop_editor
 printf 'Editor compose\n'
 meta/shots/editor.py compose
 

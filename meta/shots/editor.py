@@ -9,17 +9,26 @@ import time
 from shotlib import (
     CAPTURES,
     DOC_IMAGES,
+    EDITOR_SOCKET,
+    HL_TEST,
     close_notifications,
     crop_round,
     error,
     find_window,
     grim,
+    kill_window,
     mode_background,
     mode_edge,
     mode_suffix,
+    nvim_remote_send,
     palette_mode,
+    prime_editor,
     run_main,
     sway,
+    sway_exec,
+    verify_editor,
+    wait_socket,
+    wait_window,
     write_geom,
 )
 
@@ -27,18 +36,48 @@ from shotlib import (
 def capture(mode: str) -> None:
     palette_mode(mode)
     sway("workspace", "3")
-    window = find_window(app_id="editor-nvim")
-    if window is None:
-        error("open nvim in a window with app_id editor-nvim")
-    sway("[app_id=editor-nvim] focus")
-    close_notifications()
-    time.sleep(0.3)
-    grim(CAPTURES / f"editor-{mode}.png")
-    rect = window["rect"]
-    write_geom(
-        CAPTURES / f"editor-{mode}.geom",
-        f"{rect['width']}x{rect['height']}+{rect['x']}+{rect['y']}",
-    )
+    kill_window(app_id="editor-nvim")
+    EDITOR_SOCKET.unlink(missing_ok=True)
+    try:
+        sway_exec(
+            [
+                "kitty",
+                "--class",
+                "editor-nvim",
+                "nvim",
+                "--listen",
+                str(EDITOR_SOCKET),
+                "+330",
+                str(HL_TEST),
+            ]
+        )
+        wait_window(app_id="editor-nvim")
+        wait_socket(EDITOR_SOCKET)
+        time.sleep(11)
+        for _ in range(3):
+            nvim_remote_send(EDITOR_SOCKET, "<Esc><CR>")
+            time.sleep(1)
+        nvim_remote_send(EDITOR_SOCKET, ":lua Snacks.explorer()<CR>")
+        time.sleep(1.5)
+        nvim_remote_send(EDITOR_SOCKET, "I")
+        time.sleep(1.5)
+        prime_editor(EDITOR_SOCKET)
+        verify_editor(EDITOR_SOCKET, path=HL_TEST)
+        sway("[app_id=editor-nvim] focus")
+        close_notifications()
+        time.sleep(0.3)
+        grim(CAPTURES / f"editor-{mode}.png")
+        window = find_window(app_id="editor-nvim")
+        if window is None:
+            error("the editor window disappeared")
+        rect = window["rect"]
+        write_geom(
+            CAPTURES / f"editor-{mode}.geom",
+            f"{rect['width']}x{rect['height']}+{rect['x']}+{rect['y']}",
+        )
+    finally:
+        kill_window(app_id="editor-nvim")
+        EDITOR_SOCKET.unlink(missing_ok=True)
 
 
 def compose() -> None:

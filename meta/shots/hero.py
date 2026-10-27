@@ -15,8 +15,9 @@ from shotlib import (
     close_notifications,
     grim,
     kill_window,
+    nvim_remote_send,
     palette_mode,
-    run,
+    prime_editor,
     run_main,
     run_pillow,
     sway,
@@ -61,28 +62,8 @@ def capture(mode: str) -> None:
         sway("[app_id=hero-nvim] focus")
         time.sleep(11)
         wait_socket(HERO_SOCKET)
-        run(
-            [
-                "timeout",
-                "5",
-                "nvim",
-                "--server",
-                str(HERO_SOCKET),
-                "--remote-send",
-                "<Esc><CR>",
-            ]
-        )
-        run(
-            [
-                "timeout",
-                "8",
-                "nvim",
-                "--server",
-                str(HERO_SOCKET),
-                "--remote-expr",
-                'execute("normal! gg330G0zz")',
-            ]
-        )
+        nvim_remote_send(HERO_SOCKET, "<Esc><CR>")
+        prime_editor(HERO_SOCKET, line=330, column=12)
         time.sleep(0.8)
         close_notifications()
         grim(CAPTURES / f"stage-{mode}.png")
