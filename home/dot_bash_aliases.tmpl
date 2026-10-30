@@ -29,3 +29,4 @@ alias czc='cd {{ .chezmoi.workingTree }}'
 alias keepassxc='QT_QPA_PLATFORMTHEME=qt6ct keepassxc'
 
 bak() { cp -v "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"; }
+mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
