@@ -131,7 +131,7 @@ date = %Y-%m-%d %H:%M:%S
 label = %date%
 
 [module/custom/dnd]
-type = custom/ipc
-hook-0 = ~/.config/polybar/scripts/dunst-dnd.sh
-initial = 1
+type = custom/script
+exec = ~/.config/polybar/scripts/dunst-dnd.sh
+interval = 1
 click-left = ~/.config/polybar/scripts/dunst-dnd.sh --toggle

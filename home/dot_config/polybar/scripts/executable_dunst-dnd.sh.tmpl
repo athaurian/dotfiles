@@ -58,7 +58,7 @@ send_notice() {
 
 is_dnd() {
 	if command -v dunstctl >/dev/null 2>&1; then
-		level=$(dunstctl get-pause-level 2>/dev/null || true)
+		level=$(timeout 2 dunstctl get-pause-level 2>/dev/null || true)
 		[ -n "$level" ] && [ "$level" != "0" ]
 	else
 		return 1
@@ -75,12 +75,11 @@ toggle_dnd() {
 
 	if is_dnd; then
 		send_notice "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>Notifications on.</b> Popups and sounds will appear again."
-		dunstctl set-pause-level 0 2>/dev/null || true
+		timeout 2 dunstctl set-pause-level 0 2>/dev/null || true
 	else
 		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>Notifications silenced.</b> Click the indicator or press Super+Shift+d to disable."
-		dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
+		timeout 2 dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
 	fi
-	polybar-msg action custom/dnd hook 0 >/dev/null 2>&1 || true
 }
 
 if [ "${1:-}" = "--toggle" ]; then
