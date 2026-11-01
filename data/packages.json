@@ -43,6 +43,7 @@
     "fonts": [
       "adwaita-cursors",
       "noto-fonts",
+      "noto-fonts-cjk",
       "adobe-source-sans-fonts",
       "adobe-source-code-pro-fonts",
       "ttf-sourcecodepro-nerd"

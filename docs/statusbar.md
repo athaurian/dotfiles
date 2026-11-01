@@ -14,3 +14,9 @@ under
 Polybar's under
 [`home/dot_config/polybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/polybar/).
 Each bar keeps its module scripts in a `scripts/` directory of its own.
+
+Polybar only falls back to the families listed in its `font-N` entries, so
+`font-4` in `config.ini` points at the CJK family from
+[`home/.chezmoidata.toml`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoidata.toml).
+Without it, non-Latin text in module output (song titles, window titles) is
+silently dropped rather than rendered.
