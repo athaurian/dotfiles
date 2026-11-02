@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the palette swatch card in docs/images/palette.webp.
+"""Palette swatch card for docs/images/palette.webp.
 
 Reads the derived palette from meta/palette.py so the light neutral ramp and
 the derived tints come from the same code path that generates the desktop
@@ -51,6 +51,7 @@ PANEL_BG = {"dark": "#050505", "light": "#F3EFEC"}
 
 
 def resolve_font(family: str) -> str | None:
+    """Return the file path of the first font that matches family."""
     try:
         result = subprocess.run(
             ["fc-match", "-f", "%{file}", family],
@@ -65,6 +66,7 @@ def resolve_font(family: str) -> str | None:
 
 
 def load_font(path: str | None, size: int) -> ImageFont.FreeTypeFont:
+    """Load a font at size, falling back to Pillow's default."""
     if path:
         try:
             return ImageFont.truetype(path, size)
@@ -83,6 +85,7 @@ def scaled(value: float) -> float:
 
 
 def main() -> int:
+    """Render the palette card to docs/images/palette.webp."""
     pal = palette.load()
     body = resolve_font("Source Sans 3")
     mono = resolve_font("Source Code Pro") or body

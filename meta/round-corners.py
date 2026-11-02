@@ -1,4 +1,4 @@
-"""Crop a screenshot to a window box with rounded corners.
+"""Rounded-corner crop of a window box in a screenshot.
 
 The captures show the desktop in the corners around the window. The docs site
 shows transparent pixels as black, so this fills the corners with the page
@@ -17,6 +17,7 @@ from PIL import Image
 
 
 def parse_box(value):
+    """Parse a WxH+X+Y crop box."""
     match = re.fullmatch(r"(\d+)x(\d+)\+(\d+)\+(\d+)", value)
     if not match:
         raise argparse.ArgumentTypeError("expected WxH+X+Y")
@@ -25,6 +26,7 @@ def parse_box(value):
 
 
 def parse_color(value):
+    """Parse a six-digit hex color."""
     digits = value.lstrip("#")
     if not re.fullmatch(r"[0-9a-fA-F]{6}", digits):
         raise argparse.ArgumentTypeError("expected a six-digit hex color")
@@ -32,6 +34,7 @@ def parse_color(value):
 
 
 def rounded_alpha(width, height, radius):
+    """Return the antialiased alpha mask for a rounded rectangle."""
     ys, xs = np.mgrid[0:height, 0:width]
     px, py = xs + 0.5, ys + 0.5
     half_x, half_y = width / 2.0, height / 2.0
@@ -46,6 +49,7 @@ def rounded_alpha(width, height, radius):
 
 
 def render(source, output, box, radius, edge, background, quality):
+    """Render a cropped screenshot with rounded corners to a WebP file."""
     left, top, right, bottom = box
     image = Image.open(source).convert("RGB")
     crop = np.asarray(image.crop((left, top, right, bottom))).astype(np.float64)
@@ -61,6 +65,7 @@ def render(source, output, box, radius, edge, background, quality):
 
 
 def main():
+    """Run the command-line interface."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source")
     parser.add_argument("output")

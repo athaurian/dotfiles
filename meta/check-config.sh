@@ -3,11 +3,13 @@ set -eu
 
 failures=""
 
+# Collect failures so one broken configuration does not hide the rest.
 fail() {
 	failures="${failures}$1
 "
 }
 
+# Run a checker when both the binary and the applied config are present.
 check() {
 	bin=$1 config=$2
 	shift 2

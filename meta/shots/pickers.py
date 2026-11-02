@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or crop the launcher and power-menu figures."""
+"""Launcher and power-menu figure capture and cropping."""
 
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ from shotlib import (
 
 
 def crop(mode: str) -> None:
+    """Crop the launcher and power-menu captures for a mode."""
     suffix = mode_suffix(mode)
     magick(
         str(CAPTURES / f"menu-launcher{suffix}.png"),
@@ -48,6 +49,7 @@ def crop(mode: str) -> None:
 
 
 def frame(mode: str) -> None:
+    """Print the changed region of a launcher capture for a mode."""
     suffix = mode_suffix(mode)
     magick(
         str(CAPTURES / f"menu-launcher{suffix}.png"),
@@ -66,6 +68,7 @@ def frame(mode: str) -> None:
 
 
 def capture(mode: str) -> None:
+    """Capture the launcher and power menu in a mode."""
     if which("fuzzel") is None:
         error("missing fuzzel")
     power_control = Path.home() / ".config/sway/scripts/power_control.sh"
@@ -92,6 +95,7 @@ def capture(mode: str) -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "crop", "frame"))
     parser.add_argument("mode", nargs="?", choices=("light", "dark"))

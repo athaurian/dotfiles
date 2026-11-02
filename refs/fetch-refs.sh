@@ -1,13 +1,11 @@
 #!/usr/bin/env sh
-# refs/ holds reference material that is not committed because one
-# command per entry regenerates it. This script fetches upstream
-# clones, man pages, and the pre-reset bundle, each pinned to a fixed
-# commit or URL, and skips anything already present so re-running is
-# safe. refs/.gitignore keeps everything it restores out of git status.
+# Populate refs/ with upstream clones, man pages, and the pre-reset bundle.
+# Each entry is pinned to a fixed commit or URL, and an existing path is kept
+# so re-running is safe. refs/.gitignore keeps restored files out of git status.
 set -eu
 
-# --check probes every remote URL without downloading anything and exits
-# non-zero when one no longer resolves. It proves each remote still
+# Probe every remote URL with --check without downloading anything. The check
+# exits non-zero when a URL no longer resolves, so it proves each remote still
 # exists, not that each pinned commit is reachable.
 mode=fetch
 if [ "${1:-}" = "--check" ]; then
@@ -32,6 +30,8 @@ probe() {
 	fi
 }
 
+# Write through a temporary file so a failed download never leaves a partial
+# target in place.
 fetch() {
 	url=$1 path=$2
 	if [ "$mode" = check ]; then
@@ -48,6 +48,8 @@ fetch() {
 	fi
 }
 
+# Keep the default branch when the pinned commit is no longer reachable, so a
+# removed commit only produces a warning.
 clone() {
 	url=$1 path=$2 sha=$3
 	if [ "$mode" = check ]; then
@@ -65,6 +67,7 @@ clone() {
 		echo "fetch-refs: $path: $sha unreachable upstream, kept default branch" >&2
 }
 
+# Skip the source tree when .source records the same URL.
 source_tree() {
 	name=$1 url=$2
 	if [ "$mode" = check ]; then

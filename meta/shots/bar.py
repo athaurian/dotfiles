@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or crop the status-bar figures."""
+"""Status-bar figure capture and cropping."""
 
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ from shotlib import (
 
 
 def crop(mode: str) -> None:
+    """Crop the status-bar capture for a mode."""
     magick(
         str(CAPTURES / f"bar-{mode}.png"),
         "-quality",
@@ -34,6 +35,7 @@ def crop(mode: str) -> None:
 
 
 def capture(mode: str) -> None:
+    """Capture the status bar in a mode."""
     try:
         palette_mode(mode)
         sway("workspace", "3")
@@ -59,6 +61,7 @@ def capture(mode: str) -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "crop"))
     parser.add_argument("mode", nargs="?", choices=("light", "dark"))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derives the LUT palettes and the chezmoi data from meta/palette.toml, then verifies them."""
+"""LUT palette and chezmoi data generation from meta/palette.toml."""
 
 import math
 import re
@@ -49,27 +49,33 @@ M1_INV = (
 
 
 def mat_mul(m, v):
+    """Multiply a 3x3 matrix by a 3-vector."""
     return tuple(sum(m[i][j] * v[j] for j in range(3)) for i in range(3))
 
 
 def srgb_to_linear(c):
+    """Convert an sRGB channel to linear light."""
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
 
 def linear_to_srgb(c):
+    """Convert a linear-light channel to sRGB."""
     return 12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055
 
 
 def hex_to_rgb(h):
+    """Convert a hex color to three channels in the range 0 to 1."""
     h = h.lstrip("#")
     return tuple(int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
 
 
 def rgb_to_hex(rgb):
+    """Convert three channels to an uppercase hex color."""
     return "".join(f"{round(min(max(c, 0.0), 1.0) * 255):02X}" for c in rgb)
 
 
 def rgb_to_oklch(rgb):
+    """Convert an sRGB color to OKLCH."""
     lin = tuple(srgb_to_linear(c) for c in rgb)
     lms = tuple(x ** (1 / 3) for x in mat_mul(M1, lin))
     L, a, b = mat_mul(M2, lms)
@@ -77,12 +83,14 @@ def rgb_to_oklch(rgb):
 
 
 def oklch_srgb(L, C, H):
+    """Convert an OKLCH color to sRGB channels."""
     a, b = C * math.cos(H), C * math.sin(H)
     lms = tuple(x**3 for x in mat_mul(M2_INV, (L, a, b)))
     return [linear_to_srgb(c) for c in mat_mul(M1_INV, lms)]
 
 
 def oklch_to_hex(L, C, H):
+    """Reduce chroma until the color fits sRGB and return its hex value."""
     lo, hi = 0.0, C
     for _ in range(20):
         mid = (lo + hi) / 2
@@ -94,16 +102,19 @@ def oklch_to_hex(L, C, H):
 
 
 def luminance(h):
+    """Return the relative luminance of a hex color."""
     r, g, b = (srgb_to_linear(c) for c in hex_to_rgb(h))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
 def contrast(fg, bg):
+    """Return the WCAG contrast ratio between two hex colors."""
     hi, lo = sorted((luminance(fg), luminance(bg)), reverse=True)
     return (hi + 0.05) / (lo + 0.05)
 
 
 def gray(y):
+    """Return a gray hex color for a relative luminance."""
     if y <= 0:
         return "#000000"
     if y >= 1:
@@ -114,10 +125,12 @@ def gray(y):
 
 
 def solve_gray(bg, ratio):
+    """Return a gray darker than bg with the requested contrast ratio."""
     return gray((luminance(bg) + 0.05) / ratio - 0.05)
 
 
 def solve_gray_lighter(bg, ratio):
+    """Return a gray lighter than bg with the requested contrast ratio."""
     return gray(ratio * (luminance(bg) + 0.05) - 0.05)
 
 
@@ -125,6 +138,7 @@ def solve_gray_lighter(bg, ratio):
 # the dark ramp, each keeping its contrast ratio to base, so the two ramps
 # stay in step.
 def load():
+    """Load the palette and derive the light neutral ramp."""
     with SOURCE.open("rb") as fh:
         pal = tomllib.load(fh)
     dark = {r: h.upper() for r, h in pal["neutrals"]["dark"].items()}
@@ -149,6 +163,7 @@ def load():
 
 
 def tint(pal, name, mode):
+    """Resolve one tint token for a mode."""
     spec = pal["tints"][name]
     if "anchor" in spec:
         La = rgb_to_oklch(hex_to_rgb(pal["neutrals"][mode][spec["anchor"]]))[0]
@@ -159,6 +174,7 @@ def tint(pal, name, mode):
 
 
 def tints(pal, mode):
+    """Split resolved tints into hex colors and RGBA overlays."""
     hexes, overlays = {}, {}
     for name in pal["tints"]:
         value = tint(pal, name, mode)
@@ -167,6 +183,7 @@ def tints(pal, mode):
 
 
 def build_lut(pal, mode):
+    """Build the LUT palette text for a mode."""
     neutrals = list(dict.fromkeys(pal["neutrals"][mode].values()))
     hues = list(
         dict.fromkeys([*pal["chroma"][mode].values(), *pal["bright"][mode].values()])
@@ -206,6 +223,7 @@ def build_lut(pal, mode):
 
 
 def build_data(pal, mode):
+    """Build the chezmoi data text for a mode."""
     hex_tints, overlays = tints(pal, mode)
     utility = {n: t["value"] for n, t in pal["utility"].items()}
     groups = [
@@ -233,12 +251,14 @@ def build_data(pal, mode):
 
 
 def data_entry(value):
+    """Format a palette value as a chezmoi data entry."""
     if value.startswith("rgba"):
         return f'{{ rgba: "{value}" }}'
     return f'{{ hex: "{value}", bare: "{value[1:]}" }}'
 
 
 def palette_values(pal):
+    """Return every hex value the palette allows."""
     out = set()
     for mode in MODES:
         out.update(pal["neutrals"][mode].values())
@@ -250,6 +270,7 @@ def palette_values(pal):
 
 
 def drift(allowed):
+    """Return hex colors in home/ that are not palette values."""
     violations = {}
     for path in sorted((REPO / "home").rglob("*")):
         if not path.is_file() or "lutgen" in path.parts:
@@ -294,6 +315,7 @@ CONTRAST_GATES = [
 
 
 def gate_failures(pal):
+    """Return contrast gate failures for both modes."""
     bad = []
     for mode in MODES:
         neutrals, chroma = pal["neutrals"][mode], pal["chroma"][mode]
@@ -323,6 +345,7 @@ def gate_failures(pal):
 
 
 def active_mode(argv):
+    """Return the requested mode or the recorded mode."""
     for arg in argv:
         if arg.startswith("MODE="):
             mode = arg.split("=", 1)[1].lower()
@@ -342,6 +365,7 @@ def active_mode(argv):
 
 
 def main(argv):
+    """Write the LUT and data files, then report drift and contrast failures."""
     mode = active_mode(argv)
     pal = load()
     for lut_mode, path in LUTS.items():

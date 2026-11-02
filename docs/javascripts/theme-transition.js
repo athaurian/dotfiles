@@ -1,3 +1,7 @@
+/*
+ * Palette-change wipe built on the View Transitions API. Sites can set
+ * window.docsThemeSettled to finish theme work before the new view is captured.
+ */
 (function () {
   "use strict";
 
@@ -19,7 +23,10 @@
     );
   }
 
-  // Sites can expose this to finish theme work before the new view is captured.
+  /**
+   * Resolve after site theme work settles, or after a short timeout.
+   * @returns {Promise<void>}
+   */
   function waitForSettled() {
     var settled = window.docsThemeSettled;
     var siteWork =

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or crop the clipboard-history picker figure."""
+"""Clipboard-history picker figure capture and cropping."""
 
 from __future__ import annotations
 
@@ -36,6 +36,7 @@ PREVIEW_IMAGE = Path(__file__).with_name("clipboard-preview.webp")
 
 
 def seed() -> None:
+    """Replace the clipboard history with deterministic sample entries."""
     if not PREVIEW_IMAGE.exists():
         error(f"missing {PREVIEW_IMAGE}")
     shutil.rmtree(CLIP_DIR, ignore_errors=True)
@@ -81,6 +82,7 @@ def seed() -> None:
 
 
 def crop(mode: str) -> None:
+    """Crop the clipboard picker capture for a mode."""
     suffix = mode_suffix(mode)
     crop_round(
         CAPTURES / f"picker-clipboard{suffix}.png",
@@ -93,6 +95,7 @@ def crop(mode: str) -> None:
 
 
 def capture(mode: str) -> None:
+    """Capture the clipboard picker in a mode."""
     if not PICKER.exists():
         error(f"missing {PICKER}")
     seed()
@@ -123,6 +126,7 @@ def capture(mode: str) -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "seed", "crop"))
     parser.add_argument("mode", nargs="?", choices=("light", "dark"))

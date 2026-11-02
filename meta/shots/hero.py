@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or compose the split hero image."""
+"""Split hero image capture and composition."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ from shotlib import (
 
 
 def capture(mode: str) -> None:
+    """Capture the editor and terminal stage in a mode."""
     palette_mode(mode)
     sway("workspace", "3")
     HERO_SOCKET.unlink(missing_ok=True)
@@ -74,6 +75,7 @@ def capture(mode: str) -> None:
 
 
 def compose() -> None:
+    """Compose the split hero image from both stages."""
     run_pillow(
         "hero.py",
         str(CAPTURES / "stage-light.png"),
@@ -84,6 +86,7 @@ def compose() -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "compose"))
     args = parser.parse_args()

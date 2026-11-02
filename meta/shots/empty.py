@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or compose the empty-desktop hero pair."""
+"""Empty-desktop hero pair capture and composition."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from shotlib import (
 
 
 def capture(mode: str) -> None:
+    """Capture the desktop in a mode."""
     palette_mode(mode)
     sway("workspace", "3")
     close_notifications()
@@ -27,6 +28,7 @@ def capture(mode: str) -> None:
 
 
 def compose() -> None:
+    """Compose the empty-desktop hero pair from both captures."""
     run_pillow(
         "hero.py",
         str(CAPTURES / "empty-light.png"),
@@ -37,6 +39,7 @@ def compose() -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "compose"))
     args = parser.parse_args()

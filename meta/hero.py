@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Combine a light and dark desktop screenshot pair into one diagonal split.
+"""Diagonal split composite of a light and dark desktop screenshot pair.
 
 Both inputs must share the same dimensions. The divider runs from a point on
 the top edge to a point on the bottom edge, by default three quarters of the
@@ -25,6 +25,7 @@ MASK_SCALE = 4
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse the command-line arguments."""
     parser = argparse.ArgumentParser(
         prog="hero",
         description="Combine light and dark desktop screenshots into a "
@@ -63,6 +64,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def composite(args: argparse.Namespace) -> Image.Image:
+    """Composite the screenshots into one image with a diagonal split."""
     light = Image.open(args.light).convert("RGB")
     dark = Image.open(args.dark).convert("RGB")
     if light.size != dark.size:
@@ -90,6 +92,7 @@ def composite(args: argparse.Namespace) -> Image.Image:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Write the composited image to the requested output path."""
     args = parse_args(argv)
     image = composite(args)
     args.output.parent.mkdir(parents=True, exist_ok=True)

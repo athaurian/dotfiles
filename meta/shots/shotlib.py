@@ -40,6 +40,7 @@ def run(
     capture: bool = False,
     cwd: Path | None = None,
 ) -> subprocess.CompletedProcess[bytes]:
+    """Run a command, optionally capturing stdout or feeding stdin."""
     return subprocess.run(
         argv,
         check=check,
@@ -50,6 +51,7 @@ def run(
 
 
 def run_pillow(script: str, *args: str) -> None:
+    """Run one of the Pillow scripts through uv."""
     run(
         [
             "uv",
@@ -65,6 +67,7 @@ def run_pillow(script: str, *args: str) -> None:
 
 
 def sway(*args: str) -> None:
+    """Send a command to the running Sway session."""
     subprocess.run(
         ["swaymsg", *args],
         check=True,
@@ -77,6 +80,7 @@ def sway_exec(argv: list[str]) -> None:
 
 
 def sway_tree() -> dict[str, Any]:
+    """Return the current Sway tree."""
     result = subprocess.run(
         ["swaymsg", "-t", "get_tree"],
         check=True,
@@ -86,6 +90,7 @@ def sway_tree() -> dict[str, Any]:
 
 
 def walk(node: dict[str, Any]) -> Iterable[dict[str, Any]]:
+    """Yield a node and its descendants."""
     yield node
     for key in ("nodes", "floating_nodes"):
         for child in node.get(key, ()):
@@ -95,6 +100,7 @@ def walk(node: dict[str, Any]) -> Iterable[dict[str, Any]]:
 def find_window(
     *, app_id: str | None = None, title: str | None = None
 ) -> dict[str, Any] | None:
+    """Return the first window matching an app ID or title."""
     for node in walk(sway_tree()):
         if app_id is not None and node.get("app_id") == app_id:
             return node
@@ -109,6 +115,7 @@ def wait_window(
     title: str | None = None,
     timeout: float = 10.0,
 ) -> dict[str, Any]:
+    """Wait for a matching window to appear."""
     deadline = time.monotonic() + timeout
     while True:
         node = find_window(app_id=app_id, title=title)
@@ -120,6 +127,7 @@ def wait_window(
 
 
 def wait_socket(path: Path, timeout: float = 10.0) -> None:
+    """Wait for a Unix socket path to appear."""
     deadline = time.monotonic() + timeout
     while not path.is_socket():
         if time.monotonic() >= deadline:
@@ -128,6 +136,7 @@ def wait_socket(path: Path, timeout: float = 10.0) -> None:
 
 
 def nvim_remote_expr(socket: Path, expression: str) -> str:
+    """Evaluate a Neovim expression through a running server."""
     result = run(
         ["timeout", "5", "nvim", "--server", str(socket), "--remote-expr", expression],
         capture=True,
@@ -136,10 +145,12 @@ def nvim_remote_expr(socket: Path, expression: str) -> str:
 
 
 def nvim_remote_send(socket: Path, keys: str) -> None:
+    """Send keys to a running Neovim server."""
     run(["timeout", "5", "nvim", "--server", str(socket), "--remote-send", keys])
 
 
 def nvim_cursor(socket: Path) -> tuple[int, int]:
+    """Return the cursor line and column in a Neovim buffer."""
     line = nvim_remote_expr(socket, "line('.')")
     column = nvim_remote_expr(socket, "col('.')")
     try:
@@ -149,6 +160,7 @@ def nvim_cursor(socket: Path) -> tuple[int, int]:
 
 
 def verify_editor(socket: Path, *, path: Path, minimum_lines: int = 100) -> None:
+    """Fail unless the editor shows path with at least minimum_lines lines."""
     buffer = nvim_remote_expr(socket, 'expand("%:p")')
     try:
         lines = int(nvim_remote_expr(socket, 'line("$")'))
@@ -167,6 +179,7 @@ def prime_editor(
     column: int = 12,
     settle: float = 0.3,
 ) -> None:
+    """Place the editor cursor at a known position for a screenshot."""
     nvim_remote_expr(
         socket,
         'execute("wincmd l") + execute("normal! ggzt") + execute("redraw!")',
@@ -187,6 +200,7 @@ def prime_editor(
 
 
 def close_notifications() -> None:
+    """Close displayed notifications and wait for them to clear."""
     subprocess.run(
         ["dunstctl", "close-all"],
         check=False,
@@ -208,6 +222,7 @@ def close_notifications() -> None:
 
 
 def palette_mode(mode: str) -> None:
+    """Switch the desktop palette when it is not already in mode."""
     state = Path.home() / ".local/state/palette-mode"
     try:
         current = state.read_text(encoding="utf-8").strip()
@@ -241,6 +256,7 @@ def mode_edge(mode: str) -> str:
 
 
 def kill_pid(pid: int | None) -> None:
+    """Terminate a process, escalating to SIGKILL after two seconds."""
     if not pid:
         return
     try:
@@ -261,12 +277,14 @@ def kill_pid(pid: int | None) -> None:
 
 
 def kill_window(*, app_id: str | None = None, title: str | None = None) -> None:
+    """Terminate the process behind a matching window."""
     node = find_window(app_id=app_id, title=title)
     if node is not None:
         kill_pid(node.get("pid"))
 
 
 def focused_kitty_geom() -> str:
+    """Return the geometry of the focused kitty window as WxH+X+Y."""
     for node in walk(sway_tree()):
         if node.get("focused") and node.get("app_id") == "kitty":
             rect = node["rect"]
@@ -275,6 +293,7 @@ def focused_kitty_geom() -> str:
 
 
 def window_geom_by_title(title: str) -> str:
+    """Return the geometry of a window as WxH@X,Y."""
     node = find_window(title=title)
     if node is None:
         error(f"window {title!r} not found")
@@ -295,6 +314,7 @@ def crop_round(
     edge: str,
     background: str,
 ) -> None:
+    """Crop a screenshot and round its corners through round-corners.py."""
     output.parent.mkdir(parents=True, exist_ok=True)
     run_pillow(
         "round-corners.py",
@@ -312,6 +332,7 @@ def crop_round(
 
 
 def run_main(main: Callable[[], None]) -> None:
+    """Run a script's main function and report command failures."""
     try:
         main()
     except subprocess.CalledProcessError as exc:

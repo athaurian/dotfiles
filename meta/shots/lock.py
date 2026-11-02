@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or convert the lock-screen figures."""
+"""Lock-screen figure capture and conversion."""
 
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ from shotlib import (
 
 
 def convert(mode: str) -> None:
+    """Convert the lock-screen capture for a mode."""
     magick(
         str(CAPTURES / f"lock-{mode}.png"),
         "-quality",
@@ -31,6 +32,7 @@ def convert(mode: str) -> None:
 
 
 def capture(mode: str) -> None:
+    """Capture the lock screen in a mode."""
     lock_script = Path.home() / ".config/sway/scripts/lock.sh"
     if not lock_script.exists():
         error(f"missing {lock_script}")
@@ -65,6 +67,7 @@ def capture(mode: str) -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "convert"))
     parser.add_argument("mode", nargs="?", choices=("light", "dark"))

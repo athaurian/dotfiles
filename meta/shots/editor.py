@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture or crop the Neovim editor figures."""
+"""Neovim editor figure capture and cropping."""
 
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ from shotlib import (
 
 
 def capture(mode: str) -> None:
+    """Capture the editor in a mode and record its geometry."""
     palette_mode(mode)
     sway("workspace", "3")
     kill_window(app_id="editor-nvim")
@@ -81,6 +82,7 @@ def capture(mode: str) -> None:
 
 
 def compose() -> None:
+    """Crop both captured editors using their recorded geometry."""
     for mode in ("dark", "light"):
         geom_path = CAPTURES / f"editor-{mode}.geom"
         if not geom_path.exists():
@@ -96,6 +98,7 @@ def compose() -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("light", "dark", "compose"))
     args = parser.parse_args()

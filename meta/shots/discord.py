@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Crop the Discord profile-card figures from full-screen captures."""
+"""Discord profile-card figure cropping."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from shotlib import CAPTURES, DOC_IMAGES, crop_round, run_main
 
 
 def crop(mode: str) -> None:
+    """Crop the Discord card for a mode."""
     if mode == "dark":
         box = "432x158+960+281"
         edge = "17181b"
@@ -30,6 +31,7 @@ def crop(mode: str) -> None:
 
 
 def main() -> None:
+    """Run the requested action."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("dark", "light", "compose"))
     args = parser.parse_args()
