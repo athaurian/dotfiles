@@ -17,3 +17,6 @@ systemctl --user set-environment XDG_CURRENT_DESKTOP=sway 2>/dev/null || true
 
 systemctl --user start --no-block graphical-session.target 2>/dev/null || true
 systemctl --user start --no-block sway-session.target 2>/dev/null || true
+
+# The restore prompt runs in the background so login never blocks.
+"$HOME/.config/sway/scripts/session_restore_prompt.sh" &
