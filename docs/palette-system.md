@@ -19,11 +19,8 @@ targets to regenerate and apply the palette:
 - The `dark` and `light` targets regenerate the same data and apply the
   configuration in the chosen mode.
 
-The derived output includes
+Don't hand-edit the generated files, such as
 [`home/.chezmoidata.yaml`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoidata.yaml)
 and the look-up table (LUT) palettes under
-[`home/dot_config/lutgen/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/lutgen/).
-Don't hand-edit those, since regeneration replaces them. You can look at the
-`Makefile` targets and
-[`meta/palette.py`](https://github.com/athaurian/dotfiles/blob/main/meta/palette.py)
-for the exact recipe.
+[`home/dot_config/lutgen/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/lutgen/),
+because regeneration replaces them.

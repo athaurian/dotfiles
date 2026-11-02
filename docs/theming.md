@@ -23,7 +23,5 @@ script yourself).
 
 ## Hot-reloading
 
-Neovim watches `lua/plugins/colorscheme.lua`, which the palette targets rewrite
-with the new colors. The watcher ignores the other files from the same
-`chezmoi apply` and coalesces the burst, so open editors repaint without a
-restart.
+Open Neovim windows repaint when the palette changes, so you do not have to
+restart the editor after `make dark` or `make light`.
