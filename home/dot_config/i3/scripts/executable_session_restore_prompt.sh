@@ -12,7 +12,7 @@ fi
 
 choice=""
 if command -v rofi >/dev/null 2>&1; then
-	choice="$(confirm_menu --timeout 15 "restore previous session? " "Enter=restore, Esc=start fresh" restore "start fresh")" || choice=""
+	choice="$(confirm_menu --timeout 3 "restore previous session? " "Enter=restore, Esc=start fresh" restore "start fresh")" || choice=""
 else
 	notify-send -a session-restore -u critical "rofi not found" "starting fresh" 2>/dev/null || true
 fi
