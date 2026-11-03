@@ -1,19 +1,14 @@
 #!/usr/bin/env sh
 set -eu
 
-# The idle timeout, the before-sleep hook, and the lock keybinding all lock
-# the screen through this script. Extra arguments after --now are forwarded to
-# swaylock. The screenshot procedure uses that to pin the clock.
-
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
 	immediate=1
 	shift
 fi
 
-# The idle and manual paths warn before locking. The before-sleep path passes
-# --now to skip the warning and the delay, because suspend waits for this
-# script to return.
+# Suspend waits for this script to return, so the before-sleep path skips
+# the warning and the delay.
 if [ "$immediate" -eq 0 ]; then
 	# Every dunst and notify call runs under a timeout to keep a hanging
 	# daemon from blocking suspend.
@@ -21,8 +16,7 @@ if [ "$immediate" -eq 0 ]; then
 	sleep 2.5
 fi
 
-# The current pause level is saved before this script raises it, and
-# cleanup restores it after the unlock to put dunst back where it was.
+# Saved so cleanup can restore the level after unlock.
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
 timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
@@ -36,9 +30,8 @@ elif command -v convert >/dev/null 2>&1; then
 	timeout 3 convert "$lockimg" -scale 33% -blur 0x8 -fill black -colorize 20% "$lockimg" 2>/dev/null || true
 fi
 
-# The unlocked unit must stop, or its idle timeout would lock the screen
-# again. The locked unit arms only the screen-off and suspend timers, and
-# cleanup swaps the units back when swaylock exits.
+# Stop the unlocked unit so its idle timeout cannot lock again; cleanup
+# swaps the units back.
 systemctl --user start --no-block swayidle-locked.service || true
 systemctl --user stop --no-block swayidle-unlocked.service || true
 

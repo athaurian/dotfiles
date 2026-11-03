@@ -1,11 +1,6 @@
 #!/usr/bin/env sh
 set -eu
 
-# Ask whether to restore the previous session via a keyboard-driven
-# fuzzel menu. Type to filter or press Up/Down, Enter restores, Esc or
-# the 15 second timeout starts fresh (the safe default). Runs in the
-# background from autostart.sh so login never blocks.
-
 # Skip when there is nothing to bring back: no state file, or one whose
 # workspaces, scratchpad, and background apps are all empty.
 session_manager="$HOME/.local/bin/session-manager"

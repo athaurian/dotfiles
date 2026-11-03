@@ -1,23 +1,6 @@
 #!/usr/bin/env sh
-# Shared fuzzel confirmation helper for the sway scripts.
-#
-# Source this file. Do not execute it directly.
-#   . "$(dirname -- "$0")/lib_confirm.sh"
-#   if confirm_choice=$(confirm_menu "confirm poweroff? " "Enter=yes, Esc=no" \
-#       yes no); then
-#   	[ "$confirm_choice" = "yes" ] && sh -c "$cmd"
-#   fi
-#
-# Keyboard: type to filter or press Up/Down, Enter confirms the
-# highlighted option, Esc cancels. Cancellation, timeout, and a missing
-# fuzzel binary all return 1 with no output, so callers fall through to
-# the safe action (cancel the power action or start fresh).
-# stdout carries only the selection so command substitution stays clean.
-#
-# This uses the same fuzzel launcher theme as the other pickers. Only
-# --dmenu flags are passed here. The menu is anchored to the screen
-# center and --lines matches the option count, so a two-option confirm
-# renders with no empty rows.
+# Shared fuzzel confirmation helper for the sway scripts. Source this file;
+# do not execute it directly.
 
 # confirm_menu [--timeout SECS] PROMPT PLACEHOLDER OPTION...
 # Prints the selected option. Returns 1 on cancel, timeout, empty output,

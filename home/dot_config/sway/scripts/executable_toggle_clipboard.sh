@@ -2,15 +2,11 @@
 
 set -eu
 
-# Toggle the fzf clipboard history picker. A second press hides the
-# visible picker, and the lock ignores repeats while it spawns.
-
 mark=clipboard_term
 
 . "$(dirname -- "$0")/lib_sway_lock.sh"
 acquire_sway_lock "toggle_clipboard" || exit 0
 
-# The picker itself is shared, so this script is sway's lifecycle around it.
 picker="$HOME/.local/bin/clipboard"
 
 # The mark probe must not toggle visibility or steal focus.

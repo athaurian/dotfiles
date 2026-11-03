@@ -2,8 +2,6 @@
 
 set -eu
 
-# Clicking the custom/updates module in Waybar runs this script.
-
 # Every kitty window shares one app_id, so the sway rule matches on title.
 title=topgrade_term
 

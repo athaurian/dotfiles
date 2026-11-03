@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
 
-# The toggle scripts source this file rather than execute it, keeping two
-# runs of the same script from acting at the same time. acquire_sway_lock
-# returns 0 only for the owner. Every other caller must exit without
-# acting, and the owner must call release_sway_lock before it exits.
+# Sourced by the toggle scripts. acquire_sway_lock returns 0 only for the
+# owner, which must call release_sway_lock before exiting.
 
 acquire_sway_lock() {
 	lockdir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$1.lock"

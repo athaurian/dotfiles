@@ -3,12 +3,8 @@ set -eu
 
 # {{- $p := .palette }}
 
-# The idle locker xss-lock runs this script after the idle countdown and
-# before suspend, and the script locks the screen with i3lock.
-
-# xss-lock sets XSS_SLEEP_LOCK_FD only when the system is about to sleep.
-# The before-sleep path skips the warning and the delay, because both
-# would hold suspend off while it waits for that fd to close.
+# xss-lock sets XSS_SLEEP_LOCK_FD only when the system is about to sleep,
+# and both the warning and the delay would hold suspend off.
 before_sleep=0
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then
 	before_sleep=1
@@ -22,10 +18,8 @@ if [ "$before_sleep" -eq 0 ]; then
 fi
 
 pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
-# The first locker saves the pause level before raising it, and cleanup
-# restores that value after the unlock to put dunst back where it was. A
-# second locker must not save the level, because it would capture the
-# raised level of 100 and leave dunst stuck there after unlock.
+# A second locker must not save the level, or it would capture the raised
+# 100 and leave dunst stuck there after unlock.
 pause_owner=0
 if [ ! -f "$pause_file" ]; then
 	timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
