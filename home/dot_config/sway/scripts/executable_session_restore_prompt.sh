@@ -8,7 +8,8 @@ set -eu
 
 # Skip when there is nothing to bring back: no state file, or one whose
 # workspaces, scratchpad, and background apps are all empty.
-if ! "$HOME/.config/sway/scripts/session_manager" has-session >/dev/null 2>&1; then
+session_manager="$HOME/.local/bin/session-manager"
+if ! "$session_manager" has-session >/dev/null 2>&1; then
 	exit 0
 fi
 
@@ -22,5 +23,5 @@ else
 fi
 
 if [ "$choice" = "restore" ]; then
-	"$HOME/.config/sway/scripts/session_manager" restore
+	"$session_manager" restore
 fi

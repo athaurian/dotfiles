@@ -36,5 +36,8 @@ make dark
 
 Run `make dark` or `make light` to generate the palette data and apply the
 configuration for the first time. That first run also installs whatever packages
-the machine is missing. For what those targets do, see
-[Palette system](palette-system.md).
+the machine is missing. It installs the
+[clipboard picker](https://github.com/athaurian/clipboard-picker) and the
+[session manager](https://github.com/athaurian/session-manager) from their own
+repositories with `uv`, so both commands land in `~/.local/bin`. For what those
+targets do, see [Palette system](palette-system.md).

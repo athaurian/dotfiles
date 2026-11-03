@@ -3,7 +3,7 @@ set -eu
 
 action="${1:-}"
 
-session_manager="$HOME/.config/sway/scripts/session_manager"
+session_manager="$HOME/.local/bin/session-manager"
 
 case "$action" in
 poweroff) cmd="$session_manager save --quiet; systemctl poweroff" ;;
