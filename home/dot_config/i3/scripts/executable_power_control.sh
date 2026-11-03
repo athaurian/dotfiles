@@ -3,33 +3,20 @@ set -eu
 
 action="${1:-}"
 
+session_manager="$HOME/.local/bin/session-manager"
+
 case "$action" in
-poweroff) cmd="systemctl poweroff" ;;
-reboot) cmd="systemctl reboot" ;;
+poweroff) cmd="$session_manager save --quiet; systemctl poweroff" ;;
+reboot) cmd="$session_manager save --quiet; systemctl reboot" ;;
 suspend) cmd="systemctl suspend" ;;
-logout) cmd="systemctl --user stop i3-session.target; i3-msg exit" ;;
+logout) cmd="$session_manager save --quiet; systemctl --user stop i3-session.target; i3-msg exit" ;;
 *)
 	echo "Usage: $0 <poweroff|reboot|suspend|logout>" >&2
 	exit 1
 	;;
 esac
 
-confirm_menu() {
-	confirm_prompt="${1:-}"
-	confirm_placeholder="${2:-}"
-	shift 2 || return 1
-	if [ "$#" -eq 0 ] || [ -z "$confirm_prompt" ]; then
-		return 1
-	fi
-	if ! command -v rofi >/dev/null 2>&1; then
-		return 1
-	fi
-	confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
-	if [ -z "$confirm_choice" ]; then
-		return 1
-	fi
-	printf '%s\n' "$confirm_choice"
-}
+. "$(dirname -- "$0")/lib_confirm.sh"
 
 state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
 

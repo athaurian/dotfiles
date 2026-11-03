@@ -50,7 +50,7 @@ Each guide covers one part of the desktop:
 | [Pickers](pickers.md)                                   | Application launcher, power shortcuts, and clipboard history |
 | [Screenshots, lock, and idle](screenshots-lock-idle.md) | Capture, lock, and idle shortcuts                            |
 | [Background services](services.md)                      | Units that start with each session                           |
-| [Session manager](session-manager.md)                   | Saving and restoring the sway session at login               |
+| [Session manager](session-manager.md)                   | Saving and restoring the session at login                    |
 | [Status bar](statusbar.md)                              | Waybar on `thinkpad` and Polybar on `optiplex`               |
 | [Neovim](neovim.md)                                     | LazyVim setup, plugins, and Discord presence                 |
 | [Themes](theming.md)                                    | Dark mode, light mode, and the wallpapers                    |
