@@ -14,7 +14,7 @@ from functools import lru_cache
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
 
-MAX_TEXT_LEN = 44
+MAX_TEXT_LEN = 32
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))
 
