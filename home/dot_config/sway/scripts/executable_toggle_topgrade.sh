@@ -2,8 +2,10 @@
 
 set -eu
 
-# Every kitty window shares one app_id, so the sway rule matches on title.
-title=topgrade_term
+# Sway compares for_window titles as substrings. A kitty title that contains
+# topgrade_term also takes the mark, so the class needs to match a name that
+# only this script uses.
+name=topgrade_term
 
 . "$(dirname -- "$0")/lib_sway_lock.sh"
 acquire_sway_lock "toggle_topgrade" || exit 0
@@ -16,5 +18,5 @@ if swaymsg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'; then
 	exit 0
 fi
 
-swaymsg exec "kitty --title=$title -e sh -c 'topgrade; pkill -RTMIN+8 waybar 2>/dev/null || true'"
+swaymsg exec "kitty --class=$name --title=$name -e sh -c 'topgrade; pkill -RTMIN+8 waybar 2>/dev/null || true'"
 release_sway_lock "toggle_topgrade"
