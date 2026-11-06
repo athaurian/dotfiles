@@ -22,14 +22,15 @@ For the components that differ between the machines, see
 | `$mod+q`                                    | Close the window                          |
 | `$mod+r` then `h/j/k/l` or arrows           | Enter resize mode                         |
 | `$mod+grave`                                | Open or hide the drop-down terminal       |
+| `$mod+u`                                    | Open or hide topgrade                     |
 | `$mod+minus`                                | Cycle other scratchpad windows            |
 | `$mod+Shift+minus`                          | Send the focused window to the scratchpad |
 | `$mod+Shift+p`                              | Open or hide the password manager         |
 
 Press `Return` or `Esc` to leave resize mode.
 
-The drop-down terminal, clipboard picker, and password manager live in the
-scratchpad and toggle with their own bindings. Send other windows there with
+The drop-down terminal, clipboard picker, password manager, and topgrade live in
+the scratchpad and toggle with their own bindings. Send other windows there with
 `$mod+Shift+minus` and cycle them with `$mod+minus`.
 
 On `thinkpad`, I open the clipboard picker with `$mod+Ctrl+v`. See
