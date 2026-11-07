@@ -19,7 +19,7 @@ if has_mark; then
 	exit 0
 fi
 
-swaymsg exec "kitty --class=$name --title=$name -e sh -c 'topgrade; pkill -RTMIN+8 waybar 2>/dev/null || true'"
+swaymsg exec "kitty --class=$name --title=$name -e sh -c 'if topgrade; then pkill -RTMIN+8 waybar 2>/dev/null || true; else printf \"topgrade failed; press Enter to close\n\"; read -r _ || true; fi'"
 
 # Keep the lock until the mark shows. A second keypress does nothing while
 # the first window starts.
