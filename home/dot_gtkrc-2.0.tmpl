@@ -1,6 +1,8 @@
-include "/home/renowned/.gtkrc-2.0.mine"
-gtk-theme-name="{{ index .themes.gtk .mode }}"
-gtk-icon-theme-name="{{ index .themes.icons .mode }}"
+# Mode comes from meta/palette.toml. The applied copy is generated from this template.
+# {{- $mode := .mode }}
+include "{{ .chezmoi.homeDir }}/.gtkrc-2.0.mine"
+gtk-theme-name="{{ index .themes.gtk $mode }}"
+gtk-icon-theme-name="{{ index .themes.icons $mode }}"
 gtk-font-name="{{ .fonts.sans }} 10"
 gtk-cursor-theme-name="{{ .themes.cursor }}"
 gtk-cursor-theme-size=24
