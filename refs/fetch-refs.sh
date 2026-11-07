@@ -78,10 +78,13 @@ source_tree() {
 	[ -f "$dest/.source" ] && [ "$(cat "$dest/.source")" = "$url" ] && return 0
 	rm -rf "$dest"
 	mkdir -p "$dest"
-	if curl -fsSL "$url" | tar xz --strip-components=1 -C "$dest"; then
+	tarball="$target/src/$name.tar.xz.$$"
+	if curl -fsSL "$url" -o "$tarball" && tar xz -f "$tarball" --strip-components=1 -C "$dest"; then
 		printf '%s\n' "$url" >"$dest/.source"
+		rm -f "$tarball"
 	else
 		rm -rf "$dest"
+		rm -f "$tarball"
 		fail "src/$name" "tarball fetch failed ($url)"
 	fi
 }
