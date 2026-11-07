@@ -20,14 +20,15 @@ confirm_menu() {
 	if ! command -v rofi >/dev/null 2>&1; then
 		return 1
 	fi
+	confirm_count="$#"
 	if [ -n "$confirm_timeout" ] && ! command -v timeout >/dev/null 2>&1; then
 		confirm_timeout=""
 	fi
 	confirm_choice=""
 	if [ -n "$confirm_timeout" ]; then
-		confirm_choice="$(printf '%s\n' "$@" | timeout "$confirm_timeout" rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
+		confirm_choice="$(printf '%s\n' "$@" | timeout "$confirm_timeout" rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	else
-		confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
+		confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	fi
 	if [ -z "$confirm_choice" ]; then
 		return 1
