@@ -7,8 +7,8 @@ SESSION_MANAGER_REV=1e1deb3
 CLIPBOARD_PICKER_REV=0753ad71c8a48974c21c1abd4a4093ee46ee1f85
 
 if ! command -v uv >/dev/null 2>&1; then
-	echo "install_tools: uv not found, skipping"
-	exit 0
+	echo "install_tools: uv not found" >&2
+	exit 1
 fi
 
 uv tool install --force \
