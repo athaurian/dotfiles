@@ -4,8 +4,10 @@ __pycache__/
 
 .config/wlsunset.env
 
-# The optiplex hostname selects the i3 set. Every other hostname selects the
-# thinkpad set.
+# The optiplex hostname selects the i3 set. Each other hostname selects the
+# thinkpad set. The same hostname selects the package list in
+# data/packages.json, which run_onchange_before_onboarding.sh reads with
+# thinkpad as its fallback.
 {{ if eq .chezmoi.hostname "optiplex" }}
 .config/sway
 .config/fuzzel

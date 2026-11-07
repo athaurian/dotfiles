@@ -34,6 +34,8 @@ PACMAN_PACKAGES=$(jq -r '[.pacman[][]] | join(" ")' "$DATA_DIR/packages.json")
 CACHYOS_PACKAGES=$(jq -r '.cachyos | join(" ")' "$DATA_DIR/packages.json")
 AUR_PACKAGES=$(jq -r '.aur | join(" ")' "$DATA_DIR/packages.json")
 CUSTOM_PACKAGES=$(jq -r '.custom | join(" ")' "$DATA_DIR/packages.json")
+# The thinkpad fallback is the same rule as in .chezmoiignore. Each host
+# that is not optiplex gets the thinkpad config and package set.
 MACHINE_PACKAGES=$(jq -r --arg host "{{ .chezmoi.hostname }}" '(.machines[$host] // .machines.thinkpad) | join(" ")' "$DATA_DIR/packages.json")
 
 missing() {
