@@ -10,7 +10,6 @@ set $term kitty
 set $menu rofi
 set $browser $HOME/.config/i3/scripts/wrapper_browser.sh
 set $filemanager sh -c 'exec ${FILE_MANAGER:-thunar}'
-set $passwordmanager sh -c 'QT_QPA_PLATFORMTHEME=qt6ct exec ${PASSWORD_MANAGER:-keepassxc}'
 
 font pango:{{ .fonts.code }} 8
 
@@ -65,7 +64,7 @@ bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+p layout toggle split
 bindsym $mod+f fullscreen
-bindsym $mod+Shift+space exec $HOME/.config/i3/scripts/toggle_floating.sh
+bindsym --release $mod+Shift+space exec $HOME/.config/i3/scripts/toggle_floating.sh
 bindsym $mod+space focus mode_toggle
 bindsym $mod+c move position center
 bindsym $mod+q kill
@@ -75,7 +74,7 @@ bindsym --release $mod+d exec $menu -show drun
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
 bindsym --release $mod+u exec $HOME/.config/i3/scripts/toggle_topgrade.sh
-bindsym $mod+Shift+p exec $passwordmanager, [con_mark="keepassxc"] scratchpad show, resize set width 75 ppt height 70 ppt, move position center
+bindsym $mod+Shift+p exec $HOME/.config/i3/scripts/toggle_passwordmanager.sh
 bindsym $mod+Shift+v exec pavucontrol --tab=3
 bindsym $mod+Shift+b exec blueman-manager
 
