@@ -7,19 +7,24 @@ trap 'poked=1' USR1
 
 report() {
 	count=0
+	failed=0
 	has_checkupdates=0
 	has_paru=0
 
 	if command -v checkupdates >/dev/null 2>&1; then
 		has_checkupdates=1
-		pacman_out=$(checkupdates 2>/dev/null || true)
+		if ! pacman_out=$(checkupdates 2>/dev/null); then
+			failed=1
+		fi
 		pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
 		count=$((count + ${pacman_count:-0}))
 	fi
 
 	if command -v paru >/dev/null 2>&1; then
 		has_paru=1
-		paru_out=$(paru -Qum 2>/dev/null || true)
+		if ! paru_out=$(paru -Qum 2>/dev/null); then
+			failed=1
+		fi
 		paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
 		count=$((count + ${paru_count:-0}))
 	fi
@@ -31,6 +36,8 @@ report() {
 
 	if [ "$count" -gt 0 ]; then
 		printf '%%{F{{ $p.yellow.hex }}}󰚰 %s%%{F-}\n' "$count"
+	elif [ "$failed" -eq 1 ]; then
+		printf '%%{F{{ $p.red.hex }}}󰚰 !%%{F-}\n'
 	else
 		printf '%%{F{{ $p.muted.hex }}}󰏓 0%%{F-}\n'
 	fi

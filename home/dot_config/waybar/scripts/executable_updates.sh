@@ -2,6 +2,7 @@
 set -eu
 
 count=0
+failed=0
 has_checkupdates=0
 has_paru=0
 pacman_out=""
@@ -9,14 +10,18 @@ paru_out=""
 
 if command -v checkupdates >/dev/null 2>&1; then
 	has_checkupdates=1
-	pacman_out=$(checkupdates 2>/dev/null || true)
+	if ! pacman_out=$(checkupdates 2>/dev/null); then
+		failed=1
+	fi
 	pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
 	count=$((count + ${pacman_count:-0}))
 fi
 
 if command -v paru >/dev/null 2>&1; then
 	has_paru=1
-	paru_out=$(paru -Qum 2>/dev/null || true)
+	if ! paru_out=$(paru -Qum 2>/dev/null); then
+		failed=1
+	fi
 	paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
 	count=$((count + ${paru_count:-0}))
 fi
@@ -41,6 +46,8 @@ if [ "$count" -gt 0 ]; then
 	fi
 	tooltip_esc=$(printf '%s' "$tooltip" | sed 's/\\/\\\\/g; s/"/\\"/g')
 	printf '{"text":"󰚰 %s","tooltip":"%s","class":"has-updates","alt":"has-updates"}\n' "$count" "$tooltip_esc"
+elif [ "$failed" -eq 1 ]; then
+	printf '{"text":"󰚰 !","tooltip":"update check failed","class":"error","alt":"error"}\n'
 else
 	printf '{"text":"󰏓 0","tooltip":"System up to date","class":"ok","alt":"ok"}\n'
 fi
