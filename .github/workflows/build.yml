@@ -44,8 +44,54 @@ jobs:
         with:
           path: site/
 
+  checks:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base@sha256:b21322c663be387c0ed9cbc7bbbfe18e41633ad4e7b7c77cfad45f128be20040
+      options: --user root
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup check environment
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          .github/scripts/retry.sh pacman -Syu --noconfirm --noprogressbar
+          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv nodejs npm chezmoi stylua
+
+      # The palette data is gitignored. A clone must generate it before it
+      # renders the templates or runs the palette checks.
+      - name: Generate the palette data
+        run: |
+          printf 'light\n' > ~/.local/state/palette-mode
+          make palette
+
+      - name: Check the shell scripts
+        run: make check-shell
+
+      - name: Check the Neovim sources
+        run: make check-nvim
+
+      - name: Check the MPRIS modules
+        run: make check-mpris
+
+      - name: Check the sw utility
+        run: make check-sw
+
+      - name: Check the calibre scripts
+        run: make check-calibre
+
+      - name: Lint the docs
+        run: make lint
+
+      - name: Probe the pinned refs
+        run: make check-refs
+
   deploy:
-    needs: [docs]
+    needs: [docs, checks]
     # Gate publishing on main because workflow_dispatch can start from any ref.
     if: github.ref == 'refs/heads/main'
     permissions:
