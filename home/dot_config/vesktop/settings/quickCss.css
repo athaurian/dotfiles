@@ -1,8 +1,0 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap");
-
-:root {
-  --font-primary: "Source Sans 3", sans-serif !important;
-  --font-display: "Source Sans 3", sans-serif !important;
-  --font-headline: "Source Sans 3", sans-serif !important;
-  --font-mono: "Source Code Pro", monospace !important;
-}
