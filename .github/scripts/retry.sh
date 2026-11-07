@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # Mirrors fail transiently. Without retries, one flaky mirror would fail the
 # whole run.
-set -euo pipefail
+set -eu
 
 attempt=1
 until "$@"; do

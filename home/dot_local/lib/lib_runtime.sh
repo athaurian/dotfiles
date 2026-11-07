@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 # Shared state helpers for the session scripts. Source this file; do not run
 # it directly. The state stays in $XDG_RUNTIME_DIR, so the session deletes it.
 

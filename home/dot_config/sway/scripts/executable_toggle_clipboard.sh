@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 set -eu
 
 # The picker tool starts kitty with a title only. The rule anchors the title

@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
 state_file="$HOME/.local/state/palette-mode"
 

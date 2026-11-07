@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/usr/bin/env sh
 set -eu
 
 pkill -x blueman-applet >/dev/null 2>&1 || true

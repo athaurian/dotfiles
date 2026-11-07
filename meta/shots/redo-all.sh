@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)
+ROOT=$(cd "$(dirname -- "$0")/../.." && pwd -P)
 cd "$ROOT"
 
 printf 'Clearing old captures\n'
