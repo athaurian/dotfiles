@@ -24,3 +24,5 @@ Don't hand-edit the generated files, such as
 and the look-up table (LUT) palettes under
 [`home/dot_config/lutgen/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/lutgen/),
 because regeneration replaces them.
+[`meta/lut-palette.md`](https://github.com/athaurian/dotfiles/blob/main/meta/lut-palette.md)
+describes how the tables are built.
