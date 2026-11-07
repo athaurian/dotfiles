@@ -4,6 +4,11 @@ __pycache__/
 
 .config/wlsunset.env
 
+# The test suites are for development only. The Makefile runs them from the
+# source tree, so the applied config does not need them.
+.config/waybar/scripts/tests
+.local/bin/tests
+
 # The optiplex hostname selects the i3 set. Each other hostname selects the
 # thinkpad set. The same hostname selects the package list in
 # data/packages.json, which run_onchange_before_onboarding.sh reads with
