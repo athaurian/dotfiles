@@ -5,13 +5,11 @@ set -eu
 
 {{- if eq .mode "light" }}
 scheme=prefer-light
-theme=Orchis-Light-Compact
-icons=Papirus-Light
 {{- else }}
 scheme=prefer-dark
-theme=Orchis-Dark-Compact
-icons=Papirus-Dark
 {{- end }}
+theme={{ index .themes.gtk .mode }}
+icons={{ index .themes.icons .mode }}
 
 if command -v gsettings >/dev/null 2>&1; then
 	gsettings set org.gnome.desktop.interface color-scheme "$scheme"

@@ -1,10 +1,10 @@
 # Mode comes from meta/palette.toml. The applied copy is generated from this template.
 # {{- $mode := .mode }}
 [Settings]
-gtk-theme-name={{ if eq $mode "light" }}Orchis-Light-Compact{{ else }}Orchis-Dark-Compact{{ end }}
-gtk-icon-theme-name=Papirus{{ if eq $mode "light" }}-Light{{ else }}-Dark{{ end }}
+gtk-theme-name={{ index .themes.gtk $mode }}
+gtk-icon-theme-name={{ index .themes.icons $mode }}
 gtk-font-name={{ .fonts.sans }} 10
-gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-name={{ .themes.cursor }}
 gtk-cursor-theme-size=24
 gtk-toolbar-style=GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR

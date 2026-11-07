@@ -1,7 +1,7 @@
 # Palette and mode come from meta/palette.toml. The applied copy is generated from this template.
 # {{- $p := .palette }}
 font={{ .fonts.nerd }} Mono:size=8
-icon-theme=Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
+icon-theme={{ index .themes.icons .mode }}
 width=56
 anchor=center
 minimal-lines=yes

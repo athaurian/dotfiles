@@ -1,7 +1,7 @@
 [Appearance]
 color_scheme_path={{ .chezmoi.homeDir }}/.config/qt6ct/colors/neutral.conf
 custom_palette=true
-icon_theme=Papirus{{ if eq .mode "light" }}-Light{{ else }}-Dark{{ end }}
+icon_theme={{ index .themes.icons .mode }}
 standard_dialogs=gtk3
 
 [Fonts]

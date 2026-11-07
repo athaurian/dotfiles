@@ -1,10 +1,25 @@
-# Font families. Merged with the generated palette data in .chezmoidata.yaml.
+# Font families and theme names. The generator merges them with the palette
+# data in .chezmoidata.yaml.
 
 [fonts]
 sans = "Source Sans 3"
 code = "Source Code Pro"
 nerd = "SauceCodePro Nerd Font"
 cjk = "Noto Sans CJK JP"
+
+# Theme families. The templates select each mode value with index and
+# .mode, so the names stay here.
+
+[themes]
+cursor = "Adwaita"
+
+[themes.gtk]
+light = "Orchis-Light-Compact"
+dark = "Orchis-Dark-Compact"
+
+[themes.icons]
+light = "Papirus-Light"
+dark = "Papirus-Dark"
 
 # The X11 idle timings. The i3 config applies them at startup, and
 # toggle_idle.sh puts them back.
