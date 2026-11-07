@@ -39,7 +39,7 @@ report() {
 while :; do
 	poked=0
 	report
-	sleep 600 &
+	sleep 3600 &
 	sleeper=$!
 	if [ "$poked" -eq 0 ]; then
 		wait "$sleeper" || true
