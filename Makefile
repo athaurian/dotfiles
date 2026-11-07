@@ -83,11 +83,11 @@ check-calibre:
 	$(MYPY) home/dot_local/bin/executable_calibre-drive-sync
 	uv run python3 -u home/dot_local/bin/tests/test_calibre_drive_sync.py
 
-# The libs are sourced through $(dirname -- "$0"). Give shellcheck the two
+# The scripts source the shared libs by full path. Give shellcheck the
 # directories that hold them. The templates hold no shell syntax, so they
 # are rendered before the parse.
 check-shell:
-	$(SHELLCHECK) -x -P home/dot_config/sway/scripts -P home/dot_config/i3/scripts $(SHELL_FILES)
+	$(SHELLCHECK) -x -P home/dot_local/lib -P home/dot_config/sway/scripts -P home/dot_config/i3/scripts $(SHELL_FILES)
 	$(SHFMT) -d $(SHELL_FILES)
 	for f in $(SHELL_TMPL_FILES); do chezmoi execute-template -f "$$f" | sh -n - || { echo "check-shell: FAILED $$f"; exit 1; }; done
 

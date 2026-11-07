@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+
 mode="${1:-}"
 case "$mode" in
 full | region | focused) ;;
@@ -10,7 +13,7 @@ full | region | focused) ;;
 	;;
 esac
 
-tmp=$(mktemp "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/screenshot.XXXXXX")
+tmp=$(mktemp "$(runtime_dir)/screenshot.XXXXXX")
 
 geometry=""
 if [ "$mode" = "focused" ]; then

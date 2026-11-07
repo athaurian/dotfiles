@@ -1,14 +1,20 @@
 #!/usr/bin/env sh
 
-# Sourced by the toggle scripts. acquire_sway_lock returns 0 only for the
-# owner, which must call release_sway_lock before exiting.
+# Shared state helpers for the session scripts. Source this file; do not run
+# it directly. The state stays in $XDG_RUNTIME_DIR, so the session deletes it.
 
-acquire_sway_lock() {
-	lockdir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$1.lock"
+runtime_dir() {
+	printf '%s\n' "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+}
+
+# acquire_lock NAME returns 0 for the owner only. The owner must call
+# release_lock NAME before it exits.
+acquire_lock() {
+	lockdir="$(runtime_dir)/$1.lock"
 	lockfile="$lockdir/pid"
 
-	# The lock is a directory because mkdir creates it atomically. Only the
-	# first process to create <name>.lock succeeds.
+	# mkdir makes the lock as one atomic operation. Only the first process
+	# makes the <name>.lock directory.
 	if mkdir "$lockdir" 2>/dev/null; then
 		echo $$ >"$lockfile"
 		if [ "$(cat "$lockfile" 2>/dev/null)" != "$$" ]; then
@@ -17,8 +23,8 @@ acquire_sway_lock() {
 		return 0
 	fi
 
-	# A lock with no live owner PID, or one older than 10s, is stale. The
-	# next caller then takes it over automatically.
+	# The next caller takes a lock that has no live owner, or an owner that
+	# is older than 10 seconds.
 	pid=""
 	if [ -f "$lockfile" ]; then
 		pid=$(tr -d '[:space:]' <"$lockfile")
@@ -53,6 +59,6 @@ acquire_sway_lock() {
 	return 1
 }
 
-release_sway_lock() {
-	rm -rf "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$1.lock"
+release_lock() {
+	rm -rf "$(runtime_dir)/$1.lock"
 }

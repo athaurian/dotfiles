@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+
 # {{- $p := .palette }}
 
 # xss-lock sets XSS_SLEEP_LOCK_FD only when the system is about to sleep,
@@ -17,7 +20,7 @@ if [ "$before_sleep" -eq 0 ]; then
 	sleep 2.5
 fi
 
-pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
+pause_file="$(runtime_dir)/dunst_pause_before_lock"
 # A second locker must not save the level, or it would capture the raised
 # 100 and leave dunst stuck there after unlock.
 pause_owner=0
@@ -27,7 +30,7 @@ if [ ! -f "$pause_file" ]; then
 fi
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 
-lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/i3lock_bg_$$.png"
+lockimg="$(runtime_dir)/i3lock_bg_$$.png"
 timeout 3 import -window root "$lockimg" 2>/dev/null || true
 
 if command -v magick >/dev/null 2>&1; then

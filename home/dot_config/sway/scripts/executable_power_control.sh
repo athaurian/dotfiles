@@ -16,9 +16,11 @@ logout) cmd="$session_manager save --quiet; systemctl --user stop sway-session.t
 	;;
 esac
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
 . "$(dirname -- "$0")/lib_confirm.sh"
 
-state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
+state_file="$(runtime_dir)/confirm_action"
 
 if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "confirm "; then
 	current_action=""
@@ -35,7 +37,7 @@ if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "
 	fi
 fi
 
-rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaynag_action"
+rm -f "$(runtime_dir)/swaynag_action"
 if command -v pkill >/dev/null 2>&1; then
 	pkill -x swaynag 2>/dev/null || true
 fi

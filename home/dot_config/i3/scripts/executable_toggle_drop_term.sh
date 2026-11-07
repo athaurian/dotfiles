@@ -3,8 +3,9 @@ set -eu
 
 app_id=scratchpad_term
 
-. "$(dirname -- "$0")/lib_sway_lock.sh"
-acquire_sway_lock "toggle_drop_term" || exit 0
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+acquire_lock "toggle_drop_term" || exit 0
 
 has_mark() {
 	i3-msg -t get_marks 2>/dev/null | grep -qF '"drop_term"'
@@ -12,7 +13,7 @@ has_mark() {
 
 if has_mark; then
 	i3-msg "[con_mark=drop_term] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
-	release_sway_lock "toggle_drop_term"
+	release_lock "toggle_drop_term"
 	exit 0
 fi
 
@@ -26,4 +27,4 @@ while [ "$i" -lt 40 ]; do
 	sleep 0.05
 	i=$((i + 1))
 done
-release_sway_lock "toggle_drop_term"
+release_lock "toggle_drop_term"

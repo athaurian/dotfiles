@@ -3,8 +3,9 @@ set -eu
 
 app_id=topgrade_term
 
-. "$(dirname -- "$0")/lib_sway_lock.sh"
-acquire_sway_lock "toggle_topgrade" || exit 0
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+acquire_lock "toggle_topgrade" || exit 0
 
 has_mark() {
 	i3-msg -t get_marks 2>/dev/null | grep -qF '"topgrade_term"'
@@ -14,7 +15,7 @@ if has_mark; then
 	# Keep the mark test separate from the combined command. Otherwise hiding
 	# a visible terminal fails the command and the script spawns a duplicate.
 	i3-msg "[con_mark=topgrade_term] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
-	release_sway_lock "toggle_topgrade"
+	release_lock "toggle_topgrade"
 	exit 0
 fi
 
@@ -30,4 +31,4 @@ while [ "$i" -lt 40 ]; do
 	sleep 0.05
 	i=$((i + 1))
 done
-release_sway_lock "toggle_topgrade"
+release_lock "toggle_topgrade"

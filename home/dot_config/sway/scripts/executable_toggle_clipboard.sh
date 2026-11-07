@@ -6,8 +6,9 @@ set -eu
 # to an exact match.
 mark=clipboard_term
 
-. "$(dirname -- "$0")/lib_sway_lock.sh"
-acquire_sway_lock "toggle_clipboard" || exit 0
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+acquire_lock "toggle_clipboard" || exit 0
 
 picker="$HOME/.local/bin/clipboard"
 
@@ -22,12 +23,12 @@ show_picker() {
 
 if has_mark; then
 	show_picker
-	release_sway_lock "toggle_clipboard"
+	release_lock "toggle_clipboard"
 	exit 0
 fi
 
 if [ ! -x "$picker" ]; then
-	release_sway_lock "toggle_clipboard"
+	release_lock "toggle_clipboard"
 	exit 0
 fi
 
@@ -48,4 +49,4 @@ if has_mark; then
 	# Pickers start hidden, so map the new one already centered.
 	show_picker
 fi
-release_sway_lock "toggle_clipboard"
+release_lock "toggle_clipboard"

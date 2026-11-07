@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+
 immediate=0
 if [ "$#" -gt 0 ] && [ "$1" = "--now" ]; then
 	immediate=1
@@ -18,7 +21,7 @@ fi
 
 # Cleanup restores this level after unlock. A second locker must not save
 # it, or it records the raised 100 and dunst stays paused after unlock.
-pause_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_pause_before_lock"
+pause_file="$(runtime_dir)/dunst_pause_before_lock"
 pause_owner=0
 if [ ! -f "$pause_file" ]; then
 	timeout 2 dunstctl get-pause-level 2>/dev/null >"$pause_file" || echo 0 >"$pause_file"
@@ -26,7 +29,7 @@ if [ ! -f "$pause_file" ]; then
 fi
 timeout 2 dunstctl set-pause-level 100 2>/dev/null || true
 
-lockimg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/swaylock_bg_$$.png"
+lockimg="$(runtime_dir)/swaylock_bg_$$.png"
 timeout 3 grim "$lockimg" 2>/dev/null || true
 
 if command -v magick >/dev/null 2>&1; then

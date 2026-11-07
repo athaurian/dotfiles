@@ -16,9 +16,11 @@ logout) cmd="$session_manager save --quiet; systemctl --user stop i3-session.tar
 	;;
 esac
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
 . "$(dirname -- "$0")/lib_confirm.sh"
 
-state_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/confirm_action"
+state_file="$(runtime_dir)/confirm_action"
 
 if command -v pgrep >/dev/null 2>&1 && pgrep -af rofi 2>/dev/null | grep -qF "confirm "; then
 	current_action=""
