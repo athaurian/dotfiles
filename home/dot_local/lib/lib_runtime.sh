@@ -15,6 +15,9 @@ acquire_lock() {
 	# mkdir makes the lock as one atomic operation. Only the first process
 	# makes the <name>.lock directory.
 	if mkdir "$lockdir" 2>/dev/null; then
+		# Read the pid back. A stale takeover can delete the directory and
+		# make it again between the mkdir and the write. The read then shows the
+		# pid of the other owner.
 		echo $$ >"$lockfile"
 		if [ "$(cat "$lockfile" 2>/dev/null)" != "$$" ]; then
 			return 1
@@ -47,6 +50,7 @@ acquire_lock() {
 	if [ "$stale" -eq 1 ]; then
 		rm -rf "$lockdir"
 		if mkdir "$lockdir" 2>/dev/null; then
+			# Read the pid back for the same reason as the first block.
 			echo $$ >"$lockfile"
 			if [ "$(cat "$lockfile" 2>/dev/null)" != "$$" ]; then
 				return 1
