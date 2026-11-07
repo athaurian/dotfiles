@@ -5,3 +5,10 @@ sans = "Source Sans 3"
 code = "Source Code Pro"
 nerd = "SauceCodePro Nerd Font"
 cjk = "Noto Sans CJK JP"
+
+# The X11 idle timings. The i3 config applies them at startup, and
+# toggle_idle.sh puts them back.
+
+[idle]
+screensaver = "20 10"
+dpms = "90 90 90"
