@@ -13,12 +13,14 @@ MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/polybar/scripts/tests/test_mpris.py
 SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
+CALIBRE_FILES := home/dot_local/bin/executable_calibre-drive-sync \
+	home/dot_local/bin/tests/test_calibre_drive_sync.py
 SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
 SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
 LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre site social
 
 .DEFAULT_GOAL := help
 
@@ -31,6 +33,7 @@ help:
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
+	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
 	@echo "  check-nvim        - Stylua over the Neovim Lua sources"
 	@echo "  check-probe       - Assert the deployed Neovim highlights against the palette"
@@ -73,6 +76,12 @@ check-sw:
 	$(RUFF) format --check $(SW_FILES)
 	$(MYPY) home/dot_local/bin/executable_sw
 	uv run python3 -u home/dot_local/bin/tests/test_sw.py
+
+check-calibre:
+	$(RUFF) check $(CALIBRE_FILES)
+	$(RUFF) format --check $(CALIBRE_FILES)
+	$(MYPY) home/dot_local/bin/executable_calibre-drive-sync
+	uv run python3 -u home/dot_local/bin/tests/test_calibre_drive_sync.py
 
 # The libs are sourced through $(dirname -- "$0"). Give shellcheck the two
 # directories that hold them. The templates hold no shell syntax, so they
