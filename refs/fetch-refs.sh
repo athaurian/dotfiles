@@ -12,8 +12,8 @@ if [ "${1:-}" = "--check" ]; then
 	mode=check
 	shift
 fi
-target=${1:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+target=${1:-$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)}
+repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 if [ "$mode" = fetch ]; then
 	mkdir -p "$target"
 fi

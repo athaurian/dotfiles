@@ -49,6 +49,8 @@ if command -v systemd-analyze >/dev/null 2>&1 && [ -d "$units_dir" ]; then
 	units=$(find "$units_dir" -maxdepth 1 -type f \
 		\( -name '*.service' -o -name '*.target' -o -name '*.timer' \))
 	if [ -n "$units" ]; then
+		# $units splits on purpose. verify takes one unit for each argument.
+		# shellcheck disable=SC2086
 		if out=$(systemd-analyze verify --man=no $units 2>&1); then
 			echo "check-config: ok $units_dir"
 		else

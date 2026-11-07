@@ -1,6 +1,9 @@
 PRETTIER := npx --yes prettier@3.9.9
 RUFF := uv run --with ruff ruff
 MYPY := uv run --with mypy mypy
+SHELLCHECK := uv run --with shellcheck-py shellcheck
+SHFMT := uv run --with shfmt-py shfmt
+STYLUA := stylua
 
 MD_FILES := $(wildcard meta/*.md) $(wildcard docs/*.md) $(wildcard AGENTS.md) README.md
 MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
@@ -10,10 +13,12 @@ MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/polybar/scripts/tests/test_mpris.py
 SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
+SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
+SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
+
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell site social
 
 .DEFAULT_GOAL := help
-
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config site social
 
 help:
 	@echo "Available commands:"
@@ -24,6 +29,7 @@ help:
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
+	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
@@ -63,6 +69,14 @@ check-sw:
 	$(RUFF) format --check $(SW_FILES)
 	$(MYPY) home/dot_local/bin/executable_sw
 	uv run python3 -u home/dot_local/bin/tests/test_sw.py
+
+# The libs are sourced through $(dirname -- "$0"). Give shellcheck the two
+# directories that hold them. The templates hold no shell syntax, so they
+# are rendered before the parse.
+check-shell:
+	$(SHELLCHECK) -x -P home/dot_config/sway/scripts -P home/dot_config/i3/scripts $(SHELL_FILES)
+	$(SHFMT) -d $(SHELL_FILES)
+	for f in $(SHELL_TMPL_FILES); do chezmoi execute-template -f "$$f" | sh -n - || { echo "check-shell: FAILED $$f"; exit 1; }; done
 
 check-refs:
 	sh refs/fetch-refs.sh --check
