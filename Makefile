@@ -20,7 +20,7 @@ SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
 LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-fonts site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-fonts shots site social
 
 .DEFAULT_GOAL := help
 
@@ -35,6 +35,7 @@ help:
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
 	@echo "  check-fonts       - Assert the docs site uses the configured fonts"
+	@echo "  shots             - Rebuild the automatic screenshot captures"
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
 	@echo "  check-nvim        - Stylua over the Neovim Lua sources"
 	@echo "  check-probe       - Assert the deployed Neovim highlights against the palette"
@@ -57,11 +58,11 @@ lint-md:
 MODE :=
 
 palette:
-	uv run python3 meta/palette.py $(MODE:%=MODE=%)
+	uv run python3 -u meta/palette.py $(MODE:%=MODE=%)
 
 light dark:
 	printf '%s\n' '$@' > $(HOME)/.local/state/palette-mode
-	uv run python3 meta/palette.py MODE=$@
+	uv run python3 -u meta/palette.py MODE=$@
 	chezmoi apply --force
 
 check-mpris:
@@ -85,7 +86,10 @@ check-calibre:
 	uv run python3 -u home/dot_local/bin/tests/test_calibre_drive_sync.py
 
 check-fonts:
-	uv run python3 meta/check_fonts.py
+	uv run python3 -u meta/check_fonts.py
+
+shots:
+	meta/shots/redo-all.sh
 
 # The scripts source the shared libs by full path. Give shellcheck the
 # directories that hold them. The templates hold no shell syntax, so they
