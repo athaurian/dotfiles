@@ -1,12 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-id_file="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/idle_warning_id"
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
 
-if [ -f "$id_file" ]; then
-	nid=$(tr -cd '0-9' <"$id_file")
-	if [ -n "$nid" ]; then
-		dunstctl close "$nid" 2>/dev/null || true
-	fi
-	rm -f "$id_file"
-fi
+notice_close "$(runtime_dir)/idle_warning_id"

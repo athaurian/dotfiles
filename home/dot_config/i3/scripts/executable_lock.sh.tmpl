@@ -43,7 +43,7 @@ cleanup() {
 	if [ "$pause_owner" -eq 1 ]; then
 		restore_level=0
 		if [ -f "$pause_file" ]; then
-			restore_level=$(tr -cd '0-9' <"$pause_file" 2>/dev/null || true)
+			restore_level=$(state_digits "$(cat "$pause_file" 2>/dev/null || true)")
 			[ -n "$restore_level" ] || restore_level=0
 			rm -f "$pause_file"
 		fi

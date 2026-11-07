@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+
 cycle=$(xset q 2>/dev/null | sed -n 's/.*cycle: *\([0-9][0-9]*\).*/\1/p' | head -n 1)
 case "$cycle" in
 "" | 0) exit 0 ;;
@@ -17,8 +20,7 @@ close_notice() {
 
 trap 'close_notice' HUP TERM
 
-nid=$(timeout 2 dunstify -a idle-warning -u low -t "${cycle}000" -p '󰂠 Idle warning' "Screen locking in ${cycle}s." 2>/dev/null || true)
-nid=$(printf '%s' "$nid" | tr -cd '0-9')
+nid=$(state_digits "$(timeout 2 dunstify -a idle-warning -u low -t "${cycle}000" -p '󰂠 Idle warning' "Screen locking in ${cycle}s." 2>/dev/null || true)")
 
 while :; do
 	sleep 1 &

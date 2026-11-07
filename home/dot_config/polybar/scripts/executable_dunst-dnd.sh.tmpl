@@ -1,60 +1,20 @@
 #!/usr/bin/env sh
 set -eu
+
+# shellcheck source=lib_runtime.sh
+. "$HOME/.local/lib/lib_runtime.sh"
+
 # chezmoi renders this template. Colors come from meta/palette.toml.
 # {{- $p := .palette }}
 APP_NAME="dunst-dnd"
-ID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd_id"
-LOCK_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dunst_dnd.lock"
+ID_FILE="$(runtime_dir)/dunst_dnd_id"
+LOCK_FILE="$(runtime_dir)/dunst_dnd.lock"
 DND_PAUSE_LEVEL=50
 
 ICON_ENABLED=""
 ICON_DISABLED=""
 TEXT_ENABLED="DND enabled"
 TEXT_DISABLED="DND disabled"
-
-send_notice() {
-	summary=$1
-	body=$2
-
-	old_id=0
-	if [ -s "$ID_FILE" ]; then
-		old_id=$(tr -cd '0-9' <"$ID_FILE")
-		[ -n "$old_id" ] || old_id=0
-	fi
-
-	new_id=""
-
-	if [ "$old_id" -gt 0 ] 2>/dev/null; then
-		new_id=$(
-			dunstify \
-				-a "$APP_NAME" \
-				-u low \
-				-t 3000 \
-				-p \
-				-r "$old_id" \
-				"$summary" \
-				"$body" 2>/dev/null || true
-		)
-		new_id=$(printf '%s' "$new_id" | tr -cd '0-9')
-	fi
-
-	if [ -z "$new_id" ]; then
-		new_id=$(
-			dunstify \
-				-a "$APP_NAME" \
-				-u low \
-				-t 3000 \
-				-p \
-				"$summary" \
-				"$body"
-		)
-		new_id=$(printf '%s' "$new_id" | tr -cd '0-9')
-	fi
-
-	tmp="${ID_FILE}.$$"
-	printf '%s\n' "$new_id" >"$tmp"
-	mv -f "$tmp" "$ID_FILE"
-}
 
 is_dnd() {
 	if command -v dunstctl >/dev/null 2>&1; then
@@ -74,10 +34,10 @@ toggle_dnd() {
 	flock -w 2 9 || exit 0
 
 	if is_dnd; then
-		send_notice "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>Notifications on.</b> Popups and sounds will appear again."
+		send_notice "$APP_NAME" "$ID_FILE" "${ICON_DISABLED} ${TEXT_DISABLED}" "<b>Notifications on.</b> Popups and sounds will appear again."
 		timeout 2 dunstctl set-pause-level 0 2>/dev/null || true
 	else
-		send_notice "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>Notifications silenced.</b> Click the indicator or press Super+Shift+d to disable."
+		send_notice "$APP_NAME" "$ID_FILE" "${ICON_ENABLED} ${TEXT_ENABLED}" "<b>Notifications silenced.</b> Click the indicator or press Super+Shift+d to disable."
 		timeout 2 dunstctl set-pause-level "$DND_PAUSE_LEVEL" 2>/dev/null || true
 	fi
 }
