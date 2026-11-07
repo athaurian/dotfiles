@@ -17,4 +17,15 @@ if has_mark; then
 fi
 
 swaymsg exec "QT_QPA_PLATFORMTHEME=qt6ct exec ${PASSWORD_MANAGER:-keepassxc}"
+
+# Keep the lock until the mark shows. A second keypress does nothing while
+# the first window starts.
+i=0
+while [ "$i" -lt 40 ]; do
+	if has_mark; then
+		break
+	fi
+	sleep 0.05
+	i=$((i + 1))
+done
 release_sway_lock "toggle_passwordmanager"

@@ -2,8 +2,8 @@
 
 set -eu
 
-# The picker tool starts kitty with a title only, so the sway rule anchors the
-# title to an exact match.
+# The picker tool starts kitty with a title only. The rule anchors the title
+# to an exact match.
 mark=clipboard_term
 
 . "$(dirname -- "$0")/lib_sway_lock.sh"
@@ -33,9 +33,9 @@ fi
 
 "$picker" &
 
-# Hold the lock until the mark appears, so a second keypress is ignored
-# while the first spawn starts. The timeout covers exits that open no
-# window (empty history, missing dependencies).
+# Keep the lock until the mark shows. A second keypress does nothing while
+# the first window starts. The timeout covers exits that open no window,
+# for example an empty history or a missing dependency.
 i=0
 while [ "$i" -lt 40 ]; do
 	if has_mark; then

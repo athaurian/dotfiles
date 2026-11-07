@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+set -eu
+
+mark=keepassxc
+
+. "$(dirname -- "$0")/lib_sway_lock.sh"
+acquire_sway_lock "toggle_passwordmanager" || exit 0
+
+has_mark() {
+	i3-msg -t get_marks 2>/dev/null | grep -qF "\"$mark\""
+}
+
+if has_mark; then
+	i3-msg "[con_mark=$mark] scratchpad show, resize set width 75 ppt height 70 ppt, move position center" >/dev/null 2>&1 || true
+	release_sway_lock "toggle_passwordmanager"
+	exit 0
+fi
+
+i3-msg exec "QT_QPA_PLATFORMTHEME=qt6ct exec ${PASSWORD_MANAGER:-keepassxc}"
+
+# Keep the lock until the mark shows. A second keypress does nothing while
+# the first window starts.
+i=0
+while [ "$i" -lt 40 ]; do
+	if has_mark; then
+		break
+	fi
+	sleep 0.05
+	i=$((i + 1))
+done
+release_sway_lock "toggle_passwordmanager"
