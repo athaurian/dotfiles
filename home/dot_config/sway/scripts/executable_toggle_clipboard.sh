@@ -2,6 +2,8 @@
 
 set -eu
 
+# The picker tool starts kitty with a title only, so the sway rule anchors the
+# title to an exact match.
 mark=clipboard_term
 
 . "$(dirname -- "$0")/lib_sway_lock.sh"

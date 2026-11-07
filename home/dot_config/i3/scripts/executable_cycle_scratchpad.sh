@@ -11,7 +11,8 @@ trap 'rm -f "$tmp_tree"' EXIT
 i3-msg -t get_tree | jq -r '
 def not_drop_term: ((.marks // []) | index("drop_term")) | not;
 def not_keepassxc: ((.marks // []) | index("keepassxc")) | not;
-def cyclable: not_drop_term and not_keepassxc;
+def not_topgrade_term: ((.marks // []) | index("topgrade_term")) | not;
+def cyclable: not_drop_term and not_keepassxc and not_topgrade_term;
 
 def scan($state; $hidden):
   (if (.scratchpad_state? != null and .scratchpad_state? != "none")

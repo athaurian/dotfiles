@@ -12,7 +12,8 @@ swaymsg -t get_tree | jq -r '
 def not_drop_term: ((.marks // []) | index("drop_term")) | not;
 def not_clipboard_term: ((.marks // []) | index("clipboard_term")) | not;
 def not_keepassxc: ((.marks // []) | index("keepassxc")) | not;
-def cyclable: not_drop_term and not_clipboard_term and not_keepassxc;
+def not_topgrade_term: ((.marks // []) | index("topgrade_term")) | not;
+def cyclable: not_drop_term and not_clipboard_term and not_keepassxc and not_topgrade_term;
 
 ([.. | select(.focused? == true)] | first | .id) as $focused
 | ([.nodes[].nodes[]

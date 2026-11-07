@@ -148,13 +148,14 @@ for_window [app_id="satty"] floating enable, border normal, resize set width 90 
 # cannot match window_role the way the i3 rule does.
 for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, resize set width 70 ppt height 70 ppt, move position center
 
-# Every kitty window carries the same app_id, so these rules match on title.
-for_window [app_id="kitty" title="drop_term"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-
-# Sway compares for_window titles as substrings. This rule needs to match the
-# class that the toggle script sets.
+# Sway compares the title as a substring, so each scratchpad window needs a
+# class of its own.
+for_window [app_id="drop_term"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [app_id="topgrade_term"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-for_window [app_id="kitty" title="clipboard_term"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad
+
+# The picker tool starts kitty with a title only. This rule anchors the
+# title to an exact match.
+for_window [app_id="kitty" title="^clipboard_term$"] floating enable, border normal, mark clipboard_term, resize set width 75 ppt height 70 ppt, move scratchpad
 # Match the main window, not the unlock dialog.
 for_window [app_id="org.keepassxc.KeePassXC" title="^(?!Unlock Database - KeePassXC$).*KeePassXC$"] floating enable, border normal, mark keepassxc, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [instance="keepassxc" title="^(?!Unlock Database - KeePassXC$).*KeePassXC$"] floating enable, border normal, mark keepassxc, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
