@@ -15,8 +15,10 @@ SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
 SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
 SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
+LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
+PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe site social
 
 .DEFAULT_GOAL := help
 
@@ -30,6 +32,8 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
+	@echo "  check-nvim        - Stylua over the Neovim Lua sources"
+	@echo "  check-probe       - Assert the deployed Neovim highlights against the palette"
 	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
@@ -77,6 +81,14 @@ check-shell:
 	$(SHELLCHECK) -x -P home/dot_config/sway/scripts -P home/dot_config/i3/scripts $(SHELL_FILES)
 	$(SHFMT) -d $(SHELL_FILES)
 	for f in $(SHELL_TMPL_FILES); do chezmoi execute-template -f "$$f" | sh -n - || { echo "check-shell: FAILED $$f"; exit 1; }; done
+
+check-nvim:
+	$(STYLUA) --check $(LUA_FILES)
+
+check-probe:
+	nvim --headless -c "luafile meta/probe.lua"
+	nvim --headless -c "luafile meta/probe_pills.lua"
+	nvim --headless -c "luafile meta/probe_backdrop.lua"
 
 check-refs:
 	sh refs/fetch-refs.sh --check

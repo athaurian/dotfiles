@@ -6,14 +6,20 @@ local PRIVATE_MARKER = ".cordprivate"
 local function repo_is_private(opts)
   local root = opts.workspace_dir or vim.uv.cwd()
   local marker = io.open(root .. "/" .. PRIVATE_MARKER, "r")
-  if not marker then return false end
+  if not marker then
+    return false
+  end
   marker:close()
   return true
 end
 
 local function repository_url(opts)
-  if not opts.repo_url then return end
-  if repo_is_private(opts) then return end
+  if not opts.repo_url then
+    return
+  end
+  if repo_is_private(opts) then
+    return
+  end
   local url = opts.repo_url:gsub("(https?://)[^/@]+@", "%1")
   return url
 end
@@ -26,7 +32,9 @@ end
 local function setup_diagnostics(manager)
   vim.api.nvim_create_autocmd("DiagnosticChanged", {
     group = vim.api.nvim_create_augroup("CordProblems", { clear = true }),
-    callback = function() manager:queue_update() end,
+    callback = function()
+      manager:queue_update()
+    end,
   })
 end
 
@@ -36,7 +44,9 @@ local function setup_viewing(manager)
   vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
     group = group,
     callback = function(args)
-      if edited_buffers[args.buf] then return end
+      if edited_buffers[args.buf] then
+        return
+      end
       edited_buffers[args.buf] = true
       manager:queue_update(true)
     end,
@@ -45,28 +55,40 @@ local function setup_viewing(manager)
     group = group,
     callback = function(args)
       edited_buffers[args.buf] = nil
-      if args.buf ~= vim.api.nvim_get_current_buf() then return end
+      if args.buf ~= vim.api.nvim_get_current_buf() then
+        return
+      end
       manager:queue_update(true)
     end,
   })
   vim.api.nvim_create_autocmd({ "BufUnload", "BufWipeout" }, {
     group = group,
-    callback = function(args) edited_buffers[args.buf] = nil end,
+    callback = function(args)
+      edited_buffers[args.buf] = nil
+    end,
   })
 end
 
 local function apply_viewing(opts)
-  if opts.filename == "" then return end
+  if opts.filename == "" then
+    return
+  end
   local buf = vim.api.nvim_get_current_buf()
-  if vim.bo[buf].modified then edited_buffers[buf] = true end
+  if vim.bo[buf].modified then
+    edited_buffers[buf] = true
+  end
   opts.is_read_only = opts.is_read_only or not edited_buffers[buf]
 end
 
 -- snacks.bigfile replaces the filetype of huge buffers, hiding the real one.
 local function resolve_bigfile(opts)
-  if opts.filetype ~= "bigfile" then return end
+  if opts.filetype ~= "bigfile" then
+    return
+  end
   local filetype = vim.filetype.match({ buf = vim.api.nvim_get_current_buf() })
-  if filetype and filetype ~= "bigfile" then opts.force_filetype = filetype end
+  if filetype and filetype ~= "bigfile" then
+    opts.force_filetype = filetype
+  end
 end
 
 return {
@@ -79,7 +101,9 @@ return {
 
     text = {
       workspace = function(opts)
-        if opts.private then return "In a private project" end
+        if opts.private then
+          return "In a private project"
+        end
         local text = "In " .. opts.workspace
         if opts.type == "language" then
           text = text .. problems_suffix()
@@ -87,22 +111,30 @@ return {
         return text
       end,
       editing = function(opts)
-        if opts.private then return "Working on a private file" end
+        if opts.private then
+          return "Working on a private file"
+        end
         return string.format("Working on %s:%d:%d", opts.filename, opts.cursor_line, opts.cursor_char + 1)
       end,
       viewing = function(opts)
-        if opts.private then return "Viewing a private file" end
+        if opts.private then
+          return "Viewing a private file"
+        end
         return "Viewing " .. opts.filename
       end,
       terminal = function(opts)
-        if opts.private then return "Running commands in the terminal" end
+        if opts.private then
+          return "Running commands in the terminal"
+        end
         if opts.name and opts.name:lower() == "terminal" then
           return "Running commands in the terminal"
         end
         return "Running commands in " .. opts.name
       end,
       file_browser = function(opts)
-        if opts.private then return "Browsing files" end
+        if opts.private then
+          return "Browsing files"
+        end
         if opts.name and opts.name:lower() == "picker" then
           return "Browsing files in the picker"
         end

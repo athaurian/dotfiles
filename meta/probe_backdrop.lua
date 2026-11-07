@@ -1,37 +1,32 @@
-if #vim.api.nvim_list_uis() > 0 then
-  io.stderr:write("probe_backdrop: refusing to run with a UI attached (headless only)\n")
-  vim.cmd("cquit 2")
-end
-pcall(vim.cmd, "colorscheme catppuccin-mocha")
+local here = vim.fs.dirname(debug.getinfo(1, "S").source:sub(2))
+package.path = here .. "/?.lua;" .. package.path
+local probe = require("probe_lib")
 
-local failures = 0
-local function pass(msg)
-  print("PASS " .. msg)
-end
-local function fail(msg)
-  failures = failures + 1
-  print("FAIL " .. msg)
-end
+probe.headless("probe_backdrop")
+probe.load()
+local p = probe.p
+
+local black = tonumber(p.black:sub(2), 16)
 
 local ok, dim = pcall(vim.api.nvim_get_hl, 0, { name = "BackdropDim", link = false })
-if ok and dim and dim.bg == 0x000000 then
-  pass("BackdropDim bg=#000000")
+if ok and dim and dim.bg == black then
+  probe.pass("BackdropDim bg=" .. p.black)
 else
-  fail("BackdropDim bg: want #000000")
+  probe.fail("BackdropDim bg: want " .. p.black)
 end
 
 local nok, normal = pcall(vim.api.nvim_get_hl, 0, { name = "Normal", link = false })
 if nok and normal and normal.bg == nil then
-  pass("Normal bg=none (plugin dims skipped, autocmds take over)")
+  probe.pass("Normal bg=none (plugin dims skipped, autocmds take over)")
 else
-  fail("Normal bg: want none")
+  probe.fail("Normal bg: want none")
 end
 
 local cok, cat = pcall(require, "catppuccin")
 if cok and cat.options and cat.options.transparent_background == true then
-  pass("transparent_background=true")
+  probe.pass("transparent_background=true")
 else
-  fail("transparent_background: want true")
+  probe.fail("transparent_background: want true")
 end
 
 local function patterns(event)
@@ -47,24 +42,19 @@ local function patterns(event)
 end
 local ft = patterns("FileType")
 if ft and ft.mason and ft.lazy then
-  pass("FileType mason+lazy registered")
+  probe.pass("FileType mason+lazy registered")
 else
-  fail("FileType mason+lazy: not both registered")
+  probe.fail("FileType mason+lazy: not both registered")
 end
 if patterns("WinClosed") then
-  pass("WinClosed cleanup registered")
+  probe.pass("WinClosed cleanup registered")
 else
-  fail("WinClosed cleanup: missing")
+  probe.fail("WinClosed cleanup: missing")
 end
 if patterns("VimResized") then
-  pass("VimResized re-fit registered")
+  probe.pass("VimResized re-fit registered")
 else
-  fail("VimResized re-fit: missing")
+  probe.fail("VimResized re-fit: missing")
 end
 
-if failures > 0 then
-  print(string.format("probe_backdrop: %d FAILURES", failures))
-  vim.cmd("cquit 1")
-end
-print("probe_backdrop: all green")
-vim.cmd("qa!")
+probe.report("probe_backdrop")
