@@ -19,16 +19,19 @@ _FAKE_PLAYERCTL = (
 )
 _F = "\x1f"
 
+ICON_PLAYING = "󰐊"
+ICON_PAUSED = "󰏤"
+
 
 def _line(player, status, pos, artist, title):
     return _F.join((player, status, pos, artist, title))
 
 
 def _norm(line):
-    paused = "%{T3}" in line
     text = re.sub(r"%\{[^}]*\}", "", line).strip()
+    paused = text.startswith(ICON_PAUSED)
     text = re.sub(r"^[󰐊󰏤]\s*", "", text)
-    return text, paused
+    return text.replace("%%", "%"), paused
 
 
 def _ev(player, status, pos, artist, title, delay=None):
@@ -165,6 +168,19 @@ SCENARIOS = {
         "expected": [
             ("", False),
             ("Radio - Live Stream", False),
+        ],
+    },
+    "percent_title": {
+        "streams": _sc(
+            [
+                _line(
+                    "chromium.i1", "Playing", "1000000", "Artist A", "50% {vol} 100%"
+                ),
+            ]
+        ),
+        "expected": [
+            ("", False),
+            ("Artist A - 50% {vol} 100%", False),
         ],
     },
     "transition_stop": {

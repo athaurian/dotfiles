@@ -14,7 +14,7 @@ from functools import lru_cache
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
 
-MAX_TEXT_LEN = 32
+MAX_TEXT_LEN = 56
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))
 
@@ -122,10 +122,12 @@ def _render(status: str, artist: str, title: str) -> str:
         return _EMPTY_PAYLOAD
 
     label = _truncate(label)
+    # Polybar reads %{...} as a format code, and the label is not trusted.
+    # Escape each literal percent.
+    label = label.replace("%", "%%")
     icon = ICON_PLAYING if status == "Playing" else ICON_PAUSED
-    if status == "Paused":
-        return f"%{{T3}}{icon} {label}%{{T-}}"
-    return f"{icon} {label}"
+    # Only the icon uses the nerd font.
+    return f"%{{T3}}{icon}%{{T-}} {label}"
 
 
 class _PlayerState:
