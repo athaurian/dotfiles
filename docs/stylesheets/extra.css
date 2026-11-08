@@ -181,6 +181,14 @@
   border-color: var(--md-default-fg-color--lighter);
 }
 
+/* The theme places the shortcut 7px from the top. Center the shortcut in the
+   button instead. */
+.md-search__button:after {
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: 1;
+}
+
 /* The copy control sits on the code background, so it needs a foreground tone.
    The theme's hairline color (--md-default-fg-color--lightest) disappears
    there. */
