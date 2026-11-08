@@ -13,23 +13,33 @@ runs Sway on Wayland.
 and it does not run Wayland without issues, so I run i3 on X11 instead.
 
 Almost every desktop component exists twice, once per machine. `dunst` and
-`kitty` are the exceptions, which run just fine on both machines from one shared
-configuration file each.
+`kitty` run just fine on both machines from one shared configuration file each.
+`cliphist`, the clipboard picker, and the brightness keys exist only on
+`thinkpad`: the first two need Wayland, and `optiplex` binds no brightness keys
+at all.
 
-| Component            | thinkpad (Sway)          | optiplex (i3)            |
-| -------------------- | ------------------------ | ------------------------ |
-| Window manager       | Sway                     | i3                       |
-| Window compositing   | Built into Sway          | picom (an extra process) |
-| Status bar           | Waybar                   | Polybar                  |
-| Application launcher | fuzzel                   | rofi                     |
-| Terminal             | kitty                    | kitty                    |
-| Screen locker        | swaylock                 | i3lock                   |
-| Idle handling        | swayidle user units      | xset timer plus xss-lock |
-| Color temperature    | wlsunset                 | redshift                 |
-| Wallpaper            | sw with the awww backend | sw with the feh backend  |
-| Screenshots          | grim with satty          | flameshot                |
-| Notifications        | dunst                    | dunst                    |
-| Session startup      | sway-session.target      | i3-session.target        |
+| Component            | thinkpad (Sway)            | optiplex (i3)            |
+| -------------------- | -------------------------- | ------------------------ |
+| Window manager       | Sway                       | i3                       |
+| Window compositing   | Built into Sway            | picom (an extra process) |
+| Status bar           | Waybar                     | Polybar                  |
+| Application launcher | fuzzel                     | rofi                     |
+| Terminal             | kitty                      | kitty                    |
+| Screen locker        | swaylock                   | i3lock                   |
+| Idle handling        | swayidle user units        | xset timer plus xss-lock |
+| Color temperature    | wlsunset                   | redshift                 |
+| Wallpaper            | sw with the awww backend   | sw with the feh backend  |
+| Screenshots          | grim with satty            | flameshot                |
+| Notifications        | dunst                      | dunst                    |
+| Clipboard history    | cliphist and the picker    | None                     |
+| Tray applets         | Started by the Sway config | Started by `applets.sh`  |
+| Session startup      | sway-session.target        | i3-session.target        |
+
+`Ctrl+Print` captures the focused window on both machines, but by different
+routes. `thinkpad` computes the window's rectangle itself, grabs it with `grim`,
+and copies it before the annotator opens. `optiplex` computes the same rectangle
+with `xdotool` and opens `flameshot` pre-cropped to it, so the copy to the
+clipboard happens only after that interaction finishes.
 
 Machine selection happens in
 [`home/.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
