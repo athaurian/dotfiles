@@ -108,7 +108,7 @@ check-probe:
 	nvim --headless -c "luafile meta/probe_backdrop.lua"
 
 check-refs:
-	sh refs/fetch-refs.sh --check
+	refs/fetch-refs.sh --check
 
 check-config:
 	sh meta/check-config.sh
