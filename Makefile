@@ -5,7 +5,7 @@ SHELLCHECK := uv run --with shellcheck-py shellcheck
 SHFMT := uv run --with shfmt-py shfmt
 STYLUA := stylua
 
-MD_FILES := $(wildcard meta/*.md) $(wildcard docs/*.md) $(wildcard AGENTS.md) README.md
+MD_FILES := $(wildcard meta/*.md) $(wildcard docs/*.md) $(wildcard AGENTS.md) $(wildcard style-guide.md) README.md
 MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
 	home/dot_config/waybar/scripts/tests/fake_playerctl.py \
 	home/dot_config/waybar/scripts/tests/test_mpris.py \
