@@ -63,11 +63,10 @@ jobs:
           .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv nodejs npm chezmoi stylua
 
       # The palette data is gitignored. A clone must generate it before it
-      # renders the templates or runs the palette checks.
+      # renders the templates or runs the palette checks. MODE= keeps the
+      # step from writing to the runner home, which has no state directory.
       - name: Generate the palette data
-        run: |
-          printf 'light\n' > ~/.local/state/palette-mode
-          make palette
+        run: make palette MODE=light
 
       - name: Check the shell scripts
         run: make check-shell
