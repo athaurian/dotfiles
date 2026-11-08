@@ -60,7 +60,7 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
           .github/scripts/retry.sh pacman -Syu --noconfirm --noprogressbar
-          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv nodejs npm chezmoi stylua
+          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv nodejs npm chezmoi git stylua
 
       # The palette data is gitignored. A clone must generate it before it
       # renders the templates or runs the palette checks. MODE= keeps the

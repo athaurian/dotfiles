@@ -18,6 +18,11 @@ if [ "$mode" = fetch ]; then
 	mkdir -p "$target"
 fi
 
+command -v git >/dev/null 2>&1 || {
+	echo "fetch-refs: git is not installed; the clone entries need it" >&2
+	exit 1
+}
+
 failures=""
 fail() {
 	failures="${failures}fetch-refs: $1: $2
