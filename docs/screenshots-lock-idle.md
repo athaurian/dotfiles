@@ -12,9 +12,20 @@ programs behind them differ.
 | `$mod+Shift+x`  | Lock the screen             | `swaylock` via [`home/dot_config/sway/scripts/executable_lock.sh`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/sway/scripts/executable_lock.sh) | `i3lock` via [`home/dot_config/i3/scripts/executable_lock.sh.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/scripts/executable_lock.sh.tmpl) |
 | `$mod+Shift+i`  | Toggle the idle timer       | `swayidle` user units                                                                                                                                               | `xset s 20 10` with `xss-lock`, never suspends on idle                                                                                                                  |
 
+`Control+Print` copies the focused window on `thinkpad` directly. On `optiplex`
+the same key opens `flameshot` pre-cropped to that window, so the copy follows
+the interaction instead. [Machines](machines.md) has the details.
+
 ## Lock screen
 
 <figure class="screenshot">
   <img src="images/lock-light.webp#only-light" alt="The lock screen with a blurred wallpaper behind the clock.">
   <img src="images/lock.webp#only-dark" alt="The lock screen with a blurred wallpaper behind the clock.">
 </figure>
+
+## Captures
+
+The figures on this page come from a live session.
+[`meta/shots.md`](https://github.com/athaurian/dotfiles/blob/main/meta/shots.md)
+describes the capture scripts. Run `make shots` from the repository root to
+rebuild every automatic capture.
