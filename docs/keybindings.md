@@ -29,9 +29,10 @@ For the components that differ between the machines, see
 
 Press `Return` or `Esc` to leave resize mode.
 
-The drop-down terminal, clipboard picker, password manager, and topgrade live in
-the scratchpad and toggle with their own bindings. Send other windows there with
+The drop-down terminal, password manager, and topgrade live in the scratchpad
+and toggle with their own bindings. Send other windows there with
 `$mod+Shift+minus` and cycle them with `$mod+minus`.
 
-On `thinkpad`, I open the clipboard picker with `$mod+Ctrl+v`. See
-[Pickers](pickers.md) for how it filters and previews entries.
+The clipboard picker joins them on `thinkpad`, opened with `$mod+Ctrl+v`. It
+needs Wayland, so `optiplex` has no such binding. See [Pickers](pickers.md) for
+how it filters and previews entries.
