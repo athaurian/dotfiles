@@ -148,6 +148,12 @@ for_window [app_id="satty"] floating enable, border normal, resize set width 90 
 # cannot match window_role the way the i3 rule does.
 for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, resize set width 70 ppt height 70 ppt, move position center
 
+# The Thunar rename prompt is a separate toplevel. Its app_id is the same as
+# the app_id of the file window. This rule compares the title. The rule does
+# not match the "<folder> - Thunar" form, so a folder with the name
+# "Rename ..." stays tiled.
+for_window [app_id="thunar" title="^Rename (?!.* - Thunar$).*$"] floating enable, border normal, move position center
+
 # Sway compares the title as a substring, so each scratchpad window needs a
 # class of its own.
 for_window [app_id="drop_term"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
