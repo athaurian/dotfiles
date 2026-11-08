@@ -22,7 +22,9 @@ I manage the dotfiles with a neat tool called
 machines with conflicting hardware components.
 
 My `thinkpad` laptop runs Sway on Wayland. Conversely, my `optiplex` desktop
-runs i3 on X11. Both machines share the keybindings and the color palette.
+runs i3 on X11. Both machines share most of their keybindings and the whole
+color palette. [Machines](machines.md) lists the handful of bindings that only
+one of them has.
 
 Fortunately, `chezmoi` lets me separate the two machines in a single source
 tree, so I didn't have to make two disjointed Git branches like a psycho. Once
@@ -46,7 +48,7 @@ Each guide covers one part of the desktop:
 | [Installation](installation.md)                         | Prerequisites and the first apply                            |
 | [Machines](machines.md)                                 | Components on `thinkpad` and `optiplex`                      |
 | [Keybindings](keybindings.md)                           | Window management bindings shared by both machines           |
-| [Palette system](palette-system.md)                     | Where every color in the system comes from                   |
+| [Palette system](palette-system.md)                     | Where the desktop colors come from                           |
 | [Pickers](pickers.md)                                   | Application launcher, power shortcuts, and clipboard history |
 | [Screenshots, lock, and idle](screenshots-lock-idle.md) | Capture, lock, and idle shortcuts                            |
 | [Background services](services.md)                      | Units that start with each session                           |
