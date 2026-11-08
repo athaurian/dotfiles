@@ -57,7 +57,7 @@ fi
 if [ -z "${SWAYSOCK:-}" ] && pgrep -x waybar >/dev/null 2>&1; then
 	pkill -x waybar || true
 	sleep 0.3
-	(setsid waybar >/dev/null 2>&1 < /dev/null &) || true
+	(setsid waybar >/dev/null 2>&1 </dev/null &) || true
 fi
 
 pkill -USR1 -x kitty >/dev/null 2>&1 || true
@@ -69,7 +69,7 @@ fi
 if command -v picom >/dev/null 2>&1 && pgrep -x picom >/dev/null 2>&1; then
 	pkill -x picom || true
 	sleep 0.3
-	(setsid picom --config "$HOME/.config/picom.conf" >/dev/null 2>&1 < /dev/null &) || true
+	(setsid picom --config "$HOME/.config/picom.conf" >/dev/null 2>&1 </dev/null &) || true
 fi
 
 echo "gtk-mode-hook: $scheme, $theme, $icons"
