@@ -114,7 +114,7 @@ check-config:
 	sh meta/check-config.sh
 
 site:
-	uv run --with zensical==0.0.73 zensical build --strict
+	uv run --with zensical==0.1.0 zensical build --strict
 
 social:
 	meta/shots/social.py
