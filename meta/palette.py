@@ -228,7 +228,7 @@ def build_data(pal, mode):
     utility = {n: t["value"] for n, t in pal["utility"].items()}
     groups = [
         ("Neutrals, deepest ground role to maximal emphasis.", pal["neutrals"][mode].items()),
-        ("One Dark Pro hues, chroma ×1.5.", pal["chroma"][mode].items()),
+        ("Hue colors.", pal["chroma"][mode].items()),
         ("Bright step per hue.", [(f"{h}_bright", v) for h, v in pal["bright"][mode].items()]),
         ("Derived and hand-written tints.", hex_tints.items()),
         ("Alpha overlays and utility colors.", [*overlays.items(), *utility.items()]),
