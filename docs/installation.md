@@ -3,20 +3,20 @@
 ## Prerequisites
 
 - Arch Linux with `bash` and systemd user services, CachyOS preferred
-- A hostname that decides the setup, covered in [Machines](machines.md). The
-  files each setup skips live in
+- A hostname that selects the setup, covered in [Machines](machines.md). The
+  files each setup skips are listed in
   [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore),
-  and the packages live in
+  and the packages are listed in
   [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).
 - The `forge` package repository, set up before the first apply
-- A CPU that supports `x86-64-v3`, because `forge` packages compile for that
-  level, which older generic `x86_64` CPUs do not support
+- A CPU that supports `x86-64-v3`, because `forge` builds packages for that
+  microarchitecture level, which older generic `x86_64` CPUs do not support
 
-`forge` is an Arch package repository (like `core` or `extra`) I made to make my
-life easier. It contains some modified PKGBUILDs and packages that do not exist
-at all in the official Arch/CachyOS repositories.
+`forge` is an Arch package repository, like `core` or `extra`, that I maintain.
+It contains modified PKGBUILDs and packages that are not available in the
+official Arch or CachyOS repositories.
 
-Run the following commands to set it up:
+Run the following commands to add the repository and trust its signing key:
 
 ```sh
 curl -fsSL https://athaurian.github.io/forge/signing_key.asc -o /tmp/forge-signing-key.asc
@@ -35,9 +35,10 @@ make dark
 ```
 
 Run `make dark` or `make light` to generate the palette data and apply the
-configuration for the first time. That first run also installs whatever packages
-the machine is missing. It installs the
-[clipboard picker](https://github.com/athaurian/clipboard-picker) and the
-[session manager](https://github.com/athaurian/session-manager) from their own
-repositories with `uv`, so both commands land in `~/.local/bin`. For what those
-targets do, see [Palette system](palette-system.md).
+configuration for the first time. On first run, any missing packages are
+installed automatically. The
+[clipboard picker](https://github.com/athaurian/clipboard-picker) and
+[session manager](https://github.com/athaurian/session-manager) are each
+installed with `uv` from their own repositories, placing both tools in
+`~/.local/bin`. For what those targets do, see
+[Palette system](palette-system.md).

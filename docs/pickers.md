@@ -14,7 +14,8 @@ on `optiplex`.
   </figure>
 </div>
 
-Each power shortcut opens a confirmation menu in the same picker before it runs.
+Each power shortcut opens a confirmation menu in the same picker before the
+action runs.
 
 | Binding                | Action    |
 | ---------------------- | --------- |
@@ -27,7 +28,7 @@ Press `Return` to confirm or `Esc` to cancel.
 
 ## Clipboard history
 
-I keep my clipboard history in an `fzf` list inside a floating terminal. Use the
+Clipboard history appears as an `fzf` list in a floating terminal. Use the
 picker as follows:
 
 1. Press `$mod+Ctrl+v` to open the picker.
@@ -36,14 +37,14 @@ picker as follows:
 3. Press `Return` to copy the highlighted entry back to the clipboard and close
    the picker, or press `Esc` to close the picker without copying anything.
 
-If the picker is already open, the same shortcut hides it instead of opening a
-second copy.
+If the picker is already open, the same shortcut hides it instead of opening
+another instance.
 
 <figure class="screenshot no-radius">
   <img src="images/picker-clipboard-light.webp#only-light" alt="The clipboard history picker listing five entries, with the palette card previewed beside them.">
   <img src="images/picker-clipboard.webp#only-dark" alt="The clipboard history picker listing five entries, with the palette card previewed beside them.">
 </figure>
 
-I only have this on `thinkpad`, where `cliphist` watches the Wayland clipboard.
-Copying something new does not remove the older entries, so you can still bring
-one back later.
+I only have this on `thinkpad`, where `cliphist` stores Wayland clipboard
+entries. Copying something new does not remove the older entries, so you can
+still bring one back later.

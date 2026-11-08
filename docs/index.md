@@ -17,25 +17,19 @@ Hi. This is the documentation I wrote for my dotfiles repository. If you'd
 rather read the source code, it's on
 [GitHub](https://github.com/athaurian/dotfiles).
 
-I manage the dotfiles with a neat tool called
-[`chezmoi`](https://www.chezmoi.io/). Together they contain my setup for two
-machines with conflicting hardware components.
+The repository contains my configuration for two machines with different
+hardware.
 
 My `thinkpad` laptop runs Sway on Wayland. Conversely, my `optiplex` desktop
-runs i3 on X11. Both machines share most of their keybindings and the whole
-color palette. [Machines](machines.md) lists the handful of bindings that only
-one of them has.
+runs i3 on X11. Both machines share most keybindings and the full color palette.
+See [Machines](machines.md) for the few bindings that only one machine has.
 
-Fortunately, `chezmoi` lets me separate the two machines in a single source
-tree, so I didn't have to make two disjointed Git branches like a psycho. Once
-everything is in place, each machine's hostname determines which files chezmoi
-copies, which packages it installs, and which configuration I end up with.
-
-I decided to make both light and dark modes because dark mode is awful to use
+I made both light and dark modes because dark mode is difficult to read
 outdoors. I still like using it indoors, though.
 
-As a final note, all of this is for people who are setting up or maintaining the
-desktop, which is me (duh).
+As a final note, I made this repository to record how I set up my entire desktop
+for day-to-day use, so I can look back at it if I ever need to. I figured
+there's no reason not to share it, in case someone else finds it useful.
 
 Start with [Installation](installation.md).
 

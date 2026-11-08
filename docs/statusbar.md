@@ -1,7 +1,6 @@
 # Status bar
 
-`thinkpad` starts Waybar from the Sway config, and `optiplex` starts Polybar as
-`polybar main` from the i3 session's `autostart.sh` script.
+`thinkpad` runs Waybar, and `optiplex` runs Polybar.
 
 <figure class="screenshot">
   <img src="images/bar-light.webp#only-light" alt="The Waybar status bar in light mode.">
@@ -13,14 +12,10 @@ under
 [`home/dot_config/waybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/waybar/),
 Polybar's under
 [`home/dot_config/polybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/polybar/).
-Each bar keeps its module scripts in a `scripts/` directory of its own.
 
 Both bars check for updates once an hour and re-check when a topgrade run
-finishes. Only Waybar lists the pending packages in a tooltip; Polybar has no
-tooltip support, so its module shows the count alone.
+finishes. Only Waybar lists the pending packages in a tooltip. Polybar has no
+tooltip support, so its module shows only the count.
 
-Polybar only falls back to the families listed in its `font-N` entries, so
-`font-4` in `config.ini` points at the CJK family from
-[`home/.chezmoidata.toml`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoidata.toml).
-Without it, non-Latin text in module output (song titles, window titles) is
-silently dropped rather than rendered.
+Polybar needs a CJK font family for non-Latin text. Without one, non-Latin text
+in module output (song titles, window titles) is silently dropped.

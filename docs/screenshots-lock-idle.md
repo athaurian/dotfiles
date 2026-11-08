@@ -13,8 +13,9 @@ programs behind them differ.
 | `$mod+Shift+i`  | Toggle the idle timer       | `swayidle` user units                                                                                                                                               | `xset s 20 10` with `xss-lock`, never suspends on idle                                                                                                                  |
 
 `Control+Print` copies the focused window on `thinkpad` directly. On `optiplex`
-the same key opens `flameshot` pre-cropped to that window, so the copy follows
-the interaction instead. [Machines](machines.md) has the details.
+the same key opens `flameshot` with a crop region for that window, so
+`flameshot` updates the clipboard only after you confirm the crop. See
+[Machines](machines.md) for the details.
 
 ## Lock screen
 
@@ -25,7 +26,7 @@ the interaction instead. [Machines](machines.md) has the details.
 
 ## Captures
 
-The figures on this page come from a live session.
+The screenshots on this page come from a live session. See
 [`meta/shots.md`](https://github.com/athaurian/dotfiles/blob/main/meta/shots.md)
-describes the capture scripts. Run `make shots` from the repository root to
-rebuild every automatic capture.
+for the capture scripts. Run `make shots` from the repository root to rebuild
+every automatic capture.

@@ -1,27 +1,17 @@
 # Themes
 
-Press `$mod+Shift+t` to toggle between dark and light on the fly. But if you
-ever need to change the actual colors, edit
+Press `$mod+Shift+t` to switch between dark and light without restarting the
+session. To change the palette colors, edit
 [`meta/palette.toml`](https://github.com/athaurian/dotfiles/blob/main/meta/palette.toml)
-and run `make dark` or `make light`. Read the
-[Palette system](palette-system.md) section for more information about those
-targets.
+and run `make dark` or `make light`. For more information about these targets,
+see the [Palette system](palette-system.md) page.
 
 I wrote a script named `sw` to handle recoloring based on the generated palette.
-The script provides these commands:
-
-| Command          | Action                                           |
-| ---------------- | ------------------------------------------------ |
-| `sw --set IMAGE` | Set an image as the wallpaper                    |
-| `sw --next`      | Rotate to the next wallpaper                     |
-| `sw --prev`      | Return to the previously shown wallpaper         |
-| `sw --restore`   | Re-apply the recorded wallpaper without rotating |
-
-For more information, run `sw --help` (or, y'know, read the
+For more information, run `sw --help` or read the
 [`executable_sw`](https://github.com/athaurian/dotfiles/blob/main/home/dot_local/bin/executable_sw)
-script yourself).
+script.
 
-## Hot-reloading
+## Live palette updates
 
 Open Neovim windows repaint when the palette changes, so you do not have to
 restart the editor after `make dark` or `make light`.

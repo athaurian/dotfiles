@@ -1,27 +1,20 @@
 # Machines
 
-This repository runs on two machines, `thinkpad` and `optiplex`, and those are
-their actual hostnames. The hostname decides which set of programs each machine
-gets. The `optiplex` hostname selects the i3 setup. Every other hostname gets
-the `thinkpad` setup, laptop or not.
+This repository runs on two machines, named after their hostnames: `thinkpad`
+and `optiplex`. The hostname selects each machine's programs. `optiplex` gets
+the i3 setup, while any other hostname gets the `thinkpad` setup, laptop or not.
 
 `thinkpad` is a ThinkPad L14 Gen 1 laptop, and it is the machine I use daily. It
 runs Sway on Wayland.
 
-`optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is
-[an ancient NVIDIA card from the Egyptian era](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376),
-and it does not run Wayland without issues, so I run i3 on X11 instead.
-
-Almost every desktop component exists twice, once per machine. `dunst` and
-`kitty` run just fine on both machines from one shared configuration file each.
-`cliphist`, the clipboard picker, and the brightness keys exist only on
-`thinkpad`: the first two need Wayland, and `optiplex` binds no brightness keys
-at all.
+`optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is an
+[NVIDIA GeForce GT 630 (rev. 2)](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376).
+Wayland does not work reliably with this GPU, so I run i3 on X11 instead.
 
 | Component            | thinkpad (Sway)            | optiplex (i3)            |
 | -------------------- | -------------------------- | ------------------------ |
-| Window manager       | Sway                       | i3                       |
-| Window compositing   | Built into Sway            | picom (an extra process) |
+| Window management    | Sway (Wayland compositor)  | i3 (X11 window manager)  |
+| Compositor           | Built into Sway            | picom (separate process) |
 | Status bar           | Waybar                     | Polybar                  |
 | Application launcher | fuzzel                     | rofi                     |
 | Terminal             | kitty                      | kitty                    |
@@ -35,13 +28,12 @@ at all.
 | Tray applets         | Started by the Sway config | Started by `applets.sh`  |
 | Session startup      | sway-session.target        | i3-session.target        |
 
-`Ctrl+Print` captures the focused window on both machines, but by different
-routes. `thinkpad` computes the window's rectangle itself, grabs it with `grim`,
-and copies it before the annotator opens. `optiplex` computes the same rectangle
-with `xdotool` and opens `flameshot` pre-cropped to it, so the copy to the
-clipboard happens only after that interaction finishes.
+`cliphist` and the picker require Wayland, and `optiplex` has no brightness key
+bindings.
 
-Machine selection happens in
-[`home/.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore)
-and
-[`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).
+`Control+Print` captures the focused window on both machines, but by different
+methods. `thinkpad` computes the window rectangle itself, captures it with
+`grim`, and copies it to the clipboard before `satty` opens. `optiplex` computes
+the same rectangle with `xdotool` and opens `flameshot` with a crop region for
+that window, so `flameshot` updates the clipboard only after you confirm the
+crop.
