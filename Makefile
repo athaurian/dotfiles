@@ -117,7 +117,4 @@ site:
 	uv run --with zensical==0.0.73 zensical build --strict
 
 social:
-	magick \
-		\( meta/captures/editor-light.png -crop 960x1008+0+36 +repage -resize 600x630^ -extent 600x630 \) \
-		\( meta/captures/empty-dark.png -crop 960x1008+960+0 +repage -resize 600x630^ -extent 600x630 \) \
-		+append +repage docs/images/og.png
+	meta/shots/social.py
