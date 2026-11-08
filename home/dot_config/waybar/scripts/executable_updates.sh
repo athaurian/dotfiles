@@ -8,22 +8,31 @@ has_paru=0
 pacman_out=""
 paru_out=""
 
-if command -v checkupdates >/dev/null 2>&1; then
-	has_checkupdates=1
-	if ! pacman_out=$(checkupdates 2>/dev/null); then
+# checkupdates exits 2 and paru -Qum exits 1 when there are no updates. The
+# exit code is not a failure. Only output on stderr shows a failure.
+err_file=$(mktemp) || exit 1
+trap 'rm -f "$err_file"' EXIT
+
+check_backend() {
+	backend_out=$("$@" 2>"$err_file") || true
+	if [ -s "$err_file" ]; then
 		failed=1
 	fi
-	pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
-	count=$((count + ${pacman_count:-0}))
+	: >"$err_file"
+	backend_count=$(printf '%s\n' "$backend_out" | grep -c . 2>/dev/null || true)
+	count=$((count + ${backend_count:-0}))
+}
+
+if command -v checkupdates >/dev/null 2>&1; then
+	has_checkupdates=1
+	check_backend checkupdates
+	pacman_out=$backend_out
 fi
 
 if command -v paru >/dev/null 2>&1; then
 	has_paru=1
-	if ! paru_out=$(paru -Qum 2>/dev/null); then
-		failed=1
-	fi
-	paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
-	count=$((count + ${paru_count:-0}))
+	check_backend paru -Qum
+	paru_out=$backend_out
 fi
 
 if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then

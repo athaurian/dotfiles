@@ -4,6 +4,20 @@ set -eu
 # {{- $p := .palette }}
 poked=0
 trap 'poked=1' USR1
+err_file=$(mktemp) || exit 1
+trap 'rm -f "$err_file"' EXIT
+
+# checkupdates exits 2 and paru -Qum exits 1 when there are no updates. The
+# exit code is not a failure. Only output on stderr shows a failure.
+check_backend() {
+	backend_out=$("$@" 2>"$err_file") || true
+	if [ -s "$err_file" ]; then
+		failed=1
+	fi
+	: >"$err_file"
+	backend_count=$(printf '%s\n' "$backend_out" | grep -c . 2>/dev/null || true)
+	count=$((count + ${backend_count:-0}))
+}
 
 report() {
 	count=0
@@ -13,20 +27,12 @@ report() {
 
 	if command -v checkupdates >/dev/null 2>&1; then
 		has_checkupdates=1
-		if ! pacman_out=$(checkupdates 2>/dev/null); then
-			failed=1
-		fi
-		pacman_count=$(printf '%s' "$pacman_out" | grep -c . 2>/dev/null || true)
-		count=$((count + ${pacman_count:-0}))
+		check_backend checkupdates
 	fi
 
 	if command -v paru >/dev/null 2>&1; then
 		has_paru=1
-		if ! paru_out=$(paru -Qum 2>/dev/null); then
-			failed=1
-		fi
-		paru_count=$(printf '%s' "$paru_out" | grep -c . 2>/dev/null || true)
-		count=$((count + ${paru_count:-0}))
+		check_backend paru -Qum
 	fi
 
 	if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
