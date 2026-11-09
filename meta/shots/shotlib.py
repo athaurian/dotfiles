@@ -58,6 +58,8 @@ def run_pillow(script: str, *args: str) -> None:
             "run",
             "--with",
             "pillow",
+            "--with",
+            "numpy",
             "python3",
             str(ROOT / "meta" / script),
             *args,

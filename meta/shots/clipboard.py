@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import shlex
 import shutil
 import time
 from pathlib import Path
@@ -13,6 +14,7 @@ from shotlib import (
     CLIP_DB,
     CLIP_DIR,
     DOC_IMAGES,
+    SHOT_TMP,
     close_notifications,
     crop_round,
     error,
@@ -33,6 +35,7 @@ from shotlib import (
 
 PICKER = Path.home() / ".local/bin/clipboard"
 PREVIEW_IMAGE = Path(__file__).with_name("clipboard-preview.webp")
+READY = SHOT_TMP / "clipboard-ready"
 
 
 def seed() -> None:
@@ -101,14 +104,33 @@ def capture(mode: str) -> None:
     seed()
     palette_mode(mode)
     sway("workspace", "3")
+    READY.unlink(missing_ok=True)
     try:
         close_notifications()
-        sway_exec([str(PICKER), "--db-path", str(CLIP_DB)])
+        picker = shlex.join([str(PICKER), "--db-path", str(CLIP_DB)])
+        sway_exec(
+            [
+                "kitty",
+                "--title",
+                "clipboard_term",
+                "sh",
+                "-c",
+                (
+                    f"tries=0; while [ ! -e {shlex.quote(str(READY))} ]; do "
+                    "tries=$((tries + 1)); [ $tries -gt 200 ] && exit 1; "
+                    f"sleep 0.05; done; exec {picker}"
+                ),
+            ]
+        )
         wait_window(title="clipboard_term", timeout=10)
         sway(
             "[con_mark=clipboard_term] scratchpad show, "
             "resize set width 75 ppt height 70 ppt, move position center"
         )
+        # fzf measures the preview pane when it starts and keeps the rendered
+        # image until the highlight changes. Start it only after the window
+        # has its final size, or the placeholder grid overflows and wraps.
+        READY.touch()
         time.sleep(0.5)
         sway("[con_mark=clipboard_term] focus")
         time.sleep(4)
@@ -120,6 +142,7 @@ def capture(mode: str) -> None:
             window_geom_by_title("clipboard_term"),
         )
     finally:
+        READY.unlink(missing_ok=True)
         kill_window(title="clipboard_term")
         shutil.rmtree(CLIP_DIR, ignore_errors=True)
     crop(mode)
