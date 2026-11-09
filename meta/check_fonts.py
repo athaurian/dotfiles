@@ -1,30 +1,34 @@
 #!/usr/bin/env python3
-"""Assert the docs site uses the font families from .chezmoidata.toml."""
+"""Check that the documentation site does not load fonts.
+
+The shared theme supplies the fonts.
+"""
 
 import tomllib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-FONTS = REPO / "home" / ".chezmoidata.toml"
 SITE = REPO / "zensical.toml"
+THEME = REPO / "docs" / "stylesheets" / "extra.css"
+FAMILIES = ("Geist", "Geist Mono")
 
 
 def main():
-    """Return 0 when zensical.toml declares the configured fonts."""
-    fonts = tomllib.load(FONTS.open("rb"))["fonts"]
-    wanted = {"text": fonts["sans"], "code": fonts["code"]}
-    theme = tomllib.load(SITE.open("rb"))["project"]["theme"]["font"]
-    found = {role: theme.get(role) for role in wanted}
-    failures = [
-        f"{SITE.name}: font.{role} = {value!r}, expected {name!r}"
-        for role, name in wanted.items()
-        if (value := found[role]) != name
-    ]
+    """Return 0 if font loading is off and the theme supplies the fonts."""
+    site = tomllib.load(SITE.open("rb"))
+    theme = site["project"]["theme"]
+    css = THEME.read_text(encoding="utf-8")
+    failures = []
+    if theme.get("font") is not False:
+        failures.append(f"{SITE.name}: font = {theme.get('font')!r}, expected false")
+    for family in FAMILIES:
+        if f'font-family: "{family}"' not in css:
+            failures.append(f"{THEME.name}: missing {family} font face")
     for failure in failures:
         print(f"check-fonts: {failure}")
     if failures:
         return 1
-    print(f"check-fonts: {SITE.name} uses {wanted['text']} and {wanted['code']}")
+    print(f"check-fonts: {SITE.name} loads fonts from the shared theme")
     return 0
 
 

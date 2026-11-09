@@ -1,13 +1,44 @@
 /* The shared documentation theme. */
 
-/* The theme uses the same font weights as the main site. The body text is
-   smaller. This keeps the docs dense. */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/geist-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/geist-italic-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/geist-mono-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/geist-mono-italic-variable.woff2") format("woff2");
+}
+
 :root {
+  --md-text-font: "Geist";
+  --md-code-font: "Geist Mono";
   --docs-weight-body: 400;
   --docs-weight-heading: 500;
   --docs-weight-page-title: 600;
   --docs-weight-brand: 600;
-  --docs-size-body: 0.75rem;
   --docs-size-table: 0.7rem;
   --docs-size-caption: 0.6rem;
   --docs-radius: 0.2rem;
@@ -90,103 +121,12 @@
   --md-typeset-a-color: var(--md-accent-fg-color);
 }
 
-/* Keep links underlined. Do not use color as the only cue. */
-.md-typeset a:not(.headerlink):not(.glightbox):not(.md-button):not(.md-content__button):not(.footnote-backref) {
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-}
-
-.md-typeset a:not(.headerlink):not(.glightbox):not(.md-button):not(.md-content__button):not(.footnote-backref):hover {
-  text-decoration-color: currentColor;
-}
-
-/* Controls use icons or button shapes. Do not underline them. */
-.md-typeset .headerlink,
-.md-typeset .md-button,
-.md-typeset .md-content__button,
-.md-typeset a.glightbox,
-.md-typeset .footnote-backref {
-  text-decoration: none;
-}
-
-/* The footer puts the credit and the license notice on one line, at opposite
-   ends instead of sharing a separator. This font's text sits slightly above
-   the center of its line box, which leaves flex centering high.
-   Trimming the box to the cap band centers it. The padding restores the strip
-   height that the trimmed box no longer supplies. */
-.md-copyright {
-  flex: 1;
-  padding-block: 0.75rem;
-}
-
-.md-copyright__highlight {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.md-copyright__highlight > span {
-  text-box: trim-both cap alphabetic;
-}
-
 /* The theme gives the highlight a full-strength foreground. The credit is a
    footnote, and it sits a step below that. --md-default-fg-color--light is its
    own muted tone for this band and stays above AA contrast on the beige
    strip. */
 .md-copyright__highlight > span:first-child {
   color: var(--md-default-fg-color--light);
-}
-
-/* The theme separates regions with hairlines rather than tinted chrome. */
-.md-header {
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.md-footer {
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.md-nav__link {
-  border-radius: var(--docs-radius);
-}
-
-/* Use hairlines and text weight for navigation. Do not use filled pills. */
-.md-nav--primary .md-nav__item .md-nav__link--active {
-  background: transparent;
-  border-radius: 0;
-  box-shadow: inset 2px 0 var(--md-accent-fg-color);
-}
-
-.md-nav--primary .md-nav__link[for]:focus:not(.md-nav__link--active),
-.md-nav--primary .md-nav__link[for]:hover:not(.md-nav__link--active),
-.md-nav--primary .md-nav__link[href]:focus:not(.md-nav__link--active),
-.md-nav--primary .md-nav__link[href]:hover:not(.md-nav__link--active) {
-  background-color: transparent;
-  color: var(--md-default-fg-color);
-}
-
-/* Use a hairline for the search control. This agrees with the rest of the
-   theme. */
-.md-search__button {
-  background-color: transparent;
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: var(--docs-radius);
-}
-
-.md-search__button:focus,
-.md-search__button:hover {
-  background-color: transparent;
-  border-color: var(--md-default-fg-color--lighter);
-}
-
-/* The theme places the shortcut 7px from the top. Center the shortcut in the
-   button instead. */
-.md-search__button:after {
-  top: 50%;
-  transform: translateY(-50%);
-  line-height: 1;
 }
 
 /* The copy control sits on the code background, so it needs a foreground tone.
@@ -196,10 +136,10 @@
   color: var(--md-default-fg-color--lighter);
 }
 
-/* Source Sans 3 sets the body text and the interface text. Source Code Pro
-   sets code. Merriweather sets the headings and the header title.
-   Use weight 500 for section headings. Use weight 600 for the page title and
-   the header wordmark. */
+.md-content__inner.md-typeset {
+  font-family: "Merriweather", Georgia, serif;
+}
+
 .md-typeset h1,
 .md-typeset h2,
 .md-typeset h3,
@@ -234,87 +174,18 @@
   color: var(--md-default-fg-color);
 }
 
-/* The theme removes the border radius from code blocks. The blocks usually
-   extend past the content column. These blocks stay inside the column. */
-.md-content__inner > .highlight > pre > code,
-.md-code__nav {
-  border-radius: var(--docs-radius);
+.md-typeset__table {
+  display: block;
 }
 
-/* The theme sets the html root to 125%. 0.75rem is 15px. The site uses 16px.
-   15px keeps the docs dense. The 32px margin floor keeps code blocks and
-   table wrappers inside. */
-.md-typeset {
-  font-size: var(--docs-size-body);
-}
-
-.md-content__inner.md-typeset {
-  max-width: 70ch;
-  /* The theme roots html at 125%. 1.6rem is 32px here. */
-  margin-inline: max(1.6rem, calc((100% - 70ch) / 2));
-}
-
-/* The theme's sidebar-visible layout needs this repeated selector. The margin
-   floor applies here too. */
-[dir] .md-sidebar:not([hidden]) ~ .md-content > .md-content__inner.md-typeset {
-  margin-inline: max(1.6rem, calc((100% - 70ch) / 2));
-}
-
-/* Tables contain primary content. Use a readable text size. Use weight 500
-   for the table header. */
 .md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
   font-size: var(--docs-size-table);
-  border-radius: var(--docs-radius);
 }
 
-.md-typeset table:not([class]) th {
-  font-weight: var(--docs-weight-heading);
-}
-
-.md-typeset p,
-.md-typeset ul,
-.md-typeset ol,
-.md-typeset blockquote {
-  margin: 0.8em 0;
-}
-
-.md-typeset h1 {
-  margin-bottom: 1em;
-}
-
-.md-typeset h2 {
-  margin: 1.2em 0 0.5em;
-}
-
-.md-typeset h3 {
-  margin: 1.2em 0 0.6em;
-}
-
-.md-typeset h4 {
-  margin: 0.8em 0;
-}
-
-.md-typeset h5,
-.md-typeset h6 {
-  margin: 1em 0;
-}
-
-.md-typeset hr {
-  margin: 1.2em 0;
-}
-
-/* Code blocks stay inside the column instead of extending past it. */
-.md-content__inner > pre,
-.md-content__inner > .highlight {
-  margin: 0.8em 0;
-}
-
-.md-main__inner {
-  margin-top: 1rem;
-}
-
-.md-content__inner {
-  padding-top: 0.4rem;
+.md-typeset table:not([class]) thead th {
+  font-weight: 600;
 }
 
 /* Paired screenshots sit side by side, with captions in the body face. */
@@ -355,7 +226,6 @@ figure.screenshot.no-radius img {
 .image-pair figcaption,
 figure.screenshot figcaption {
   margin-top: 0.35em;
-  font-family: var(--md-text-font-family);
   font-weight: var(--docs-weight-body);
   font-size: var(--docs-size-caption);
   font-style: italic;

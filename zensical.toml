@@ -9,7 +9,6 @@ copyright = """
 <span>Made with ❤️ and <a href="https://zensical.org">Zensical</a></span> <span>Content licensed under <a href="https://github.com/athaurian/dotfiles/blob/main/LICENSE">MIT</a></span>
 """
 
-# Merriweather is loaded as a webfont for the serif roles that extra.css assigns.
 extra_css = [
   "https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300..900;1,300..900&display=fallback",
   "stylesheets/extra.css",
@@ -32,12 +31,7 @@ nav = [
 
 [project.theme]
 variant = "modern"
-font.text = "Source Sans 3"
-font.code = "Source Code Pro"
-# The monogram tile comes from the docs theme, at --fill 0.38. It is the
-# header logo. The favicon is the absolute ICO URL, so link preview crawlers
-# can fetch it without resolving a relative path. The theme adds the SVG and
-# PNG variants.
+font = false
 logo = "favicon.svg"
 favicon = "https://athaurian.github.io/dotfiles/favicon.ico"
 features = [
@@ -49,11 +43,8 @@ features = [
   "search.highlight",
 ]
 
-# overrides/home.html sets the home page's document title to the site name.
 custom_dir = "overrides"
 
-# The visible colors come from stylesheets/extra.css, which overrides the --md-*
-# variables. The scheme names here only select which block applies.
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
 scheme = "default"
@@ -73,8 +64,6 @@ toggle.name = "Switch to light mode"
 [project.markdown_extensions]
 admonition = {}
 attr_list = {}
-# Images open in a lightbox instead of being static. Light and dark variants
-# are separate galleries, so the hidden mode is not offered in the lightbox.
 zensical.extensions.glightbox.auto_themed = true
 def_list = {}
 footnotes = {}
@@ -87,15 +76,8 @@ pymdownx.snippets = {}
 pymdownx.superfences = {}
 pymdownx.tabbed.alternate_style = true
 
-# generator = false drops the stock "Made with Zensical" line next to the
-# copyright. homepage is the logo link target. The home page's nav url is empty,
-# and the value goes through the url filter, so give it a URL rather than a
-# source path.
 [project.extra]
 generator = false
 homepage = "."
-# og_image is the social banner, relative to site_url. Bump the version when
-# the banner changes so link previews fetch the new image.
 og_image = "images/og.png?v=5"
-# oembed.json carries the provider name and URL for link previews.
 oembed = "oembed.json"

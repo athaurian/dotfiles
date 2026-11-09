@@ -34,7 +34,7 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
-	@echo "  check-fonts       - Assert the docs site uses the configured fonts"
+	@echo "  check-fonts       - Check that the docs site uses the shared theme fonts"
 	@echo "  shots             - Rebuild the automatic screenshot captures"
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
 	@echo "  check-nvim        - Stylua over the Neovim Lua sources"
