@@ -44,9 +44,7 @@
       "adwaita-cursors",
       "noto-fonts",
       "noto-fonts-cjk",
-      "adobe-source-sans-fonts",
-      "adobe-source-code-pro-fonts",
-      "ttf-sourcecodepro-nerd"
+      "otf-geist-mono-nerd"
     ],
     "apps": [
       "calibre",
@@ -62,7 +60,7 @@
     ]
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
-  "aur": ["topgrade-bin"],
+  "aur": ["otf-geist", "otf-geist-mono", "topgrade-bin"],
   "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [

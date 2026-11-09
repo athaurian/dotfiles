@@ -2,9 +2,9 @@
 # data in .chezmoidata.yaml.
 
 [fonts]
-sans = "Source Sans 3"
-code = "Source Code Pro"
-nerd = "SauceCodePro Nerd Font"
+sans = "Geist"
+code = "Geist Mono"
+nerd = "GeistMono Nerd Font"
 cjk = "Noto Sans CJK JP"
 
 # Theme families. The templates select each mode value with index and

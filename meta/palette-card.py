@@ -87,8 +87,8 @@ def scaled(value: float) -> float:
 def main() -> int:
     """Render the palette card to docs/images/palette.webp."""
     pal = palette.load()
-    body = resolve_font("Source Sans 3")
-    mono = resolve_font("Source Code Pro") or body
+    body = resolve_font("Geist")
+    mono = resolve_font("Geist Mono") or body
     header_font = load_font(body, int(scaled(HEADER_SIZE)))
     section_font = load_font(body, int(scaled(SECTION_SIZE)))
     name_font = load_font(body, int(scaled(NAME_SIZE)))
