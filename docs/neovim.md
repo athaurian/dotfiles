@@ -1,6 +1,6 @@
 # Neovim
 
-Neovim is my editor. The configuration is under
+Neovim is my editor. I keep the configuration under
 [`home/dot_config/nvim/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/nvim/).
 
 I like it because its design is intentionally modest. I want an editor that

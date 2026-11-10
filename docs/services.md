@@ -1,9 +1,9 @@
 # Background services
 
-Units live in
+I keep the session units in
 [`home/dot_config/systemd/user/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/systemd/user/).
 The `sway-session.target` and `i3-session.target` units start with the session
-on `thinkpad` and `optiplex`, respectively.
+on `thinkpad` and `optiplex`.
 
 If a unit fails:
 

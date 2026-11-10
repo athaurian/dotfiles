@@ -12,8 +12,8 @@ back on the saved workspace and at the saved position. Unlike suspend, the saved
 session survives a full shutdown.
 
 At login, a picker prompt offers to restore the previous session. Press `Enter`
-to restore that session. Press `Escape` to start a new session, or let the
-prompt time out. The prompt appears only when the saved session is not empty.
+to restore that session. Press `Esc` to start a new session, or let the prompt
+time out. The prompt appears only when the saved session isn't empty.
 
 See the [session-manager README](https://github.com/athaurian/session-manager)
 for the commands and the full list of what is restored and what is not.

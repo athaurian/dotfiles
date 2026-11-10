@@ -19,5 +19,5 @@ palette data. These commands do not change the recorded mode.
 
 ## Live palette updates
 
-Open Neovim windows repaint when the palette changes, so you do not have to
+Open Neovim windows repaint when the palette changes, so you don't have to
 restart the editor after `make dark` or `make light`.

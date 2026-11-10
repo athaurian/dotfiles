@@ -1,7 +1,7 @@
 # Keybindings
 
-`$mod` is the Super key, which is usually the key with the Windows logo. Every
-binding here works on both machines. You can see the actual lists in
+`$mod` is the Super key, usually the one with the Windows logo. Every binding
+here works on both machines. If you want the full lists, they're in
 [`home/dot_config/sway/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/sway/config.tmpl)
 and
 [`home/dot_config/i3/config.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/config.tmpl).
@@ -27,12 +27,12 @@ For the components that differ between the machines, see
 | `$mod+Shift+minus`                          | Send the focused window to the scratchpad |
 | `$mod+Shift+p`                              | Open or hide the password manager         |
 
-Press `Return` or `Esc` to leave resize mode.
+Press `Enter` or `Esc` to leave resize mode.
 
 The drop-down terminal, password manager, and topgrade live in the scratchpad
 and toggle with their own bindings. Send other windows there with
 `$mod+Shift+minus` and cycle them with `$mod+minus`.
 
 The clipboard picker joins them on `thinkpad`, opened with `$mod+Ctrl+v`. It
-needs Wayland, so `optiplex` has no such binding. See [Pickers](pickers.md) for
-how it filters and previews entries.
+needs Wayland, so `optiplex` doesn't have one. See [Pickers](pickers.md) for how
+it filters and previews entries.

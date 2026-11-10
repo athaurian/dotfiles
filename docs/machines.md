@@ -1,15 +1,15 @@
 # Machines
 
-This repository runs on two machines, named after their hostnames: `thinkpad`
-and `optiplex`. The hostname selects each machine's programs. `optiplex` gets
-the i3 setup, while any other hostname gets the `thinkpad` setup, laptop or not.
+My setup runs on two machines, named after their hostnames: `thinkpad` and
+`optiplex`. The hostname selects each machine's programs. `optiplex` gets the i3
+setup, while any other hostname gets the `thinkpad` setup, laptop or not.
 
-`thinkpad` is a ThinkPad L14 Gen 1 laptop, and it is the machine I use daily. It
+`thinkpad` is a ThinkPad L14 Gen 1 laptop, and it's the machine I use daily. It
 runs Sway on Wayland.
 
 `optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is an
 [NVIDIA GeForce GT 630 (rev. 2)](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376).
-Wayland does not work reliably with this GPU, so I run i3 on X11 instead.
+Wayland doesn't work reliably with this GPU, so I run i3 on X11 instead.
 
 | Component            | thinkpad (Sway)            | optiplex (i3)            |
 | -------------------- | -------------------------- | ------------------------ |
