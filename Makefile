@@ -6,11 +6,9 @@ SHFMT := uv run --with shfmt-py shfmt
 STYLUA := stylua
 
 MD_FILES := $(wildcard meta/*.md) $(wildcard docs/*.md) $(wildcard AGENTS.md) $(wildcard style-guide.md) README.md
-MPRIS_FILES := home/dot_config/waybar/scripts/executable_mpris.py \
-	home/dot_config/waybar/scripts/tests/fake_playerctl.py \
-	home/dot_config/waybar/scripts/tests/test_mpris.py \
-	home/dot_config/polybar/scripts/executable_mpris.py \
-	home/dot_config/polybar/scripts/tests/test_mpris.py
+MPRIS_FILES := home/dot_local/bin/executable_mpris \
+	home/dot_local/bin/tests/fake_playerctl.py \
+	home/dot_local/bin/tests/test_mpris.py
 SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
 CALIBRE_FILES := home/dot_local/bin/executable_calibre-drive-sync \
@@ -40,7 +38,7 @@ help:
 	@echo "  palette           - Write both LUTs + the active mode's data, run checks"
 	@echo "  light             - Switch to light: record mode, regenerate, apply"
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
-	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
+	@echo "  check-mpris       - Ruff + mypy + tests for the shared MPRIS poller"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
 	@echo "  check-launcher    - Compile-check the launcher dim helper"
@@ -79,10 +77,8 @@ light dark:
 check-mpris:
 	$(RUFF) check $(MPRIS_FILES)
 	$(RUFF) format --check $(MPRIS_FILES)
-	$(MYPY) home/dot_config/waybar/scripts/executable_mpris.py
-	$(MYPY) home/dot_config/polybar/scripts/executable_mpris.py
-	uv run python3 -u home/dot_config/waybar/scripts/tests/test_mpris.py
-	uv run python3 -u home/dot_config/polybar/scripts/tests/test_mpris.py
+	$(MYPY) home/dot_local/bin/executable_mpris
+	uv run python3 -u home/dot_local/bin/tests/test_mpris.py
 
 check-sw:
 	$(RUFF) check $(SW_FILES)

@@ -27,7 +27,7 @@
     "format": "󰘳 {}"
   },
   "custom/mpris": {
-    "exec": "~/.config/waybar/scripts/mpris.py",
+    "exec": "~/.local/bin/mpris waybar",
     "return-type": "json",
     "hide-empty-text": true,
     "restart-interval": 5,

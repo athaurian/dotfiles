@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import html
 import json
 import os
 import re
@@ -13,25 +14,42 @@ import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-_SCRIPT = _HERE.parent / "executable_mpris.py"
-_FAKE_PLAYERCTL = (
-    _HERE.parent.parent.parent / "waybar" / "scripts" / "tests" / "fake_playerctl.py"
-)
+_SCRIPT = _HERE.parent / "executable_mpris"
+_FAKE = _HERE / "fake_playerctl.py"
 _F = "\x1f"
 
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
+MODES = ("waybar", "polybar")
 
 
 def _line(player, status, pos, artist, title):
     return _F.join((player, status, pos, artist, title))
 
 
-def _norm(line):
+def _norm_waybar(line):
+    obj = json.loads(line)
+    text = re.sub(r"<span>[^<]*</span>", "", obj["text"])
+    italic = "<i>" in text
+    text = re.sub(r"</?i>", "", text).strip()
+    return html.unescape(text), italic, obj["class"]
+
+
+def _norm_polybar(line):
     text = re.sub(r"%\{[^}]*\}", "", line).strip()
     paused = text.startswith(ICON_PAUSED)
     text = re.sub(r"^[󰐊󰏤]\s*", "", text)
-    return text.replace("%%", "%"), paused
+    text = text.replace("%%", "%")
+    if not text:
+        status = "stopped"
+    elif paused:
+        status = "paused"
+    else:
+        status = "playing"
+    return text, paused, status
+
+
+_NORM = {"waybar": _norm_waybar, "polybar": _norm_polybar}
 
 
 def _ev(player, status, pos, artist, title, delay=None):
@@ -62,7 +80,7 @@ def _make_fakebin():
     fakebin = tmpdir / "bin"
     fakebin.mkdir()
     link = fakebin / "playerctl"
-    shutil.copy(_FAKE_PLAYERCTL, link)
+    shutil.copy(_FAKE, link)
     link.chmod(0o755)
     return tmpdir, fakebin
 
@@ -77,9 +95,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Artist A - Song Two", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Artist A - Song Two", False, "playing"),
         ],
     },
     "missing_artist": {
@@ -90,9 +108,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Video Title", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Video Title", False, "playing"),
         ],
     },
     "missing_title": {
@@ -103,9 +121,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Artist B", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Artist B", False, "playing"),
         ],
     },
     "stale_status": {
@@ -123,10 +141,10 @@ SCENARIOS = {
             "poll": 1.5,
         },
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Artist A - Song One", True),
-            ("Artist A - Song One", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Artist A - Song One", True, "paused"),
+            ("Artist A - Song One", False, "playing"),
         ],
     },
     "pause_blank": {
@@ -139,9 +157,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", True),
-            ("", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", True, "paused"),
+            ("", False, "stopped"),
         ],
     },
     "player_gone": {
@@ -153,9 +171,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("", False, "stopped"),
         ],
     },
     "live_stream": {
@@ -166,8 +184,8 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Radio - Live Stream", False),
+            ("", False, "stopped"),
+            ("Radio - Live Stream", False, "playing"),
         ],
     },
     "percent_title": {
@@ -179,8 +197,47 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - 50% {vol} 100%", False),
+            ("", False, "stopped"),
+            ("Artist A - 50% {vol} 100%", False, "playing"),
+        ],
+    },
+    "html_title": {
+        "streams": _sc(
+            [
+                _line(
+                    "chromium.i1",
+                    "Playing",
+                    "1000000",
+                    "AC/DC",
+                    '<Live> & "More"',
+                ),
+            ]
+        ),
+        "expected": [
+            ("", False, "stopped"),
+            ('AC/DC - <Live> & "More"', False, "playing"),
+        ],
+    },
+    "long_title": {
+        "streams": _sc(
+            [
+                _line("chromium.i1", "Playing", "1000000", "Artist A", "x" * 60),
+            ]
+        ),
+        "expected": [
+            ("", False, "stopped"),
+            ("Artist A - " + "x" * 45 + "…", False, "playing"),
+        ],
+    },
+    "wide_title": {
+        "streams": _sc(
+            [
+                _line("chromium.i1", "Playing", "1000000", "Artist A", "曲" * 30),
+            ]
+        ),
+        "expected": [
+            ("", False, "stopped"),
+            ("Artist A - " + "曲" * 22 + "…", False, "playing"),
         ],
     },
     "transition_stop": {
@@ -192,9 +249,9 @@ SCENARIOS = {
             ]
         ),
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Artist A - Song Two", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Artist A - Song Two", False, "playing"),
         ],
     },
     "follow_missed": {
@@ -221,15 +278,15 @@ SCENARIOS = {
             ],
         },
         "expected": [
-            ("", False),
-            ("Artist A - Song One", False),
-            ("Artist A - Song Two", False),
+            ("", False, "stopped"),
+            ("Artist A - Song One", False, "playing"),
+            ("Artist A - Song Two", False, "playing"),
         ],
     },
 }
 
 
-def _run_scenario(name, spec):
+def _run_scenario(mode, name, spec):
     tmpdir, fakebin = _make_fakebin()
     state_base = tmpdir
     streams = spec["streams"]
@@ -251,19 +308,20 @@ def _run_scenario(name, spec):
     env["FAKE_FW_STATE"] = str(state_base / f"state_{name}_fw.json")
 
     proc = subprocess.Popen(
-        [sys.executable, str(_SCRIPT)],
+        [sys.executable, str(_SCRIPT), mode],
         stdout=subprocess.PIPE,
         text=True,
         env=env,
         start_new_session=True,
     )
+    norm = _NORM[mode]
     got = []
     deadline = time.time() + 10
     try:
         while time.time() < deadline:
             raw = _readline(proc.stdout, deadline)
             if raw:
-                got.append(_norm(raw))
+                got.append(norm(raw))
                 if len(got) >= len(spec["expected"]):
                     break
             elif proc.poll() is not None:
@@ -285,7 +343,7 @@ def _run_scenario(name, spec):
     exp = spec["expected"]
     ok = got == exp
     tag = "PASS" if ok else "FAIL"
-    print(f"[{tag}] {name}")
+    print(f"[{tag}] {mode}/{name}")
     if not ok:
         print(f"  expected: {exp}")
         print(f"  got     : {got}")
@@ -293,7 +351,11 @@ def _run_scenario(name, spec):
 
 
 def main():
-    ok = all(_run_scenario(name, spec) for name, spec in SCENARIOS.items())
+    ok = all(
+        _run_scenario(mode, name, spec)
+        for mode in MODES
+        for name, spec in SCENARIOS.items()
+    )
     print("ALL PASS" if ok else "SOME FAILED")
     sys.exit(0 if ok else 1)
 

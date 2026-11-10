@@ -6,7 +6,6 @@ __pycache__/
 
 # The test suites are for development only. The Makefile runs them from the
 # source tree, so the applied config does not need them.
-.config/waybar/scripts/tests
 .local/bin/tests
 
 # The launcher helper is compiled into ~/.local/bin during apply.

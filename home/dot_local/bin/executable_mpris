@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Runs a `playerctl --follow` stream and a periodic poll through one state
-# machine. Apply any change to the event model to the twin script too.
+# machine. Renders the result for waybar or polybar.
 
 import html
 import json
@@ -16,6 +16,9 @@ from functools import lru_cache
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
 
+_SPAN_PLAYING = f"<span>{ICON_PLAYING}</span>"
+_SPAN_PAUSED = f"<span>{ICON_PAUSED}</span>"
+
 MAX_TEXT_LEN = 56
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))
@@ -26,9 +29,7 @@ STALL_POLLS = int(os.environ.get("MPRIS_STALL_POLLS", "1"))
 
 GRACE_SECONDS = float(os.environ.get("MPRIS_GRACE_SECONDS", "2.0"))
 
-_EMPTY_PAYLOAD: str = json.dumps({"text": "", "class": "stopped", "alt": "stopped"})
-_SPAN_PLAYING: str = f"<span>{ICON_PLAYING}</span>"
-_SPAN_PAUSED: str = f"<span>{ICON_PAUSED}</span>"
+USAGE = "usage: mpris waybar|polybar\n"
 
 _FIELD_SEP = "\x1f"
 
@@ -95,7 +96,7 @@ def _split_fields(line: str) -> tuple[str, str, str, str, str] | None:
     return player, status, position, artist, title
 
 
-def _query_player() -> tuple[str, str, str, str, str] | None:
+def _query_player(empty: str) -> tuple[str, str, str, str, str] | None:
     try:
         proc = subprocess.run(
             _playerctl_cmd(follow=False),
@@ -105,7 +106,7 @@ def _query_player() -> tuple[str, str, str, str, str] | None:
             check=False,
         )
     except FileNotFoundError:
-        _emit(_EMPTY_PAYLOAD)
+        _emit(empty)
         sys.exit(0)
     except subprocess.TimeoutExpired:
         return None
@@ -115,30 +116,63 @@ def _query_player() -> tuple[str, str, str, str, str] | None:
     return _split_fields(proc.stdout)
 
 
-def _render(status: str, artist: str, title: str) -> str:
-    span = _SPAN_PLAYING if status == "Playing" else _SPAN_PAUSED
-
+def _label(artist: str, title: str) -> str | None:
     if artist and title:
-        label = f"{artist} - {title}"
-    elif title:
-        label = title
-    elif artist:
-        label = artist
-    else:
-        return _EMPTY_PAYLOAD
+        return f"{artist} - {title}"
+    if title:
+        return title
+    if artist:
+        return artist
+    return None
 
-    label = _truncate(label)
-    label = html.escape(label, quote=False)
-    text = f"{span}  {label}"
 
-    if status == "Paused":
-        text = f"<i>{text}</i>"
+class _Renderer:
+    empty: str
 
-    return json.dumps({"text": text, "class": status.lower(), "alt": status.lower()})
+    def render(self, status: str, artist: str, title: str) -> str:
+        raise NotImplementedError
+
+
+class _WaybarRenderer(_Renderer):
+    empty = json.dumps({"text": "", "class": "stopped", "alt": "stopped"})
+
+    def render(self, status: str, artist: str, title: str) -> str:
+        span = _SPAN_PLAYING if status == "Playing" else _SPAN_PAUSED
+        label = _label(artist, title)
+        if label is None:
+            return self.empty
+
+        label = html.escape(_truncate(label), quote=False)
+        text = f"{span}  {label}"
+        if status == "Paused":
+            text = f"<i>{text}</i>"
+
+        return json.dumps(
+            {"text": text, "class": status.lower(), "alt": status.lower()}
+        )
+
+
+class _PolybarRenderer(_Renderer):
+    empty = ""
+
+    def render(self, status: str, artist: str, title: str) -> str:
+        label = _label(artist, title)
+        if label is None:
+            return self.empty
+
+        # Polybar reads %{...} as a format code.
+        label = _truncate(label).replace("%", "%%")
+        icon = ICON_PLAYING if status == "Playing" else ICON_PAUSED
+        # Only the icon uses the nerd font.
+        return f"%{{T3}}{icon}%{{T-}} {label}"
+
+
+RENDERERS = {"waybar": _WaybarRenderer, "polybar": _PolybarRenderer}
 
 
 class _PlayerState:
-    def __init__(self) -> None:
+    def __init__(self, renderer: _Renderer) -> None:
+        self.renderer = renderer
         self.cache_artist = ""
         self.cache_title = ""
         self.last_status = ""
@@ -147,14 +181,14 @@ class _PlayerState:
         self.last_pos_time: float | None = None
         self.last_active_time: float | None = None
         self.stall = 0
-        self.last_payload = _EMPTY_PAYLOAD
+        self.last_payload = renderer.empty
 
     def process(self, fields: tuple[str, str, str, str, str] | None) -> str | None:
         if fields is None:
             return None
 
         player, status, position, artist, title = fields
-        payload = _EMPTY_PAYLOAD
+        payload = self.renderer.empty
 
         if status == "Stopped" or not status:
             now = time.monotonic()
@@ -163,9 +197,11 @@ class _PlayerState:
                 and now - self.last_active_time < GRACE_SECONDS
             )
             if still_grace and (self.cache_artist or self.cache_title):
-                # Chromium briefly reports an empty or Stopped status during
-                # track changes. The cache keeps the song visible during that gap.
-                payload = _render(self.last_status, self.cache_artist, self.cache_title)
+                # Chromium briefly reports an empty or Stopped status during a
+                # track change. The cache keeps the song visible during that gap.
+                payload = self.renderer.render(
+                    self.last_status, self.cache_artist, self.cache_title
+                )
             else:
                 self.cache_artist = self.cache_title = ""
                 self.last_status = ""
@@ -188,11 +224,11 @@ class _PlayerState:
                 self.cache_artist, self.cache_title = artist, title
             else:
                 # Chromium clears its metadata during long pauses and track
-                # changes. The cached artist and title fill that gap.
+                # changes. The cached artist and title fill the gap.
                 artist, title = self.cache_artist, self.cache_title
 
             # Chromium reports Playing while it is paused. A frozen position
-            # then renders the state as Paused.
+            # shows the state as Paused.
             if STALL_DETECTION and status == "Playing":
                 pos = _parse_position(position)
                 now = time.monotonic()
@@ -216,7 +252,7 @@ class _PlayerState:
                 self.last_pos_time = None
 
             self.last_status = status
-            payload = _render(status, artist, title)
+            payload = self.renderer.render(status, artist, title)
 
         if payload == self.last_payload:
             return None
@@ -232,11 +268,16 @@ def _follow_reader(proc: subprocess.Popen, events: queue.Queue) -> None:
 
 
 def main() -> None:
-    state = _PlayerState()
+    if len(sys.argv) != 2 or sys.argv[1] not in RENDERERS:
+        sys.stderr.write(USAGE)
+        sys.exit(2)
+
+    renderer = RENDERERS[sys.argv[1]]()
+    state = _PlayerState(renderer)
     proc: subprocess.Popen | None = None
     events: queue.Queue = queue.Queue()
 
-    _emit(_EMPTY_PAYLOAD)
+    _emit(renderer.empty)
 
     while True:
         if proc is None:
@@ -248,7 +289,7 @@ def main() -> None:
                     text=True,
                 )
             except FileNotFoundError:
-                _emit(_EMPTY_PAYLOAD)
+                _emit(renderer.empty)
                 sys.exit(0)
             threading.Thread(
                 target=_follow_reader, args=(proc, events), daemon=True
@@ -258,7 +299,7 @@ def main() -> None:
         try:
             kind, value = events.get(timeout=POLL_INTERVAL)
         except queue.Empty:
-            payload = state.process(_query_player())
+            payload = state.process(_query_player(renderer.empty))
             if payload is not None:
                 _emit(payload)
             continue
