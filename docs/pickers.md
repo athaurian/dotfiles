@@ -1,8 +1,8 @@
 # Pickers
 
 Press `$mod+d` to open the application launcher: fuzzel on `thinkpad` and rofi
-on `optiplex`. On `thinkpad`, the rest of the screen is dim while the launcher
-is open. Press `$mod+d` again to close the launcher.
+on `optiplex`. On `thinkpad`, the rest of the screen dims behind the launcher
+and the confirmation menus. Press `$mod+d` again to close the launcher.
 
 <div class="image-pair">
   <figure>
