@@ -141,7 +141,7 @@ check-shell:
 	for f in $(SHELL_TMPL_FILES); do \
 		out="$$lint/$${f%.tmpl}"; \
 		mkdir -p "$$(dirname "$$out")"; \
-		chezmoi execute-template -f "$$f" > "$$out"; \
+		chezmoi --source "$(CURDIR)" execute-template -f "$$f" > "$$out"; \
 		sh -n "$$out" || { echo "check-shell: FAILED $$f"; exit 1; }; \
 	done; \
 	$(SHELLCHECK) -x -P home/dot_local/lib -P home/dot_config/sway/scripts \
