@@ -23,6 +23,10 @@ detect-transient = true;
 detect-client-leader = true;
 
 rules: ({
+  # Docks and tooltips never take focus, so exclude them by type.
+  match = "!focused && !group_focused && (window_type = 'normal' || window_type = 'dialog')";
+  dim = 0.1;
+}, {
   match = "window_type = 'tooltip'";
   fade = false;
   corner-radius = 8;
