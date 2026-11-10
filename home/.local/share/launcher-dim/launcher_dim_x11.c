@@ -1,9 +1,14 @@
 /* Full-screen dim sheet behind a launcher command on X11.
  *
  * The Wayland helper asks the compositor for a layer surface. X11 has no
- * layers, so the sheet is an override-redirect ARGB window mapped above the
+ * layers, so the sheet is an override-redirect ARGB window stacked above the
  * managed windows. The dock struts are left clear so the bar stays readable,
  * as the bar would sit above the layer surface on Wayland.
+ *
+ * Rofi paints its window before it maps it, about 70 ms after the exec. A
+ * sheet mapped before the fork is therefore already on screen on its own when
+ * the launcher arrives. The sheet waits for the launcher's map instead and
+ * goes directly below it, so both reach the compositor in the same frame.
  *
  * Compositing is mandatory. Without a compositor a 32-bit window is an opaque
  * black rectangle, so the launcher runs undimmed instead.
@@ -19,8 +24,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <sys/select.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <X11/Xatom.h>
@@ -34,6 +41,7 @@ static Atom type_atom;
 static Atom dock_atom;
 static Atom strut_atom;
 static Atom strut_partial_atom;
+static Atom pid_atom;
 static char **child_argv;
 static unsigned long dim_pixel;
 static int lock_fd = -1;
@@ -231,6 +239,122 @@ static int create_sheet(void)
 	return 1;
 }
 
+static pid_t window_pid(Window window)
+{
+	Atom type;
+	int format;
+	unsigned long count = 0;
+	unsigned long after = 0;
+	unsigned char *data = NULL;
+	pid_t pid = 0;
+
+	if (XGetWindowProperty(display, window, pid_atom, 0, 1, False, XA_CARDINAL,
+			       &type, &format, &count, &after, &data) != Success)
+		return 0;
+	if (data != NULL) {
+		if (format == 32 && count >= 1)
+			pid = (pid_t)((long *)data)[0];
+		XFree(data);
+	}
+	return pid;
+}
+
+/* _NET_WM_PID names the launcher, but a wrapper such as timeout sits between
+ * the helper and the launcher, so walk the parents up to the child we started. */
+static int from_child(pid_t pid)
+{
+	char path[64];
+	char buf[512];
+
+	for (int depth = 0; pid > 0 && depth < 8; depth++) {
+		FILE *stat;
+		char *end;
+		long parent;
+
+		if (pid == child_pid)
+			return 1;
+		snprintf(path, sizeof path, "/proc/%ld/stat", (long)pid);
+		stat = fopen(path, "r");
+		if (stat == NULL)
+			return 0;
+		if (fgets(buf, sizeof buf, stat) == NULL) {
+			fclose(stat);
+			return 0;
+		}
+		fclose(stat);
+		end = strrchr(buf, ')');
+		if (end == NULL || sscanf(end + 2, "%*c %ld", &parent) != 1)
+			return 0;
+		pid = (pid_t)parent;
+	}
+	return 0;
+}
+
+/* Returns the first window the launcher maps, or None when it exits first or
+ * does not map within the timeout. A slow launcher keeps the old behaviour:
+ * the sheet is mapped after the wait and the launcher maps above it. */
+static Window wait_for_launcher(void)
+{
+	int fd = ConnectionNumber(display);
+	struct timespec start;
+
+	clock_gettime(CLOCK_MONOTONIC, &start);
+	for (;;) {
+		struct timespec now;
+		struct timeval timeout;
+		fd_set ready;
+		XEvent event;
+		long remaining;
+
+		if (child_pid == 0 || dismissed)
+			return None;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		remaining = 300 - ((now.tv_sec - start.tv_sec) * 1000L +
+				   (now.tv_nsec - start.tv_nsec) / 1000000L);
+		if (remaining <= 0)
+			return None;
+		if (remaining > 20)
+			remaining = 20;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = remaining * 1000L;
+		FD_ZERO(&ready);
+		FD_SET(fd, &ready);
+		if (select(fd + 1, &ready, NULL, NULL, &timeout) == 0) {
+			int status;
+
+			if (waitpid(child_pid, &status, WNOHANG) == child_pid)
+				child_pid = 0;
+			continue;
+		}
+		while (XPending(display) > 0) {
+			XNextEvent(display, &event);
+			if (event.type == MapNotify &&
+			    from_child(window_pid(event.xmap.window)))
+				return event.xmap.window;
+		}
+	}
+}
+
+static void wait_for_child(void)
+{
+	int status;
+
+	if (child_pid == 0)
+		return;
+	if (dismissed)
+		kill(child_pid, SIGTERM);
+	for (;;) {
+		pid_t reaped = waitpid(child_pid, &status, 0);
+
+		if (reaped == child_pid)
+			break;
+		if (reaped < 0 && errno != EINTR)
+			break;
+		if (dismissed)
+			kill(child_pid, SIGTERM);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	double r = 0, g = 0, b = 0, a = 0.35;
@@ -269,6 +393,7 @@ int main(int argc, char **argv)
 	dock_atom = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", False);
 	strut_atom = XInternAtom(display, "_NET_WM_STRUT", False);
 	strut_partial_atom = XInternAtom(display, "_NET_WM_STRUT_PARTIAL", False);
+	pid_atom = XInternAtom(display, "_NET_WM_PID", False);
 
 	if (!composited() || !create_sheet()) {
 		XCloseDisplay(display);
@@ -277,9 +402,9 @@ int main(int argc, char **argv)
 		_exit(127);
 	}
 
-	XMapRaised(display, sheet);
-	/* The launcher must map after the sheet exists. Flush the whole request
-	 * stream before the child starts. */
+	/* Subscribe before the fork, or a fast launcher maps before the
+	 * subscription exists and the sheet waits for the whole timeout. */
+	XSelectInput(display, DefaultRootWindow(display), SubstructureNotifyMask);
 	XSync(display, False);
 
 	child_pid = fork();
@@ -293,20 +418,25 @@ int main(int argc, char **argv)
 		_exit(127);
 	}
 	if (child_pid > 0) {
-		int status;
+		Window launcher = wait_for_launcher();
 
-		if (dismissed)
-			kill(child_pid, SIGTERM);
-		for (;;) {
-			pid_t reaped = waitpid(child_pid, &status, 0);
+		if (!dismissed && launcher != None) {
+			XWindowChanges stack;
 
-			if (reaped == child_pid)
-				break;
-			if (reaped < 0 && errno != EINTR)
-				break;
-			if (dismissed)
-				kill(child_pid, SIGTERM);
+			/* Stacking the unmapped sheet below the launcher keeps it
+			 * there when it is mapped, so the two are composited as
+			 * one frame. */
+			stack.sibling = launcher;
+			stack.stack_mode = Below;
+			XConfigureWindow(display, sheet, CWSibling | CWStackMode,
+					 &stack);
+			XMapWindow(display, sheet);
+			XSync(display, False);
+		} else if (child_pid != 0 && !dismissed) {
+			XMapRaised(display, sheet);
+			XSync(display, False);
 		}
+		wait_for_child();
 	}
 	XCloseDisplay(display);
 	return 0;
