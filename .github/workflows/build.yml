@@ -102,7 +102,7 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
           .github/scripts/retry.sh pacman -Syu --noconfirm --noprogressbar
-          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv chezmoi stylua gcc pkgconf wayland wayland-protocols
+          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv chezmoi stylua gcc pkgconf wayland wayland-protocols libx11 libxext
 
       - name: Generate the palette data
         run: make palette MODE=light

@@ -15,11 +15,14 @@ CALIBRE_FILES := home/dot_local/bin/executable_calibre-drive-sync \
 	home/dot_local/bin/tests/test_calibre_drive_sync.py
 WLSUNSET_FILES := home/dot_local/bin/executable_wlsunset-location \
 	home/dot_local/bin/tests/test_wlsunset_location.py
-LAUNCHER_SRC := home/.local/share/launcher-dim/launcher_dim.c
+LAUNCHER_WAYLAND_SRC := home/.local/share/launcher-dim/launcher_dim_wayland.c
+LAUNCHER_X11_SRC := home/.local/share/launcher-dim/launcher_dim_x11.c
 LAUNCHER_XML := home/.local/share/launcher-dim/wlr-layer-shell-unstable-v1.xml
 WAYLAND_CFLAGS = $(shell pkg-config --cflags wayland-client)
 WAYLAND_LIBS = $(shell pkg-config --libs wayland-client)
 WAYLAND_PROTOCOLS = $(shell pkg-config --variable=pkgdatadir wayland-protocols)
+X11_CFLAGS = $(shell pkg-config --cflags x11 xext)
+X11_LIBS = $(shell pkg-config --libs x11 xext)
 SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
 SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
 LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
@@ -109,11 +112,13 @@ check-launcher:
 	wayland-scanner private-code $(LAUNCHER_XML) "$$build/wlr-layer-shell-unstable-v1-protocol.c"; \
 	wayland-scanner client-header $(WAYLAND_PROTOCOLS)/stable/xdg-shell/xdg-shell.xml "$$build/xdg-shell-client-protocol.h"; \
 	wayland-scanner private-code $(WAYLAND_PROTOCOLS)/stable/xdg-shell/xdg-shell.xml "$$build/xdg-shell-protocol.c"; \
-	$(CC) -O2 -Wall -Wextra -Werror -I "$$build" -o "$$build/launcher_dim" \
-		$(LAUNCHER_SRC) \
+	$(CC) -O2 -Wall -Wextra -Werror -I "$$build" -o "$$build/launcher_dim_wayland" \
+		$(LAUNCHER_WAYLAND_SRC) \
 		"$$build/wlr-layer-shell-unstable-v1-protocol.c" \
 		"$$build/xdg-shell-protocol.c" \
-		$(WAYLAND_CFLAGS) $(WAYLAND_LIBS)
+		$(WAYLAND_CFLAGS) $(WAYLAND_LIBS); \
+	$(CC) -O2 -Wall -Wextra -Werror -o "$$build/launcher_dim_x11" \
+		$(LAUNCHER_X11_SRC) $(X11_CFLAGS) $(X11_LIBS)
 
 check-fonts:
 	uv run python3 -u meta/check_fonts.py
@@ -130,11 +135,21 @@ shots:
 
 # The scripts source the shared libs by full path. Give shellcheck the
 # directories that hold them. The templates hold no shell syntax, so they
-# are rendered before the parse.
+# are rendered into a scratch tree that shellcheck can follow.
 check-shell:
-	$(SHELLCHECK) -x -P home/dot_local/lib -P home/dot_config/sway/scripts -P home/dot_config/i3/scripts $(SHELL_FILES)
+	@set -e; lint=$$(mktemp -d); trap 'rm -rf "$$lint"' EXIT HUP INT TERM; \
+	for f in $(SHELL_TMPL_FILES); do \
+		out="$$lint/$${f%.tmpl}"; \
+		mkdir -p "$$(dirname "$$out")"; \
+		chezmoi execute-template -f "$$f" > "$$out"; \
+		sh -n "$$out" || { echo "check-shell: FAILED $$f"; exit 1; }; \
+	done; \
+	$(SHELLCHECK) -x -P home/dot_local/lib -P home/dot_config/sway/scripts \
+		-P home/dot_config/i3/scripts \
+		-P "$$lint/home/dot_local/lib" \
+		-P "$$lint/home/dot_config/sway/scripts" \
+		-P "$$lint/home/dot_config/i3/scripts" $(SHELL_FILES); \
 	$(SHFMT) -d $(SHELL_FILES)
-	for f in $(SHELL_TMPL_FILES); do chezmoi execute-template -f "$$f" | sh -n - || { echo "check-shell: FAILED $$f"; exit 1; }; done
 
 check-nvim:
 	$(STYLUA) --check $(LUA_FILES)

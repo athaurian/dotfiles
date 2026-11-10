@@ -2,6 +2,8 @@
 # Shared rofi confirmation helper for the i3 scripts. Source this file;
 # do not execute it directly.
 
+confirm_dim='{{ .palette.dim.rgba }}'
+
 # confirm_menu [--timeout SECS] PROMPT PLACEHOLDER OPTION...
 # Prints the selected option. Returns 1 on cancel, timeout, empty output,
 # missing option list, or missing rofi binary.
@@ -26,12 +28,21 @@ confirm_menu() {
 	fi
 	confirm_choice=""
 	if [ -n "$confirm_timeout" ]; then
-		confirm_choice="$(printf '%s\n' "$@" | timeout "$confirm_timeout" rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
+		confirm_choice="$(printf '%s\n' "$@" | confirm_launch timeout "$confirm_timeout" rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	else
-		confirm_choice="$(printf '%s\n' "$@" | rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
+		confirm_choice="$(printf '%s\n' "$@" | confirm_launch rofi -dmenu -p "$confirm_prompt" -l "$confirm_count" -theme-str "element-icon { size: 0px; }" -theme-str "entry { placeholder: \"$confirm_placeholder\"; }")" || return 1
 	fi
 	if [ -z "$confirm_choice" ]; then
 		return 1
 	fi
 	printf '%s\n' "$confirm_choice"
+}
+
+# Run a command behind the launcher dim when the helper is installed.
+confirm_launch() {
+	if [ -x "$HOME/.local/bin/launcher_dim" ]; then
+		"$HOME/.local/bin/launcher_dim" "$confirm_dim" "$@"
+	else
+		"$@"
+	fi
 }
