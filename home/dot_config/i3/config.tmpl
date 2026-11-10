@@ -70,7 +70,8 @@ bindsym $mod+c move position center
 bindsym $mod+q kill
 
 bindsym $mod+Return exec $term
-bindsym --release $mod+d exec $HOME/.local/bin/launcher_dim '{{ $p.dim.rgba }}' $menu -show drun
+# i3 separates commands on commas, so the dim colour needs the outer quotes.
+bindsym --release $mod+d exec --no-startup-id "$HOME/.local/bin/launcher_dim '{{ $p.dim.rgba }}' $menu -show drun"
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
 bindsym --release $mod+u exec $HOME/.config/i3/scripts/toggle_topgrade.sh
