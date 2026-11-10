@@ -30,6 +30,7 @@ __pycache__/
 .config/systemd/user/calibre-sync.timer
 .config/systemd/user/calibre-sync-netmon.service
 .config/systemd/user/wlsunset.service
+.config/systemd/user/wlsunset-env.service
 {{ else }}
 .config/i3
 .config/rofi
