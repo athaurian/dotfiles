@@ -121,6 +121,26 @@
   --md-typeset-a-color: var(--md-accent-fg-color);
 }
 
+/* The footer puts the credit and the license notice on one line, at opposite
+   ends instead of sharing a separator. This font's text sits slightly above
+   the center of its line box, which leaves flex centering high.
+   Trimming the box to the cap band centers it. The padding restores the strip
+   height that the trimmed box no longer supplies. */
+.md-copyright {
+  flex: 1;
+  padding-block: 0.75rem;
+}
+
+.md-copyright__highlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.md-copyright__highlight > span {
+  text-box: trim-both cap alphabetic;
+}
+
 /* The theme gives the highlight a full-strength foreground. The credit is a
    footnote, and it sits a step below that. --md-default-fg-color--light is its
    own muted tone for this band and stays above AA contrast on the beige
