@@ -1,10 +1,10 @@
 [Default Applications]
 application/pdf=org.pwmt.zathura.desktop
-text/html=helium.desktop;firefox.desktop;
-x-scheme-handler/http=helium.desktop;firefox.desktop;
-x-scheme-handler/https=helium.desktop;firefox.desktop;
-x-scheme-handler/about=helium.desktop;firefox.desktop;
-x-scheme-handler/unknown=helium.desktop;firefox.desktop;
+text/html=helium.desktop;
+x-scheme-handler/http=helium.desktop;
+x-scheme-handler/https=helium.desktop;
+x-scheme-handler/about=helium.desktop;
+x-scheme-handler/unknown=helium.desktop;
 x-scheme-handler/webcal=helium.desktop;
 x-scheme-handler/discord=vesktop.desktop;
 x-scheme-handler/terminal=kitty.desktop;
