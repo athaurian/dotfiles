@@ -4,13 +4,22 @@ set -eu
 ROOT=$(cd "$(dirname -- "$0")/../.." && pwd -P)
 cd "$ROOT"
 
+mode_before=$(cat "$HOME/.local/state/palette-mode" 2>/dev/null || echo dark)
+case "$mode_before" in
+dark | light) ;;
+*) mode_before=dark ;;
+esac
+workspace_before=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
+
 restore() {
 	status=$?
 	trap - EXIT HUP INT TERM
-	if [ "$(cat "$HOME/.local/state/palette-mode" 2>/dev/null || echo dark)" != dark ]; then
-		"$HOME/.local/bin/palette-mode" dark >/dev/null 2>&1 || true
+	if [ "$(cat "$HOME/.local/state/palette-mode" 2>/dev/null || echo dark)" != "$mode_before" ]; then
+		"$HOME/.local/bin/palette-mode" "$mode_before" >/dev/null 2>&1 || true
 	fi
-	swaymsg workspace 1 >/dev/null 2>&1 || true
+	if [ -n "$workspace_before" ]; then
+		swaymsg workspace "$workspace_before" >/dev/null 2>&1 || true
+	fi
 	exit "$status"
 }
 trap restore EXIT HUP INT TERM
@@ -19,6 +28,8 @@ printf 'Clearing old captures\n'
 rm -f \
 	meta/captures/stage-light.png \
 	meta/captures/stage-dark.png \
+	meta/captures/stage-launcher-light.png \
+	meta/captures/stage-launcher.png \
 	meta/captures/empty-light.png \
 	meta/captures/empty-dark.png \
 	meta/captures/menu-launcher-light.png \
