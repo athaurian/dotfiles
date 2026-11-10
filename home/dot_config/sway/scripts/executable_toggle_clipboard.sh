@@ -7,7 +7,8 @@ mark=clipboard_term
 
 # shellcheck source=lib_runtime.sh
 . "$HOME/.local/lib/lib_runtime.sh"
-acquire_lock "toggle_clipboard" || exit 0
+exec 9>"$(runtime_dir)/toggle_clipboard.flock"
+flock -n 9 || exit 0
 
 picker="$HOME/.local/bin/clipboard"
 
@@ -22,16 +23,17 @@ show_picker() {
 
 if has_mark; then
 	show_picker
-	release_lock "toggle_clipboard"
+	exec 9>&-
 	exit 0
 fi
 
 if [ ! -x "$picker" ]; then
-	release_lock "toggle_clipboard"
+	exec 9>&-
 	exit 0
 fi
 
-"$picker" &
+# Close the lock in the child. The picker must not hold the lock while it runs.
+"$picker" 9>&- &
 
 # Keep the lock until the mark shows. A second keypress does nothing while
 # the first window starts. The timeout covers exits that open no window,
@@ -48,4 +50,4 @@ if has_mark; then
 	# Pickers start hidden, so map the new one already centered.
 	show_picker
 fi
-release_lock "toggle_clipboard"
+exec 9>&-
