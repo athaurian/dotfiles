@@ -11,6 +11,12 @@ For more information, run `sw --help` or read the
 [`executable_sw`](https://github.com/athaurian/dotfiles/blob/main/home/dot_local/bin/executable_sw)
 script.
 
+The file `~/.local/state/palette-mode` records the current mode. The only valid
+values are `dark` and `light`. If the file is missing or unreadable, the mode is
+`dark`. `make dark` and `make light` write this file and apply the
+configuration. `make palette MODE=light` and `make palette MODE=dark` render the
+palette data. These commands do not change the recorded mode.
+
 ## Live palette updates
 
 Open Neovim windows repaint when the palette changes, so you do not have to
