@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """LUT palette and chezmoi data generation from meta/palette.toml."""
 
+import itertools
 import math
 import re
 import sys
@@ -157,8 +158,12 @@ def load():
         ("dark", "dark", "dark-bright"),
         ("light", "light", "light-bright"),
     ):
-        pal["chroma"][mode] = {n: c[base_key].upper() for n, c in pal["chromatics"].items()}
-        pal["bright"][mode] = {n: c[bright_key].upper() for n, c in pal["chromatics"].items()}
+        pal["chroma"][mode] = {
+            n: c[base_key].upper() for n, c in pal["chromatics"].items()
+        }
+        pal["bright"][mode] = {
+            n: c[bright_key].upper() for n, c in pal["chromatics"].items()
+        }
     return pal
 
 
@@ -198,7 +203,7 @@ def build_lut(pal, mode):
     lights = [rgb_to_oklch(hex_to_rgb(h))[0] for h in ramp]
 
     mixes = []
-    for a, b in zip(ramp, ramp[1:]):
+    for a, b in itertools.pairwise(ramp):
         La, Ca, Ha = rgb_to_oklch(hex_to_rgb(a))
         Lb, Cb, Hb = rgb_to_oklch(hex_to_rgb(b))
         hold_h = Ha if Ca >= Cb else Hb
@@ -227,9 +232,15 @@ def build_data(pal, mode):
     hex_tints, overlays = tints(pal, mode)
     utility = {n: t["value"] for n, t in pal["utility"].items()}
     groups = [
-        ("Neutrals, deepest ground role to maximal emphasis.", pal["neutrals"][mode].items()),
+        (
+            "Neutrals, deepest ground role to maximal emphasis.",
+            pal["neutrals"][mode].items(),
+        ),
         ("Hue colors.", pal["chroma"][mode].items()),
-        ("Bright step per hue.", [(f"{h}_bright", v) for h, v in pal["bright"][mode].items()]),
+        (
+            "Bright step per hue.",
+            [(f"{h}_bright", v) for h, v in pal["bright"][mode].items()],
+        ),
         ("Derived and hand-written tints.", hex_tints.items()),
         ("Alpha overlays and utility colors.", [*overlays.items(), *utility.items()]),
     ]
@@ -265,7 +276,9 @@ def palette_values(pal):
         out.update(pal["chroma"][mode].values())
         out.update(pal["bright"][mode].values())
         out.update(tints(pal, mode)[0].values())
-    out.update(t["value"] for t in pal["utility"].values() if t["value"].startswith("#"))
+    out.update(
+        t["value"] for t in pal["utility"].values() if t["value"].startswith("#")
+    )
     return out
 
 
@@ -314,21 +327,24 @@ CONTRAST_GATES = [
 ]
 
 
+def role_color(sources, name):
+    """Return the value of a contrast role from the palette modes."""
+    for source in sources:
+        if name in source:
+            return source[name]
+    raise SystemExit(f"contrast gate references unknown role: {name!r}")
+
+
 def gate_failures(pal):
     """Return contrast gate failures for both modes."""
     bad = []
     for mode in MODES:
         neutrals, chroma = pal["neutrals"][mode], pal["chroma"][mode]
         bright, hex_tints = pal["bright"][mode], tints(pal, mode)[0]
-
-        def color(name):
-            for source in (neutrals, chroma, bright, hex_tints):
-                if name in source:
-                    return source[name]
-            raise SystemExit(f"contrast gate references unknown role: {name!r}")
+        sources = (neutrals, chroma, bright, hex_tints)
 
         for fg, bg, floor in CONTRAST_GATES:
-            ratio = contrast(color(fg), color(bg))
+            ratio = contrast(role_color(sources, fg), role_color(sources, bg))
             if ratio < floor:
                 bad.append(f"{mode}: {fg} on {bg} {ratio:.2f}:1 < {floor}:1")
         for hue in chroma:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Diagonal split composite of a light and dark desktop screenshot pair.
 
 Both inputs must share the same dimensions. The divider runs from a point on
@@ -58,7 +57,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--width",
         type=int,
         default=0,
-        help=f"output width, 0 keeps the source size (default: 0)",
+        help="output width, 0 keeps the source size (default: 0)",
     )
     return parser.parse_args(argv)
 

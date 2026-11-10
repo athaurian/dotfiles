@@ -18,9 +18,13 @@ CALIBRE_FILES := home/dot_local/bin/executable_calibre-drive-sync \
 SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
 SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
 LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
+META_FILES := $(sort $(wildcard meta/*.py))
+META_SHOTS_FILES := $(sort $(wildcard meta/shots/*.py))
+META_LUA_FILES := $(sort $(shell find meta -type f -name '*.lua'))
+META_MYPY := uv run --with mypy --with numpy --with pillow --with types-Pillow mypy
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-fonts shots site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-meta check-fonts shots site social
 
 .DEFAULT_GOAL := help
 
@@ -34,6 +38,7 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the waybar and polybar MPRIS modules"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
+	@echo "  check-meta        - Ruff + stylua + mypy for the repository tooling in meta/"
 	@echo "  check-fonts       - Check that the docs site uses the shared theme fonts"
 	@echo "  shots             - Rebuild the automatic screenshot captures"
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
@@ -87,6 +92,13 @@ check-calibre:
 
 check-fonts:
 	uv run python3 -u meta/check_fonts.py
+
+check-meta:
+	$(RUFF) check $(META_FILES) $(META_SHOTS_FILES)
+	$(RUFF) format --check $(META_FILES) $(META_SHOTS_FILES)
+	$(STYLUA) --check $(META_LUA_FILES)
+	$(META_MYPY) $(META_FILES)
+	MYPYPATH=meta/shots $(META_MYPY) $(META_SHOTS_FILES)
 
 shots:
 	meta/shots/redo-all.sh

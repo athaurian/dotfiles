@@ -75,7 +75,7 @@ def seed() -> None:
     ).stdout.splitlines()
     if not listing:
         error("cliphist did not store the mock history")
-    latest_id = listing[0].split(b"\t", 1)[0]
+    latest_id = listing[0].split(b"\t", 1)[0].decode()
     stored = run(
         ["cliphist", "-db-path", str(CLIP_DB), "decode", latest_id],
         capture=True,

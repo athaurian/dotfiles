@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Palette swatch card for docs/images/palette.webp.
 
 Reads the derived palette from meta/palette.py so the light neutral ramp and
@@ -17,7 +16,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 sys.path.insert(0, str(Path(__file__).parent))
-import palette  # noqa: E402
+import palette
 
 REPO = Path(__file__).resolve().parent.parent
 OUTPUT = REPO / "docs" / "images" / "palette.webp"
@@ -65,7 +64,9 @@ def resolve_font(family: str) -> str | None:
     return path or None
 
 
-def load_font(path: str | None, size: int) -> ImageFont.FreeTypeFont:
+def load_font(
+    path: str | None, size: int
+) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     """Load a font at size, falling back to Pillow's default."""
     if path:
         try:
@@ -77,7 +78,11 @@ def load_font(path: str | None, size: int) -> ImageFont.FreeTypeFont:
 
 def rgb(value: str) -> tuple[int, int, int]:
     value = value.lstrip("#")
-    return tuple(int(value[index : index + 2], 16) for index in (0, 2, 4))
+    return (
+        int(value[0:2], 16),
+        int(value[2:4], 16),
+        int(value[4:6], 16),
+    )
 
 
 def scaled(value: float) -> float:
@@ -138,7 +143,7 @@ def main() -> int:
         panel_y = scaled(mode_index * panel_height)
         neutrals = pal["neutrals"][mode]
         draw.rectangle(
-            [0, panel_y, scaled(WIDTH), panel_y + scaled(panel_height)],
+            (0, panel_y, scaled(WIDTH), panel_y + scaled(panel_height)),
             fill=rgb(PANEL_BG[mode]),
         )
         draw.text(
@@ -187,15 +192,11 @@ def main() -> int:
                     fill=rgb(neutrals["muted"]),
                 )
                 x += diameter + gap
-            y += scaled(
-                CIRCLE_DIAMETER + NAME_GAP + NAME_HEIGHT + HEX_GAP + HEX_HEIGHT
-            )
+            y += scaled(CIRCLE_DIAMETER + NAME_GAP + NAME_HEIGHT + HEX_GAP + HEX_HEIGHT)
             if group_index < len(groups[mode_index]) - 1:
                 y += scaled(GROUP_GAP)
 
-    image = image.resize(
-        (WIDTH, panel_height * 2), Image.Resampling.LANCZOS
-    )
+    image = image.resize((WIDTH, panel_height * 2), Image.Resampling.LANCZOS)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT, "WEBP", quality=92, method=6)
     print(f"{image.width}x{image.height} -> {OUTPUT}")
