@@ -11,8 +11,10 @@ blur-background = true;
 
 shadow = true;
 shadow-radius = 14;
-shadow-offset-x = 0;
-shadow-offset-y = 2;
+# picom pads the shadow image by the radius, so an offset of 0 pushes the
+# shadow down-right by that much. -radius centers it.
+shadow-offset-x = -14;
+shadow-offset-y = -14;
 shadow-color = "{{ $p.black.hex }}";
 shadow-opacity = 0.4;
 
