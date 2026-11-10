@@ -6,18 +6,25 @@ from __future__ import annotations
 import argparse
 import shlex
 import time
+import tomllib
+from pathlib import Path
 
 from shotlib import (
     CAPTURES,
     DOC_IMAGES,
     HERO_SOCKET,
     HL_TEST,
+    ROOT,
     close_notifications,
+    error,
     grim,
     kill_window,
+    magick,
+    mode_suffix,
     nvim_remote_send,
     palette_mode,
     prime_editor,
+    run,
     run_main,
     run_pillow,
     sway,
@@ -26,9 +33,16 @@ from shotlib import (
     wait_window,
 )
 
+DIM = tomllib.loads((ROOT / "meta" / "palette.toml").read_text())["utility"]["dim"][
+    "value"
+]
+
 
 def capture(mode: str) -> None:
     """Capture the editor and terminal stage in a mode."""
+    launcher = Path.home() / ".local/bin/launcher_dim"
+    if not launcher.exists():
+        error(f"missing {launcher}")
     palette_mode(mode)
     sway("workspace", "3")
     HERO_SOCKET.unlink(missing_ok=True)
@@ -68,7 +82,18 @@ def capture(mode: str) -> None:
         time.sleep(0.8)
         close_notifications()
         grim(CAPTURES / f"stage-{mode}.png")
+        sway_exec([str(launcher), DIM, "fuzzel"])
+        time.sleep(1.5)
+        close_notifications()
+        grim(CAPTURES / f"stage-launcher-{mode}.png")
+        magick(
+            str(CAPTURES / f"stage-launcher-{mode}.png"),
+            "-quality",
+            "92",
+            str(DOC_IMAGES / f"picker-dim{mode_suffix(mode)}.webp"),
+        )
     finally:
+        run(["pkill", "-x", "fuzzel"], check=False)
         kill_window(app_id="hero-nvim")
         kill_window(app_id="hero-term")
         HERO_SOCKET.unlink(missing_ok=True)

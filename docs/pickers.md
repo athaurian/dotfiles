@@ -4,6 +4,11 @@ Press `$mod+d` to open the application launcher: fuzzel on `thinkpad` and rofi
 on `optiplex`. On `thinkpad`, the rest of the screen dims behind the launcher
 and the confirmation menus. Press `$mod+d` again to close the launcher.
 
+<figure class="screenshot">
+  <img src="images/picker-dim-light.webp#only-light" alt="The application launcher centered over a dimmed Neovim window.">
+  <img src="images/picker-dim.webp#only-dark" alt="The application launcher centered over a dimmed Neovim window.">
+</figure>
+
 <div class="image-pair">
   <figure>
     <img src="images/picker-launcher-light.webp#only-light" alt="The application launcher open over the desktop wallpaper.">
