@@ -13,6 +13,8 @@ SW_FILES := home/dot_local/bin/executable_sw \
 	home/dot_local/bin/tests/test_sw.py
 CALIBRE_FILES := home/dot_local/bin/executable_calibre-drive-sync \
 	home/dot_local/bin/tests/test_calibre_drive_sync.py
+WLSUNSET_FILES := home/dot_local/bin/executable_wlsunset-location \
+	home/dot_local/bin/tests/test_wlsunset_location.py
 LAUNCHER_SRC := home/.local/share/launcher-dim/launcher_dim.c
 LAUNCHER_XML := home/.local/share/launcher-dim/wlr-layer-shell-unstable-v1.xml
 WAYLAND_CFLAGS = $(shell pkg-config --cflags wayland-client)
@@ -27,7 +29,7 @@ META_LUA_FILES := $(sort $(shell find meta -type f -name '*.lua'))
 META_MYPY := uv run --with mypy --with numpy --with pillow --with types-Pillow mypy
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-launcher check-meta check-fonts shots site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-wlsunset check-launcher check-meta check-fonts shots site social
 
 .DEFAULT_GOAL := help
 
@@ -41,6 +43,7 @@ help:
 	@echo "  check-mpris       - Ruff + mypy + tests for the shared MPRIS poller"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
+	@echo "  check-wlsunset    - Ruff + mypy + tests for the wlsunset location script"
 	@echo "  check-launcher    - Compile-check the launcher dim helper"
 	@echo "  check-meta        - Ruff + stylua + mypy for the repository tooling in meta/"
 	@echo "  check-fonts       - Check that the docs site uses the shared theme fonts"
@@ -91,6 +94,12 @@ check-calibre:
 	$(RUFF) format --check $(CALIBRE_FILES)
 	$(MYPY) home/dot_local/bin/executable_calibre-drive-sync
 	uv run python3 -u home/dot_local/bin/tests/test_calibre_drive_sync.py
+
+check-wlsunset:
+	$(RUFF) check $(WLSUNSET_FILES)
+	$(RUFF) format --check $(WLSUNSET_FILES)
+	$(MYPY) home/dot_local/bin/executable_wlsunset-location
+	uv run python3 -u home/dot_local/bin/tests/test_wlsunset_location.py
 
 # The layer-shell protocol references xdg-popup. The generated code thus needs
 # the stable xdg-shell protocol from wayland-protocols.
