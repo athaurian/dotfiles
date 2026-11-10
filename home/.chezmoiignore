@@ -9,6 +9,9 @@ __pycache__/
 .config/waybar/scripts/tests
 .local/bin/tests
 
+# The launcher helper is compiled into ~/.local/bin during apply.
+.local/share/launcher-dim
+
 # The optiplex hostname selects the i3 set. Each other hostname selects the
 # thinkpad set. The same hostname selects the package list in
 # data/packages.json, which run_onchange_before_onboarding.sh reads with

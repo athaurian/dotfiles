@@ -67,7 +67,7 @@ bindsym $mod+c move position center
 bindsym $mod+q kill
 
 bindsym $mod+Return exec $term
-bindsym --no-repeat $mod+d exec $menu
+bindsym --no-repeat $mod+d exec $HOME/.local/bin/launcher_dim '{{ .palette.dim.rgba }}' $menu
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $filemanager
 bindsym --no-repeat $mod+u exec $HOME/.config/sway/scripts/toggle_topgrade.sh

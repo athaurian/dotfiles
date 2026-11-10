@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+set -eu
+
+src="{{ .chezmoi.sourceDir }}/.local/share/launcher-dim/launcher_dim.c"
+xml="{{ .chezmoi.sourceDir }}/.local/share/launcher-dim/wlr-layer-shell-unstable-v1.xml"
+bin="$HOME/.local/bin/launcher_dim"
+
+if [ -x "$bin" ] && [ "$bin" -nt "$src" ] && [ "$bin" -nt "$xml" ]; then
+	exit 0
+fi
+
+for tool in wayland-scanner cc pkg-config; do
+	if ! command -v "$tool" >/dev/null 2>&1; then
+		printf 'launcher_dim: missing %s\n' "$tool" >&2
+		exit 1
+	fi
+done
+
+build="${XDG_CACHE_HOME:-$HOME/.cache}/launcher-dim"
+mkdir -p "$build" "$(dirname "$bin")"
+
+protocols=$(pkg-config --variable=pkgdatadir wayland-protocols)
+wayland-scanner client-header "$xml" \
+	"$build/wlr-layer-shell-unstable-v1-client-protocol.h"
+wayland-scanner private-code "$xml" \
+	"$build/wlr-layer-shell-unstable-v1-protocol.c"
+wayland-scanner client-header "$protocols/stable/xdg-shell/xdg-shell.xml" \
+	"$build/xdg-shell-client-protocol.h"
+wayland-scanner private-code "$protocols/stable/xdg-shell/xdg-shell.xml" \
+	"$build/xdg-shell-protocol.c"
+
+# shellcheck disable=SC2046
+cc -O2 -Wall -Wextra -Werror -I "$build" -o "$bin.new" "$src" \
+	"$build/wlr-layer-shell-unstable-v1-protocol.c" \
+	"$build/xdg-shell-protocol.c" \
+	$(pkg-config --cflags --libs wayland-client)
+mv "$bin.new" "$bin"

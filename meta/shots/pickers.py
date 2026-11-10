@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import argparse
 import time
+import tomllib
 from pathlib import Path
 from shutil import which
 
 from shotlib import (
     CAPTURES,
     DOC_IMAGES,
+    ROOT,
     RUNTIME,
     close_notifications,
     error,
@@ -23,6 +25,10 @@ from shotlib import (
     sway,
     sway_exec,
 )
+
+DIM = tomllib.loads((ROOT / "meta" / "palette.toml").read_text())["utility"]["dim"][
+    "value"
+]
 
 
 def crop(mode: str) -> None:
@@ -71,6 +77,9 @@ def capture(mode: str) -> None:
     """Capture the launcher and power menu in a mode."""
     if which("fuzzel") is None:
         error("missing fuzzel")
+    launcher = Path.home() / ".local/bin/launcher_dim"
+    if not launcher.exists():
+        error(f"missing {launcher}")
     power_control = Path.home() / ".config/sway/scripts/power_control.sh"
     if not power_control.exists():
         error(f"missing {power_control}")
@@ -78,7 +87,7 @@ def capture(mode: str) -> None:
     sway("workspace", "3")
     try:
         close_notifications()
-        sway_exec(["fuzzel"])
+        sway_exec([str(launcher), DIM, "fuzzel"])
         time.sleep(1.5)
         close_notifications()
         grim(CAPTURES / f"menu-launcher{mode_suffix(mode)}.png")
