@@ -16,6 +16,11 @@
 It contains modified PKGBUILDs and packages that are not available in the
 official Arch or CachyOS repositories.
 
+Some packages apply a small patch to upstream code instead of forking it.
+`swayfx-git` is one of them: Dunst shrinks a notification stack by resizing its
+buffer, and an unpatched SwayFX keeps the layer shadow at the previous size. The
+patched build makes the shadow follow the cards.
+
 Run the following commands to add the repository and trust its signing key:
 
 ```sh
