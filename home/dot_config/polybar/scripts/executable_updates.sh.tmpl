@@ -3,20 +3,36 @@ set -eu
 # chezmoi renders this template. Colors come from meta/palette.toml.
 # {{- $p := .palette }}
 poked=0
+sleeper=""
+delay=3600
 trap 'poked=1' USR1
 err_file=$(mktemp) || exit 1
-trap 'rm -f "$err_file"' EXIT
+trap 'rm -f "$err_file"; if [ -n "$sleeper" ]; then kill "$sleeper" 2>/dev/null || true; fi' EXIT
 
-# checkupdates exits 2 and paru -Qum exits 1 when there are no updates. The
-# exit code is not a failure. Only output on stderr shows a failure.
+# checkupdates exits 2 and paru -Qum exits 1 when there are no updates. Only a
+# timeout or output on stderr shows a failure.
 check_backend() {
-	backend_out=$("$@" 2>"$err_file") || true
-	if [ -s "$err_file" ]; then
+	err=$1
+	shift
+	rc=0
+	backend_out=$(timeout -k 5 30 "$@" 2>"$err") || rc=$?
+	if [ "$rc" -ge 124 ] || [ -s "$err" ]; then
 		failed=1
 	fi
-	: >"$err_file"
+	: >"$err"
 	backend_count=$(printf '%s\n' "$backend_out" | grep -c . 2>/dev/null || true)
 	count=$((count + ${backend_count:-0}))
+}
+
+connectivity() {
+	conn=""
+	if command -v nmcli >/dev/null 2>&1; then
+		conn=$(nmcli -t -f CONNECTIVITY g 2>/dev/null) || conn=""
+	fi
+	case $conn in
+	full | limited | portal | none) printf '%s\n' "$conn" ;;
+	*) printf 'unknown\n' ;;
+	esac
 }
 
 report() {
@@ -24,35 +40,50 @@ report() {
 	failed=0
 	has_checkupdates=0
 	has_paru=0
+	delay=3600
 
 	if command -v checkupdates >/dev/null 2>&1; then
 		has_checkupdates=1
-		check_backend checkupdates
+		check_backend "$err_file" checkupdates
 	fi
 
 	if command -v paru >/dev/null 2>&1; then
 		has_paru=1
-		check_backend paru -Qum
+		check_backend "$err_file" paru -Qum
 	fi
 
 	if [ "$has_checkupdates" -eq 0 ] && [ "$has_paru" -eq 0 ]; then
-		printf '%%{F{{ $p.muted.hex }}}%%{F-}\n'
-		return 0
-	fi
-
-	if [ "$count" -gt 0 ]; then
+		printf '%%{F{{ $p.muted.hex }}}󰚰 -%%{F-}\n'
+	elif [ "$count" -gt 0 ]; then
 		printf '%%{F{{ $p.yellow.hex }}}󰚰 %s%%{F-}\n' "$count"
 	elif [ "$failed" -eq 1 ]; then
-		printf '%%{F{{ $p.red.hex }}}󰚰 !%%{F-}\n'
+		conn=$(connectivity)
+		if [ "$conn" = full ]; then
+			delay=300
+			printf '%%{F{{ $p.red.hex }}}󰚰 !%%{F-}\n'
+		else
+			if [ "$conn" = none ]; then
+				delay=30
+			else
+				delay=60
+			fi
+			printf '%%{F{{ $p.muted.hex }}}󰚰 !%%{F-}\n'
+		fi
 	else
 		printf '%%{F{{ $p.muted.hex }}}󰏓 0%%{F-}\n'
 	fi
 }
 
+# Keep something on screen from the first frame.
+printf '%%{F{{ $p.muted.hex }}}󰚰 …%%{F-}\n'
+
 while :; do
 	poked=0
 	report
-	sleep 3600 &
+	if [ "$poked" -eq 1 ]; then
+		continue
+	fi
+	sleep "$delay" &
 	sleeper=$!
 	if [ "$poked" -eq 0 ]; then
 		wait "$sleeper" || true
