@@ -23,7 +23,6 @@ nav = [
   { "Pickers" = "pickers.md" },
   { "Screenshots, lock, and idle" = "screenshots-lock-idle.md" },
   { "Background services" = "services.md" },
-  { "Session manager" = "session-manager.md" },
   { "Status bar" = "statusbar.md" },
   { "Neovim" = "neovim.md" },
   { "Themes" = "theming.md" },

@@ -42,7 +42,6 @@ make dark
 
 The target generates the palette data and applies the configuration for the
 first time. It also installs any missing packages. The
-[clipboard picker](https://github.com/athaurian/clipboard-picker) and
-[session manager](https://github.com/athaurian/session-manager) each install
-with `uv` from their own repositories into `~/.local/bin`. For what the `dark`
-and `light` targets do, see [Palette system](palette-system.md).
+[clipboard picker](https://github.com/athaurian/clipboard-picker) installs with
+`uv` from its own repository into `~/.local/bin`. For what the `dark` and
+`light` targets do, see [Palette system](palette-system.md).

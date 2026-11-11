@@ -3,13 +3,11 @@ set -eu
 
 action="${1:-}"
 
-session_manager="$HOME/.local/bin/session-manager"
-
 case "$action" in
-poweroff) cmd="$session_manager save --quiet; systemctl poweroff" ;;
-reboot) cmd="$session_manager save --quiet; systemctl reboot" ;;
+poweroff) cmd="systemctl poweroff" ;;
+reboot) cmd="systemctl reboot" ;;
 suspend) cmd="$HOME/.config/sway/scripts/lock.sh --now; systemctl suspend" ;;
-logout) cmd="$session_manager save --quiet; systemctl --user stop sway-session.target; swaymsg exit" ;;
+logout) cmd="systemctl --user stop sway-session.target; swaymsg exit" ;;
 *)
 	echo "Usage: $0 <poweroff|reboot|suspend|logout>" >&2
 	exit 1
