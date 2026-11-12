@@ -3,6 +3,7 @@
 
 [fonts]
 sans = "Geist"
+serif = "Merriweather"
 code = "Geist Mono"
 nerd = "GeistMono Nerd Font"
 cjk = "Noto Sans CJK JP"

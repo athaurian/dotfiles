@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<!-- The weak binding lets the system conf.d keep its language-specific serif
+     mappings for scripts Merriweather does not cover, such as CJK. -->
+<fontconfig>
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>serif</string>
+    </test>
+    <edit name="family" mode="prepend" binding="weak">
+      <string>{{ .fonts.serif }}</string>
+    </edit>
+  </match>
+</fontconfig>

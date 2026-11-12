@@ -60,7 +60,7 @@
     ]
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
-  "aur": ["otf-geist", "otf-geist-mono", "topgrade-bin"],
+  "aur": ["otf-geist", "otf-geist-mono", "topgrade-bin", "ttf-merriweather"],
   "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [
