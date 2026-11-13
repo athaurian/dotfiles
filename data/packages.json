@@ -44,7 +44,7 @@
       "adwaita-cursors",
       "noto-fonts",
       "noto-fonts-cjk",
-      "otf-geist-mono-nerd"
+      "noto-fonts-emoji"
     ],
     "apps": [
       "calibre",
@@ -61,7 +61,7 @@
   },
   "cachyos": ["helium-browser-bin", "vesktop-bin"],
   "aur": ["otf-geist", "otf-geist-mono", "topgrade-bin", "ttf-merriweather"],
-  "custom": ["orchis-theme-4px", "xdg-terminal-exec-git"],
+  "custom": ["orchis-theme-4px", "otf-geist-mono-nerd-trimmed", "xdg-terminal-exec-git"],
   "machines": {
     "optiplex": [
       "i3-wm",

@@ -5,7 +5,7 @@
 sans = "Geist"
 serif = "Merriweather"
 code = "Geist Mono"
-nerd = "GeistMono Nerd Font"
+nerd = "GeistMono Nerd Font Mono"
 cjk = "Noto Sans CJK JP"
 
 # Theme families. The templates select each mode value with index and

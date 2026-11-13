@@ -11,4 +11,10 @@
       <string>{{ .fonts.serif }}</string>
     </edit>
   </match>
+  <!-- The patched family supplies icons and other glyphs the plain code font
+       lacks. A weak preference leaves text in the requested family. -->
+  <alias>
+    <family>{{ .fonts.code }}</family>
+    <prefer><family>{{ .fonts.nerd }}</family></prefer>
+  </alias>
 </fontconfig>
