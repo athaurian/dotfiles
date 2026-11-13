@@ -1,0 +1,34 @@
+# Generated, vendored, and historical
+**/node_modules/**
+**/.venv/**
+**/.git/**
+**/build/**
+**/dist/**
+**/site/**
+**/.astro/**
+**/__pycache__/**
+**/.ruff_cache/**
+**/.pytest_cache/**
+**/.mypy_cache/**
+**/.browser-profile/**
+**/cache/**
+**/data/**
+**/intermediate/**
+Projects/archive/**
+Projects/**/archive/**
+Documents/archive/org-2026-11-13/**
+Documents/archive/pmb-2026-10-21/**
+Documents/archive/university-cloud-2026-11-13/**
+Documents/archive/agents-md-audit-response-2026-11-13.md
+Documents/agents-audit-2026-11-13.md
+.config/opencode/opencode.json
+
+# Lockfiles
+**/package-lock.json
+**/pnpm-lock.yaml
+**/yarn.lock
+**/bun.lock
+**/bun.lockb
+**/composer.lock
+Documents/university/calc_01/assignments/tk_01/answers/response_topik5_*
+Projects/github/athaurian/dotfiles/tests/prettier-math/**

@@ -1,0 +1,4 @@
+# Unclosed display
+
+$$
+x^* + y^*

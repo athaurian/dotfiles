@@ -1,0 +1,5 @@
+# Bracket display
+
+\[
+x^* + y^*
+\]

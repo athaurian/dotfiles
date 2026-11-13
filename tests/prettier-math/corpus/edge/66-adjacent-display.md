@@ -1,0 +1,3 @@
+# Adjacent display
+
+$$x$$$$y$$

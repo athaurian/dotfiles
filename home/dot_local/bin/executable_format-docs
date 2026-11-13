@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$HOME"
+
+mode="--write"
+if [ "${1:-}" = "--check" ]; then
+  mode="--check"
+fi
+
+mapfile -t files < <(
+  {
+    printf '%s\n' AGENTS.md PROJECTS.md BACKUP.md .config/opencode/AGENTS.md
+    printf '%s\n' Documents/archive/recovery/README.md
+    find Documents/university -type f -name '*.md' \
+      -not -path '*/node_modules/*' -not -path '*/.venv/*' -not -path '*/build/*' \
+      -not -path '*/assignments/tk_01/answers/response_topik5_*'
+    find Projects -type f -name '*.md' \
+      -not -path '*/node_modules/*' -not -path '*/.venv/*' -not -path '*/.git/*' \
+      -not -path '*/build/*' -not -path '*/dist/*' -not -path '*/site/*' \
+      -not -path '*/refs/*' -not -path '*/archive/*' -not -path '*/.astro/*' \
+      -not -path '*/.browser-profile/*' -not -path '*/tests/prettier-math/*'
+    find Projects Documents/university -type f \
+      \( -name 'package.json' -o -name 'tsconfig*.json' -o -name '.prettierrc' \
+      -o -name '.prettierrc.json' -o -name '*.yml' -o -name '*.yaml' \
+      -o -name '*.jsonc' -o -name 'oembed.json' -o -name 'lazyvim.json' \
+      -o -name 'neoconf.json' \) \
+      -not -path '*/node_modules/*' -not -path '*/.venv/*' -not -path '*/.git/*' \
+      -not -path '*/build/*' -not -path '*/dist/*' -not -path '*/site/*' \
+      -not -path '*/refs/*' -not -path '*/archive/*' -not -path '*/data/*' \
+      -not -path '*/cache/*' -not -path '*/intermediate/*' \
+      -not -path '*/.browser-profile/*'
+  } | sort -u
+)
+
+exec "$HOME/.local/bin/prettier-math" "$mode" \
+  --config "$HOME/.config/prettier/config.json" "${files[@]}"

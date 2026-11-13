@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+vault="$HOME/Sync/Cerebrum Extra"
+cd "$vault"
+
+mode="--write"
+if [ "${1:-}" = "--check" ]; then
+  mode="--check"
+fi
+
+mapfile -t notes < <(
+  find . -type f -name '*.md' \
+    -not -path './.obsidian/*' -not -path './.trash/*' -not -path './.stfolder/*'
+)
+
+"$HOME/.local/bin/prettier-math" "$mode" --config "$vault/.prettierrc" "${notes[@]}"
+python3 tools/md_math_guard.py
