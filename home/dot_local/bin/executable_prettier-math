@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Run Prettier with Markdown math spans protected.
+
+Prettier 3.9.9+ parses `$...$` as ordinary text, so its emphasis parser can
+pair the `*` and `_` characters inside formulas and rewrite them. This wrapper
+replaces every math span with an opaque token, runs Prettier, and restores the
+span byte for byte. Non-Markdown files and Markdown without math go straight to
+Prettier.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import shlex
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+INLINE = re.compile(r"(?<![\\$])\$(?!\$)(?:\\.|[^$\n\\])+?(?<!\\)\$")
+DISPLAY = re.compile(
+    r"(?:(?<=^)|(?<=\n)|(?<=\s))\$\$(?:(?!\$\$).)*?(?<!\\)\$\$(?=\s|$|\n)",
+    re.DOTALL | re.MULTILINE,
+)
+BRACKET = re.compile(r"(?<!\\)\\\[(?:(?!\\\]).)*?(?<!\\)\\\]", re.DOTALL)
+PAREN = re.compile(r"(?<!\\)\\\((?:(?!\\\)).)*?(?<!\\)\\\)", re.DOTALL)
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+CODE = re.compile(r"(`+)([^\n]*?)\1")
+
+
+def split_fences(text: str) -> list[tuple[bool, str]]:
+    """Split into prose and fenced-code blocks so code is never masked."""
+    blocks: list[tuple[bool, str]] = []
+    buffer: list[str] = []
+    in_fence = False
+
+    for line in text.splitlines(keepends=True):
+        if FENCE.match(line):
+            if in_fence:
+                buffer.append(line)
+                blocks.append((True, "".join(buffer)))
+                buffer = []
+                in_fence = False
+            else:
+                if buffer:
+                    blocks.append((False, "".join(buffer)))
+                buffer = [line]
+                in_fence = True
+            continue
+        buffer.append(line)
+
+    if buffer:
+        blocks.append((in_fence, "".join(buffer)))
+    return blocks
+
+
+def has_math(text: str) -> bool:
+    for fenced, block in split_fences(text):
+        if fenced:
+            continue
+        plain = CODE.sub("", block)
+        if "$" in plain or "\\(" in plain or "\\[" in plain:
+            return True
+    return False
+
+
+def mask_block(
+    text: str, store: dict[str, str], counter: list[int], prefix: str
+) -> str:
+    def put(original: str, kind: str) -> str:
+        token = f"{prefix}{kind}{counter[0]:04d}END"
+        store[token] = original
+        counter[0] += 1
+        return token
+
+    text = DISPLAY.sub(lambda match: put(match.group(0), "DISPLAY"), text)
+    text = CODE.sub(lambda match: put(match.group(0), "CODE"), text)
+
+    # An unclosed $$ is invalid math; protect the tail so Prettier cannot
+    # invent a closing delimiter.
+    stray = re.search(r"^\s*\$\$", text, re.MULTILINE)
+    if stray:
+        text = text[: stray.start()] + put(text[stray.start() :], "UNCLOSED")
+
+    text = BRACKET.sub(lambda match: put(match.group(0), "BRACKET"), text)
+    text = PAREN.sub(lambda match: put(match.group(0), "PAREN"), text)
+    return INLINE.sub(lambda match: put(match.group(0), "INLINE"), text)
+
+
+def mask(text: str, prefix: str) -> tuple[str, dict[str, str]]:
+    store: dict[str, str] = {}
+    counter = [0]
+    parts: list[str] = []
+    for fenced, block in split_fences(text):
+        parts.append(block if fenced else mask_block(block, store, counter, prefix))
+    return "".join(parts), store
+
+
+def unmask(text: str, store: dict[str, str]) -> str:
+    for token, original in store.items():
+        text = text.replace(token, original)
+    return text
+
+
+def run_prettier(command: list[str], path: Path, config: Path, check: bool) -> int:
+    args = [
+        *command,
+        "--config",
+        str(config),
+        "--check" if check else "--write",
+        str(path),
+    ]
+    result = subprocess.run(args, check=False, capture_output=True, text=True)
+    if result.returncode not in (0, 1):
+        print(result.stderr, end="", file=sys.stderr)
+    return result.returncode
+
+
+def process(
+    path: Path, command: list[str], config: Path, check: bool, prefix: str
+) -> bool:
+    original = path.read_text(encoding="utf-8")
+    if path.suffix.lower() not in {".md", ".markdown"} or not has_math(original):
+        status = run_prettier(command, path, config, check)
+        if status != 0:
+            label = "needs formatting" if check else "failed"
+            print(f"{label}: {path}", file=sys.stderr)
+            return False
+        return True
+
+    masked, store = mask(original, prefix)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=".prettier-math-", suffix=".md", dir=path.parent
+    )
+    os.close(fd)
+    tmp = Path(tmp_name)
+    try:
+        tmp.write_text(masked, encoding="utf-8")
+        if run_prettier(command, tmp, config, False) != 0:
+            print(f"failed: {path}", file=sys.stderr)
+            return False
+        formatted = tmp.read_text(encoding="utf-8")
+    finally:
+        tmp.unlink(missing_ok=True)
+
+    restored = unmask(formatted, store)
+    if check:
+        if restored != original:
+            print(f"needs formatting: {path}", file=sys.stderr)
+            return False
+        return True
+
+    path.write_text(restored.rstrip("\n") + "\n", encoding="utf-8")
+    return True
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Format files with Prettier, protecting Markdown math."
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--write", action="store_true", help="write changes (default)")
+    mode.add_argument("--check", action="store_true", help="report instead of writing")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path.home() / ".config/prettier/config.json",
+    )
+    parser.add_argument(
+        "--prettier",
+        default="bunx prettier@3.9.10",
+        help="command that runs Prettier",
+    )
+    parser.add_argument("files", nargs="+", type=Path)
+    args = parser.parse_args()
+
+    command = shlex.split(args.prettier)
+    prefix = f"PRETTIERMATH{os.getpid():x}"
+    ok = True
+
+    for path in args.files:
+        try:
+            ok = process(path, command, args.config, args.check, prefix) and ok
+        except (OSError, subprocess.CalledProcessError) as exc:
+            print(f"failed: {path}: {exc}", file=sys.stderr)
+            ok = False
+
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

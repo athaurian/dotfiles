@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$HOME"
+
+mode="--write"
+if [ "${1:-}" = "--check" ]; then
+  mode="--check"
+fi
+
+list="$HOME/.config/prettier/docs.list"
+if [ ! -f "$list" ]; then
+  printf 'format-docs: missing %s\n' "$list" >&2
+  exit 1
+fi
+
+mapfile -t files < <(bash "$list" | sort -u)
+
+exec "$HOME/.local/bin/prettier-math" "$mode" \
+  --config "$HOME/.config/prettier/config.json" \
+  --ignore-path "$HOME/.config/prettier/ignore" \
+  "${files[@]}"

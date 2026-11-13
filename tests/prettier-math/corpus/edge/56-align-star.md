@@ -1,0 +1,8 @@
+# Align star
+
+$$
+\begin{align*}
+a &= b^* \\
+c &= d^*
+\end{align*}
+$$

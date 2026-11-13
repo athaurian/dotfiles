@@ -1,0 +1,8 @@
+# Aligned
+
+$$
+\begin{aligned}
+a &= b^* \\
+c &= d^*
+\end{aligned}
+$$

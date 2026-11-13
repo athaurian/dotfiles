@@ -1,0 +1,7 @@
+# Blank inside
+
+$$
+a^*
+
+b^*
+$$
