@@ -20,8 +20,7 @@ _SPAN_PLAYING = f"<span>{ICON_PLAYING}</span>"
 _SPAN_PAUSED = f"<span>{ICON_PAUSED}</span>"
 
 WAYBAR_MAX_TEXT_LEN = 56
-# The optiplex polybar is 1366px wide and carries a systray. A longer label
-# pushes the date and DND modules off the bar.
+# Shares the bar width with the window title, see docs/statusbar.md.
 POLYBAR_MAX_TEXT_LEN = 36
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))

@@ -76,7 +76,7 @@
       "xss-lock",
       "xorg-xset",
       "i3lock-color",
-      "polybar"
+      "polybar-pinned"
     ],
     "thinkpad": [
       "awww",

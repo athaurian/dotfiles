@@ -4,7 +4,8 @@ import re
 import subprocess
 import unicodedata
 
-MAX_TEXT_LEN = 56
+# Shares the bar width with the mpris cap, see docs/statusbar.md.
+MAX_TEXT_LEN = 38
 
 REWRITES = (
     (r"^$", " "),
