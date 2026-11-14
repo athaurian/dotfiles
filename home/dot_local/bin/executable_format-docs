@@ -11,6 +11,7 @@ fi
 mapfile -t files < <(
   {
     printf '%s\n' AGENTS.md PROJECTS.md BACKUP.md .config/opencode/AGENTS.md
+    find .config/opencode/skills -type f -name '*.md'
     printf '%s\n' Documents/archive/recovery/README.md
     find Documents/university -type f -name '*.md' \
       -not -path '*/node_modules/*' -not -path '*/.venv/*' -not -path '*/build/*' \
