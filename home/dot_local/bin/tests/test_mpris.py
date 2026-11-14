@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -20,7 +21,14 @@ _F = "\x1f"
 
 ICON_PLAYING = "󰐊"
 ICON_PAUSED = "󰏤"
+MAX_TEXT_LEN = {"waybar": 56, "polybar": 36}
 MODES = ("waybar", "polybar")
+
+
+def _display_width(text):
+    return sum(
+        2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1 for ch in text
+    )
 
 
 def _line(player, status, pos, artist, title):
@@ -36,6 +44,7 @@ def _norm_waybar(line):
 
 
 def _norm_polybar(line):
+    italic = "%{T3}" in line
     text = re.sub(r"%\{[^}]*\}", "", line).strip()
     paused = text.startswith(ICON_PAUSED)
     text = re.sub(r"^[󰐊󰏤]\s*", "", text)
@@ -46,7 +55,7 @@ def _norm_polybar(line):
         status = "paused"
     else:
         status = "playing"
-    return text, paused, status
+    return text, italic, status
 
 
 _NORM = {"waybar": _norm_waybar, "polybar": _norm_polybar}
@@ -224,10 +233,16 @@ SCENARIOS = {
                 _line("chromium.i1", "Playing", "1000000", "Artist A", "x" * 60),
             ]
         ),
-        "expected": [
-            ("", False, "stopped"),
-            ("Artist A - " + "x" * 45 + "…", False, "playing"),
-        ],
+        "expected": {
+            "waybar": [
+                ("", False, "stopped"),
+                ("Artist A - " + "x" * 44 + "…", False, "playing"),
+            ],
+            "polybar": [
+                ("", False, "stopped"),
+                ("Artist A - " + "x" * 24 + "…", False, "playing"),
+            ],
+        },
     },
     "wide_title": {
         "streams": _sc(
@@ -235,10 +250,16 @@ SCENARIOS = {
                 _line("chromium.i1", "Playing", "1000000", "Artist A", "曲" * 30),
             ]
         ),
-        "expected": [
-            ("", False, "stopped"),
-            ("Artist A - " + "曲" * 22 + "…", False, "playing"),
-        ],
+        "expected": {
+            "waybar": [
+                ("", False, "stopped"),
+                ("Artist A - " + "曲" * 22 + "…", False, "playing"),
+            ],
+            "polybar": [
+                ("", False, "stopped"),
+                ("Artist A - " + "曲" * 12 + "…", False, "playing"),
+            ],
+        },
     },
     "transition_stop": {
         "streams": _sc(
@@ -287,6 +308,9 @@ SCENARIOS = {
 
 
 def _run_scenario(mode, name, spec):
+    exp = spec["expected"]
+    if isinstance(exp, dict):
+        exp = exp[mode]
     tmpdir, fakebin = _make_fakebin()
     state_base = tmpdir
     streams = spec["streams"]
@@ -322,7 +346,7 @@ def _run_scenario(mode, name, spec):
             raw = _readline(proc.stdout, deadline)
             if raw:
                 got.append(norm(raw))
-                if len(got) >= len(spec["expected"]):
+                if len(got) >= len(exp):
                     break
             elif proc.poll() is not None:
                 break
@@ -340,13 +364,15 @@ def _run_scenario(mode, name, spec):
 
     shutil.rmtree(tmpdir, ignore_errors=True)
 
-    exp = spec["expected"]
-    ok = got == exp
+    over_cap = [text for text, _, _ in got if _display_width(text) > MAX_TEXT_LEN[mode]]
+    ok = got == exp and not over_cap
     tag = "PASS" if ok else "FAIL"
     print(f"[{tag}] {mode}/{name}")
     if not ok:
         print(f"  expected: {exp}")
         print(f"  got     : {got}")
+        if over_cap:
+            print(f"  over {MAX_TEXT_LEN[mode]}-column cap: {over_cap}")
     return ok
 
 
