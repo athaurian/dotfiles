@@ -1,0 +1,5 @@
+# Bracket emphasis
+
+\[
+*a* + *b*
+\]

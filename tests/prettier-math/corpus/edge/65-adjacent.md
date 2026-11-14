@@ -1,3 +1,3 @@
 # Adjacent
 
-$x$$y$ and $a$$b$.
+$x^*$$y^*$ and $a^*$$b^*$ are adjacent.

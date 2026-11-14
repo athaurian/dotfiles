@@ -3,9 +3,13 @@
 
 Prettier 3.9.9+ parses `$...$` as ordinary text, so its emphasis parser can
 pair the `*` and `_` characters inside formulas and rewrite them. This wrapper
-replaces every math span with an opaque token, runs Prettier, and restores the
-span byte for byte. Non-Markdown files and Markdown without math go straight to
-Prettier.
+replaces every math span, and every escaped-dollar literal that contains `*` or
+`_`, with a fixed-width token, runs Prettier, and restores the span byte for
+byte. Fixed-width tokens keep table columns aligned. Non-Markdown files and
+Markdown without math go straight to Prettier.
+
+Inline `$...$` must open and close on the same line. Use `$$...$$` for display
+math that spans lines.
 """
 
 from __future__ import annotations
@@ -19,7 +23,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-INLINE = re.compile(r"(?<![\\$])\$(?!\$)(?:\\.|[^$\n\\])+?(?<!\\)\$")
+INLINE = re.compile(r"(?<!\\)\$(?!\$)(?:\\.|[^$\n\\])+?(?<!\\)\$")
 DISPLAY = re.compile(
     r"(?:(?<=^)|(?<=\n)|(?<=\s))\$\$(?:(?!\$\$).)*?(?<!\\)\$\$(?=\s|$|\n)",
     re.DOTALL | re.MULTILINE,
@@ -28,6 +32,12 @@ BRACKET = re.compile(r"(?<!\\)\\\[(?:(?!\\\]).)*?(?<!\\)\\\]", re.DOTALL)
 PAREN = re.compile(r"(?<!\\)\\\((?:(?!\\\)).)*?(?<!\\)\\\)", re.DOTALL)
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 CODE = re.compile(r"(`+)([^\n]*?)\1")
+ESCAPED = re.compile(r"\\\$(?:(?!\\\$).)*?\\\$", re.DOTALL)
+
+TOKEN_BASE = "\ue000"
+TOKEN_FILL = "\ue001"
+TOKEN_INDEX_BASE = 0xE100
+TOKEN_INDEX_LIMIT = 0x1800
 
 
 def split_fences(text: str) -> list[tuple[bool, str]]:
@@ -70,17 +80,37 @@ def mask_block(
     text: str, store: dict[str, str], counter: list[int], prefix: str
 ) -> str:
     def put(original: str, kind: str) -> str:
-        token = f"{prefix}{kind}{counter[0]:04d}END"
-        store[token] = original
+        index = counter[0]
         counter[0] += 1
+        width = len(original)
+        if "\n" not in original and width >= 2 and index < TOKEN_INDEX_LIMIT:
+            token = TOKEN_BASE + chr(TOKEN_INDEX_BASE + index)
+            if len(token) < width:
+                token += TOKEN_FILL * (width - len(token))
+            store[token] = original
+            return token
+        token = f"{prefix}{kind}{index:04d}END"
+        store[token] = original
         return token
 
+    # Escaped dollars are literal, but their contents can still contain the
+    # stars and underscores that Prettier pairs as emphasis. Mask them before
+    # any other construct so a literal region stays one unit.
+    def put_escaped(match: re.Match[str]) -> str:
+        original = match.group(0)
+        if "*" not in original and "_" not in original:
+            return original
+        return put(original, "ESCAPED")
+
+    text = ESCAPED.sub(put_escaped, text)
     text = DISPLAY.sub(lambda match: put(match.group(0), "DISPLAY"), text)
     text = CODE.sub(lambda match: put(match.group(0), "CODE"), text)
 
     # An unclosed $$ is invalid math; protect the tail so Prettier cannot
-    # invent a closing delimiter.
-    stray = re.search(r"^\s*\$\$", text, re.MULTILINE)
+    # invent a closing delimiter. Match the line start without consuming the
+    # newline: a token that swallows the preceding blank line makes the output
+    # grow one blank line per run.
+    stray = re.search(r"^[ \t]*\$\$", text, re.MULTILINE)
     if stray:
         text = text[: stray.start()] + put(text[stray.start() :], "UNCLOSED")
 
@@ -99,7 +129,9 @@ def mask(text: str, prefix: str) -> tuple[str, dict[str, str]]:
 
 
 def unmask(text: str, store: dict[str, str]) -> str:
-    for token, original in store.items():
+    # Tokens can nest: a code span may contain a display span, and an escaped
+    # literal may contain either. Restore the innermost (last inserted) first.
+    for token, original in reversed(store.items()):
         text = text.replace(token, original)
     return text
 
