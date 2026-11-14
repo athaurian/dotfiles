@@ -16,7 +16,6 @@ from shotlib import (
     error,
     find_window,
     grim,
-    kill_window,
     mode_background,
     mode_edge,
     mode_suffix,
@@ -24,8 +23,9 @@ from shotlib import (
     palette_mode,
     prime_editor,
     run_main,
+    spawn,
+    stop,
     sway,
-    sway_exec,
     verify_editor,
     wait_socket,
     wait_window,
@@ -37,22 +37,19 @@ def capture(mode: str) -> None:
     """Capture the editor in a mode and record its geometry."""
     palette_mode(mode)
     sway("workspace", "3")
-    kill_window(app_id="editor-nvim")
     EDITOR_SOCKET.unlink(missing_ok=True)
+    process = spawn(
+        [
+            "kitty",
+            "nvim",
+            "--listen",
+            str(EDITOR_SOCKET),
+            "+330",
+            str(HL_TEST),
+        ]
+    )
     try:
-        sway_exec(
-            [
-                "kitty",
-                "--class",
-                "editor-nvim",
-                "nvim",
-                "--listen",
-                str(EDITOR_SOCKET),
-                "+330",
-                str(HL_TEST),
-            ]
-        )
-        wait_window(app_id="editor-nvim")
+        wait_window(pid=process.pid)
         wait_socket(EDITOR_SOCKET)
         time.sleep(11)
         for _ in range(3):
@@ -64,11 +61,11 @@ def capture(mode: str) -> None:
         time.sleep(1.5)
         prime_editor(EDITOR_SOCKET)
         verify_editor(EDITOR_SOCKET, path=HL_TEST)
-        sway("[app_id=editor-nvim] focus")
+        sway(f"[pid={process.pid}] focus")
         close_notifications()
         time.sleep(0.3)
         grim(CAPTURES / f"editor-{mode}.png")
-        window = find_window(app_id="editor-nvim")
+        window = find_window(pid=process.pid)
         if window is None:
             error("the editor window disappeared")
         rect = window["rect"]
@@ -77,7 +74,7 @@ def capture(mode: str) -> None:
             f"{rect['width']}x{rect['height']}+{rect['x']}+{rect['y']}",
         )
     finally:
-        kill_window(app_id="editor-nvim")
+        stop(process)
         EDITOR_SOCKET.unlink(missing_ok=True)
 
 

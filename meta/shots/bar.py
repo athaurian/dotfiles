@@ -13,13 +13,13 @@ from shotlib import (
     close_notifications,
     error,
     grim,
-    kill_window,
     magick,
     mode_suffix,
     palette_mode,
     run_main,
+    spawn,
+    stop,
     sway,
-    sway_exec,
     wait_window,
 )
 
@@ -36,27 +36,17 @@ def crop(mode: str) -> None:
 
 def capture(mode: str) -> None:
     """Capture the status bar in a mode."""
+    palette_mode(mode)
+    sway("workspace", "3")
+    process = spawn(["kitty", "--title", "hl_test.py", "nvim", str(HL_TEST)])
     try:
-        palette_mode(mode)
-        sway("workspace", "3")
-        sway_exec(
-            [
-                "kitty",
-                "--class",
-                "bar-preview",
-                "--title",
-                "hl_test.py",
-                "nvim",
-                str(HL_TEST),
-            ]
-        )
-        wait_window(app_id="bar-preview")
+        wait_window(pid=process.pid)
         time.sleep(10)
-        sway("[app_id=bar-preview] focus")
+        sway(f"[pid={process.pid}] focus")
         close_notifications()
         grim(CAPTURES / f"bar-{mode}.png", "-g", "0,0 1920x24")
     finally:
-        kill_window(app_id="bar-preview")
+        stop(process)
     crop(mode)
 
 

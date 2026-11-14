@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# The sway rule matches this class. Keep the flag.
+# The sway rule matches the spawn title. The window keeps the kitty app id,
+# so the status bar shows the kitty icon.
 mark=topgrade_term
 
 # shellcheck source=lib_runtime.sh
@@ -21,7 +22,7 @@ if has_mark; then
 	exit 0
 fi
 
-swaymsg exec "kitty --class=$mark --title=$mark -e sh -c 'if topgrade; then pkill -USR1 -f \"^sh $HOME/.config/waybar/scripts/updates.sh$\" || true; else printf \"topgrade failed; press Enter to close\n\"; read -r _ || true; fi'"
+swaymsg exec "kitty --title=$mark -e sh -c 'if topgrade; then pkill -USR1 -f \"^sh $HOME/.config/waybar/scripts/updates.sh$\" || true; else printf \"topgrade failed; press Enter to close\n\"; read -r _ || true; fi'"
 
 # Keep the lock until the mark shows. A second keypress does nothing while
 # the first window starts.

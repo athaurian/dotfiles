@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Sway compares the title as a substring. The window class and the mark use
-# the same name.
+# The sway rule anchors the spawn title. The window keeps the kitty app id,
+# so the status bar shows the kitty icon.
 mark=drop_term
 
 # shellcheck source=lib_runtime.sh
@@ -20,7 +20,7 @@ if has_mark; then
 	exit 0
 fi
 
-swaymsg exec "kitty --class=$mark --title=$mark"
+swaymsg exec "kitty --title=$mark"
 
 i=0
 while [ "$i" -lt 40 ]; do
