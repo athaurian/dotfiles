@@ -2,6 +2,7 @@
 
 import re
 import subprocess
+import unicodedata
 
 MAX_TEXT_LEN = 56
 
@@ -34,9 +35,19 @@ def rewrite(title: str) -> str:
     return title
 
 
+def char_width(ch: str) -> int:
+    return 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+
+
 def truncate(text: str) -> str:
-    if len(text) > MAX_TEXT_LEN:
-        return text[: MAX_TEXT_LEN - 3] + "..."
+    if sum(char_width(ch) for ch in text) <= MAX_TEXT_LEN:
+        return text
+    width = 0
+    for i, ch in enumerate(text):
+        w = char_width(ch)
+        if width + w > MAX_TEXT_LEN - 1:
+            return text[:i] + "…"
+        width += w
     return text
 
 

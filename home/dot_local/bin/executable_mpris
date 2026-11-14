@@ -19,7 +19,10 @@ ICON_PAUSED = "󰏤"
 _SPAN_PLAYING = f"<span>{ICON_PLAYING}</span>"
 _SPAN_PAUSED = f"<span>{ICON_PAUSED}</span>"
 
-MAX_TEXT_LEN = 56
+WAYBAR_MAX_TEXT_LEN = 56
+# The optiplex polybar is 1366px wide and carries a systray. A longer label
+# pushes the date and DND modules off the bar.
+POLYBAR_MAX_TEXT_LEN = 36
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))
 
@@ -40,12 +43,17 @@ def _char_width(ch: str) -> int:
     return 2 if eaw in ("W", "F") else 1
 
 
-def _truncate(label: str, limit: int = MAX_TEXT_LEN) -> str:
+def _truncate(label: str, limit: int) -> str:
+    if limit <= 0:
+        return ""
+    if sum(_char_width(ch) for ch in label) <= limit:
+        return label
     width = 0
     for i, ch in enumerate(label):
-        width += _char_width(ch)
-        if width > limit:
+        char_width = _char_width(ch)
+        if width + char_width > limit - 1:
             return label[:i] + "…"
+        width += char_width
     return label
 
 
@@ -128,6 +136,7 @@ def _label(artist: str, title: str) -> str | None:
 
 class _Renderer:
     empty: str
+    max_len: int
 
     def render(self, status: str, artist: str, title: str) -> str:
         raise NotImplementedError
@@ -135,6 +144,7 @@ class _Renderer:
 
 class _WaybarRenderer(_Renderer):
     empty = json.dumps({"text": "", "class": "stopped", "alt": "stopped"})
+    max_len = WAYBAR_MAX_TEXT_LEN
 
     def render(self, status: str, artist: str, title: str) -> str:
         span = _SPAN_PLAYING if status == "Playing" else _SPAN_PAUSED
@@ -142,7 +152,7 @@ class _WaybarRenderer(_Renderer):
         if label is None:
             return self.empty
 
-        label = html.escape(_truncate(label), quote=False)
+        label = html.escape(_truncate(label, self.max_len), quote=False)
         text = f"{span}  {label}"
         if status == "Paused":
             text = f"<i>{text}</i>"
@@ -154,6 +164,7 @@ class _WaybarRenderer(_Renderer):
 
 class _PolybarRenderer(_Renderer):
     empty = ""
+    max_len = POLYBAR_MAX_TEXT_LEN
 
     def render(self, status: str, artist: str, title: str) -> str:
         label = _label(artist, title)
@@ -161,10 +172,13 @@ class _PolybarRenderer(_Renderer):
             return self.empty
 
         # Polybar reads %{...} as a format code.
-        label = _truncate(label).replace("%", "%%")
+        label = _truncate(label, self.max_len).replace("%", "%%")
+        if status == "Paused":
+            label = f"%{{T3}}{label}%{{T-}}"
         icon = ICON_PLAYING if status == "Playing" else ICON_PAUSED
-        # Only the icon uses the nerd font.
-        return f"%{{T3}}{icon}%{{T-}} {label}"
+        # Polybar font indexes are 1-based: T3 is font-2 (italic), T4 is
+        # font-3 (nerd).
+        return f"%{{T4}}{icon}%{{T-}} {label}"
 
 
 RENDERERS = {"waybar": _WaybarRenderer, "polybar": _PolybarRenderer}
