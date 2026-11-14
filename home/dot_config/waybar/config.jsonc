@@ -5,7 +5,18 @@
   "spacing": 0,
   "modules-left": ["sway/workspaces", "sway/mode", "custom/mpris"],
   "modules-center": ["sway/window"],
-  "modules-right": ["cpu", "memory", "custom/updates", "custom/separator", "pulseaudio", "battery", "tray", "clock", "custom/separator", "custom/dnd"],
+  "modules-right": [
+    "cpu",
+    "memory",
+    "custom/updates",
+    "custom/separator",
+    "pulseaudio",
+    "battery",
+    "tray",
+    "clock",
+    "custom/separator",
+    "custom/dnd",
+  ],
   "sway/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,
@@ -20,11 +31,11 @@
       "7": "󰲬",
       "8": "󰲮",
       "9": "󰲰",
-      "10": "󰿬"
-    }
+      "10": "󰿬",
+    },
   },
   "sway/mode": {
-    "format": "󰘳 {}"
+    "format": "󰘳 {}",
   },
   "custom/mpris": {
     "exec": "~/.local/bin/mpris waybar",
@@ -34,7 +45,7 @@
     "escape": false,
     "on-click": "playerctl play-pause",
     "on-scroll-up": "playerctl next",
-    "on-scroll-down": "playerctl previous"
+    "on-scroll-down": "playerctl previous",
   },
   "sway/window": {
     "format": "{title}",
@@ -47,38 +58,38 @@
       "^$": " ",
       "(.*) - Helium": "$1",
       "^• Discord \\| (.*)$": "$1",
-      "^nvim (.*)$": " Editing $1"
-    }
+      "^nvim (.*)$": " Editing $1",
+    },
   },
   "cpu": {
     "format": "󰻠 {usage}%",
     "tooltip": true,
     "interval": 5,
-    "on-click": "kitty --class=btop --title=btop -e btop"
+    "on-click": "kitty --class=btop --title=btop -e btop",
   },
   "memory": {
     "format": "󰍛 {percentage}%",
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
     "interval": 5,
-    "on-click": "kitty --class=btop --title=btop -e btop"
+    "on-click": "kitty --class=btop --title=btop -e btop",
   },
   "custom/updates": {
     "exec": "~/.config/waybar/scripts/updates.sh",
     "return-type": "json",
     "restart-interval": 5,
     "tooltip": true,
-    "on-click": "~/.config/sway/scripts/toggle_topgrade.sh"
+    "on-click": "~/.config/sway/scripts/toggle_topgrade.sh",
   },
   "custom/separator": {
     "format": "|",
-    "tooltip": false
+    "tooltip": false,
   },
   "pulseaudio": {
     "format": "󰕾 {volume}%",
     "format-muted": "󰖁 Muted",
     "on-click": "pavucontrol",
     "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-    "scroll-step": 5
+    "scroll-step": 5,
   },
   "battery": {
     "states": { "warning": 30, "critical": 15 },
@@ -88,7 +99,7 @@
     "format-charging": "󱐋 {capacity}%",
     "format-plugged": "󰚥 {capacity}%",
     "format-full": "󱟦 {capacity}%",
-    "format-icons": ["󰁻", "󰁽", "󰁿", "󰂁", "󰁹"]
+    "format-icons": ["󰁻", "󰁽", "󰁿", "󰂁", "󰁹"],
   },
   "tray": { "icon-size": 12, "spacing": 12 },
   "clock": {
@@ -100,10 +111,10 @@
       "on-scroll": 1,
       "format": {
         "months": "<b>{}</b> ",
-        "today": "<b>{}</b>"
-      }
+        "today": "<b>{}</b>",
+      },
     },
-    "interval": 1
+    "interval": 1,
   },
   "custom/dnd": {
     "exec": "~/.config/waybar/scripts/dunst-dnd.sh",
@@ -111,6 +122,6 @@
     "interval": 5,
     "signal": 9,
     "tooltip": true,
-    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle"
-  }
+    "on-click": "~/.config/waybar/scripts/dunst-dnd.sh --toggle",
+  },
 }
