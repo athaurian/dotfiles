@@ -154,10 +154,10 @@ for_window [app_id="xdg-desktop-portal-gtk"] floating enable, border normal, res
 # "Rename ..." stays tiled.
 for_window [app_id="thunar" title="^Rename (?!.* - Thunar$).*$"] floating enable, border normal, move position center
 
-# Sway compares the title as a substring, so each scratchpad window needs a
-# class of its own.
-for_window [app_id="drop_term"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-for_window [app_id="topgrade_term"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+# Each scratchpad window keeps the kitty app id so the status bar shows the
+# kitty icon. The rules anchor the spawn title instead.
+for_window [app_id="kitty" title="^drop_term$"] floating enable, border normal, mark drop_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
+for_window [app_id="kitty" title="^topgrade_term$"] floating enable, border normal, mark topgrade_term, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 
 # The picker tool starts kitty with a title only. This rule anchors the
 # title to an exact match.
@@ -165,7 +165,7 @@ for_window [app_id="kitty" title="^clipboard_term$"] floating enable, border nor
 # Match the main window, not the unlock dialog.
 for_window [app_id="org.keepassxc.KeePassXC" title="^(?!Unlock Database - KeePassXC$).*KeePassXC$"] floating enable, border normal, mark keepassxc, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
 for_window [instance="keepassxc" title="^(?!Unlock Database - KeePassXC$).*KeePassXC$"] floating enable, border normal, mark keepassxc, resize set width 75 ppt height 70 ppt, move scratchpad, scratchpad show, move position center
-for_window [app_id="btop"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
+for_window [app_id="kitty" title="^btop$"] floating enable, border normal, resize set width 75 ppt height 70 ppt, move position center
 
 client.focused          {{ $p.line.hex }} {{ $p.surface_1.hex }} {{ $p.text.hex }} {{ $p.line.hex }} {{ $p.line.hex }}
 client.focused_inactive {{ $p.surface_2.hex }} {{ $p.base.hex }} {{ $p.muted.hex }} {{ $p.surface_2.hex }} {{ $p.surface_2.hex }}

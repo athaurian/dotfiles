@@ -18,7 +18,6 @@ from shotlib import (
     close_notifications,
     error,
     grim,
-    kill_window,
     magick,
     mode_suffix,
     nvim_remote_send,
@@ -27,6 +26,8 @@ from shotlib import (
     run,
     run_main,
     run_pillow,
+    spawn,
+    stop,
     sway,
     sway_exec,
     wait_socket,
@@ -46,35 +47,31 @@ def capture(mode: str) -> None:
     palette_mode(mode)
     sway("workspace", "3")
     HERO_SOCKET.unlink(missing_ok=True)
+    nvim = spawn(
+        [
+            "kitty",
+            "nvim",
+            "--listen",
+            str(HERO_SOCKET),
+            "-c",
+            "normal! zR",
+            str(HL_TEST),
+        ]
+    )
+    term = None
     try:
-        sway_exec(
-            [
-                "kitty",
-                "--class",
-                "hero-nvim",
-                "nvim",
-                "--listen",
-                str(HERO_SOCKET),
-                "-c",
-                "normal! zR",
-                str(HL_TEST),
-            ]
-        )
         time.sleep(0.4)
-        sway_exec(
+        term = spawn(
             [
                 "kitty",
-                "--class",
-                "hero-term",
                 "sh",
                 "-c",
                 f"python3 {shlex.quote(str(HL_TEST))}; exec sh",
             ]
         )
-        time.sleep(0.6)
-        wait_window(app_id="hero-nvim")
-        wait_window(app_id="hero-term")
-        sway("[app_id=hero-nvim] focus")
+        wait_window(pid=nvim.pid)
+        wait_window(pid=term.pid)
+        sway(f"[pid={nvim.pid}] focus")
         time.sleep(11)
         wait_socket(HERO_SOCKET)
         nvim_remote_send(HERO_SOCKET, "<Esc><CR>")
@@ -94,8 +91,9 @@ def capture(mode: str) -> None:
         )
     finally:
         run(["pkill", "-x", "fuzzel"], check=False)
-        kill_window(app_id="hero-nvim")
-        kill_window(app_id="hero-term")
+        stop(nvim)
+        if term is not None:
+            stop(term)
         HERO_SOCKET.unlink(missing_ok=True)
 
 

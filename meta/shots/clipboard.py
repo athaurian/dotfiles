@@ -128,10 +128,12 @@ def capture(mode: str) -> None:
             "resize set width 75 ppt height 70 ppt, move position center"
         )
         # fzf measures the preview pane when it starts and keeps the rendered
-        # image until the highlight changes. Start it only after the window
-        # has its final size, or the placeholder grid overflows and wraps.
-        READY.touch()
+        # image until the highlight changes. Kitty applies the compositor
+        # resize to its pseudo terminal after the command returns, so wait for
+        # that before the picker starts, or the placeholder grid overflows and
+        # wraps.
         time.sleep(0.5)
+        READY.touch()
         sway("[con_mark=clipboard_term] focus")
         time.sleep(4)
         close_notifications()

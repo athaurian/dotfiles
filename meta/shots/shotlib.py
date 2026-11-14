@@ -81,6 +81,16 @@ def sway_exec(argv: list[str]) -> None:
     sway("exec", shlex.join(argv))
 
 
+def spawn(argv: list[str]) -> subprocess.Popen[bytes]:
+    """Start a compositor client in the home directory and return its handle."""
+    return subprocess.Popen(
+        argv,
+        cwd=Path.home(),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
 def sway_tree() -> dict[str, Any]:
     """Return the current Sway tree."""
     result = subprocess.run(
@@ -100,10 +110,14 @@ def walk(node: dict[str, Any]) -> Iterable[dict[str, Any]]:
 
 
 def find_window(
-    *, app_id: str | None = None, title: str | None = None
+    *, app_id: str | None = None, title: str | None = None, pid: int | None = None
 ) -> dict[str, Any] | None:
-    """Return the first window matching an app ID or title."""
+    """Return the first window matching an app ID, a title, or a process ID."""
     for node in walk(sway_tree()):
+        if pid is not None:
+            if node.get("pid") == pid:
+                return node
+            continue
         if app_id is not None and node.get("app_id") == app_id:
             return node
         if title is not None and node.get("name") == title:
@@ -115,16 +129,17 @@ def wait_window(
     *,
     app_id: str | None = None,
     title: str | None = None,
+    pid: int | None = None,
     timeout: float = 10.0,
 ) -> dict[str, Any]:
     """Wait for a matching window to appear."""
     deadline = time.monotonic() + timeout
     while True:
-        node = find_window(app_id=app_id, title=title)
+        node = find_window(app_id=app_id, title=title, pid=pid)
         if node is not None:
             return node
         if time.monotonic() >= deadline:
-            error(f"window {app_id or title!r} did not appear")
+            error(f"window {app_id or title or pid!r} did not appear")
         time.sleep(0.1)
 
 
@@ -276,6 +291,16 @@ def kill_pid(pid: int | None) -> None:
         os.kill(pid, signal.SIGKILL)
     except ProcessLookupError:
         pass
+
+
+def stop(process: subprocess.Popen[bytes]) -> None:
+    """Terminate a spawned client and reap it."""
+    process.terminate()
+    try:
+        process.wait(timeout=2.0)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 def kill_window(*, app_id: str | None = None, title: str | None = None) -> None:
