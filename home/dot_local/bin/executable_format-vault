@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-vault="$HOME/Sync/Cerebrum Extra"
+vault="$HOME/Obsidian"
 cd "$vault"
 
 mode="--write"
@@ -11,7 +11,8 @@ fi
 
 mapfile -t notes < <(
   find . -type f -name '*.md' \
-    -not -path './.obsidian/*' -not -path './.trash/*' -not -path './.stfolder/*'
+    -not -path './.obsidian/*' -not -path './.trash/*' -not -path './.stfolder/*' \
+    -not -path './.stversions/*'
 )
 
 "$HOME/.local/bin/prettier-math" "$mode" --config "$vault/.prettierrc" "${notes[@]}"
