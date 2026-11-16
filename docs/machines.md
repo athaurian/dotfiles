@@ -3,11 +3,10 @@
 The repository's `chezmoi` source tree targets two machines. Any hostname other
 than `optiplex` resolves to the `thinkpad` profile.
 
-- **`thinkpad` (ThinkPad L14 Gen 1)**: Runs Sway on Wayland.
-- **`optiplex` (Dell OptiPlex 5060)**: Has an old NVIDIA GeForce GT 630 (rev. 2)
+- **`thinkpad` (ThinkPad L14 Gen 1):** Runs Sway on Wayland.
+- **`optiplex` (Dell OptiPlex 5060):** Has an old NVIDIA GeForce GT 630 (rev. 2)
   tethered to the legacy proprietary driver branch, where Wayland compositors
-  are unreliable. It runs i3 on X11 with `picom` so the workflow and keybindings
-  match `thinkpad` without fighting the GPU driver.
+  are unreliable, so it runs i3 on X11 instead.
 
 ## Differences between `thinkpad` and `optiplex`
 
