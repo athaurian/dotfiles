@@ -5,7 +5,7 @@ template: home.html
 # dotfiles
 
 This is the documentation index. If you want an overview instead, see
-[the project's README.md](https://github.com/athaurian/dotfiles/blob/main/README.md)
+[the project's README.md](https://github.com/athaurian/dotfiles/blob/main/README.md).
 
 ## Guides
 
