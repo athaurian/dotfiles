@@ -24,7 +24,7 @@ the display-server layer swaps between Wayland and X11:
 | Wallpaper daemon     | `awww`                                       | `feh`                                           |
 | Screen lock          | `swaylock`                                   | `i3lock`                                        |
 | Idle manager         | `swayidle`                                   | `xss-lock` + X11 DPMS                           |
-| Night light          | `wlsunset`                                   | None                                            |
+| Night light          | `wlsunset`                                   | `redshift`                                      |
 | Screenshots          | `grim` + `slurp`                             | `flameshot`                                     |
 | Clipboard history    | `cliphist` + `wl-paste` + `clipboard-picker` | Standard X11 selection only (no history picker) |
 

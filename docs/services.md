@@ -16,12 +16,12 @@ manager config, so crashes restart cleanly and logs stay queryable in
   locked-screen DPMS timeouts allows `$mod+Shift+i` (idle inhibit) to pause
   normal screen blanking during video playback or long builds while still
   letting a manually locked screen power off its display quickly.
-- **Cached night-light coordinates (`wlsunset.service` +
-  `wlsunset-env.service`)**: `wlsunset` reads cached latitude and longitude from
-  `~/.config/wlsunset.env` so it can start immediately offline.
-  `wlsunset.service` pulls in the oneshot `wlsunset-env.service` through
-  `Wants=`, and that unit runs [`wlsunset-location`](tools.md#wlsunset-location)
-  before `wlsunset` starts.
+- **Cached night-light coordinates (`wlsunset.service`, `redshift.service`, and
+  `wlsunset-env.service`)**: `wlsunset` and `redshift` read cached latitude and
+  longitude from `~/.config/wlsunset.env` so they can start immediately offline.
+  Each daemon pulls in the oneshot `wlsunset-env.service` through `Wants=`, and
+  that unit runs [`wlsunset-location`](tools.md#wlsunset-location) before the
+  daemon starts.
 
 ## Unit overview
 
@@ -34,7 +34,8 @@ manager config, so crashes restart cleanly and logs stay queryable in
 | `swayidle-unlocked.service`       | `thinkpad` | Normal session idle and lock timeouts                                   |
 | `swayidle-locked.service`         | `thinkpad` | Short DPMS display-off timeout while locked                             |
 | `wlsunset.service`                | `thinkpad` | Color-temperature adjustment using cached coordinates                   |
-| `wlsunset-env.service`            | `thinkpad` | Refreshes `~/.config/wlsunset.env` coordinates                          |
+| `redshift.service`                | `optiplex` | Color-temperature adjustment using cached coordinates                   |
+| `wlsunset-env.service`            | Both       | Generates `~/.config/wlsunset.env` for `wlsunset` and `redshift`        |
 | `calibre-sync.service` / `.timer` | `thinkpad` | Syncs `~/Library` to Google Drive (see [Calibre sync](calibre-sync.md)) |
 
 ## Inspecting units

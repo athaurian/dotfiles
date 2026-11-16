@@ -23,7 +23,8 @@ table column widths when wrapping prose.
 ## `wlsunset-location`
 
 Updates `~/.config/wlsunset.env` with `WLSUNSET_LATITUDE` and
-`WLSUNSET_LONGITUDE` for `wlsunset.service`.
+`WLSUNSET_LONGITUDE` for `wlsunset.service` on `thinkpad` and `redshift.service`
+on `optiplex`.
 
 1. Queries the local D-Bus GeoClue2 service first.
 2. If GeoClue2 is unavailable, falls back to HTTPS IP geolocation APIs

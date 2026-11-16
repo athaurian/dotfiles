@@ -13,9 +13,9 @@ Bash is the login and interactive shell on both machines.
   `FILE_MANAGER=thunar`, `PASSWORD_MANAGER=keepassxc`, and
   `QT_QPA_PLATFORMTHEME=qt6ct`.
 - **Night-light coordinates (`~/.config/wlsunset.env`)**: Loaded by
-  `~/.bash_profile` when present, and read by `wlsunset.service` through
-  `EnvironmentFile=`, so `wlsunset` starts without a network geolocation
-  request.
+  `~/.bash_profile` when present, and read by `wlsunset.service` and
+  `redshift.service` through `EnvironmentFile=`, so both daemons start without a
+  network geolocation request.
 - **Tool integrations**: Initializes `zoxide` (smart directory jumping), `fnm`
   (Node version manager), and `fzf` keybindings when installed.
 
