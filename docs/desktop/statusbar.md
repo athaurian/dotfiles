@@ -26,10 +26,14 @@
   missing glyphs. Waybar's font chain contains only `Geist Mono` and
   `GeistMono Nerd Font Mono`.
 
-## Why `optiplex` uses `polybar-pinned`
+## Patched Polybar on `optiplex`
 
-On a `1366×768` monitor, upstream Polybar can let a long centered window title
-push or overlap the left and right module blocks. `optiplex` installs
-`polybar-pinned` from the [`forge`](https://github.com/athaurian/forge)
-repository, which applies a layout patch that clamps the center module width so
-workspace indicators and system tray icons never get crowded off screen.
+`optiplex` installs `polybar-pinned` from the
+[`forge`](https://github.com/athaurian/forge) repository instead of the standard
+`polybar` package. The package applies a layout patch to Polybar's renderer.
+
+Upstream Polybar starts the right module block after the center block. On
+`optiplex`'s `1366×768` display, a long centered window title therefore pushes
+the clock, DND indicator, and system tray past the right edge. The patch places
+the right block at `bar_width - right_width` instead, keeping those modules
+visible.
