@@ -4,7 +4,7 @@ import re
 import subprocess
 import unicodedata
 
-# Shares the bar width with the mpris cap, see docs/statusbar.md.
+# Shares the bar width with the mpris cap, see docs/desktop/statusbar.md.
 MAX_TEXT_LEN = 38
 
 REWRITES = (

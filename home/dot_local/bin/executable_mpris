@@ -20,7 +20,7 @@ _SPAN_PLAYING = f"<span>{ICON_PLAYING}</span>"
 _SPAN_PAUSED = f"<span>{ICON_PAUSED}</span>"
 
 WAYBAR_MAX_TEXT_LEN = 56
-# Shares the bar width with the window title, see docs/statusbar.md.
+# Shares the bar width with the window title, see docs/desktop/statusbar.md.
 POLYBAR_MAX_TEXT_LEN = 36
 
 POLL_INTERVAL = float(os.environ.get("MPRIS_POLL_INTERVAL", "1.0"))

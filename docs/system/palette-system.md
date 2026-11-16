@@ -5,7 +5,7 @@ It defines semantic tokens (backgrounds, foregrounds, borders, accents, and ANSI
 terminal slots) for both `dark` and `light` modes.
 
 <figure class="screenshot">
-  <img src="images/palette.webp" alt="A reference card showing every palette color token and hex value for dark and light modes.">
+  <img src="../images/palette.webp" alt="A reference card showing every palette color token and hex value for dark and light modes.">
   <figcaption>Every palette value in both modes.</figcaption>
 </figure>
 
@@ -21,8 +21,8 @@ terminal slots) for both `dark` and `light` modes.
 
 Running `make palette` writes:
 
-- `home/dot_config/lutgen/*.png`: Hald CLUT images used by [`sw`](wallpapers.md)
-  to recolor wallpapers to the current theme.
+- `home/dot_config/lutgen/*.png`: Hald CLUT images used by
+  [`sw`](../desktop/wallpapers.md) to recolor wallpapers to the current theme.
 - `meta/lut-palette.md`: Reference swatch table of the active LUT colors.
 
 Always edit `meta/palette.toml` and re-run `make palette` (or `make dark` /

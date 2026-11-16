@@ -29,4 +29,5 @@ the display-server layer swaps between Wayland and X11:
 | Clipboard history    | `cliphist` + `wl-paste` + `clipboard-picker` | Standard X11 selection only (no history picker) |
 
 For the difference in how focused-window screenshots (`Control+Print`) behave
-across Sway and i3, see [Screenshots, lock, and idle](screenshots-lock-idle.md).
+across Sway and i3, see
+[Screenshots, lock, and idle](desktop/screenshots-lock-idle.md).

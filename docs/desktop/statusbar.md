@@ -3,8 +3,8 @@
 `thinkpad` runs Waybar on Wayland; `optiplex` runs Polybar on X11.
 
 <figure class="screenshot">
-  <img src="images/bar-light.webp#only-light" alt="The Waybar status bar in light mode.">
-  <img src="images/bar.webp#only-dark" alt="The Waybar status bar in dark mode.">
+  <img src="../images/bar-light.webp#only-light" alt="The Waybar status bar in light mode.">
+  <img src="../images/bar.webp#only-dark" alt="The Waybar status bar in dark mode.">
 </figure>
 
 ## Module behavior and workarounds

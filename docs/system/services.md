@@ -27,7 +27,7 @@ manager config, so crashes restart cleanly and logs stay queryable in
 
 | Unit                              | Machine    | Purpose                                                                 |
 | :-------------------------------- | :--------- | :---------------------------------------------------------------------- |
-| `awww-daemon.service`             | `thinkpad` | Wallpaper daemon used by [`sw`](wallpapers.md)                          |
+| `awww-daemon.service`             | `thinkpad` | Wallpaper daemon used by [`sw`](../desktop/wallpapers.md)               |
 | `cliphist.service`                | `thinkpad` | Watches the Wayland clipboard (`wl-paste --watch cliphist store`)       |
 | `dunst.service`                   | Both       | Notification daemon                                                     |
 | `polkit-agent.service`            | Both       | Authentication agent (`wrapper_polkit.sh`)                              |

@@ -8,7 +8,7 @@ modes.
 1. Reads the current mode from `~/.local/state/palette-mode` (defaulting to
    `dark` if the file is missing) and flips it.
 2. Runs the palette apply flow from `~/.local/share/chezmoi` (see
-   [Palette system](palette-system.md) for the underlying `make dark`,
+   [Palette system](../system/palette-system.md) for the underlying `make dark`,
    `make light`, and `make palette` targets).
 3. Signals running applications to reload their colors in place:
    - **Sway / i3, Waybar / Polybar, and `dunst`**: Reload their updated

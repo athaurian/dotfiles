@@ -26,8 +26,8 @@ region.
 ## Lock screen
 
 <figure class="screenshot">
-  <img src="images/lock-light.webp#only-light" alt="The lock screen with a blurred wallpaper behind the clock.">
-  <img src="images/lock.webp#only-dark" alt="The lock screen with a blurred wallpaper behind the clock.">
+  <img src="../images/lock-light.webp#only-light" alt="The lock screen with a blurred wallpaper behind the clock.">
+  <img src="../images/lock.webp#only-dark" alt="The lock screen with a blurred wallpaper behind the clock.">
 </figure>
 
 While the screen is locked on `thinkpad`, a dedicated `swayidle-locked.service`
