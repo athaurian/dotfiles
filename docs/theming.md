@@ -1,23 +1,21 @@
-# Themes
+# Theming
 
-Press `$mod+Shift+t` to switch between dark and light without restarting the
-session. To change the palette colors, edit
-[`meta/palette.toml`](https://github.com/athaurian/dotfiles/blob/main/meta/palette.toml)
-and run `make dark` or `make light`. For more information about these targets,
-see the [Palette system](palette-system.md) page.
+Press `$mod+Shift+t` at any time to toggle the desktop between dark and light
+modes.
 
-I wrote a script named `sw` to handle recoloring based on the generated palette.
-For more information, run `sw --help` or read the
-[`executable_sw`](https://github.com/athaurian/dotfiles/blob/main/home/dot_local/bin/executable_sw)
-script.
+## How the live toggle works
 
-The file `~/.local/state/palette-mode` records the current mode. The only valid
-values are `dark` and `light`. If the file is missing or unreadable, the mode is
-`dark`. `make dark` and `make light` write this file and apply the
-configuration. `make palette MODE=light` and `make palette MODE=dark` render the
-palette data. These commands do not change the recorded mode.
-
-## Live palette updates
-
-Open Neovim windows repaint when the palette changes, so you don't have to
-restart the editor after `make dark` or `make light`.
+1. Reads the current mode from `~/.local/state/palette-mode` (defaulting to
+   `dark` if the file is missing) and flips it.
+2. Runs the palette apply flow from `~/.local/share/chezmoi` (see
+   [Palette system](palette-system.md) for the underlying `make dark`,
+   `make light`, and `make palette` targets).
+3. Signals running applications to reload their colors in place:
+   - **Sway / i3, Waybar / Polybar, and `dunst`**: Reload their updated
+     configuration files.
+   - **`kitty` and Neovim**: Repaint open terminal windows and editor buffers
+     live over their control sockets.
+   - **GTK apps and Calibre**: Updated via the post-apply hook described in
+     [Applications](applications.md#theme-synchronization-hook-run_onchange_after_gtk-mode-hookshtmpl).
+   - **Wallpaper**: Recolored to match the new palette via
+     [`sw`](wallpapers.md).

@@ -1,39 +1,32 @@
 # Machines
 
-My setup runs on two machines, named after their hostnames: `thinkpad` and
-`optiplex`. The hostname selects each machine's programs. `optiplex` gets the i3
-setup, while any other hostname gets the `thinkpad` setup, laptop or not.
+The repository's `chezmoi` source tree targets two machines. Any hostname other
+than `optiplex` resolves to the `thinkpad` profile.
 
-`thinkpad` is a ThinkPad L14 Gen 1 laptop, and it's the machine I use daily. It
-runs Sway on Wayland.
+- **`thinkpad` (ThinkPad L14 Gen 1)**: Runs Sway on Wayland.
+- **`optiplex` (Dell OptiPlex 5060)**: Has an old NVIDIA GeForce GT 630 (rev. 2)
+  tethered to the legacy proprietary driver branch, where Wayland compositors
+  are unreliable. It runs i3 on X11 with `picom` so the workflow and keybindings
+  match `thinkpad` without fighting the GPU driver.
 
-`optiplex` is an OptiPlex 5060 desktop that I only use sometimes. Its GPU is an
-[NVIDIA GeForce GT 630 (rev. 2)](https://www.techpowerup.com/gpu-specs/geforce-gt-630-rev-2.c2376).
-Wayland doesn't work reliably with this GPU, so I run i3 on X11 instead.
+## Differences between `thinkpad` and `optiplex`
 
-| Component            | thinkpad (Sway)            | optiplex (i3)            |
-| -------------------- | -------------------------- | ------------------------ |
-| Window management    | Sway (Wayland compositor)  | i3 (X11 window manager)  |
-| Compositor           | Built into Sway            | picom (separate process) |
-| Status bar           | Waybar                     | Polybar                  |
-| Application launcher | fuzzel                     | rofi                     |
-| Terminal             | kitty                      | kitty                    |
-| Screen locker        | swaylock                   | i3lock                   |
-| Idle handling        | swayidle user units        | xset timer plus xss-lock |
-| Color temperature    | wlsunset                   | redshift                 |
-| Wallpaper            | sw with the awww backend   | sw with the feh backend  |
-| Screenshots          | grim with satty            | flameshot                |
-| Notifications        | dunst                      | dunst                    |
-| Clipboard history    | cliphist and the picker    | None                     |
-| Tray applets         | Started by the Sway config | Started by `applets.sh`  |
-| Session startup      | sway-session.target        | i3-session.target        |
+Both machines share the same terminal (`kitty`), multiplexer (`zellij`), shell
+(`bash`), editor (`nvim`), notification daemon (`dunst`), file manager
+(`thunar`), browser (`helium-browser`), and document viewer (`zathura`). Only
+the display-server layer swaps between Wayland and X11:
 
-`cliphist` and the picker require Wayland, and `optiplex` has no brightness key
-bindings.
+| Role                 | `thinkpad` (Wayland)                         | `optiplex` (X11)                                |
+| :------------------- | :------------------------------------------- | :---------------------------------------------- |
+| Window manager       | Sway                                         | i3 + `picom`                                    |
+| Status bar           | Waybar                                       | Polybar (`polybar-pinned` for 1366px displays)  |
+| App launcher & menus | `fuzzel`                                     | `rofi`                                          |
+| Wallpaper daemon     | `awww`                                       | `feh`                                           |
+| Screen lock          | `swaylock`                                   | `i3lock`                                        |
+| Idle manager         | `swayidle`                                   | `xss-lock` + X11 DPMS                           |
+| Night light          | `wlsunset`                                   | None                                            |
+| Screenshots          | `grim` + `slurp`                             | `flameshot`                                     |
+| Clipboard history    | `cliphist` + `wl-paste` + `clipboard-picker` | Standard X11 selection only (no history picker) |
 
-`Control+Print` captures the focused window on both machines, but by different
-methods. `thinkpad` computes the window rectangle itself, captures it with
-`grim`, and copies it to the clipboard before `satty` opens. `optiplex` computes
-the same rectangle with `xdotool` and opens `flameshot` with a crop region for
-that window, so `flameshot` updates the clipboard only after you confirm the
-crop.
+For the difference in how focused-window screenshots (`Control+Print`) behave
+across Sway and i3, see [Screenshots, lock, and idle](screenshots-lock-idle.md).

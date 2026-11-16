@@ -1,23 +1,35 @@
 # Status bar
 
-I run Waybar on `thinkpad` and Polybar on `optiplex`.
+`thinkpad` runs Waybar on Wayland; `optiplex` runs Polybar on X11.
 
 <figure class="screenshot">
   <img src="images/bar-light.webp#only-light" alt="The Waybar status bar in light mode.">
   <img src="images/bar.webp#only-dark" alt="The Waybar status bar in dark mode.">
 </figure>
 
-Press `$mod+Shift+c` to restart the bar on both machines. I keep Waybar's files
-under
-[`home/dot_config/waybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/waybar/),
-and Polybar's under
-[`home/dot_config/polybar/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/polybar/).
+## Module behavior and workarounds
 
-Polybar requires a CJK font family for non-Latin text. Without one, non-Latin
-text in module output (song titles, window titles) is silently dropped.
+- **Media playback (`mpris` / `playerctl`)**: Combines `playerctl --follow` with
+  a 1-second fallback poll. Relying on `--follow` alone leaves stale track
+  titles on the bar when a browser tab or media player closes abruptly without
+  emitting a final D-Bus `Stopped` signal.
+- **Package updates (`checkupdates` + `paru -Qum`)**: Queries official Arch
+  repos and the AUR on a slow interval after startup, switching to a shorter
+  retry interval whenever the check runs before network connectivity is up.
+- **Do Not Disturb (`dunst-dnd.sh`)**: Toggles `dunst` between pause level `0`
+  (all notifications shown) and pause level `50` (normal notifications silenced,
+  while critical rules configured at pause level `90` in
+  [Applications](applications.md#notifications-and-do-not-disturb-dunst) still
+  break through).
+- **CJK glyph rendering (Polybar)**: Polybar adds **Noto Sans CJK JP** as
+  `font-4` so Japanese and Chinese media titles and window titles render without
+  missing glyphs. Waybar's font chain contains only `Geist Mono` and
+  `GeistMono Nerd Font Mono`.
 
-On `optiplex`, Polybar is installed from `polybar-pinned` in `forge`. That build
-pins the modules on the right side of the bar to the bar edge, so a long window
-title is drawn underneath the clock and systray instead of pushing them past the
-1366px bar. The window-title and MPRIS caps are sized from the remaining columns
-instead of being chosen by eye.
+## Why `optiplex` uses `polybar-pinned`
+
+On a `1366×768` monitor, upstream Polybar can let a long centered window title
+push or overlap the left and right module blocks. `optiplex` installs
+`polybar-pinned` from the [`forge`](https://github.com/athaurian/forge)
+repository, which applies a layout patch that clamps the center module width so
+workspace indicators and system tray icons never get crowded off screen.

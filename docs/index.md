@@ -4,47 +4,26 @@ template: home.html
 
 # dotfiles
 
-<div class="image-pair">
-  <figure>
-    <img src="images/hero.webp" alt="Neovim editing a Python test file, with its test output in a terminal split.">
-  </figure>
-  <figure>
-    <img src="images/hero-empty.webp" alt="The desktop with no windows open.">
-  </figure>
-</div>
-
-Hi. This is the documentation I wrote for my dotfiles repository. If you'd
-rather read the source code, it's on
-[GitHub](https://github.com/athaurian/dotfiles).
-
-The repository contains my setup for two machines with different hardware.
-
-My `thinkpad` laptop runs Sway on Wayland, and my `optiplex` desktop runs i3 on
-X11. Both machines share most keybindings and the full color palette. See
-[Machines](machines.md) for the few bindings that only one machine has.
-
-I made both light and dark modes because dark mode is difficult to read
-outdoors. I still like using it indoors, though.
-
-As a final note, I made this repository to record how I set up everything for
-day-to-day use, so I can look back at it if I ever need to. I figured there's no
-reason not to share it, in case someone else finds it useful.
-
-Start with [Installation](installation.md).
+This is the documentation index. If you want an overview instead, see
+[the project's README.md](https://github.com/athaurian/dotfiles/blob/main/README.md)
 
 ## Guides
 
-Each guide covers one part of the setup:
-
-| Guide                                                   | Covers                                                      |
-| ------------------------------------------------------- | ----------------------------------------------------------- |
-| [Installation](installation.md)                         | Requirements and the first apply                            |
-| [Machines](machines.md)                                 | Components on `thinkpad` and `optiplex`                     |
-| [Keybindings](keybindings.md)                           | Window management bindings shared by both machines          |
-| [Palette system](palette-system.md)                     | Where the desktop colors come from                          |
-| [Pickers](pickers.md)                                   | Application launcher, power bindings, and clipboard history |
-| [Screenshots, lock, and idle](screenshots-lock-idle.md) | Capture, lock, and idle shortcuts                           |
-| [Background services](services.md)                      | Units that start with each session                          |
-| [Status bar](statusbar.md)                              | Waybar on `thinkpad` and Polybar on `optiplex`              |
-| [Neovim](neovim.md)                                     | LazyVim setup, plugins, and Discord presence                |
-| [Themes](theming.md)                                    | Dark mode, light mode, and the wallpapers                   |
+| Guide                                                   | Coverage                                                                            |
+| :------------------------------------------------------ | :---------------------------------------------------------------------------------- |
+| [Installation](installation.md)                         | System requirements, the `forge` repository, and bootstrapping with `chezmoi`       |
+| [Machines](machines.md)                                 | Why `thinkpad` uses Wayland/Sway while `optiplex` stays on X11/i3                   |
+| [Keybindings](keybindings.md)                           | Shared shortcuts across Sway and i3, plus laptop-only bindings                      |
+| [Shell](shell.md)                                       | Environment defaults, Vi readline mode, cache paths, and non-obvious aliases        |
+| [Applications](applications.md)                         | Theme hooks, DND bypass rules, Fontconfig priorities, and app workarounds           |
+| [Desktop entries](desktop-entries.md)                   | Local `.desktop` overrides for TUI tools, Qt6 theming, and Java tiling fixes        |
+| [Palette system](palette-system.md)                     | How `meta/palette.toml` generates app configs and wallpaper LUTs                    |
+| [Theming](theming.md)                                   | Live mode switching (`$mod+Shift+t`) and state persistence                          |
+| [Wallpapers](wallpapers.md)                             | The `sw` rotator, Hald CLUT recoloring, and cache layout                            |
+| [Pickers](pickers.md)                                   | Application launcher, power confirmation menus, and clipboard history               |
+| [Screenshots, lock, and idle](screenshots-lock-idle.md) | Capture shortcuts, lock screens, and idle inhibition                                |
+| [Status bar](statusbar.md)                              | Waybar and Polybar modules, polling fallbacks, and the 1366px width patch           |
+| [Services](services.md)                                 | `systemd` user units, non-blocking session startup, and idle timers                 |
+| [Calibre sync](calibre-sync.md)                         | One-way staging and `rclone` sync from `~/Library` to Google Drive                  |
+| [Tools](tools.md)                                       | Helper scripts in `~/.local/bin`, including `prettier-math` and `wlsunset-location` |
+| [Neovim](neovim.md)                                     | LazyVim, Catppuccin palette overrides, and Discord presence                         |

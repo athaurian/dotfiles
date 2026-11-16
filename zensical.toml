@@ -19,13 +19,19 @@ nav = [
   { "Installation" = "installation.md" },
   { "Machines" = "machines.md" },
   { "Keybindings" = "keybindings.md" },
+  { "Shell" = "shell.md" },
+  { "Applications" = "applications.md" },
+  { "Desktop entries" = "desktop-entries.md" },
   { "Palette system" = "palette-system.md" },
   { "Pickers" = "pickers.md" },
   { "Screenshots, lock, and idle" = "screenshots-lock-idle.md" },
   { "Background services" = "services.md" },
+  { "Calibre sync" = "calibre-sync.md" },
+  { "Utility scripts" = "tools.md" },
   { "Status bar" = "statusbar.md" },
   { "Neovim" = "neovim.md" },
   { "Themes" = "theming.md" },
+  { "Wallpapers" = "wallpapers.md" },
 ]
 
 [project.theme]

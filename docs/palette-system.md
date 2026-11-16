@@ -1,44 +1,45 @@
 # Palette system
 
-Every color in my setup comes from
-[`meta/palette.toml`](https://github.com/athaurian/dotfiles/blob/main/meta/palette.toml).
-Change a value there, and it changes across the whole desktop at once.
-
-Most colors carry two values, one for dark mode and one for light mode. The two
-utility colors have one value each. The tints derive from another color instead
-of being written by hand.
+Almost all desktop colors derive from a single source file: `meta/palette.toml`.
+It defines semantic tokens (backgrounds, foregrounds, borders, accents, and ANSI
+terminal slots) for both `dark` and `light` modes.
 
 <figure class="screenshot">
   <img src="images/palette.webp" alt="A reference card showing every palette color token and hex value for dark and light modes.">
   <figcaption>Every palette value in both modes.</figcaption>
 </figure>
 
-The preceding card is a live capture rather than a rendered diagram. Rebuild it
-with `make shots` after changing the palette, because nothing else regenerates
-it.
+## Generating and applying palettes
 
-I use the [`Makefile`](https://github.com/athaurian/dotfiles/blob/main/Makefile)
-targets to regenerate and apply the palette:
+| Command                               | Action                                                                                                                                                                                                                  |
+| :------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `make dark` / `make light`            | Generates palette artifacts for the chosen mode, updates `~/.local/state/palette-mode`, runs `chezmoi apply`, reloads live apps (`kitty`, `nvim`, Waybar/Polybar, `dunst`), and recolors the active wallpaper via `sw`. |
+| `make palette MODE=dark` (or `light`) | Regenerates the templated palette files and Hald CLUT lookup tables inside the repository **without** applying them to the live session or switching `~/.local/state/palette-mode`.                                     |
+| `make shots`                          | Automates switching modes and capturing fresh documentation screenshots.                                                                                                                                                |
 
-- The `palette` target regenerates the derived palette data without applying
-  anything, so follow it with `chezmoi apply`.
-- The `dark` and `light` targets regenerate the same data and apply the
-  configuration in the chosen mode.
+### Generated files (do not edit by hand)
 
-Don't edit the generated files by hand. Regeneration replaces the palette data
-that every template reads. The look-up table (LUT) palettes under
-[`home/dot_config/lutgen/`](https://github.com/athaurian/dotfiles/tree/main/home/dot_config/lutgen/)
-get replaced too. The data file is listed in `.gitignore`, so you'll only find
-it after running the generator.
-[`meta/lut-palette.md`](https://github.com/athaurian/dotfiles/blob/main/meta/lut-palette.md)
-describes how the tables are built.
+Running `make palette` writes:
 
-## Colors outside the palette
+- `home/dot_config/lutgen/*.png`: Hald CLUT images used by [`sw`](wallpapers.md)
+  to recolor wallpapers to the current theme.
+- `meta/lut-palette.md`: Reference swatch table of the active LUT colors.
 
-A few colors are intentionally defined outside the palette: the shell prompt's
-ANSI colors, the black fill behind the blurred lock screen, and the palette
-card's panel background.
+Always edit `meta/palette.toml` and re-run `make palette` (or `make dark` /
+`make light`) rather than modifying those files directly.
 
-The documentation site has its own theme too, which uses a warm-paper light
-scheme in
-[`docs/stylesheets/extra.css`](https://github.com/athaurian/dotfiles/blob/main/docs/stylesheets/extra.css).
+## Intentional exceptions outside `meta/palette.toml`
+
+Four places use fixed colors rather than changing with the palette:
+
+1. **Shell prompt (`PS1`)**: Uses standard terminal ANSI color slots (`1–7`),
+   which automatically adapt when `kitty` reloads its terminal palette.
+2. **Lock screen fallback fill**: Uses pure black (`#000000`) behind the lock
+   image so monitors with different aspect ratios do not glow around the edges
+   in a dark room.
+3. **Palette preview card background**: Uses a fixed neutral backdrop so dark
+   and light swatches can be compared side by side without optical contrast
+   shifts.
+4. **Documentation site theme**: Managed separately through
+   [`docs-theme`](https://github.com/athaurian/docs-theme) so the web docs
+   remain readable independent of desktop tweaks.

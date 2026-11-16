@@ -1,8 +1,0 @@
-# Everything below is restored by fetch-refs.sh and must stay untracked;
-# only the curated session artifacts are committed.
-*
-!.gitignore
-!polybar-migration-findings.md
-!fetch-refs.sh
-!zellij-themes/
-!zellij-themes/**

@@ -1,21 +1,27 @@
 # Screenshots, lock, and idle
 
-These are the shortcuts I use for screenshots, the screen locker, and the idle
-timer. As you'd expect, the keys are the same on both machines. Only the
-programs behind them differ.
+Every screenshot is saved to `~/Pictures/Screenshots/` with a timestamped
+filename and copied to the clipboard at the same time.
 
-| Shortcut        | Action                      | thinkpad                                                                                                                                                            | optiplex                                                                                                                                                                |
-| --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Print`         | Full screen to clipboard    | `grim`                                                                                                                                                              | `flameshot`                                                                                                                                                             |
-| `Shift+Print`   | Region to clipboard         | `grim`, annotate with `satty`                                                                                                                                       | `flameshot`                                                                                                                                                             |
-| `Control+Print` | Focused window to clipboard | `grim`                                                                                                                                                              | `flameshot`                                                                                                                                                             |
-| `$mod+Shift+x`  | Lock the screen             | `swaylock` via [`home/dot_config/sway/scripts/executable_lock.sh`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/sway/scripts/executable_lock.sh) | `i3lock` via [`home/dot_config/i3/scripts/executable_lock.sh.tmpl`](https://github.com/athaurian/dotfiles/blob/main/home/dot_config/i3/scripts/executable_lock.sh.tmpl) |
-| `$mod+Shift+i`  | Toggle the idle timer       | `swayidle` user units                                                                                                                                               | `xset s 20 10` with `xss-lock`, never suspends on idle                                                                                                                  |
+## Shortcuts
 
-`Control+Print` copies the focused window on `thinkpad` directly. On `optiplex`
-the same key opens `flameshot` with a crop region for that window, so
-`flameshot` updates the clipboard only after you confirm the crop. See
-[Machines](machines.md) for the details.
+| Shortcut        | Action                  | `thinkpad` (Wayland)                                            | `optiplex` (X11)                                     |
+| :-------------- | :---------------------- | :-------------------------------------------------------------- | :--------------------------------------------------- |
+| `Print`         | Full screen             | `grim` (+ optional `satty` editor) + `wl-copy`                  | `flameshot full -c`                                  |
+| `Shift+Print`   | Rectangular region      | `slurp` + `grim`                                                | `flameshot gui -c`                                   |
+| `Control+Print` | Single window           | Focused window's dimensions from `swaymsg -t get_tree` + `grim` | `xdotool getactivewindow` + `flameshot gui --region` |
+| `$mod+Shift+x`  | Lock screen immediately | `swaylock`                                                      | `i3lock`                                             |
+| `$mod+Shift+i`  | Toggle idle inhibitor   | Pauses/resumes `swayidle` timeouts                              | Toggles X11 screensaver and DPMS timeouts            |
+
+### Why `Control+Print` behaves differently on each machine
+
+On `thinkpad`, `Control+Print` queries Sway's window tree for the focused
+window's dimensions and captures that rectangle with `grim`. No click prompt
+appears.
+
+On `optiplex`, the script reads the active X11 window ID with
+`xdotool getactivewindow`, derives its geometry, and opens Flameshot on that
+region.
 
 ## Lock screen
 
@@ -24,9 +30,12 @@ the same key opens `flameshot` with a crop region for that window, so
   <img src="images/lock.webp#only-dark" alt="The lock screen with a blurred wallpaper behind the clock.">
 </figure>
 
-## Captures
+While the screen is locked on `thinkpad`, a dedicated `swayidle-locked.service`
+shortens the display-off timeout so waking the screen to check a notification
+turns the backlight back off quickly if you do not unlock.
 
-The screenshots on this page come from a live session. See
-[`meta/shots.md`](https://github.com/athaurian/dotfiles/blob/main/meta/shots.md)
-for the capture scripts. Run `make shots` from the repository root to rebuild
-every automatic capture.
+## Regenerating documentation screenshots
+
+From `~/.local/share/chezmoi`, run `make shots` to cycle through dark and light
+modes and capture fresh desktop, picker, and lock-screen images into
+`docs/images/`.

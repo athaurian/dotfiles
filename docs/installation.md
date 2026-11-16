@@ -1,47 +1,49 @@
 # Installation
 
-My setup needs a few packages that the official Arch and CachyOS repositories
-don't carry. Add my `forge` repository first, then apply the configuration with
-`chezmoi`.
+## Prerequisites
 
-## Requirements
+- **Arch Linux or CachyOS** on an **`x86-64-v3`** CPU (Haswell / Zen 1 or
+  newer). Packages in my custom repository are compiled with `-march=x86-64-v3`
+  and will crash with `SIGILL` on older processors.
+- **Hostname**: `chezmoi` templates select the X11/i3 desktop profile only when
+  the system hostname is literally `optiplex`. Any other hostname receives the
+  Wayland/Sway `thinkpad` profile.
 
-- Arch Linux with `bash` and systemd user services, CachyOS preferred
-- A CPU that supports `x86-64-v3`, because `forge` builds packages for that
-  microarchitecture level, which older generic `x86_64` CPUs do not support
-- A hostname that selects the setup, covered in [Machines](machines.md). The
-  files each setup skips are listed in
-  [`.chezmoiignore`](https://github.com/athaurian/dotfiles/blob/main/home/.chezmoiignore),
-  and the packages are listed in
-  [`data/packages.json`](https://github.com/athaurian/dotfiles/blob/main/data/packages.json).
+## 1. Add the `forge` package repository
 
-## Add the repository
+Several desktop components (`calpdf-git`, `polybar-pinned`,
+`session-manager-git`, and `clipboard-picker-git`) come from my signed
+[`forge`](https://github.com/athaurian/forge) repository.
 
-I maintain `forge`, a package repository like `core` or `extra`. Some PKGBUILDs
-carry local patches, and some packages aren't in the official repositories.
+Import and locally sign the repository key:
 
-Add the repository and trust its signing key:
-
-```sh
-curl -fsSL https://athaurian.github.io/forge/signing_key.asc -o /tmp/forge-signing-key.asc
-sudo pacman-key --add /tmp/forge-signing-key.asc
+```bash
+curl -fsSL https://athaurian.github.io/forge/signing_key.asc | sudo pacman-key --add -
 sudo pacman-key --lsign-key 6E299CB692113F71A3ABC006EAC1C444324DD6C6
-echo -e '\n[forge]\nSigLevel = Required DatabaseOptional\nServer = https://athaurian.github.io/forge' | sudo tee -a /etc/pacman.conf
+```
+
+Append the repository to `/etc/pacman.conf`:
+
+```ini
+[forge]
+SigLevel = Required DatabaseOptional
+Server = https://athaurian.github.io/forge/$arch
+```
+
+Synchronize and upgrade your system packages:
+
+```bash
 sudo pacman -Syu
 ```
 
-## Apply the configuration
+## 2. Bootstrap the dotfiles
 
-Once `forge` is ready, apply the configuration:
+Running `make dark` (or `make light`) inside the `chezmoi` checkout generates
+the theme files from `meta/palette.toml`, installs required packages, and
+applies the configuration to `$HOME`:
 
-```sh
+```bash
 chezmoi init https://github.com/athaurian/dotfiles
 cd ~/.local/share/chezmoi
 make dark
 ```
-
-The target generates the palette data and applies the configuration for the
-first time. It also installs any missing packages. The
-[clipboard picker](https://github.com/athaurian/clipboard-picker) installs with
-`uv` from its own repository into `~/.local/bin`. For what the `dark` and
-`light` targets do, see [Palette system](palette-system.md).

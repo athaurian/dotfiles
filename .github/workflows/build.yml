@@ -39,9 +39,6 @@ jobs:
       - name: Lint the docs
         run: make lint
 
-      - name: Probe the pinned refs
-        run: make check-refs
-
       - name: Build the site
         run: make site
 

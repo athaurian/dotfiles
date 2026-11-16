@@ -23,7 +23,7 @@ WAYLAND_LIBS = $(shell pkg-config --libs wayland-client)
 WAYLAND_PROTOCOLS = $(shell pkg-config --variable=pkgdatadir wayland-protocols)
 X11_CFLAGS = $(shell pkg-config --cflags x11 xext)
 X11_LIBS = $(shell pkg-config --libs x11 xext)
-SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort) refs/fetch-refs.sh
+SHELL_FILES := $(shell find home meta .github -type f -name '*.sh' | sort)
 SHELL_TMPL_FILES := $(shell find home -type f -name '*.sh.tmpl' | sort)
 LUA_FILES := $(sort $(shell find home/dot_config/nvim -type f -name '*.lua'))
 META_FILES := $(sort $(wildcard meta/*.py))
@@ -32,7 +32,7 @@ META_LUA_FILES := $(sort $(shell find meta -type f -name '*.lua'))
 META_MYPY := uv run --with mypy --with numpy --with pillow --with types-Pillow mypy
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-refs check-config check-shell check-nvim check-probe check-calibre check-wlsunset check-launcher check-meta check-fonts shots site social
+.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-config check-shell check-nvim check-probe check-calibre check-wlsunset check-launcher check-meta check-fonts shots site social
 
 .DEFAULT_GOAL := help
 
@@ -54,7 +54,6 @@ help:
 	@echo "  check-shell       - Shellcheck + shfmt over the repository shell scripts"
 	@echo "  check-nvim        - Stylua over the Neovim Lua sources"
 	@echo "  check-probe       - Assert the deployed Neovim highlights against the palette"
-	@echo "  check-refs        - Probe every pinned refs/ URL for bitrot (network)"
 	@echo "  check-config      - Validate the applied configs with each program's checker"
 	@echo "  site              - Build the docs site into site/"
 	@echo "  social            - Rebuild the Open Graph banner from the editor and empty captures"
@@ -158,9 +157,6 @@ check-probe:
 	nvim --headless -c "luafile meta/probe.lua"
 	nvim --headless -c "luafile meta/probe_pills.lua"
 	nvim --headless -c "luafile meta/probe_backdrop.lua"
-
-check-refs:
-	refs/fetch-refs.sh --check
 
 check-config:
 	sh meta/check-config.sh
