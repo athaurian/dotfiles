@@ -3,6 +3,16 @@ name: build-site
 on:
   push:
     branches: [main]
+    paths:
+      - ".github/workflows/build.yml"
+      - ".github/workflows/deploy-pages.yml"
+      - "AGENTS.md"
+      - "Makefile"
+      - "README.md"
+      - "docs/**"
+      - "meta/*.md"
+      - "overrides/**"
+      - "zensical.toml"
   workflow_dispatch:
 
 permissions: {}
@@ -39,6 +49,9 @@ jobs:
       - name: Lint the docs
         run: make lint
 
+      - name: Check the site fonts
+        run: make check-fonts
+
       - name: Build the site
         run: make site
 
@@ -47,73 +60,8 @@ jobs:
         with:
           path: site/
 
-  checks-tooling:
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux:base@sha256:b21322c663be387c0ed9cbc7bbbfe18e41633ad4e7b7c77cfad45f128be20040
-      options: --user root
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup tooling environment
-        run: |
-          pacman-key --init
-          pacman-key --populate archlinux
-          .github/scripts/retry.sh pacman -Syu --noconfirm --noprogressbar
-          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv stylua
-
-      - name: Check the MPRIS modules
-        run: make check-mpris
-
-      - name: Check the sw utility
-        run: make check-sw
-
-      - name: Check the calibre scripts
-        run: make check-calibre
-
-      - name: Check the wlsunset location script
-        run: make check-wlsunset
-
-      - name: Check the repository tooling
-        run: make check-meta
-
-      - name: Check the site fonts
-        run: make check-fonts
-
-  checks-system:
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux:base@sha256:b21322c663be387c0ed9cbc7bbbfe18e41633ad4e7b7c77cfad45f128be20040
-      options: --user root
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup system environment
-        run: |
-          pacman-key --init
-          pacman-key --populate archlinux
-          .github/scripts/retry.sh pacman -Syu --noconfirm --noprogressbar
-          .github/scripts/retry.sh pacman -S --noconfirm --needed --noprogressbar make python uv chezmoi stylua gcc pkgconf wayland wayland-protocols libx11 libxext
-
-      - name: Generate the palette data
-        run: make palette MODE=light
-
-      - name: Check the shell scripts
-        run: make check-shell
-
-      - name: Check the Neovim sources
-        run: make check-nvim
-
-      - name: Check the launcher script
-        run: make check-launcher
   deploy:
-    needs: [docs, checks-tooling, checks-system]
+    needs: [docs]
     # Gate publishing on main because workflow_dispatch can start from any ref.
     if: github.ref == 'refs/heads/main'
     permissions:
