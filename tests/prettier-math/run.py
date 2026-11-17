@@ -11,6 +11,8 @@ The suite has two layers:
 Run after changing the wrapper, the config, or the pinned Prettier version:
 
     python3 tests/prettier-math/run.py
+
+The suite exercises the repository copies of the wrapper and the config.
 """
 
 from __future__ import annotations
@@ -25,8 +27,9 @@ from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-WRAPPER = Path.home() / ".local/bin/prettier-math"
-CONFIG = Path.home() / ".config/prettier/config.json"
+REPO = ROOT.parents[1]
+WRAPPER = REPO / "home/dot_local/bin/executable_prettier-math"
+CONFIG = REPO / "home/dot_config/prettier/config.json"
 
 MATH = re.compile(
     r"(?<!\\)\$\$(?:(?!\$\$).)*?(?<!\\)\$\$"
@@ -170,7 +173,14 @@ def unit_checks(module) -> list[str]:
 
 def format_copy(wrapper: Path, destination: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [str(wrapper), "--write", "--config", str(CONFIG), str(destination)],
+        [
+            sys.executable,
+            str(wrapper),
+            "--write",
+            "--config",
+            str(CONFIG),
+            str(destination),
+        ],
         check=False,
         capture_output=True,
         text=True,
