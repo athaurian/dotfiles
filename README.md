@@ -40,7 +40,7 @@ make dark   # or: make light
 ## Documentation
 
 For the full set of guides, see the
-[documentation index](https://athaurian.github.io/dotfiles)
+[documentation index](https://athaurian.github.io/dotfiles).
 
 ## License
 
