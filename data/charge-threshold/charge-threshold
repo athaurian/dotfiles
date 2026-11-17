@@ -1,0 +1,54 @@
+#!/bin/sh
+set -eu
+
+start=75
+end=80
+
+for supply in /sys/class/power_supply/*; do
+	[ -r "$supply/type" ] || continue
+	[ "$(cat "$supply/type")" = Battery ] || continue
+	[ -r "$supply/charge_control_end_threshold" ] || continue
+	[ -w "$supply/charge_control_end_threshold" ] || continue
+
+	current_end=$(cat "$supply/charge_control_end_threshold")
+	case $current_end in
+	'' | *[!0-9]*) continue ;;
+	esac
+
+	has_start=0
+	if [ -r "$supply/charge_control_start_threshold" ] &&
+		[ -w "$supply/charge_control_start_threshold" ]; then
+		current_start=$(cat "$supply/charge_control_start_threshold")
+		case $current_start in
+		'' | *[!0-9]*) ;;
+		*) has_start=1 ;;
+		esac
+	fi
+
+	if [ "$has_start" = 0 ]; then
+		[ "$current_end" = "$end" ] && continue
+	else
+		[ "$current_end" = "$end" ] && [ "$current_start" = "$start" ] && continue
+	fi
+
+	# Raise a low ceiling first so start never exceeds end.
+	if [ "$current_end" -lt "$end" ]; then
+		printf '%s\n' "$end" >"$supply/charge_control_end_threshold"
+	fi
+	if [ "$has_start" = 1 ]; then
+		printf '%s\n' "$start" >"$supply/charge_control_start_threshold"
+	fi
+	if [ "$current_end" != "$end" ]; then
+		printf '%s\n' "$end" >"$supply/charge_control_end_threshold"
+	fi
+
+	if [ "$has_start" = 0 ]; then
+		printf 'charge-threshold: %s end %s -> %s\n' "$supply" "$current_end" \
+			"$(cat "$supply/charge_control_end_threshold")"
+	else
+		printf 'charge-threshold: %s start/end %s/%s -> %s/%s\n' "$supply" \
+			"$current_start" "$current_end" \
+			"$(cat "$supply/charge_control_start_threshold")" \
+			"$(cat "$supply/charge_control_end_threshold")"
+	fi
+done

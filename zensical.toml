@@ -32,6 +32,7 @@ nav = [
   { "System" = [
       { "Palette system" = "system/palette-system.md" },
       { "Background services" = "system/services.md" },
+      { "Battery charge limit" = "system/power.md" },
       { "Calibre sync" = "system/calibre-sync.md" },
       { "Utility scripts" = "system/tools.md" },
     ] },

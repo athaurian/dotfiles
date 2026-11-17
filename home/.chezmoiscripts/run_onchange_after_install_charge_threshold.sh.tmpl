@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+set -eu
+
+# 99-charge-threshold.rules: {{ include "../data/charge-threshold/99-charge-threshold.rules" | sha256sum }}
+# charge-threshold: {{ include "../data/charge-threshold/charge-threshold" | sha256sum }}
+# charge-threshold.service: {{ include "../data/charge-threshold/charge-threshold.service" | sha256sum }}
+
+if systemd-detect-virt --quiet; then
+	echo "charge_threshold: virtualized host, skipping"
+	exit 0
+fi
+
+if command -v tlp >/dev/null 2>&1; then
+	echo "charge_threshold: TLP manages the charge thresholds, skipping"
+	exit 0
+fi
+
+found=0
+for supply in /sys/class/power_supply/*; do
+	[ -r "$supply/type" ] || continue
+	[ "$(cat "$supply/type")" = Battery ] || continue
+	[ -r "$supply/charge_control_end_threshold" ] || continue
+	found=1
+	break
+done
+if [ "$found" = 0 ]; then
+	echo "charge_threshold: no battery with a charge limit, skipping"
+	exit 0
+fi
+
+SRC="$HOME/.local/share/chezmoi/data/charge-threshold"
+
+sudo install -Dm755 "$SRC/charge-threshold" /usr/local/lib/charge-threshold
+sudo install -Dm644 "$SRC/99-charge-threshold.rules" /etc/udev/rules.d/99-charge-threshold.rules
+sudo install -Dm644 "$SRC/charge-threshold.service" /etc/systemd/system/charge-threshold.service
+
+# Remove the earlier ThinkPad-named installation.
+if [ -e /etc/systemd/system/thinkpad-charge-threshold.service ]; then
+	sudo systemctl disable --now thinkpad-charge-threshold.service
+	sudo rm -f /etc/systemd/system/thinkpad-charge-threshold.service \
+		/etc/udev/rules.d/99-thinkpad-charge-threshold.rules \
+		/usr/local/lib/thinkpad-charge-threshold
+fi
+
+sudo udevadm control --reload
+sudo systemctl daemon-reload
+sudo systemctl enable --now charge-threshold.service

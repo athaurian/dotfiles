@@ -1,0 +1,10 @@
+[Unit]
+Description=Apply the battery charge limit
+ConditionPathExistsGlob=/sys/class/power_supply/*/charge_control_end_threshold
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/charge-threshold
+
+[Install]
+WantedBy=multi-user.target
