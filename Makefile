@@ -1,4 +1,4 @@
-PRETTIER := npx --yes prettier@3.9.9
+PRETTIER := npx --yes prettier@3.9.10
 RUFF := uv run --with ruff ruff
 MYPY := uv run --with mypy mypy
 SHELLCHECK := uv run --with shellcheck-py shellcheck
