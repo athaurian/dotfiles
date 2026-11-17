@@ -57,6 +57,7 @@ run_lock() {
 	i3lock --nofork \
 		--image "$lockimg" \
 		--fill \
+		--vignette 0.4:0.4 \
 		--indicator \
 		--radius 84 \
 		--ring-width 3 \
@@ -67,10 +68,16 @@ run_lock() {
 		--date-font "{{ .fonts.code }}" \
 		--verif-font "{{ .fonts.code }}" \
 		--wrong-font "{{ .fonts.code }}" \
-		--time-size 18 \
+		--time-size 17 \
 		--date-size 14 \
+		--time-pos "ix:iy-r/10" \
+		--date-pos "ix:iy+r/3.5" \
 		--verif-size 14 \
 		--wrong-size 14 \
+		--keylayout 3 \
+		--layout-color={{ $p.text.bare }}FF \
+		--layout-size 14 \
+		--layout-pos "ix:iy+r+24" \
 		--ignore-empty-password \
 		--show-failed-attempts \
 		--pass-media-keys \
@@ -88,7 +95,8 @@ run_lock() {
 		--verif-color={{ $p.text.bare }}FF \
 		--wrong-color={{ $p.red.bare }}FF \
 		--time-color={{ $p.text.bare }}FF \
-		--date-color={{ $p.text.bare }}FF
+		--date-color={{ $p.text.bare }}FF \
+		--capslock-color={{ $p.yellow_bright.bare }}FF
 }
 
 if [ -n "${XSS_SLEEP_LOCK_FD:-}" ] && [ -e "/dev/fd/$XSS_SLEEP_LOCK_FD" ]; then

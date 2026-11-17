@@ -75,7 +75,7 @@
       "xdotool",
       "xss-lock",
       "xorg-xset",
-      "i3lock-color",
+      "i3lock-color-patched",
       "polybar-pinned"
     ],
     "thinkpad": [

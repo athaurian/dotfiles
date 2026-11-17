@@ -27,7 +27,7 @@ Append the repository to `/etc/pacman.conf`:
 ```ini
 [forge]
 SigLevel = Required DatabaseOptional
-Server = https://athaurian.github.io/forge/$arch
+Server = https://athaurian.github.io/forge
 ```
 
 Synchronize and upgrade your system packages:
