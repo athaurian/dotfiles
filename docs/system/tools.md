@@ -8,11 +8,10 @@ Prettier `3.9.9` sometimes misparses `*` and `_` inside LaTeX math spans
 (`$...$` and `$$...$$`) as Markdown emphasis, corrupting equations and breaking
 table column widths when wrapping prose.
 
-- **`prettier-math`**: Replaces inline and display math spans with fixed-width
-  Unicode Private Use Area token strings of the exact same character length
-  before invoking Prettier, then restores the original LaTeX math afterward.
-  Preserving the exact character width keeps Markdown tables and line-length
-  wrapping aligned.
+- **`prettier-math`**: Replaces inline and display math spans with Unicode
+  Private Use Area token strings before invoking Prettier, then restores the
+  original LaTeX math afterward. Single-line spans become tokens of the same
+  character length, so table columns stay aligned.
 - **`format-docs`**: Runs `prettier-math` across the workspace documentation and
   configuration files under `$HOME` selected by the script.
 - **`format-vault`**: Runs `prettier-math` across the Obsidian vault at
