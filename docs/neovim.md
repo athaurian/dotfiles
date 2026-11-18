@@ -26,8 +26,9 @@ behavior.
 
 Neovim uses `catppuccin` with its color slots overridden from
 `meta/palette.toml`. When you press `$mod+Shift+t` or run `make dark` /
-`make light`, the theme script signals every running Neovim server socket to
-reload the updated palette in place without restarting the editor.
+`make light`, chezmoi rewrites `~/.config/nvim/lua/plugins/colorscheme.lua`. The
+watcher in `lua/config/palette.lua` reloads the colorscheme in every running
+Neovim instance without a restart.
 
 ## Discord Rich Presence (`cord.nvim`)
 

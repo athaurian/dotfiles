@@ -14,6 +14,6 @@ manager quirks, and terminal launching from `fuzzel` / `rofi`.
 
 ## Default applications (`mimeapps.list`)
 
-`home/dot_config/mimeapps.list` routes web links to `helium-browser`,
-directories to `thunar`, PDFs and EPUBs to `zathura`, images to `imv`, and plain
-text / source files to `nvim`.
+`home/dot_local/share/applications/mimeapps.list` routes web links to
+`helium-browser`, directories to `thunar`, PDFs and EPUBs to `zathura`, images
+to `imv`, and plain text / source files to `nvim`.

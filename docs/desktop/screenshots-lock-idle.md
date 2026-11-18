@@ -37,5 +37,5 @@ turns the backlight back off quickly if you do not unlock.
 ## Regenerating documentation screenshots
 
 From `~/.local/share/chezmoi`, run `make shots` to cycle through dark and light
-modes and capture fresh desktop, picker, and lock-screen images into
-`docs/images/`.
+modes and capture fresh desktop, picker, and editor images into `docs/images/`.
+The lock-screen and Discord captures need manual work; see `meta/shots.md`.

@@ -6,7 +6,6 @@ on:
     paths:
       - ".github/workflows/build.yml"
       - ".github/workflows/deploy-pages.yml"
-      - "AGENTS.md"
       - "Makefile"
       - "README.md"
       - "docs/**"

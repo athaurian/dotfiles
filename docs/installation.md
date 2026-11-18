@@ -11,9 +11,8 @@
 
 ## 1. Add the `forge` package repository
 
-Several desktop components (`calpdf-git`, `polybar-pinned`,
-`session-manager-git`, and `clipboard-picker-git`) come from my signed
-[`forge`](https://github.com/athaurian/forge) repository.
+Several desktop components (`calpdf-git` and `polybar-pinned`) come from my
+signed [`forge`](https://github.com/athaurian/forge) repository.
 
 Import and locally sign the repository key:
 

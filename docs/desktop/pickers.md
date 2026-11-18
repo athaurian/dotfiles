@@ -26,16 +26,18 @@ overrides in [Desktop entries](desktop-entries.md)).
 full-screen sheet behind the menu and removes the sheet when the menu closes
 (`fuzzel` on `thinkpad`, `rofi` on `optiplex`).
 
-## Power menu (`$mod+Shift+e`)
+## Power actions
 
 <figure class="screenshot">
   <img src="../images/picker-poweroff-light.webp#only-light" alt="A power-off confirmation dialog with yes and no options.">
   <img src="../images/picker-poweroff.webp#only-dark" alt="A power-off confirmation dialog with yes and no options.">
 </figure>
 
-Presents lock, logout, reboot, and shutdown actions. Destructive actions
-(logout, reboot, shutdown) open a second `Yes / No` confirmation prompt so an
-accidental keypress cannot drop the session.
+`$mod+Shift+BackSpace`, `$mod+Shift+r`, `$mod+Shift+z`, and `$mod+Shift+e` power
+off, reboot, suspend, and log out. Each action opens a single `Yes / No`
+confirmation menu (`fuzzel` on `thinkpad`, `rofi` on `optiplex`) so an
+accidental keypress cannot drop the session. Locking is separate: `$mod+Shift+x`
+runs `lock.sh` directly.
 
 ## Clipboard history
 

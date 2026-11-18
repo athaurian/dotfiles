@@ -80,29 +80,24 @@ light dark:
 	uv run python3 -u meta/palette.py MODE=$@
 	chezmoi apply --force
 
+define check_python
+	$(RUFF) check $(1)
+	$(RUFF) format --check $(1)
+	$(MYPY) $(2)
+	uv run python3 -u $(3)
+endef
+
 check-mpris:
-	$(RUFF) check $(MPRIS_FILES)
-	$(RUFF) format --check $(MPRIS_FILES)
-	$(MYPY) home/dot_local/bin/executable_mpris
-	uv run python3 -u home/dot_local/bin/tests/test_mpris.py
+	$(call check_python,$(MPRIS_FILES),home/dot_local/bin/executable_mpris,home/dot_local/bin/tests/test_mpris.py)
 
 check-sw:
-	$(RUFF) check $(SW_FILES)
-	$(RUFF) format --check $(SW_FILES)
-	$(MYPY) home/dot_local/bin/executable_sw
-	uv run python3 -u home/dot_local/bin/tests/test_sw.py
+	$(call check_python,$(SW_FILES),home/dot_local/bin/executable_sw,home/dot_local/bin/tests/test_sw.py)
 
 check-calibre:
-	$(RUFF) check $(CALIBRE_FILES)
-	$(RUFF) format --check $(CALIBRE_FILES)
-	$(MYPY) home/dot_local/bin/executable_calibre-drive-sync
-	uv run python3 -u home/dot_local/bin/tests/test_calibre_drive_sync.py
+	$(call check_python,$(CALIBRE_FILES),home/dot_local/bin/executable_calibre-drive-sync,home/dot_local/bin/tests/test_calibre_drive_sync.py)
 
 check-wlsunset:
-	$(RUFF) check $(WLSUNSET_FILES)
-	$(RUFF) format --check $(WLSUNSET_FILES)
-	$(MYPY) home/dot_local/bin/executable_wlsunset-location
-	uv run python3 -u home/dot_local/bin/tests/test_wlsunset_location.py
+	$(call check_python,$(WLSUNSET_FILES),home/dot_local/bin/executable_wlsunset-location,home/dot_local/bin/tests/test_wlsunset_location.py)
 
 check-prettier-math:
 	uv run python3 -u tests/prettier-math/run.py

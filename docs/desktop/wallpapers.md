@@ -1,6 +1,6 @@
 # Wallpapers (`sw`)
 
-`sw` (`home/dot_local/bin/sw`) rotates wallpapers from
+`sw` (`home/dot_local/bin/executable_sw`) rotates wallpapers from
 `~/Pictures/Wallpapers/pool_dark` and `pool_light`, recolors each image to match
 the active palette using `lutgen` and a generated Hald CLUT, and applies the
 result with `awww` on Wayland (`thinkpad`) or `feh` on X11 (`optiplex`).

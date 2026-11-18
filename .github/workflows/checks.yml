@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - "AGENTS.md"
       - "README.md"
       - "docs/**"
       - "meta/*.md"

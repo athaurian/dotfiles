@@ -35,11 +35,6 @@ if command -v pgrep >/dev/null 2>&1 && pgrep -af fuzzel 2>/dev/null | grep -qF "
 	fi
 fi
 
-rm -f "$(runtime_dir)/swaynag_action"
-if command -v pkill >/dev/null 2>&1; then
-	pkill -x swaynag 2>/dev/null || true
-fi
-
 prompt="confirm $action? "
 
 echo "$action" >"$state_file"

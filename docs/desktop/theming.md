@@ -13,8 +13,8 @@ modes.
 3. Signals running applications to reload their colors in place:
    - **Sway / i3, Waybar / Polybar, and `dunst`**: Reload their updated
      configuration files.
-   - **`kitty` and Neovim**: Repaint open terminal windows and editor buffers
-     live over their control sockets.
+   - **`kitty` and Neovim**: `kitty` repaints open windows from `SIGUSR1`;
+     Neovim reloads the rewritten colorscheme through `lua/config/palette.lua`.
    - **GTK apps and Calibre**: Updated via the post-apply hook described in
      [Applications](applications.md#theme-synchronization-hook-run_onchange_after_gtk-mode-hookshtmpl).
    - **Wallpaper**: Recolored to match the new palette via
