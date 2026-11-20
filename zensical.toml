@@ -17,6 +17,8 @@ extra_css = [
 nav = [
   { "Home" = "index.md" },
   { "Installation" = "installation.md" },
+  { "Troubleshooting" = "troubleshooting.md" },
+  { "Glossary" = "glossary.md" },
   { "Machines" = "machines.md" },
   { "Desktop" = [
       { "Keybindings" = "desktop/keybindings.md" },
@@ -35,8 +37,10 @@ nav = [
       { "Battery charge limit" = "system/power.md" },
       { "Calibre sync" = "system/calibre-sync.md" },
       { "Utility scripts" = "system/tools.md" },
+      { "Git" = "system/git.md" },
     ] },
   { "Neovim" = "neovim.md" },
+  { "Development" = "development.md" },
 ]
 
 [project.theme]

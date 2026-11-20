@@ -1,28 +1,35 @@
 # Screenshot capture
 
-The images in `docs/images/` come from a live Sway session. The script
-`meta/shots/redo-all.sh` makes every capture that does not need manual work.
+The images in `docs/images/` come from a live Sway session, and the automatic
+ones are produced by a single script. Because the script stages windows on a
+fixed workspace and switches the palette mode, it must run in an otherwise idle
+session.
+
+**Precondition.** Workspace 3 must be empty because the script stages windows
+there.
 
 Run this command from the repository root:
 
 ```sh
-meta/shots/redo-all.sh
+make shots
 ```
 
-The script takes over workspace 3 and makes the automatic captures and the
-composed images. It keeps the raw captures in `meta/captures/` and leaves the
-`.geom` files in place. At the end it sets dark mode again and returns to
-workspace 1.
+| Phase  | Behavior                                                            |
+| :----- | :------------------------------------------------------------------ |
+| Setup  | Moves to workspace 3                                                |
+| Output | Writes the automatic captures and composed images to `docs/images/` |
+| Kept   | Raw captures in `meta/captures/`; `.geom` files left in place       |
+| Exit   | Restores the original palette mode and workspace                    |
 
-You can run one script for a single figure. Run the script with `--help` to see
-its actions.
-
-The lock and Discord captures are not in the automatic script because they need
-manual work.
+The script takes over workspace 3 for the run, keeps raw captures in
+`meta/captures/`, and leaves the `.geom` files in place. You can run one script
+for a single figure under `meta/shots/`. The automatic entry point is
+`meta/shots/redo-all.sh`. Run that script with `--help` to list its actions.
 
 ## Lock screen
 
-Run one command for each mode:
+A lock-screen capture requires a locked session and a real unlock. It is not
+part of the automatic script. Capture one image per mode:
 
 ```sh
 meta/shots/lock.py dark
@@ -31,14 +38,20 @@ meta/shots/lock.py light
 
 Wait at least 15 seconds after starting a capture before you unlock the screen.
 
+| Parameter            | Value                                              |
+| :------------------- | :------------------------------------------------- |
+| Delay before capture | 8 seconds, for the lock screen and clock to render |
+| Minimum time locked  | 15 seconds after starting a capture                |
+
 ## Discord captures
 
-Save a full screen capture for each mode as these files:
+Discord must be signed in before taking these captures. Save a full-screen
+capture for each mode as these files:
 
 - `meta/captures/discord-dark.png`
 - `meta/captures/discord-light.png`
 
-Then crop both files with this command:
+Then compose both files with:
 
 ```sh
 meta/shots/discord.py compose

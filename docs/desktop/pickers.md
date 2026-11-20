@@ -1,11 +1,14 @@
 # Pickers
 
 Application launching, session power actions, and clipboard history use
-keyboard-controlled popups (`fuzzel` on `thinkpad`, `rofi` on `optiplex`, and
-`kitty` + `fzf` for the clipboard).
+keyboard-controlled popups. The launcher and power menus use the dialog program
+selected for each machine. In contrast, the clipboard picker is a `kitty` window
+driven by `fzf`. The
+[machine comparison](../machines.md#differences-between-thinkpad-and-optiplex)
+lists the full set of per-host choices.
 
-Pressing any picker's keybinding a second time while it is already open closes
-the picker immediately rather than spawning a duplicate window.
+Pressing a picker's keybinding a second time while it is open closes the picker
+instead of spawning a duplicate window.
 
 <figure class="screenshot">
   <img src="../images/picker-dim-light.webp#only-light" alt="The application launcher centered over a dimmed Neovim window.">
@@ -19,25 +22,33 @@ the picker immediately rather than spawning a duplicate window.
   <img src="../images/picker-launcher.webp#only-dark" alt="The application launcher open over the desktop wallpaper.">
 </figure>
 
-Searches installed `.desktop` entries (including the local TUI and toolkit
-overrides in [Desktop entries](desktop-entries.md)).
+The launcher searches installed `.desktop` entries, including the local TUI and
+toolkit overrides documented in [Desktop entries](desktop-entries.md).
 
-`$mod+d` runs through `launcher_dim` on both machines. It places a translucent
-full-screen sheet behind the menu and removes the sheet when the menu closes
-(`fuzzel` on `thinkpad`, `rofi` on `optiplex`).
+| Binding  | Runs                                                | Confirmation |
+| :------- | :-------------------------------------------------- | :----------- |
+| `$mod+d` | `launcher_dim`, then the per-machine dialog program | None         |
+
+The dimming helper places a translucent full-screen sheet behind the menu and
+removes it when the menu closes.
 
 ## Power actions
 
 <figure class="screenshot">
-  <img src="../images/picker-poweroff-light.webp#only-light" alt="A power-off confirmation dialog with yes and no options.">
-  <img src="../images/picker-poweroff.webp#only-dark" alt="A power-off confirmation dialog with yes and no options.">
+  <img src="../images/picker-poweroff-light.webp#only-light" alt="A power-off confirmation dialog in light mode with yes and no options.">
+  <img src="../images/picker-poweroff.webp#only-dark" alt="A power-off confirmation dialog in dark mode with yes and no options.">
 </figure>
 
-`$mod+Shift+BackSpace`, `$mod+Shift+r`, `$mod+Shift+z`, and `$mod+Shift+e` power
-off, reboot, suspend, and log out. Each action opens a single `Yes / No`
-confirmation menu (`fuzzel` on `thinkpad`, `rofi` on `optiplex`) so an
-accidental keypress cannot drop the session. Locking is separate: `$mod+Shift+x`
-runs `lock.sh` directly.
+Destructive session actions require confirmation. Locking is non-destructive and
+is therefore immediate. The menu uses the per-machine dialog program.
+
+| Binding                | Action    | Confirmation  |
+| :--------------------- | :-------- | :------------ |
+| `$mod+Shift+BackSpace` | Power off | Yes / No menu |
+| `$mod+Shift+r`         | Reboot    | Yes / No menu |
+| `$mod+Shift+z`         | Suspend   | Yes / No menu |
+| `$mod+Shift+e`         | Log out   | Yes / No menu |
+| `$mod+Shift+x`         | Lock      | None          |
 
 ## Clipboard history
 
@@ -46,7 +57,19 @@ runs `lock.sh` directly.
   <img src="../images/picker-clipboard.webp#only-dark" alt="The clipboard history picker listing five entries, with the palette card previewed beside them.">
 </figure>
 
-Opens [`clipboard-picker`](https://github.com/athaurian/clipboard-picker) inside
-a centered floating `kitty` window (`app_id="clipboard_term"`), showing
-`cliphist` text entries and inline `kitten icat` image previews. `Enter` copies
-the selected item; `Delete` or `Ctrl-D` removes it from history.
+[`clipboard-picker`](https://github.com/athaurian/clipboard-picker) opens inside
+a centered floating `kitty` window. The picker renders clipboard history with
+inline image previews.
+
+| Property       | Value                            |
+| :------------- | :------------------------------- |
+| Window class   | `clipboard_term`                 |
+| History source | `cliphist`                       |
+| Image previews | Rendered inline by `kitten icat` |
+
+Key bindings act on the selected entry.
+
+| Binding             | Action                   |
+| :------------------ | :----------------------- |
+| `Enter`             | Copies the selected item |
+| `Delete` / `Ctrl-D` | Removes it from history  |

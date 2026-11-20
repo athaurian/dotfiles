@@ -1,33 +1,53 @@
 # Shell
 
-Bash is the login and interactive shell on both machines.
+Bash is the login and interactive shell on both machines. The configuration sets
+readline behavior, environment defaults, and a small number of helpers.
 
 ## Environment and readline behavior
 
-- **Vi editing mode (`set -o vi`)**: Command-line editing uses Vi keybindings
-  rather than Emacs defaults.
-- **Clean project trees (`PYTHONPYCACHEPREFIX=~/.cache/python`)**: Redirects all
-  `.pyc` bytecode caches into `~/.cache/python` so Python projects never
-  accumulate `__pycache__` directories inside the working tree.
-- **Default applications**: Sets `EDITOR=nvim`, `BROWSER=helium-browser`,
-  `FILE_MANAGER=thunar`, `PASSWORD_MANAGER=keepassxc`, and
-  `QT_QPA_PLATFORMTHEME=qt6ct`.
-- **Night-light coordinates (`~/.config/wlsunset.env`)**: Loaded by
-  `~/.bash_profile` when present, and read by `wlsunset.service` and
-  `redshift.service` through `EnvironmentFile=`, so both daemons start without a
-  network geolocation request.
-- **Tool integrations**: Initializes `zoxide` (smart directory jumping), `fnm`
-  (Node version manager), and `fzf` keybindings when installed.
+Each setting changes one aspect of the interactive shell or of child processes.
+
+| Setting                | Value                    | Effect                                                              |
+| :--------------------- | :----------------------- | :------------------------------------------------------------------ |
+| `set -o vi`            | Vi editing mode          | Command-line editing uses Vi keybindings rather than Emacs defaults |
+| `PYTHONPYCACHEPREFIX`  | `~/.cache/python`        | Python bytecode caches are kept outside the working tree            |
+| `EDITOR`               | `nvim`                   | Default editor                                                      |
+| `BROWSER`              | `helium-browser`         | Default browser                                                     |
+| `FILE_MANAGER`         | `thunar`                 | Default file manager                                                |
+| `PASSWORD_MANAGER`     | `keepassxc`              | Default password manager                                            |
+| `QT_QPA_PLATFORMTHEME` | `qt6ct`                  | Qt theme platform                                                   |
+| `zoxide`               | Initialized when present | Directory jumping ranked by frequency and recency                   |
+| `fnm`                  | Initialized when present | Node version management                                             |
+| `fzf`                  | Initialized when present | Fuzzy completion and keybindings                                    |
+
+Coordinates are cached in one file so that no consumer has to issue a
+geolocation request at startup. The writer is documented under
+[`wlsunset-location`](../system/tools.md#wlsunset-location).
+
+| Property   | Value                    |
+| :--------- | :----------------------- |
+| Cache file | `~/.config/wlsunset.env` |
+
+| Consumer                  | Mechanism                                |
+| :------------------------ | :--------------------------------------- |
+| Shell (`~/.bash_profile`) | Loads the file when it exists            |
+| Color-temperature daemons | Read the file through `EnvironmentFile=` |
 
 ## Notable aliases and functions
 
-Standard `ls`, `git`, and navigation shortcuts live in `home/dot_bashrc`. The
-helpers below have non-obvious or destructive behavior worth noting:
+Standard shortcuts are kept in a separate file from the main startup file.
 
-| Command    | Behavior                                                                                                                   |
-| :--------- | :------------------------------------------------------------------------------------------------------------------------- |
-| `cat`      | Aliased to `bat --theme=ansi` so syntax highlighting automatically follows the terminal's current light/dark ANSI palette. |
-| `czp`      | Applies the `chezmoi` configuration and replaces the current shell with a new one.                                         |
-| `hdel`     | **Destructive**: Deletes `~/.bash_history` after confirmation and replaces the current shell with a new one.               |
-| `bak FILE` | Copies `FILE` to `FILE.bak.YYYYmmdd_HHMMSS`.                                                                               |
-| `mkcd DIR` | Creates `DIR` (including parent directories) and `cd`s into it.                                                            |
+| File                         | Role                                           |
+| :--------------------------- | :--------------------------------------------- |
+| `home/dot_bash_aliases.tmpl` | Standard `ls`, `git`, and navigation shortcuts |
+| `home/dot_bashrc`            | Sources the aliases file                       |
+
+The helpers below have non-obvious or destructive behavior.
+
+| Command    | Behavior                                                                                                                             |
+| :--------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `cat`      | Aliased to `bat --theme=ansi` so syntax highlighting follows the terminal's current light/dark ANSI palette                          |
+| `czp`      | Applies the `chezmoi` configuration and replaces the current shell so that the new environment takes effect                          |
+| `hdel`     | **Destructive**: Deletes `~/.bash_history` after confirmation and replaces the current shell so that the old history is not reloaded |
+| `bak FILE` | Copies `FILE` to `FILE.bak.YYYYmmdd_HHMMSS`                                                                                          |
+| `mkcd DIR` | Creates `DIR` (including parent directories) and changes into it                                                                     |

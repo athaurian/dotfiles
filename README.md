@@ -27,9 +27,9 @@ someone else finds it useful.
 
 ## Quick bootstrap
 
-See the [Installation guide](https://athaurian.github.io/dotfiles/installation/)
-for the required [`forge`](https://github.com/athaurian/forge) package
-repository setup before running `chezmoi`:
+Before bootstrapping, complete the repository setup in the
+[Installation guide](https://athaurian.github.io/dotfiles/installation/). Then
+run:
 
 ```bash
 chezmoi init https://github.com/athaurian/dotfiles

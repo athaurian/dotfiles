@@ -32,7 +32,7 @@ META_LUA_FILES := $(sort $(shell find meta -type f -name '*.lua'))
 META_MYPY := uv run --with mypy --with numpy --with pillow --with types-Pillow mypy
 PROBE_FILES := meta/probe.lua meta/probe_pills.lua meta/probe_backdrop.lua
 
-.PHONY: help format lint format-md lint-md palette light dark check-mpris check-sw check-config check-shell check-nvim check-probe check-calibre check-wlsunset check-prettier-math check-launcher check-meta check-fonts shots site social
+.PHONY: help format lint format-md lint-md palette light dark check check-mpris check-sw check-config check-shell check-nvim check-probe check-calibre check-wlsunset check-prettier-math check-launcher check-meta check-fonts shots site social
 
 .DEFAULT_GOAL := help
 
@@ -43,6 +43,7 @@ help:
 	@echo "  palette           - Write both LUTs + the active mode's data, run checks"
 	@echo "  light             - Switch to light: record mode, regenerate, apply"
 	@echo "  dark              - Switch to dark: record mode, regenerate, apply"
+	@echo "  check             - Run every headless check target"
 	@echo "  check-mpris       - Ruff + mypy + tests for the shared MPRIS poller"
 	@echo "  check-sw          - Ruff + mypy + tests for the sw wallpaper utility"
 	@echo "  check-calibre     - Ruff + mypy + tests for the calibre sync scripts"
@@ -86,6 +87,10 @@ define check_python
 	$(MYPY) $(2)
 	uv run python3 -u $(3)
 endef
+
+# check-shell renders the templates, which needs the generated palette data.
+check: palette check-mpris check-sw check-calibre check-wlsunset check-prettier-math check-meta check-shell check-nvim check-launcher check-fonts
+	@echo "check passed"
 
 check-mpris:
 	$(call check_python,$(MPRIS_FILES),home/dot_local/bin/executable_mpris,home/dot_local/bin/tests/test_mpris.py)

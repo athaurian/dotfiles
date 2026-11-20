@@ -1,6 +1,7 @@
 # Status bar
 
-`thinkpad` runs Waybar on Wayland; `optiplex` runs Polybar on X11.
+`thinkpad` runs Waybar on Wayland; `optiplex` runs Polybar on X11. The two bars
+expose the same information through different module implementations.
 
 <figure class="screenshot">
   <img src="../images/bar-light.webp#only-light" alt="The Waybar status bar in light mode.">
@@ -9,28 +10,46 @@
 
 ## Module behavior and workarounds
 
-- **Media playback (`mpris` / `playerctl`)**: Combines `playerctl --follow` with
-  a 1-second fallback poll. Relying on `--follow` alone leaves stale track
-  titles on the bar when a browser tab or media player closes abruptly without
-  emitting a final D-Bus `Stopped` signal.
-- **Package updates (`checkupdates` + `paru -Qum`)**: Queries official Arch
-  repos and the AUR on a slow interval after startup, switching to a shorter
-  retry interval whenever the check runs before network connectivity is up.
-- **Do Not Disturb (`dunst-dnd.sh`)**: Toggles `dunst` between pause level `0`
-  (all notifications shown) and pause level `50` (normal notifications silenced,
-  while critical rules configured at pause level `90` in
-  [Applications](applications.md#notifications-and-do-not-disturb-dunst) still
-  break through).
-- **CJK glyph rendering (Polybar)**: Polybar adds **Noto Sans CJK JP** as
-  `font-4` so Japanese and Chinese media titles and window titles render without
-  missing glyphs. Waybar's font chain contains only `Geist Mono` and
-  `GeistMono Nerd Font Mono`.
+The table records the component, polling interval, and fallback for each bar
+concern.
+
+| Concern         | Component                   | Interval | Fallback or retry                     |
+| :-------------- | :-------------------------- | :------- | :------------------------------------ |
+| Media playback  | `playerctl --follow`        | 1 s      | Poll corrects a missing Stopped event |
+| Package updates | `checkupdates`, `paru -Qum` | 3600 s   | 300 s on failure; 30–60 s offline     |
+| Do Not Disturb  | `dunst-dnd.sh`              | 5 s      | Signal-driven refresh                 |
+| CJK glyphs      | `font-4` (Polybar)          | —        | Explicit Noto Sans CJK JP entry       |
+
+| Pause level | Effect                            |
+| :---------- | :-------------------------------- |
+| `0`         | All notifications are shown       |
+| `50`        | Normal notifications are silenced |
+
+Each row addresses a distinct rendering, timing, or notification concern:
+
+- **Stale media titles**: Browsers and media players can close abruptly without
+  emitting a final D-Bus `Stopped` signal. `--follow` alone then leaves the last
+  track title on the bar. The poll corrects it.
+- **Update checks before networking**: The first check can run before the
+  network is available. The shorter retry interval recovers without waiting for
+  the full interval.
+- **Notification levels**: Rules configured at pause level `90` in
+  [Applications](applications.md#notifications-and-do-not-disturb-dunst) are
+  still displayed.
+
+Font resolution differs between the bars.
+
+| Bar     | Font resolution                                                     | Consequence                 |
+| :------ | :------------------------------------------------------------------ | :-------------------------- |
+| Polybar | Renders only fonts in its own list                                  | CJK needs an explicit entry |
+| Waybar  | Delegates missing glyphs to Fontconfig via the `monospace` fallback | A two-font chain suffices   |
 
 ## Patched Polybar on `optiplex`
 
 `optiplex` installs `polybar-pinned` from the
-[`forge`](https://github.com/athaurian/forge) repository instead of the standard
-`polybar` package. The package applies a layout patch to Polybar's renderer.
+[`forge`](https://github.com/athaurian/forge) repository rather than the
+standard `polybar` package. The pinned package applies a layout patch to
+Polybar's renderer.
 
 Upstream Polybar starts the right module block after the center block. On
 `optiplex`'s `1366×768` display, a long centered window title therefore pushes

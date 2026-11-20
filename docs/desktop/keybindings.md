@@ -1,8 +1,9 @@
 # Keybindings
 
-`$mod` is bound to the `Super` (Windows) key. Almost all bindings are identical
-across Sway (`thinkpad`) and i3 (`optiplex`). The few laptop- or Wayland-only
-shortcuts are marked in the tables.
+`$mod` is bound to the `Super` (Windows) key. This binding set is shared between
+Sway on `thinkpad` and i3 on `optiplex`. Sharing one set keeps muscle memory
+constant across the two display servers. The few profile-specific shortcuts are
+marked in the tables below.
 
 ## Window management and focus
 
@@ -45,21 +46,21 @@ shortcuts are marked in the tables.
 
 ## Screenshots, session, and notifications
 
-| Binding                                                                   | Action                                                        |
-| :------------------------------------------------------------------------ | :------------------------------------------------------------ |
-| `Print` / `Shift+Print` / `Control+Print`                                 | Capture full screen / region / focused window                 |
-| `$mod+Shift+x`                                                            | Lock the screen immediately                                   |
-| `$mod+Shift+i`                                                            | Toggle the idle / sleep inhibitor                             |
-| `$mod+Shift+d`                                                            | Toggle Do Not Disturb                                         |
-| `$mod+n` / `$mod+Shift+n`                                                 | Close the latest / all `dunst` notifications                  |
-| `$mod+Shift+c`                                                            | Reload the window manager (and restart Polybar on `optiplex`) |
-| `$mod+Shift+BackSpace` / `$mod+Shift+r` / `$mod+Shift+z` / `$mod+Shift+e` | Power off / reboot / suspend / log out                        |
+| Binding                                                                   | Action                                                                                           |
+| :------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------- |
+| `Print` / `Shift+Print` / `Control+Print`                                 | Capture full screen / region / focused window                                                    |
+| `$mod+Shift+x`                                                            | Lock the screen immediately                                                                      |
+| `$mod+Shift+i`                                                            | Toggle the idle / sleep inhibitor                                                                |
+| `$mod+Shift+d`                                                            | Toggle Do Not Disturb                                                                            |
+| `$mod+n` / `$mod+Shift+n`                                                 | Close the latest / all `dunst` notifications                                                     |
+| `$mod+Shift+c`                                                            | Reload the window manager (and restart Polybar on `optiplex`)                                    |
+| `$mod+Shift+BackSpace` / `$mod+Shift+r` / `$mod+Shift+z` / `$mod+Shift+e` | Power off / reboot / suspend / log out; see [Pickers](pickers.md#power-actions) for confirmation |
 
 ## Media and hardware keys
 
-| Binding                                | Action                                             |
-| :------------------------------------- | :------------------------------------------------- |
-| `XF86AudioRaiseVolume` / `LowerVolume` | Raise / lower the default sink volume with `pactl` |
-| `XF86AudioMute` / `AudioMicMute`       | Toggle speaker mute / microphone mute              |
-| `XF86AudioPlay` / `Next` / `Prev`      | Control the active MPRIS player with `playerctl`   |
-| `XF86MonBrightnessUp` / `Down`         | Adjust backlight brightness (**`thinkpad` only**)  |
+| Binding                                | Action                                                                   |
+| :------------------------------------- | :----------------------------------------------------------------------- |
+| `XF86AudioRaiseVolume` / `LowerVolume` | Raise / lower the default sink volume with `pactl`                       |
+| `XF86AudioMute` / `AudioMicMute`       | Toggle speaker mute / microphone mute                                    |
+| `XF86AudioPlay` / `Next` / `Prev`      | Control the active [MPRIS](../glossary.md#mpris) player with `playerctl` |
+| `XF86MonBrightnessUp` / `Down`         | Adjust backlight brightness (**`thinkpad` only**)                        |

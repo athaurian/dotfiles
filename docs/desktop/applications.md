@@ -1,53 +1,83 @@
 # Applications
 
 Most application files in `home/dot_config/` are generated or templated from
-`meta/palette.toml`. Rather than listing every setting in those files, this page
-covers the non-obvious hooks, notification rules, and font priorities.
+`meta/palette.toml`. This page therefore omits routine settings and records the
+non-obvious behavior of post-apply hooks, notification routing, and font
+precedence.
 
-## Theme synchronization hook (`run_onchange_after_gtk-mode-hook.sh.tmpl`)
+## Theme synchronization hook
 
-When `chezmoi apply` runs after a dark/light switch, a post-apply hook updates
-applications that store their theme state outside plain dotfiles:
+The hook is `run_onchange_after_gtk-mode-hook.sh.tmpl`. A dark or light switch
+triggers apply, which fires the hook for applications that keep theme state
+outside plain dotfiles. Two of them need special handling.
 
-- **GTK / GSettings**: Updates `color-scheme` (`prefer-dark` vs `prefer-light`)
-  and GTK icon/theme keys for running GTK3/GTK4 apps.
-- **Calibre**: Rewrites Calibre's UI palette config **only when Calibre is not
-  running**, because Calibre overwrites its configuration files on exit and
-  would clobber external edits made while a window is open.
+Applications that read their palette once at startup need an explicit reload,
+and each is reloaded by a different mechanism. The authoritative per-application
+list is the table in
+[Mode switch behavior](../system/palette-system.md#mode-switch-behavior). This
+page documents only the two applications that need special handling.
+
+| Application      | Condition   | Update behavior                    |
+| :--------------- | :---------- | :--------------------------------- |
+| GTK applications | Running     | GSettings keys are set             |
+| Calibre          | Not running | Its UI palette config is rewritten |
+
+[GSettings](../glossary.md#gsettings) stores state outside the dotfiles.
+Rewriting configuration files alone would leave open applications unchanged.
+Calibre rewrites its own configuration on exit. An edit during an open session
+would therefore be lost.
+
+The keys written for GTK applications are:
+
+| GSettings key         | Dark mode             | Light mode             |
+| :-------------------- | :-------------------- | :--------------------- |
+| `color-scheme`        | `prefer-dark`         | `prefer-light`         |
+| `gtk-theme`           | `Orchis-Dark-Compact` | `Orchis-Light-Compact` |
+| `icon-theme`          | `Papirus-Dark`        | `Papirus-Light`        |
+| `font-name`           | Sans font at 10 pt    | Sans font at 10 pt     |
+| `document-font-name`  | Sans font at 10 pt    | Sans font at 10 pt     |
+| `monospace-font-name` | Code font at 10 pt    | Code font at 10 pt     |
+
+The theme and icon names in this table are hand-maintained in
+`home/.chezmoidata.toml`, together with the font families used by the desktop.
 
 ## Notifications and Do Not Disturb (`dunst`)
 
-Toggling Do Not Disturb from the status bar sets `dunst`'s pause level to `50`,
-silencing normal notifications while still allowing critical system alerts
-through.
+Critical system alerts continue to appear when normal notifications are
+silenced. The bar toggles between two pause levels, and a set of sources is
+configured to bypass both.
 
-In `dunstrc`, six notification sources are assigned an override rule with
-`override_pause_level = 90` so they bypass DND:
+| Pause level | Set by               | Effect                                |
+| :---------- | :------------------- | :------------------------------------ |
+| `0`         | Normal state         | Shows every notification              |
+| `50`        | Do Not Disturb on    | Silences normal notifications         |
+| `90`        | Sources listed below | Shown even while Do Not Disturb is on |
 
-- `dunst-dnd` (Do Not Disturb toggles)
-- `caffeine-toggle` (idle-inhibitor toggles)
-- `sw` (wallpaper errors)
-- `idle-warning` (idle timeout warnings)
-- `lock` (screen-lock and session actions)
-- `screenshot` (capture results and failures)
+Six notification sources carry the level-90 override:
+
+| Source            | Purpose                         |
+| :---------------- | :------------------------------ |
+| `dunst-dnd`       | Do Not Disturb toggles          |
+| `caffeine-toggle` | Idle-inhibitor toggles          |
+| `sw`              | Wallpaper errors                |
+| `idle-warning`    | Idle timeout warnings           |
+| `lock`            | Screen-lock and session actions |
+| `screenshot`      | Capture results and failures    |
 
 ## Font priorities (`fonts.conf`)
 
-- **Serif**: Adds **Merriweather** as a weak `serif` preference. The weak
-  binding leaves the system language-specific serif mappings in place for
-  scripts Merriweather does not cover, such as CJK.
-- **Code**: Prefers **GeistMono Nerd Font Mono** for glyphs missing from **Geist
-  Mono**, without replacing the requested family.
-- **GTK applications**: Use **Geist** for UI text and **Geist Mono** for
-  monospace text.
+- **Serif**: Merriweather is a weak `serif` preference. The weak binding leaves
+  language-specific serif mappings intact for scripts that Merriweather does not
+  cover, such as CJK.
+- **Code**: GeistMono Nerd Font Mono supplies glyphs missing from Geist Mono,
+  without replacing the requested family.
+- **GTK applications**: Geist is used for UI text and Geist Mono for monospace
+  text.
 
 ## Other configured tools
 
-- **Document viewer (`zathura`)**: Recolors PDF pages to match the active dark
-  or light palette by default; toggle original document colors at any time with
-  `Ctrl+r`.
-- **Terminal stack (`kitty` + `zellij`)**: Configured with palette includes so
-  `make dark` / `make light` reloads terminal colors live via `kitty` remote
-  control signals.
-- **Vesktop (Discord)**: Pulls a generated QuickCSS theme file mapped from
-  `meta/palette.toml`.
+| Tool                               | Behavior                                                                              |
+| :--------------------------------- | :------------------------------------------------------------------------------------ |
+| Document viewer (`zathura`)        | Recolors PDF pages to match the active palette; `Ctrl+r` restores the original colors |
+| Terminal stack (`kitty`, `zellij`) | A mode switch rewrites the theme files and signals kitty to repaint open windows      |
+| Vesktop (Discord)                  | Pulls a generated QuickCSS theme file mapped from `meta/palette.toml`                 |

@@ -1,38 +1,77 @@
 # Calibre sync
 
-On `thinkpad`, `calibre-drive-sync` exports books from the local Calibre library
-(`~/Library`) into a flat staging folder (`~/.cache/calibre-drive-sync/flat`)
-and syncs that folder one-way to `gdrive:Books` via `rclone`.
+The Calibre library is mirrored to Google Drive through an intermediate copy
+rather than directly. Calibre's nested layout is a poor transfer format. For
+that reason, the sync first flattens the library into a staging directory and
+then makes the remote folder match that directory. The remote folder is
+therefore a derived artifact: it is rewritten from the staging directory on
+every run and has no state of its own. The sync runs on `thinkpad` only.
 
-## Why it uses a flat staging directory
+| Role              | Location                                   |
+| :---------------- | :----------------------------------------- |
+| Local library     | `~/Library`                                |
+| Staging directory | `~/.cache/calibre-drive-sync/flat`         |
+| Remote folder     | `gdrive:Books`                             |
+| Entry point       | `calibre-drive-sync`                       |
+| Transport         | [`rclone`](../glossary.md#rclone), one-way |
+
+## Flat staging directory
 
 Calibre stores books in deep `Author/Title (ID)/Title - Author.ext`
-subdirectories that are awkward to browse on mobile Google Drive clients or
-e-readers. Staging hardlinks (or copies) every book into a single flat directory
-with human-readable filenames sorted by author, series index, and title:
+subdirectories. For easier browsing on mobile Google Drive clients and
+e-readers, each book is hardlinked or copied into one flat directory with a
+human-readable filename assembled from its metadata:
 
 ```text
 Author - Series 01 - Title [short-hash].ext
 ```
 
-The trailing hash disambiguates duplicate titles and lets the script detect
-renamed metadata without re-uploading unchanged book payloads.
+| Filename component | Source                         |
+| :----------------- | :----------------------------- |
+| Author             | Book author                    |
+| Series             | Series name and series index   |
+| Title              | Book title                     |
+| Short hash         | Disambiguates duplicate titles |
 
-## Warnings before running manually
+The hash also lets the script detect renamed metadata without re-uploading
+unchanged book payloads.
 
-- **One-way destructive remote sync**: The final step runs `rclone sync`, which
-  **deletes any file in `gdrive:Books` that is not present in the local staging
-  directory**. Never store files in `gdrive:Books` unless they live in
-  `~/Library`.
-- **`--dry-run` still updates local cache files**: Passing `--dry-run` passes
-  `--dry-run` to `rclone` so no remote Google Drive changes occur, **but it
-  still rebuilds `~/.cache/calibre-drive-sync/flat` and updates
-  `~/.cache/calibre-drive-sync/library.json` locally**.
+## Sync behavior and warnings
+
+The following behavior applies to scheduled runs as well as manual ones.
+
+- **One-way destructive remote sync**: The final step deletes every remote file
+  that is absent from the local staging directory. Never store files in
+  `gdrive:Books` unless they originate in `~/Library`.
+- **`--dry-run` still updates local cache files**: No remote Google Drive
+  changes occur, but the staging directory and
+  `~/.cache/calibre-drive-sync/library.json` are rebuilt.
 
 ## Schedule and manual commands
 
-`calibre-sync.timer` runs automatically in the background on `thinkpad`. To
-trigger or test a sync manually:
+Two triggers start the same service. The timer bounds how stale the remote copy
+can become; the reconnection trigger avoids waiting for the next timer tick
+after the laptop has been offline.
+
+| Trigger      | Unit                          | Condition      |
+| :----------- | :---------------------------- | :------------- |
+| Timer        | `calibre-sync.timer`          | Every 30 min   |
+| Reconnection | `calibre-sync-netmon.service` | Sequence below |
+
+| Parameter                         | Value      |
+| :-------------------------------- | :--------- |
+| Settling delay after reconnection | 10 seconds |
+| Minimum spacing between triggers  | 2 minutes  |
+
+The reconnection trigger proceeds in order:
+
+1. NetworkManager reports a full connection.
+2. The settling delay elapses.
+3. The trigger is skipped if a sync is running or the spacing has not elapsed.
+4. Connectivity is re-checked.
+5. The sync service is started.
+
+To trigger or test a sync manually:
 
 ```bash
 # Full sync to gdrive:Books

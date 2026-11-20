@@ -1,19 +1,48 @@
 # Desktop entries
 
-Local `.desktop` files in `home/dot_local/share/applications/` override system
-entries in `/usr/share/applications/` to fix toolkit theming, tiling window
-manager quirks, and terminal launching from `fuzzel` / `rofi`.
+Because a local entry shadows the system entry of the same name, an override can
+change one launch property without patching the package. The two locations are:
 
-## Why each override exists
+| Entry source    | Location                             |
+| :-------------- | :----------------------------------- |
+| Local overrides | `home/dot_local/share/applications/` |
+| System entries  | `/usr/share/applications/`           |
 
-| Entry                                            | Reason for local override                                                                                                                                                                                |
-| :----------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `btop.desktop`, `nvim.desktop`, `zellij.desktop` | Launches each TUI application inside `kitty`. `btop` also sets `--title=btop`, which the Sway and i3 title rules use to open it as a centered floating window.                                           |
-| `org.keepassxc.KeePassXC.desktop`                | Prepends `env QT_QPA_PLATFORMTHEME=qt6ct` to `Exec=` so KeePassXC always respects the `qt6ct` palette even when launched by D-Bus activation or a desktop portal that did not inherit `~/.bash_profile`. |
-| `logisim-evolution.desktop`                      | Sets `_JAVA_AWT_WM_NONREPARENTING=1` so Java Swing/AWT menus and dialogs render properly inside non-reparenting tiling window managers (Sway and i3) instead of opening as blank gray boxes.             |
+The overrides address three problems:
+
+- toolkit theming,
+- tiling window manager quirks,
+- terminal launching from `fuzzel` or `rofi`.
+
+## Local overrides
+
+Each override changes one launch property of a system entry.
+
+| Entry                                            | Override                                                  | Effect                                      |
+| :----------------------------------------------- | :-------------------------------------------------------- | :------------------------------------------ |
+| `btop.desktop`, `nvim.desktop`, `zellij.desktop` | Launch the TUI inside `kitty`; `btop` sets `--title=btop` | Terminal launching for the TUI applications |
+| `org.keepassxc.KeePassXC.desktop`                | Prepends `env QT_QPA_PLATFORMTHEME=qt6ct` to `Exec=`      | Keeps the Qt palette correct                |
+| `logisim-evolution.desktop`                      | Sets `_JAVA_AWT_WM_NONREPARENTING=1`                      | Makes Java menus render in tiling managers  |
+
+The `btop` title is functional rather than cosmetic. Sway matches the title and
+i3 matches the instance against a window rule that centers the terminal.
+
+KeePassXC can be launched by D-Bus activation or by a desktop portal that did
+not inherit `~/.bash_profile`. The override makes the Qt theme explicit so those
+launch paths still follow the palette.
+
+Java Swing and AWT assume a reparenting window manager. Without the environment
+variable, Logisim's menus and dialogs appear as blank gray boxes under Sway and
+i3.
 
 ## Default applications (`mimeapps.list`)
 
-`home/dot_local/share/applications/mimeapps.list` routes web links to
-`helium-browser`, directories to `thunar`, PDFs and EPUBs to `zathura`, images
-to `imv`, and plain text / source files to `nvim`.
+One default application is assigned per content category in the defaults file:
+
+| Content               | Default application |
+| :-------------------- | :------------------ |
+| Web links             | `helium-browser`    |
+| Directories           | `thunar`            |
+| PDFs and EPUBs        | `zathura`           |
+| Images                | `imv`               |
+| Plain text and source | `nvim`              |

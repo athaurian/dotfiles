@@ -5,10 +5,14 @@ Prettier wrapper that prevents formatting changes inside math formulas.
 
 ## The Prettier bug
 
-Starting in Prettier 3.9.9, the Markdown formatter parses inline math as regular
-text ([issue #20199](https://github.com/prettier/prettier/issues/20199)). When a
-paragraph contains multiple formulas with asterisks or underscores, Prettier
-treats those characters as emphasis markers and rewrites them:
+| Property          | Value                                                                       |
+| :---------------- | :-------------------------------------------------------------------------- |
+| Affected release  | Starting in 3.9.9                                                           |
+| Upstream report   | [issue #20199](https://github.com/prettier/prettier/issues/20199)           |
+
+The Markdown formatter parses inline math as regular text. When a paragraph
+contains multiple formulas with asterisks or underscores, Prettier treats those
+characters as emphasis markers and rewrites them:
 
 | Before                | After                 |
 | --------------------- | --------------------- |
@@ -18,12 +22,15 @@ treats those characters as emphasis markers and rewrites them:
 
 Prettier requires two markers to form an emphasis pair:
 
-- **One formula in a paragraph:** A single `$x^*$` has only one asterisk and
-  remains unchanged.
-- **Two formulas in a paragraph:** Two formulas provide a pair of markers, which
-  triggers the rewrite shown in the table above.
+- **One emphasis marker in a paragraph:** A paragraph containing `$x^*$` has
+  only one asterisk. No pair can be formed, and the formula remains unchanged.
+- **Two or more markers in a paragraph:** Prettier pairs the markers across the
+  paragraph, whether they occur in one formula or in several, and applies the
+  rewrite shown in the table above.
 
-## How the wrapper works
+## Wrapper operation
+
+The wrapper protects formulas in three steps:
 
 1. Replaces each math formula with a placeholder before running Prettier.
 2. Runs Prettier on the document.
@@ -49,12 +56,12 @@ Prettier requires two markers to form an emphasis pair:
 
 ## Intentional exceptions
 
-Three test files contain no valid formulas. Because there are no formula spans
-to compare, the test runner allowlists these files by name and asserts that the
-entire file remains unchanged:
+Three corpus files contain no closed math span. Because there are no formula
+spans to compare, the runner allowlists them by name and asserts that each file
+remains unchanged:
 
-1. **Escaped dollars (`\$`):** Literal text that must stay literal.
-2. **Unclosed inline math (`$`):** Invalid math that must not receive a closing
-   `$`.
-3. **Unclosed display math (`$$`):** Invalid math that must not receive a
-   closing `$$`.
+| File                     | Construct                                             |
+| :----------------------- | :---------------------------------------------------- |
+| `29-escaped-dollar.md`   | Escaped dollars: literal text that must stay literal   |
+| `33-unclosed.md`         | Unclosed inline math: no closing `$` should be added  |
+| `43-display-unclosed.md` | Unclosed display math: no closing `$$` should be added |
